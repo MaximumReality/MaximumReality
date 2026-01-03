@@ -9,13 +9,15 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { width: 100%; height: 100%; font-family: 'Arial', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
 
-    /* Video hero section */
+    /* Hero section */
     .hero {
       position: relative;
       width: 100%;
       height: 100vh;
       overflow: hidden;
+      background: black;
     }
+
     .hero video {
       position: absolute;
       top: 50%;
@@ -23,28 +25,38 @@
       transform: translate(-50%, -50%);
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain; /* Show entire video on all screens */
       z-index: 1;
+      background: black; /* fills letterboxed areas */
     }
 
     /* Logo and tagline overlay */
     .overlay {
       position: absolute;
-      top: 20%;
+      top: 50%; /* center vertically in safe zone */
       left: 50%;
-      transform: translateX(-50%);
+      transform: translate(-50%, -50%);
       text-align: center;
       z-index: 2;
-      color: #ff00ff; /* magenta glow accent */
+      color: #ff00ff;
       text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+      width: 90%;
+      max-width: 800px;
     }
+
     .overlay img {
       width: 300px;
+      max-width: 90%;
       display: block;
       margin: 0 auto 20px auto;
     }
+
     .overlay h1 {
       font-size: 2.5rem;
+    }
+
+    .overlay p {
+      font-size: 1.2rem;
     }
 
     /* Navigation bar */
@@ -54,19 +66,21 @@
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      gap: 30px;
+      gap: 20px;
       z-index: 3;
       font-size: 1.2rem;
     }
+
     nav a {
       color: #ff00ff;
       text-decoration: none;
-      padding: 5px 10px;
+      padding: 5px 12px;
       border: 1px solid #ff00ff;
       border-radius: 5px;
       transition: 0.3s;
       text-shadow: 0 0 5px #ff00ff;
     }
+
     nav a:hover {
       color: #00ffff;
       border-color: #00ffff;
@@ -81,12 +95,14 @@
       color: #fff;
       min-height: 60vh;
     }
+
     section h2 {
       font-size: 2rem;
       color: #ff00ff;
       text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
       margin-bottom: 30px;
     }
+
     section a {
       display: inline-block;
       margin: 10px 20px;
@@ -98,6 +114,7 @@
       text-shadow: 0 0 5px #00ffff;
       transition: 0.3s;
     }
+
     section a:hover {
       color: #ff00ff;
       border-color: #ff00ff;
@@ -111,6 +128,29 @@
       border-top: 1px solid #333;
       color: #888;
       font-size: 0.9rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero {
+        height: 90vh;
+      }
+      .overlay img {
+        width: 180px;
+      }
+      .overlay h1 {
+        font-size: 1.8rem;
+      }
+      .overlay p {
+        font-size: 1rem;
+      }
+      nav {
+        flex-direction: column;
+        gap: 10px;
+      }
+      section {
+        padding: 50px 10px;
+      }
     }
   </style>
 </head>
@@ -127,6 +167,7 @@
       <h1>Step into Maximum Reality</h1>
       <p>Your Hub for Games, Stories, and Impossible Worlds 🌌✨</p>
     </div>
+
     <nav>
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
       <a href="https://www.youtube.com/@MaximumRealityLori">Videos</a>
