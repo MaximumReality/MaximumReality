@@ -26,16 +26,16 @@
       text-shadow: 0 0 5px #ff00ff;
     }
 
-    /* Hero Section - Optimized for Cinematic 16:9 Video on a 9:16 Phone */
+    /* Hero: Cinematic Video Fix */
     .hero {
       position: relative;
       width: 100%;
-      min-height: 40vh; /* Adjusts to video height on mobile */
+      min-height: 40vh; 
       display: flex;
       align-items: center;
       justify-content: center;
       background: #000;
-      margin-top: 50px; /* Space for fixed header */
+      margin-top: 50px; 
       overflow: hidden;
     }
 
@@ -44,7 +44,6 @@
       height: auto;
       display: block;
       z-index: 1;
-      /* Shows the full width so the title and grid floor aren't cut off */
       object-fit: contain; 
     }
 
@@ -66,7 +65,7 @@
     }
     .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
 
-    /* Footer with Small Signature Logo */
+    /* Footer with Original Color Logo Fix */
     footer { 
       padding: 60px 20px 40px 20px; 
       text-align: center; 
@@ -77,17 +76,18 @@
     }
 
     .footer-logo {
-      width: 70px; /* Small branded version */
+      width: 70px;
       height: auto;
       margin-bottom: 15px;
-      opacity: 0.7;
-      filter: drop-shadow(0 0 5px #ff00ff);
+      opacity: 0.9; /* Higher opacity to show original colors */
+      /* Neutral shadow so it doesn't tint the logo pink */
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3)); 
       transition: 0.4s;
     }
 
     .footer-logo:hover {
       opacity: 1;
-      filter: drop-shadow(0 0 12px #00ffff);
+      filter: drop-shadow(0 0 10px #00ffff);
     }
 
     /* Desktop View Adjustments */
@@ -111,7 +111,6 @@
   <div class="hero">
     <video autoplay muted playsinline loop>
       <source src="intro.MP4" type="video/mp4">
-      Your browser does not support HTML5 video.
     </video>
   </div>
 
@@ -119,7 +118,7 @@
     <h2>🎮 The Grid</h2>
     <div class="btn-container">
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Arcade</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch Channel</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch YouTube</a>
       <a href="https://github.com/MaximumReality" class="btn">GitHub Repos</a>
     </div>
   </section>
