@@ -6,35 +6,43 @@
   <title>Maximum Reality</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { width: 100%; height: 100%; font-family: sans-serif; background: #000; color: #fff; }
+    body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; }
 
+    /* Nav */
     header {
       position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9);
-      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 15px; text-align: center;
+      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 15px;
     }
-    header nav a { color: #ff00ff; text-decoration: none; margin: 0 15px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+    nav a { color: #ff00ff; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
 
-    .hero { margin-top: 50px; width: 100%; background: #000; display: flex; justify-content: center; }
-    .hero video { width: 100%; max-height: 80vh; object-fit: contain; }
+    /* Hero */
+    .hero { margin-top: 50px; width: 100%; overflow: hidden; }
+    video { width: 100%; max-height: 70vh; object-fit: contain; }
 
-    section { padding: 40px 10px; text-align: center; }
-    h2 { color: #ff00ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
-
-    /* This box pulls in your Fourthwall feed directly */
-    .feed-container {
-      width: 100%; max-width: 500px; margin: 0 auto;
-      height: 600px; border: 1px solid #333; border-radius: 15px; overflow: hidden;
+    /* Content */
+    section { padding: 40px 20px; }
+    h2 { color: #ff00ff; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; }
+    
+    .transmission-card {
+      background: #0a0a0a; border: 2px solid #00ffff; border-radius: 15px;
+      padding: 30px; max-width: 400px; margin: 0 auto;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
     }
-    iframe { width: 100%; height: 100%; border: none; }
 
     .btn {
-      display: inline-block; margin-top: 20px; padding: 15px 30px;
+      display: block; margin: 15px auto; padding: 18px;
       color: #00ffff; border: 1px solid #00ffff; text-decoration: none;
       border-radius: 8px; font-weight: bold; text-transform: uppercase;
+      background: rgba(0, 255, 255, 0.05);
     }
+    .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+    .btn-main { border-color: #ff00ff; color: #ff00ff; background: rgba(255, 0, 255, 0.05); }
 
-    footer { padding: 40px; text-align: center; border-top: 1px solid #222; }
-    .footer-logo { width: 60px; margin-bottom: 10px; }
+    /* Footer */
+    footer { padding: 60px 20px; border-top: 1px solid #222; margin-top: 40px; }
+    .score-box { color: #00ffff; font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; }
+    .footer-logo { width: 70px; margin-bottom: 15px; }
+    p { color: #555; font-size: 0.8rem; }
   </style>
 </head>
 <body>
@@ -42,7 +50,7 @@
   <header>
     <nav>
       <a href="#transmissions">Latest</a>
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
       <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
   </header>
@@ -52,17 +60,23 @@
   </div>
 
   <section id="transmissions">
-    <h2>📡 Latest Transmissions</h2>
-    <div class="feed-container">
-      <iframe src="https://maximum-reality-shop.fourthwall.com/"></iframe>
+    <h2>📡 Newest Story</h2>
+    <div class="transmission-card">
+      <p style="margin-bottom: 15px; color: #00ffff; font-family: monospace;">[ STATUS: SCOUT 7 REPORT READY ]</p>
+      <a href="https://www.youtube.com/@MaximumRealityLori/shorts" class="btn btn-main">Watch Scout 7 Report</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">View All Transmissions</a>
     </div>
-    <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">YouTube Archive</a>
+  </section>
+
+  <section id="arcade">
+    <h2>🎮 Enter The Grid</h2>
+    <a href="https://maximumreality.github.io/maximum-reality-arcade/" class="btn">Launch Arcade</a>
   </section>
 
   <footer>
-    <p style="color:#00ffff; margin-bottom: 20px;">DAILY BEST: <span id="score">----</span></p>
+    <div class="score-box">ARCADE RECORD: <span id="daily-score">----</span></div>
     <img src="logo.png" class="footer-logo">
-    <p>© 2026 Maximum Reality</p>
+    <p>© 2026 MAXIMUM REALITY • STAY FOCUSED</p>
   </footer>
 
 </body>
