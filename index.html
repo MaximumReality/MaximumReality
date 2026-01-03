@@ -6,107 +6,63 @@
   <title>Maximum Reality</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { 
-      width: 100%; height: 100%; 
-      font-family: 'Segoe UI', Roboto, sans-serif; 
-      background: #000; color: #fff; overflow-x: hidden; 
-    }
+    body, html { width: 100%; height: 100%; font-family: sans-serif; background: #000; color: #fff; }
 
-    /* Fixed Navigation */
     header {
-      position: fixed; top: 0; width: 100%;
-      background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px);
-      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 12px 0;
+      position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9);
+      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 15px; text-align: center;
     }
-    nav { display: flex; justify-content: center; gap: 20px; }
-    nav a {
-      color: #ff00ff; text-decoration: none; font-weight: bold;
-      text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+    header nav a { color: #ff00ff; text-decoration: none; margin: 0 15px; font-weight: bold; text-transform: uppercase; font-size: 0.8rem; }
+
+    .hero { margin-top: 50px; width: 100%; background: #000; display: flex; justify-content: center; }
+    .hero video { width: 100%; max-height: 80vh; object-fit: contain; }
+
+    section { padding: 40px 10px; text-align: center; }
+    h2 { color: #ff00ff; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+
+    /* This box pulls in your Fourthwall feed directly */
+    .feed-container {
+      width: 100%; max-width: 500px; margin: 0 auto;
+      height: 600px; border: 1px solid #333; border-radius: 15px; overflow: hidden;
     }
+    iframe { width: 100%; height: 100%; border: none; }
 
-    /* Hero Video */
-    .hero {
-      position: relative; width: 100%; min-height: 40vh; 
-      display: flex; align-items: center; justify-content: center;
-      background: #000; margin-top: 50px; overflow: hidden;
-    }
-    .hero video { width: 100%; height: auto; object-fit: contain; z-index: 1; }
-
-    /* Content Sections */
-    section { padding: 40px 20px; text-align: center; background: #000; }
-    h2 { 
-      font-size: 1.5rem; color: #ff00ff; margin-bottom: 25px; 
-      text-transform: uppercase; letter-spacing: 2px;
-      text-shadow: 0 0 10px #ff00ff;
-    }
-
-    /* The Feed Container */
-    #curator-feed-default-feed-layout { width: 100%; max-width: 1200px; margin: 0 auto; }
-
-    /* Buttons */
-    .btn-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
     .btn {
-      width: 100%; max-width: 280px; padding: 15px;
-      color: #00ffff; text-decoration: none; border: 1px solid #00ffff;
+      display: inline-block; margin-top: 20px; padding: 15px 30px;
+      color: #00ffff; border: 1px solid #00ffff; text-decoration: none;
       border-radius: 8px; font-weight: bold; text-transform: uppercase;
-      transition: 0.3s; background: rgba(0, 255, 255, 0.05);
     }
-    .btn:active { background: #ff00ff; color: #fff; }
 
-    /* Footer */
-    footer { padding: 60px 20px; text-align: center; border-top: 1px solid #111; }
-    .footer-logo { width: 80px; height: auto; margin-bottom: 20px; opacity: 0.9; }
-    .score-box { margin-bottom: 20px; color: #00ffff; font-weight: bold; }
-
-    @media (min-width: 768px) {
-      .hero { height: 100vh; margin-top: 0; }
-      .btn-container { flex-direction: row; justify-content: center; }
-    }
+    footer { padding: 40px; text-align: center; border-top: 1px solid #222; }
+    .footer-logo { width: 60px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
   <header>
     <nav>
-      <a href="#transmissions">Transmissions</a>
+      <a href="#transmissions">Latest</a>
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
       <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
   </header>
 
   <div class="hero">
-    <video autoplay muted playsinline loop>
-      <source src="intro.MP4" type="video/mp4">
-    </video>
+    <video autoplay muted playsinline loop><source src="intro.MP4" type="video/mp4"></video>
   </div>
 
   <section id="transmissions">
     <h2>📡 Latest Transmissions</h2>
-    
-    <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
-    <script type="text/javascript">
-    (function(){
-    var i,s,o,g,r,a,m;i=window;s=document;o='script';g='https://cdn.curator.io/published/ad34563a-2374-4b55-a044-6a6829746e5a.js';
-    i['CuratorFeedWidgetId']=r='ad34563a-2374-4b55-a044-6a6829746e5a';
-    a=s.createElement(o);m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
-    })();
-    </script>
-    <div class="btn-container" style="margin-top: 30px;">
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full Archive</a>
+    <div class="feed-container">
+      <iframe src="https://maximum-reality-shop.fourthwall.com/"></iframe>
     </div>
-  </section>
-
-  <section id="arcade">
-    <h2>🎮 The Arcade</h2>
-    <div class="btn-container">
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Now</a>
-    </div>
+    <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">YouTube Archive</a>
   </section>
 
   <footer>
-    <div class="score-box">DAILY BEST: <span id="daily-score">----</span></div>
-    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
-    <p>© 2026 Maximum Reality • Stay Focused</p>
+    <p style="color:#00ffff; margin-bottom: 20px;">DAILY BEST: <span id="score">----</span></p>
+    <img src="logo.png" class="footer-logo">
+    <p>© 2026 Maximum Reality</p>
   </footer>
 
 </body>
