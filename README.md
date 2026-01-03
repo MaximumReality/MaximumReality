@@ -1,8 +1,8 @@
-# ![Maximum Reality Logo](logo.png)
+<img src="logo.png" alt="Maximum Reality Logo" width="300">
 
 ## Step into Maximum Reality – Your Hub for Games, Stories, and Impossible Worlds 🌌✨
 
-[![Watch the Intro](intro_thumbnail.png)](intro.MP4)
+[![Watch the Intro](intro_thumbnail.png)](https://MaximumReality.github.io/MaximumReality/index.html)
 
 ---
 
@@ -16,3 +16,9 @@
 
 ### ⚡ Fun Fact
 Maximum Reality is a neon-grid, hyperreal, sci-fi-inspired universe where games, stories, and worlds collide. All your adventures start here. 🕹️🌄
+
+---
+
+### 🌟 Quick Links
+- GitHub: [Maximum Reality Repos](https://github.com/MaximumReality)
+- Twitter / Socials: [[Add your links here]](https://www.tiktok.com/@zer0chick)
