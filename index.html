@@ -5,17 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maximum Reality</title>
   <style>
+    /* Reset & Core Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { 
       width: 100%; height: 100%; 
-      font-family: 'Segoe UI', sans-serif; 
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
       background: #000; color: #fff; overflow-x: hidden; 
     }
 
     /* Fixed Navigation */
     header {
       position: fixed; top: 0; width: 100%;
-      background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
       border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 12px 0;
     }
     nav { display: flex; justify-content: center; gap: 20px; }
@@ -25,17 +26,16 @@
       text-shadow: 0 0 5px #ff00ff;
     }
 
-    /* Hero Section - Optimized for Cinematic Video */
+    /* Hero Section - Optimized for Cinematic 16:9 Video on a 9:16 Phone */
     .hero {
       position: relative;
       width: 100%;
-      /* On mobile, we let the height adjust to the video's shape */
-      min-height: 50vh; 
+      min-height: 40vh; /* Adjusts to video height on mobile */
       display: flex;
       align-items: center;
       justify-content: center;
       background: #000;
-      margin-top: 50px; /* Offset for header */
+      margin-top: 50px; /* Space for fixed header */
       overflow: hidden;
     }
 
@@ -44,11 +44,11 @@
       height: auto;
       display: block;
       z-index: 1;
-      /* 'contain' ensures the whole video is visible on your phone screen */
+      /* Shows the full width so the title and grid floor aren't cut off */
       object-fit: contain; 
     }
 
-    /* Sections */
+    /* Content Sections */
     section { padding: 60px 20px; text-align: center; background: #000; }
     section h2 { 
       font-size: 1.8rem; color: #ff00ff; margin-bottom: 30px; 
@@ -61,12 +61,36 @@
       color: #00ffff; text-decoration: none; border: 1px solid #00ffff;
       border-radius: 8px; font-weight: bold; background: rgba(0, 255, 255, 0.05);
       transition: 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    .btn:active { background: #ff00ff; color: #fff; }
+    .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
 
-    footer { padding: 30px; text-align: center; color: #444; font-size: 0.8rem; }
+    /* Footer with Small Signature Logo */
+    footer { 
+      padding: 60px 20px 40px 20px; 
+      text-align: center; 
+      background: #000; 
+      color: #444; 
+      font-size: 0.75rem;
+      border-top: 1px solid #111;
+    }
 
-    /* Desktop Adjustments */
+    .footer-logo {
+      width: 70px; /* Small branded version */
+      height: auto;
+      margin-bottom: 15px;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 5px #ff00ff);
+      transition: 0.4s;
+    }
+
+    .footer-logo:hover {
+      opacity: 1;
+      filter: drop-shadow(0 0 12px #00ffff);
+    }
+
+    /* Desktop View Adjustments */
     @media (min-width: 768px) {
       .hero { height: 100vh; margin-top: 0; }
       nav a { font-size: 1rem; }
@@ -95,7 +119,7 @@
     <h2>🎮 The Grid</h2>
     <div class="btn-container">
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Arcade</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch YouTube</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch Channel</a>
       <a href="https://github.com/MaximumReality" class="btn">GitHub Repos</a>
     </div>
   </section>
@@ -103,13 +127,15 @@
   <section id="socials">
     <h2>📱 Connect</h2>
     <div class="btn-container">
-      <a href="https://www.instagram.com/maximumrealitylori" class="btn">Instagram</a>
-      <a href="https://www.tiktok.com/@zer0chick" class="btn">TikTok</a>
+      <a href="https://www.instagram.com/maximumrealitylori?igsh=OTY0c3pnOHp2dm9k&utm_source=qr" class="btn">Instagram</a>
+      <a href="https://www.tiktok.com/@zer0chick?_r=1&_t=ZT-92lL9pd9gWT" class="btn">TikTok</a>
     </div>
   </section>
 
   <footer>
+    <img src="logo.png" alt="Maximum Reality Logo" class="footer-logo">
     <p>© 2026 Maximum Reality • Built for the Impossible</p>
+    <p style="margin-top: 8px; color: #222; letter-spacing: 2px;">STAY FOCUSED</p>
   </footer>
 
 </body>
