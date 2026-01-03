@@ -6,43 +6,41 @@
   <title>Maximum Reality</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; text-align: center; }
+    body { background: #000; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
 
-    /* Nav */
+    /* Navigation */
     header {
-      position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.9);
-      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 15px;
+      position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.95);
+      border-bottom: 1px solid #ff00ff; z-index: 1000; padding: 15px; text-align: center;
+      backdrop-filter: blur(5px);
     }
-    nav a { color: #ff00ff; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+    nav a { color: #ff00ff; text-decoration: none; margin: 0 15px; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
 
-    /* Hero */
-    .hero { margin-top: 50px; width: 100%; overflow: hidden; }
-    video { width: 100%; max-height: 70vh; object-fit: contain; }
+    /* Hero Video */
+    .hero { margin-top: 50px; width: 100%; display: flex; justify-content: center; background: #000; }
+    video { width: 100%; max-height: 75vh; object-fit: contain; }
 
-    /* Content */
-    section { padding: 40px 20px; }
-    h2 { color: #ff00ff; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase; }
-    
-    .transmission-card {
-      background: #0a0a0a; border: 2px solid #00ffff; border-radius: 15px;
-      padding: 30px; max-width: 400px; margin: 0 auto;
-      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-    }
+    /* Sections */
+    section { padding: 50px 20px; text-align: center; }
+    h2 { color: #ff00ff; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px rgba(255, 0, 255, 0.5); }
 
+    /* Curator Feed Styling */
+    #curator-feed-default-feed-layout { width: 100%; max-width: 1200px; margin: 0 auto; min-height: 400px; }
+
+    /* Buttons */
     .btn {
-      display: block; margin: 15px auto; padding: 18px;
+      display: inline-block; margin-top: 30px; padding: 15px 40px;
       color: #00ffff; border: 1px solid #00ffff; text-decoration: none;
       border-radius: 8px; font-weight: bold; text-transform: uppercase;
-      background: rgba(0, 255, 255, 0.05);
+      background: rgba(0, 255, 255, 0.05); transition: 0.3s;
     }
     .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
-    .btn-main { border-color: #ff00ff; color: #ff00ff; background: rgba(255, 0, 255, 0.05); }
 
     /* Footer */
     footer { padding: 60px 20px; border-top: 1px solid #222; margin-top: 40px; }
-    .score-box { color: #00ffff; font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; }
-    .footer-logo { width: 70px; margin-bottom: 15px; }
-    p { color: #555; font-size: 0.8rem; }
+    .score-box { color: #00ffff; font-weight: bold; font-size: 1.2rem; margin-bottom: 25px; letter-spacing: 1px; }
+    .footer-logo { width: 80px; height: auto; margin-bottom: 20px; }
+    .legal { color: #444; font-size: 0.7rem; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -56,28 +54,37 @@
   </header>
 
   <div class="hero">
-    <video autoplay muted playsinline loop><source src="intro.MP4" type="video/mp4"></video>
+    <video autoplay muted playsinline loop>
+      <source src="intro.MP4" type="video/mp4">
+    </video>
   </div>
 
   <section id="transmissions">
-    <h2>📡 Newest Story</h2>
-    <div class="transmission-card">
-      <p style="margin-bottom: 15px; color: #00ffff; font-family: monospace;">[ STATUS: SCOUT 7 REPORT READY ]</p>
-      <a href="https://www.youtube.com/@MaximumRealityLori/shorts" class="btn btn-main">Watch Scout 7 Report</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">View All Transmissions</a>
+    <h2>📡 Latest Transmissions</h2>
+    
+    <div id="curator-feed-default-feed-layout">
+      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
     </div>
   </section>
 
   <section id="arcade">
-    <h2>🎮 Enter The Grid</h2>
-    <a href="https://maximumreality.github.io/maximum-reality-arcade/" class="btn">Launch Arcade</a>
+    <h2>🎮 The Grid</h2>
+    <a href="https://maximumreality.github.io/maximum-reality-arcade/" class="btn">Enter Arcade</a>
   </section>
 
   <footer>
     <div class="score-box">ARCADE RECORD: <span id="daily-score">----</span></div>
-    <img src="logo.png" class="footer-logo">
-    <p>© 2026 MAXIMUM REALITY • STAY FOCUSED</p>
+    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
+    <p class="legal">© 2026 Maximum Reality • Stay Focused</p>
   </footer>
+
+  <script type="text/javascript">
+    (function(){
+      var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+      i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
+      e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+    })();
+  </script>
 
 </body>
 </html>
