@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maximum Reality</title>
   <style>
-    /* Reset & Core Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { 
       width: 100%; height: 100%; 
@@ -25,7 +24,7 @@
       text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
     }
 
-    /* Hero: Cinematic Video (Full Width) */
+    /* Hero: Cinematic Video */
     .hero {
       position: relative; width: 100%; min-height: 40vh; 
       display: flex; align-items: center; justify-content: center;
@@ -41,40 +40,34 @@
       text-shadow: 0 0 10px #ff00ff;
     }
 
-    /* Auto-Updating Shorts Feed (Vertical) */
-    .shorts-container {
-      width: 100%;
-      max-width: 340px; /* Standard vertical phone width */
-      aspect-ratio: 9 / 16;
-      margin: 0 auto;
-      border: 1px solid #333;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(255, 0, 255, 0.15);
-      background: #050505;
+    /* Transmission Portal */
+    .transmission-box {
+      width: 100%; max-width: 400px; margin: 0 auto;
+      padding: 40px 20px; border: 1px dashed #00ffff;
+      border-radius: 20px; background: rgba(0, 255, 255, 0.02);
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
     }
 
-    /* Interaction Grid */
+    /* Buttons */
     .btn-container { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
     .btn {
-      width: 100%; max-width: 280px; padding: 15px;
+      width: 100%; max-width: 280px; padding: 18px;
       color: #00ffff; text-decoration: none; border: 1px solid #00ffff;
       border-radius: 8px; font-weight: bold; text-transform: uppercase;
       transition: 0.3s; background: rgba(0, 255, 255, 0.05);
-      letter-spacing: 1px;
+      letter-spacing: 2px; font-size: 0.9rem;
     }
     .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+    .btn.highlight { border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 15px rgba(255, 0, 255, 0.3); }
 
-    /* Footer & Branding */
+    /* Footer */
     footer { padding: 60px 20px; text-align: center; border-top: 1px solid #111; }
-    .score-box { margin-bottom: 25px; color: #00ffff; font-weight: bold; font-size: 1rem; }
+    .score-box { margin-bottom: 25px; color: #00ffff; font-weight: bold; letter-spacing: 1px; }
     .footer-logo { 
       width: 80px; height: auto; margin-bottom: 20px; 
-      opacity: 0.9; 
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+      opacity: 0.9;
     }
 
-    /* Desktop View Adjustments */
     @media (min-width: 768px) {
       .hero { height: 100vh; margin-top: 0; }
       .btn-container { flex-direction: row; justify-content: center; }
@@ -85,7 +78,7 @@
 
   <header>
     <nav>
-      <a href="#transmissions">Transmissions</a>
+      <a href="#transmissions">Latest</a>
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
       <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
@@ -99,18 +92,11 @@
 
   <section id="transmissions">
     <h2>📡 Latest Transmissions</h2>
-    <div class="shorts-container">
-      <iframe 
-        width="100%" 
-        height="100%" 
-        src="https://www.youtube.com/embed?listType=user_uploads&list=UU2Ycbs0_7bYqvwOoEQC-UnA" 
-        frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen>
-      </iframe>
-    </div>
-    <div class="btn-container">
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full YouTube Feed</a>
+    <div class="transmission-box">
+      <p style="color: #666; margin-bottom: 20px; font-size: 0.85rem;">FIELD REPORT: SCOUT 7 ACTIVE</p>
+      <div class="btn-container" style="margin-top: 0;">
+        <a href="https://www.youtube.com/@MaximumRealityLori/shorts" class="btn highlight">Watch Latest Shorts</a>
+      </div>
     </div>
   </section>
 
@@ -118,6 +104,13 @@
     <h2>🎮 The Arcade</h2>
     <div class="btn-container">
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Enter The Grid</a>
+    </div>
+  </section>
+
+  <section id="shop">
+    <h2>🛍️ Gear</h2>
+    <div class="btn-container">
+      <a href="https://maximum-reality-shop.fourthwall.com/" class="btn">Fourthwall Shop</a>
     </div>
   </section>
 
