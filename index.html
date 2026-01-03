@@ -1,9 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maximum Reality</title>
+  
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <meta property="og:title" content="Maximum Reality">
+  <meta property="og:description" content="Enter The Grid. Access the Arcade, latest transmissions, and official gear.">
+  <meta property="og:image" content="logo.png">
+  <meta property="og:url" content="https://maximumreality.github.io/MaximumReality/">
+  <meta name="twitter:card" content="summary_large_image">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
@@ -35,56 +43,13 @@
       background: rgba(0, 255, 255, 0.05); transition: 0.3s;
     }
     .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+    
+    /* Added a hover state for the button to make it feel more "Pro" */
+    .btn:hover { background: rgba(0, 255, 255, 0.2); box-shadow: 0 0 15px #00ffff; }
 
     /* Footer */
-    footer { padding: 60px 20px; border-top: 1px solid #222; margin-top: 40px; }
+    footer { padding: 60px 20px; border-top: 1px solid #222; margin-top: 40px; text-align: center; }
     .footer-logo { width: 80px; height: auto; margin-bottom: 20px; opacity: 0.9; }
     .legal { color: #444; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; }
   </style>
 </head>
-<body>
-
-  <header>
-    <nav>
-      <a href="#transmissions">Transmissions</a>
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
-      <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
-    </nav>
-  </header>
-
-  <div class="hero">
-    <video autoplay muted playsinline loop>
-      <source src="intro.MP4" type="video/mp4">
-    </video>
-  </div>
-
-  <section id="transmissions">
-    <h2>📡 Latest Transmissions</h2>
-
-    <!-- Curator Feed Placeholder -->
-    <div id="curator-feed-default-feed-layout">
-      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
-    </div>
-  </section>
-
-  <section id="arcade">
-    <h2>🎮 The Grid</h2>
-    <a href="https://maximumreality.github.io/maximum-reality-arcade/" class="btn">Enter Arcade</a>
-  </section>
-
-  <footer>
-    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
-    <p class="legal">© 2026 Maximum Reality • Stay Focused</p>
-  </footer>
-
-  <!-- Curator Feed Script -->
-  <script type="text/javascript">
-    (function(){
-      var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
-      i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
-      e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
-    })();
-  </script>
-
-</body>
-</html>
