@@ -40,21 +40,20 @@
       text-shadow: 0 0 10px #ff00ff;
     }
 
-    /* Video/Transmission Grid */
+    /* Video Feed Grid */
     .transmission-grid {
-      display: grid; grid-template-columns: 1fr; gap: 25px;
+      display: grid; grid-template-columns: 1fr; gap: 20px;
       max-width: 1100px; margin: 0 auto; padding-bottom: 30px;
     }
     .video-card {
       background: #050505; border: 1px solid #222; border-radius: 12px;
-      padding: 15px; transition: 0.3s;
+      padding: 10px; transition: 0.3s;
     }
     .video-card:hover { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.1); }
     
-    /* Placeholders for your 3 YouTube Embeds */
     .video-frame {
       width: 100%; aspect-ratio: 16 / 9;
-      background: #111; border-radius: 8px; margin-bottom: 12px;
+      background: #111; border-radius: 8px; overflow: hidden;
     }
 
     /* Buttons */
@@ -66,12 +65,11 @@
       transition: 0.3s; background: rgba(0, 255, 255, 0.05);
     }
     .btn:active { background: #ff00ff; color: #fff; }
-    .btn.shop { border-color: #ff00ff; color: #ff00ff; background: rgba(255, 0, 255, 0.05); }
 
     /* Footer */
     footer { padding: 60px 20px; text-align: center; border-top: 1px solid #111; }
     .footer-logo { width: 80px; height: auto; margin-bottom: 20px; opacity: 0.9; }
-    .score-box { margin-bottom: 20px; color: #00ffff; font-weight: bold; }
+    .score-box { margin-bottom: 20px; color: #00ffff; font-weight: bold; letter-spacing: 1px; }
 
     @media (min-width: 768px) {
       .hero { height: 100vh; margin-top: 0; }
@@ -101,14 +99,22 @@
     <div class="transmission-grid">
       <div class="video-card">
         <div class="video-frame">
-          <iframe width="100%" height="100%" src="https://www.youtube.com/embed?listType=user_uploads&list=MaximumRealityLori" frameborder="0" allowfullscreen></iframe>
+          <iframe width="100%" height="100%" src="https://www.youtube.com/embed/pFZqJvvtZLs" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
-        <p>Scout 7 & More</p>
       </div>
+      <div class="video-card">
+        <div class="video-frame">
+          <iframe width="100%" height="100%" src="https://www.youtube.com/embed/SGBCnEIS8kk" frameborder="0" allowfullscreen></iframe>
+        </div>
       </div>
+      <div class="video-card">
+        <div class="video-frame">
+          <iframe width="100%" height="100%" src="https://www.youtube.com/embed/RnDBYccDjiM" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
     <div class="btn-container">
-      <a href="https://maximum-reality-shop.fourthwall.com/" class="btn shop">Visit the Shop</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full Archive</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full YouTube Archive</a>
     </div>
   </section>
 
