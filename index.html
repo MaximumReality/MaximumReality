@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maximum Reality</title>
   <style>
-    /* Reset & core styles */
+    /* Reset & Core Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { 
       width: 100%; 
@@ -21,17 +21,17 @@
       position: fixed;
       top: 0;
       width: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid #ff00ff;
       z-index: 1000;
-      padding: 15px 0;
+      padding: 12px 0;
     }
 
     nav {
       display: flex;
       justify-content: center;
-      gap: 30px;
+      gap: 20px;
     }
 
     nav a {
@@ -39,8 +39,8 @@
       text-decoration: none;
       font-weight: bold;
       text-transform: uppercase;
+      font-size: 0.85rem;
       letter-spacing: 1px;
-      font-size: 0.9rem;
       transition: 0.3s;
       text-shadow: 0 0 5px #ff00ff;
     }
@@ -50,16 +50,16 @@
       text-shadow: 0 0 15px #00ffff;
     }
 
-    /* Hero section */
+    /* Hero section - The Mobile Fix is here */
     .hero {
       position: relative;
       width: 100%;
-      height: 100vh;
+      height: 100vh; /* Full height on mobile */
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      background: black;
+      background: #000;
     }
 
     .hero video {
@@ -67,95 +67,99 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      min-width: 100%; 
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      object-fit: cover;
+      width: 100%;
+      height: 100%;
+      /* This ensures the video fills the 9:16 phone screen without bars */
+      object-fit: cover; 
       z-index: 1;
-      opacity: 0.6; /* Darkens video to make text readable */
+      opacity: 0.6; 
     }
 
-    /* Centered Content Overlay */
+    /* Overlay Content */
     .overlay {
       position: relative;
       z-index: 2;
       text-align: center;
       width: 90%;
-      max-width: 800px;
-      padding-top: 60px; /* Offset for the fixed header */
+      padding-top: 50px;
     }
 
     .overlay img {
-      width: 180px; /* Smaller, controlled logo size */
+      width: 160px; /* Reduced size to look better on phone */
       height: auto;
-      margin-bottom: 20px;
-      filter: drop-shadow(0 0 10px #ff00ff);
+      margin-bottom: 15px;
+      filter: drop-shadow(0 0 8px #ff00ff);
     }
 
     .overlay h1 {
-      font-size: 3rem;
+      font-size: 2.2rem;
       color: #fff;
       text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
       margin-bottom: 10px;
+      line-height: 1.1;
     }
 
     .overlay p {
-      font-size: 1.2rem;
+      font-size: 1rem;
       color: #00ffff;
       text-shadow: 0 0 5px #000;
+      font-style: italic;
     }
 
-    /* Content Sections */
+    /* Sections */
     section {
-      padding: 100px 20px;
+      padding: 80px 20px;
       text-align: center;
       background: #050505;
     }
 
     section h2 {
-      font-size: 2.5rem;
+      font-size: 1.8rem;
       color: #ff00ff;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
       text-shadow: 0 0 10px #ff00ff;
     }
 
     .btn-container {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
+      flex-direction: column; /* Stacked for easier tapping on mobile */
+      align-items: center;
+      gap: 15px;
     }
 
     .btn {
-      padding: 12px 25px;
+      width: 100%;
+      max-width: 280px;
+      padding: 14px;
       color: #00ffff;
       text-decoration: none;
       border: 1px solid #00ffff;
-      border-radius: 5px;
+      border-radius: 8px;
       transition: 0.3s;
-      background: transparent;
+      background: rgba(0, 255, 255, 0.05);
+      font-weight: bold;
     }
 
-    .btn:hover {
-      background: rgba(0, 255, 255, 0.1);
-      box-shadow: 0 0 20px #00ffff;
-      transform: translateY(-3px);
+    .btn:active { /* Better feedback for mobile touch */
+      background: rgba(255, 0, 255, 0.2);
+      border-color: #ff00ff;
     }
 
     footer {
-      padding: 40px;
+      padding: 30px;
       text-align: center;
       background: #000;
-      color: #555;
-      border-top: 1px solid #222;
+      color: #444;
+      font-size: 0.8rem;
+      border-top: 1px solid #111;
     }
 
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-      .overlay h1 { font-size: 2rem; }
-      nav { gap: 15px; }
-      nav a { font-size: 0.75rem; }
+    /* Desktop Adjustments */
+    @media (min-width: 768px) {
+      .overlay h1 { font-size: 3.5rem; }
+      .btn-container { flex-direction: row; justify-content: center; }
+      .overlay img { width: 220px; }
+      nav a { font-size: 1rem; }
     }
   </style>
 </head>
@@ -166,7 +170,6 @@
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
       <a href="https://www.youtube.com/@MaximumRealityLori">Videos</a>
       <a href="#socials">Socials</a>
-      <a href="https://github.com/MaximumReality">GitHub</a>
     </nav>
   </header>
 
@@ -183,16 +186,16 @@
   </div>
 
   <section id="arcade">
-    <h2>Explore the Grid</h2>
+    <h2>🎮 The Grid</h2>
     <div class="btn-container">
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Enter Arcade</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch Channel</a>
-      <a href="#socials" class="btn">Join Community</a>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Arcade</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch YouTube</a>
+      <a href="https://github.com/MaximumReality" class="btn">GitHub Repos</a>
     </div>
   </section>
 
   <section id="socials" style="background: #000;">
-    <h2>Connect in the Neon</h2>
+    <h2>📱 Connect</h2>
     <div class="btn-container">
       <a href="https://www.instagram.com/maximumrealitylori?igsh=OTY0c3pnOHp2dm9k&utm_source=qr" class="btn">Instagram</a>
       <a href="https://www.tiktok.com/@zer0chick?_r=1&_t=ZT-92lL9pd9gWT" class="btn">TikTok</a>
@@ -200,7 +203,7 @@
   </section>
 
   <footer>
-    <p>© 2026 Maximum Reality • Built for the Impossible</p>
+    <p>© 2026 Maximum Reality • Stay Focused</p>
   </footer>
 
 </body>
