@@ -21,5 +21,6 @@ Maximum Reality is a neon-grid, hyperreal, sci-fi-inspired universe where games,
 
 ### 🌟 Quick Links
 - GitHub: [Maximum Reality Repos](https://github.com/MaximumReality)
+- 
 🌈 [Instagram](https://www.instagram.com/maximumrealitylori?igsh=OTY0c3pnOHp2dm9k&utm_source=qr)  
 🎵 [TikTok](https://www.tiktok.com/@zer0chick?_r=1&_t=ZT-92lL9pd9gWT)
