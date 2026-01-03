@@ -8,7 +8,7 @@
 
 ### 🎮 Explore
 - [Play the Arcade](https://maximumreality.github.io/maximum-reality-arcade/#)
-- [Watch Videos](https://www.youtube.com/@MaximumReality)
+- [Watch Videos](https://www.youtube.com/@MaximumRealityLori)
 - [Learn About the Lore](#)
 - [Contact / Socials](#)
 
