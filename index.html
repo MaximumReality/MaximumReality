@@ -8,7 +8,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { 
       width: 100%; height: 100%; 
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      font-family: 'Segoe UI', Roboto, sans-serif; 
       background: #000; color: #fff; overflow-x: hidden; 
     }
 
@@ -24,7 +24,7 @@
       text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
     }
 
-    /* Hero: Cinematic Video */
+    /* Hero Video */
     .hero {
       position: relative; width: 100%; min-height: 40vh; 
       display: flex; align-items: center; justify-content: center;
@@ -32,41 +32,31 @@
     }
     .hero video { width: 100%; height: auto; object-fit: contain; z-index: 1; }
 
-    /* Sections */
-    section { padding: 50px 20px; text-align: center; background: #000; }
+    /* Content Sections */
+    section { padding: 40px 20px; text-align: center; background: #000; }
     h2 { 
       font-size: 1.5rem; color: #ff00ff; margin-bottom: 25px; 
       text-transform: uppercase; letter-spacing: 2px;
       text-shadow: 0 0 10px #ff00ff;
     }
 
-    /* Transmission Portal */
-    .transmission-box {
-      width: 100%; max-width: 400px; margin: 0 auto;
-      padding: 40px 20px; border: 1px dashed #00ffff;
-      border-radius: 20px; background: rgba(0, 255, 255, 0.02);
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.05);
-    }
+    /* The Feed Container */
+    #curator-feed-default-feed-layout { width: 100%; max-width: 1200px; margin: 0 auto; }
 
     /* Buttons */
-    .btn-container { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+    .btn-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
     .btn {
-      width: 100%; max-width: 280px; padding: 18px;
+      width: 100%; max-width: 280px; padding: 15px;
       color: #00ffff; text-decoration: none; border: 1px solid #00ffff;
       border-radius: 8px; font-weight: bold; text-transform: uppercase;
       transition: 0.3s; background: rgba(0, 255, 255, 0.05);
-      letter-spacing: 2px; font-size: 0.9rem;
     }
-    .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
-    .btn.highlight { border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 15px rgba(255, 0, 255, 0.3); }
+    .btn:active { background: #ff00ff; color: #fff; }
 
     /* Footer */
     footer { padding: 60px 20px; text-align: center; border-top: 1px solid #111; }
-    .score-box { margin-bottom: 25px; color: #00ffff; font-weight: bold; letter-spacing: 1px; }
-    .footer-logo { 
-      width: 80px; height: auto; margin-bottom: 20px; 
-      opacity: 0.9;
-    }
+    .footer-logo { width: 80px; height: auto; margin-bottom: 20px; opacity: 0.9; }
+    .score-box { margin-bottom: 20px; color: #00ffff; font-weight: bold; }
 
     @media (min-width: 768px) {
       .hero { height: 100vh; margin-top: 0; }
@@ -78,7 +68,7 @@
 
   <header>
     <nav>
-      <a href="#transmissions">Latest</a>
+      <a href="#transmissions">Transmissions</a>
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
       <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
@@ -92,25 +82,24 @@
 
   <section id="transmissions">
     <h2>📡 Latest Transmissions</h2>
-    <div class="transmission-box">
-      <p style="color: #666; margin-bottom: 20px; font-size: 0.85rem;">FIELD REPORT: SCOUT 7 ACTIVE</p>
-      <div class="btn-container" style="margin-top: 0;">
-        <a href="https://www.youtube.com/@MaximumRealityLori/shorts" class="btn highlight">Watch Latest Shorts</a>
-      </div>
+    
+    <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
+    <script type="text/javascript">
+    (function(){
+    var i,s,o,g,r,a,m;i=window;s=document;o='script';g='https://cdn.curator.io/published/ad34563a-2374-4b55-a044-6a6829746e5a.js';
+    i['CuratorFeedWidgetId']=r='ad34563a-2374-4b55-a044-6a6829746e5a';
+    a=s.createElement(o);m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
+    })();
+    </script>
+    <div class="btn-container" style="margin-top: 30px;">
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full Archive</a>
     </div>
   </section>
 
   <section id="arcade">
     <h2>🎮 The Arcade</h2>
     <div class="btn-container">
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Enter The Grid</a>
-    </div>
-  </section>
-
-  <section id="shop">
-    <h2>🛍️ Gear</h2>
-    <div class="btn-container">
-      <a href="https://maximum-reality-shop.fourthwall.com/" class="btn">Fourthwall Shop</a>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Now</a>
     </div>
   </section>
 
