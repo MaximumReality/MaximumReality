@@ -3,7 +3,7 @@
 ## ✨ Step into Maximum Reality – Your Hub for Games, Stories, and Impossible Worlds 🌌✨
 
 ╔════════════════════════════════════════╗  
-[![Watch the Intro](intro_thumbnail.png)](https://MaximumReality.github.io/MaximumReality/index.html)  
+[![Watch the Intro](intro.gif)](https://MaximumReality.github.io/MaximumReality/index.html)  
 ╚════════════════════════════════════════╝
 
 ---
@@ -29,4 +29,4 @@ All your adventures start here. 🌌🕹️🌄
 ---
 
 ### 🌟 Quick Links to the Multiverse
-💻 GitHub: [Maximum Reality Repos](https://github.com/MaximumReality)  
+💻 GitHub: [Maximum Reality Repos](https://github.com/MaximumReality)
