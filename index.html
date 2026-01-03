@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maximum Reality</title>
   <style>
-    /* Reset & Core Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { 
       width: 100%; height: 100%; 
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+      font-family: 'Segoe UI', Roboto, sans-serif; 
       background: #000; color: #fff; overflow-x: hidden; 
     }
 
@@ -23,77 +22,60 @@
     nav a {
       color: #ff00ff; text-decoration: none; font-weight: bold;
       text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
-      text-shadow: 0 0 5px #ff00ff;
     }
 
-    /* Hero: Cinematic Video Fix */
+    /* Hero: Cinematic Video */
     .hero {
-      position: relative;
-      width: 100%;
-      min-height: 40vh; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #000;
-      margin-top: 50px; 
-      overflow: hidden;
+      position: relative; width: 100%; min-height: 40vh; 
+      display: flex; align-items: center; justify-content: center;
+      background: #000; margin-top: 50px; overflow: hidden;
+    }
+    .hero video { width: 100%; height: auto; object-fit: contain; z-index: 1; }
+
+    /* Sections */
+    section { padding: 50px 20px; text-align: center; background: #000; }
+    h2 { 
+      font-size: 1.5rem; color: #ff00ff; margin-bottom: 25px; 
+      text-transform: uppercase; letter-spacing: 2px;
+      text-shadow: 0 0 10px #ff00ff;
     }
 
-    .hero video {
-      width: 100%;
-      height: auto;
-      display: block;
-      z-index: 1;
-      object-fit: contain; 
+    /* Video/Transmission Grid */
+    .transmission-grid {
+      display: grid; grid-template-columns: 1fr; gap: 25px;
+      max-width: 1100px; margin: 0 auto; padding-bottom: 30px;
+    }
+    .video-card {
+      background: #050505; border: 1px solid #222; border-radius: 12px;
+      padding: 15px; transition: 0.3s;
+    }
+    .video-card:hover { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.1); }
+    
+    /* Placeholders for your 3 YouTube Embeds */
+    .video-frame {
+      width: 100%; aspect-ratio: 16 / 9;
+      background: #111; border-radius: 8px; margin-bottom: 12px;
     }
 
-    /* Content Sections */
-    section { padding: 60px 20px; text-align: center; background: #000; }
-    section h2 { 
-      font-size: 1.8rem; color: #ff00ff; margin-bottom: 30px; 
-      text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
-    }
-
+    /* Buttons */
     .btn-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
     .btn {
       width: 100%; max-width: 280px; padding: 15px;
       color: #00ffff; text-decoration: none; border: 1px solid #00ffff;
-      border-radius: 8px; font-weight: bold; background: rgba(0, 255, 255, 0.05);
-      transition: 0.3s;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      border-radius: 8px; font-weight: bold; text-transform: uppercase;
+      transition: 0.3s; background: rgba(0, 255, 255, 0.05);
     }
-    .btn:active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+    .btn:active { background: #ff00ff; color: #fff; }
+    .btn.shop { border-color: #ff00ff; color: #ff00ff; background: rgba(255, 0, 255, 0.05); }
 
-    /* Footer with Original Color Logo Fix */
-    footer { 
-      padding: 60px 20px 40px 20px; 
-      text-align: center; 
-      background: #000; 
-      color: #444; 
-      font-size: 0.75rem;
-      border-top: 1px solid #111;
-    }
+    /* Footer */
+    footer { padding: 60px 20px; text-align: center; border-top: 1px solid #111; }
+    .footer-logo { width: 80px; height: auto; margin-bottom: 20px; opacity: 0.9; }
+    .score-box { margin-bottom: 20px; color: #00ffff; font-weight: bold; }
 
-    .footer-logo {
-      width: 70px;
-      height: auto;
-      margin-bottom: 15px;
-      opacity: 0.9; /* Higher opacity to show original colors */
-      /* Neutral shadow so it doesn't tint the logo pink */
-      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.3)); 
-      transition: 0.4s;
-    }
-
-    .footer-logo:hover {
-      opacity: 1;
-      filter: drop-shadow(0 0 10px #00ffff);
-    }
-
-    /* Desktop View Adjustments */
     @media (min-width: 768px) {
       .hero { height: 100vh; margin-top: 0; }
-      nav a { font-size: 1rem; }
+      .transmission-grid { grid-template-columns: 1fr 1fr 1fr; }
       .btn-container { flex-direction: row; justify-content: center; }
     }
   </style>
@@ -102,9 +84,9 @@
 
   <header>
     <nav>
+      <a href="#transmissions">Latest</a>
       <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori">Videos</a>
-      <a href="#socials">Socials</a>
+      <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
   </header>
 
@@ -114,27 +96,33 @@
     </video>
   </div>
 
-  <section id="arcade">
-    <h2>🎮 The Grid</h2>
+  <section id="transmissions">
+    <h2>📡 Latest Transmissions</h2>
+    <div class="transmission-grid">
+      <div class="video-card">
+        <div class="video-frame">
+          <iframe width="100%" height="100%" src="https://www.youtube.com/embed?listType=user_uploads&list=MaximumRealityLori" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <p>Scout 7 & More</p>
+      </div>
+      </div>
     <div class="btn-container">
-      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Play Arcade</a>
-      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Watch YouTube</a>
-      <a href="https://github.com/MaximumReality" class="btn">GitHub Repos</a>
+      <a href="https://maximum-reality-shop.fourthwall.com/" class="btn shop">Visit the Shop</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori" class="btn">Full Archive</a>
     </div>
   </section>
 
-  <section id="socials">
-    <h2>📱 Connect</h2>
+  <section id="arcade">
+    <h2>🎮 The Arcade</h2>
     <div class="btn-container">
-      <a href="https://www.instagram.com/maximumrealitylori?igsh=OTY0c3pnOHp2dm9k&utm_source=qr" class="btn">Instagram</a>
-      <a href="https://www.tiktok.com/@zer0chick?_r=1&_t=ZT-92lL9pd9gWT" class="btn">TikTok</a>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/#" class="btn">Enter The Grid</a>
     </div>
   </section>
 
   <footer>
-    <img src="logo.png" alt="Maximum Reality Logo" class="footer-logo">
-    <p>© 2026 Maximum Reality • Built for the Impossible</p>
-    <p style="margin-top: 8px; color: #222; letter-spacing: 2px;">STAY FOCUSED</p>
+    <div class="score-box">DAILY BEST: <span id="daily-score">----</span></div>
+    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
+    <p>© 2026 Maximum Reality • Stay Focused</p>
   </footer>
 
 </body>
