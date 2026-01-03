@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maximum Reality</title>
+  <style>
+    /* Reset & basic styling */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; font-family: 'Arial', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
+
+    /* Video hero section */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .hero video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+    }
+
+    /* Logo and tagline overlay */
+    .overlay {
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 2;
+      color: #ff00ff; /* magenta glow accent */
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+    }
+    .overlay img {
+      width: 300px;
+      display: block;
+      margin: 0 auto 20px auto;
+    }
+    .overlay h1 {
+      font-size: 2.5rem;
+    }
+
+    /* Navigation bar */
+    nav {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 30px;
+      z-index: 3;
+      font-size: 1.2rem;
+    }
+    nav a {
+      color: #ff00ff;
+      text-decoration: none;
+      padding: 5px 10px;
+      border: 1px solid #ff00ff;
+      border-radius: 5px;
+      transition: 0.3s;
+      text-shadow: 0 0 5px #ff00ff;
+    }
+    nav a:hover {
+      color: #00ffff;
+      border-color: #00ffff;
+      text-shadow: 0 0 15px #00ffff;
+    }
+
+    /* Sections */
+    section {
+      padding: 80px 20px;
+      text-align: center;
+      background: #000;
+      color: #fff;
+      min-height: 60vh;
+    }
+    section h2 {
+      font-size: 2rem;
+      color: #ff00ff;
+      text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff;
+      margin-bottom: 30px;
+    }
+    section a {
+      display: inline-block;
+      margin: 10px 20px;
+      padding: 10px 20px;
+      color: #00ffff;
+      text-decoration: none;
+      border: 1px solid #00ffff;
+      border-radius: 5px;
+      text-shadow: 0 0 5px #00ffff;
+      transition: 0.3s;
+    }
+    section a:hover {
+      color: #ff00ff;
+      border-color: #ff00ff;
+      text-shadow: 0 0 15px #ff00ff;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid #333;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero Section -->
+  <div class="hero">
+    <video autoplay muted playsinline>
+      <source src="intro.MP4" type="video/mp4">
+      Your browser does not support HTML5 video.
+    </video>
+    <div class="overlay">
+      <img src="logo.png" alt="Maximum Reality Logo">
+      <h1>Step into Maximum Reality</h1>
+      <p>Your Hub for Games, Stories, and Impossible Worlds 🌌✨</p>
+    </div>
+    <nav>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Arcade</a>
+      <a href="https://www.youtube.com/@MaximumRealityLori">Videos</a>
+      <a href="#">Lore</a>
+      <a href="#">Contact</a>
+    </nav>
+  </div>
+
+  <!-- Arcade / Featured Section -->
+  <section id="arcade">
+    <h2>🎮 Explore the Grid</h2>
+    <a href="https://maximumreality.github.io/maximum-reality-arcade/#">Play the Arcade</a>
+    <a href="https://www.youtube.com/@MaximumRealityLori">Watch Videos</a>
+    <a href="#">Learn About the Lore</a>
+    <a href="#">Contact / Socials</a>
+  </section>
+
+  <!-- Socials Section -->
+  <section id="socials">
+    <h2>📱 Connect in the Neon</h2>
+    <a href="https://www.instagram.com/maximumrealitylori?igsh=OTY0c3pnOHp2dm9k&utm_source=qr">Instagram 🌈</a>
+    <a href="https://www.tiktok.com/@zer0chick?_r=1&_t=ZT-92lL9pd9gWT">TikTok 🎵</a>
+  </section>
+
+  <!-- Fun Fact / About -->
+  <section id="funfact">
+    <h2>⚡ Fun Fact</h2>
+    <p>Maximum Reality is a <strong>neon-grid, hyperreal, sci-fi-inspired universe</strong> where games, stories, and worlds collide. All your adventures start here. 🌌🕹️🌄✨</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    🌟 GitHub: <a href="https://github.com/MaximumReality">Maximum Reality Repos</a> <br>
+    © 2026 Maximum Reality
+  </footer>
+
+</body>
+</html>
