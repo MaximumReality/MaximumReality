@@ -21,8 +21,8 @@
     nav { display: flex; justify-content: center; gap: 20px; }
     nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
 
-    /* Hero Video - Screen Fit */
-    .hero { width: 100%; background: #000; line-height: 0; }
+    /* Hero Video */
+    .hero { width: 100%; background: #000; line-height: 0; padding-top: 45px; }
     video { width: 100%; height: auto; object-fit: contain; }
 
     /* App Store Section */
@@ -37,9 +37,7 @@
       text-decoration: none; color: white; 
       margin-bottom: 15px;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: transform 0.2s;
     }
-    .app-card:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.15); }
     
     .app-icon { 
       width: 62px; height: 62px; border-radius: 14px; 
@@ -55,15 +53,21 @@
     .app-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
     .app-desc { font-size: 0.75rem; opacity: 0.6; }
 
+    /* Unified Button Style */
     .get-btn {
-      background: rgba(255, 255, 255, 0.15); color: #00f2ff; 
-      padding: 6px 20px; border-radius: 20px; 
-      font-weight: 800; font-size: 0.8rem; text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.1); 
+      padding: 8px 0; 
+      border-radius: 20px; 
+      font-weight: 800; 
+      font-size: 0.75rem; 
+      text-transform: uppercase;
+      width: 80px; /* Fixed width for consistency */
+      text-align: center;
+      border: 1px solid; /* Color is defined in the inline style below */
     }
 
-    /* Transmissions Section (Curator) */
+    /* Transmissions Section */
     .transmissions { padding: 40px 10px; background: #050505; border-top: 1px solid #111; }
-    #curator-feed-default-feed-layout { border-radius: 15px; overflow: hidden; }
 
     /* Footer */
     footer { padding: 60px 20px; text-align: center; background: #000; }
@@ -75,7 +79,7 @@
 
   <header>
     <nav>
-      <a href="#apps">Arcade</a>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
       <a href="#transmissions">Transmissions</a>
       <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
     </nav>
@@ -87,50 +91,40 @@
     </video>
   </div>
 
-     <section class="app-section" id="apps">
+  <section class="app-section" id="apps">
     <h2 class="section-title">Must Play</h2>
     
-       <a href="https://maximumreality.github.io/Pulse/index.html" class="app-card">
-      <div class="app-icon" style="border: 1px solid #a286ef;">
-        <img src="https://maximumreality.github.io/Pulse/poc_cover.png" alt="Pulse of Connection Cover">
-      </div>
-      <div class="app-info">
-        <div class="app-name">Pulse of Connection</div>
-        <div class="app-desc">A Novel • By Lori Sifuentes</div>
-      </div>
-      <div class="get-btn" style="color: #a286ef; border: 1px solid #a286ef;">Read</div>
-    </a>
-
-        <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" class="app-card">
+    <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" class="app-card">
       <div class="app-icon" style="border: 1px solid #00f2ff;">
-        <img src="https://maximumreality.github.io/azul-story-cyoa/azul.png" alt="Azul's Story Icon">
+        <img src="https://maximumreality.github.io/azul-story-cyoa/azul.png" alt="Azul Icon">
       </div>
       <div class="app-info">
         <div class="app-name">Azul's CYOA</div>
         <div class="app-desc">Choose Your Own Adventure • Unlock Videos</div>
       </div>
-      <div class="get-btn" style="color: #00f2ff; border: 1px solid #00f2ff;">ENTER</div>
+      <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">ENTER</div>
     </a>
 
+    <a href="https://maximumreality.github.io/Pulse/index.html" class="app-card">
+      <div class="app-icon" style="border: 1px solid #a286ef;">
+        <img src="https://maximumreality.github.io/Pulse/poc_cover.png" alt="Pulse Cover">
+      </div>
+      <div class="app-info">
+        <div class="app-name">Pulse of Connection</div>
+        <div class="app-desc">A Novel • By Lori Sifuentes</div>
+      </div>
+      <div class="get-btn" style="color: #a286ef; border-color: #a286ef;">READ</div>
+    </a>
 
     <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" class="app-card">
       <div class="app-icon" style="border: 1px solid #ffb6c1;">
-        <img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png" alt="WhiskerBytes Icon">
+        <img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png" alt="Café Icon">
       </div>
       <div class="app-info">
         <div class="app-name">WhiskerBytes Café</div>
         <div class="app-desc">Social • Cozy Simulator</div>
       </div>
-      <div class="get-btn" style="color: #ffb6c1;">Open</div>
-    </a>
-
-    <a href="https://maximumreality.github.io/Abduction/" class="app-card">
-      <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
-      <div class="app-info">
-        <div class="app-name">Abduction</div>
-        <div class="app-desc">Action • Survival Horror</div>
-      </div>
-      <div class="get-btn">Get</div>
+      <div class="get-btn" style="color: #ffb6c1; border-color: #ffb6c1;">OPEN</div>
     </a>
 
     <a href="https://maximumreality.github.io/snack_attack/" class="app-card">
@@ -139,10 +133,18 @@
         <div class="app-name">Snack Attack</div>
         <div class="app-desc">Arcade • Fast-Paced Fun</div>
       </div>
-      <div class="get-btn">Get</div>
+      <div class="get-btn" style="color: #ff00ff; border-color: #ff00ff;">GET</div>
+    </a>
+
+    <a href="https://maximumreality.github.io/Abduction/" class="app-card">
+      <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
+      <div class="app-info">
+        <div class="app-name">Abduction</div>
+        <div class="app-desc">Action • Survival Horror</div>
+      </div>
+      <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">GET</div>
     </a>
   </section>
-
 
   <section class="transmissions" id="transmissions">
     <h2 style="text-align:center; color:#ff00ff; margin-bottom:20px; font-size:1.2rem;">📡 LATEST TRANSMISSIONS</h2>
