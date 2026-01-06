@@ -196,5 +196,20 @@
 
     window.onload = runBoot;
 </script>
+
+    <script>
+    // TRIGGER ALERT ON ARRIVAL
+    window.addEventListener('DOMContentLoaded', () => {
+        // Short delay to let the boot sequence start
+        setTimeout(() => {
+            const alertMsg = "⚠️ WARNING: UNAUTHORIZED BIO-LINK DETECTED.\n\n" +
+                             "Terminal has been hijacked by SPHYNX_CAT_ENCRYPTION.\n" +
+                             "Proceed with extreme caution, Creator.";
+            
+            alert(alertMsg);
+        }, 1200);
+    });
+</script>
+
 </body>
 </html>
