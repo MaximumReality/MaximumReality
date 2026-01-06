@@ -1,244 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/png" href="hacker-favicon.PNG">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SYSTEM_CRITICAL | Maximum Reality</title>
-  <style>
-    :root { --hack-blue: #00e5ff; --hack-green: #32cd32; --hack-pink: #ff00ff; --accent: var(--hack-blue); }
-    * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
-    body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM_CRITICAL | Maximum Reality</title>
+    <style>
+        :root { --hack-blue: #00e5ff; --hack-green: #32cd32; --hack-pink: #ff00ff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
+        body { font-family: 'Courier New', monospace; color: #fff; overflow-x: hidden; }
 
-    /* SAFETY BYPASS OVERLAY */
-    #recovery-tap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50000; background: transparent; }
+        /* SAFETY HEADER */
+        .safety {
+            background: var(--hack-pink); color: #000; padding: 5px; text-align: center; 
+            font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 1000;
+        }
 
-    .safety {
-      background: #ff00ff; color: #000; padding: 5px; text-align: center; 
-      font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
-    }
+        /* HERO AREA */
+        #hero-glitch {
+            width: 100%; height: 40vh; position: relative;
+            border-bottom: 2px solid var(--hack-blue); overflow: hidden; margin-top: 25px;
+        }
+        canvas { display: block; width: 100%; height: 100%; }
+        .glitch-title {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 1.2rem; font-weight: 900; letter-spacing: 5px; text-align: center; width: 100%;
+            text-shadow: 2px 2px var(--hack-pink);
+        }
 
-    /* BOOT SEQUENCE AREA */
-    #boot-sequence {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 20000; padding: 40px 20px; font-size: 12px; line-height: 1.5;
-      color: var(--accent); overflow: hidden; pointer-events: none;
-    }
+        /* PORTAL BUTTONS (AZUL & MOCHKIL) */
+        .portal-container { display: flex; justify-content: space-around; padding: 30px 0; }
+        .portal-btn {
+            width: 100px; height: 100px; border-radius: 50%; border: 2px solid #fff;
+            background-image: url('portals.PNG'); background-size: 200% 100%;
+            transition: 0.3s;
+        }
+        .azul-portal { background-position: 0% center; box-shadow: 0 0 15px var(--hack-blue); }
+        .mochkil-portal { background-position: 100% center; box-shadow: 0 0 15px var(--hack-green); }
 
-    /* VIDEO OVERRIDE AREA */
-    #video-override {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      z-index: 30000; background: #000; align-items: center; justify-content: center;
-    }
+        /* THE BREACH BUTTON (Restored) */
+        .button-zone { text-align: center; padding: 40px 20px; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        
+        .action-btn {
+            display: inline-block; text-decoration: none; padding: 15px 40px; 
+            font-size: 12px; font-weight: 900; letter-spacing: 2px; transition: 0.3s;
+        }
+        .breach-btn { border: 2px solid var(--hack-pink); color: var(--hack-pink); }
+        .breach-btn:active { background: var(--hack-pink); color: #000; }
+        
+        .rss-btn { border: 1px solid var(--hack-blue); color: var(--hack-blue); font-size: 10px; }
 
-    #start-video-btn {
-      background: #000; border: 3px solid var(--accent); color: var(--accent);
-      padding: 25px; font-family: monospace; font-weight: 900; 
-      letter-spacing: 3px; z-index: 30001; cursor: pointer;
-    }
-
-    #breachVid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
-
-    /* MAIN CONTENT (HIDDEN UNTIL BREACH) */
-    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; position: relative; }
-    
-    #hero-glitch {
-      width: 100%; height: 45vh; position: relative;
-      border-bottom: 2px solid var(--accent); overflow: hidden;
-    }
-    canvas { display: block; width: 100%; height: 100%; }
-
-    .glitch-title {
-      position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%);
-      font-size: 1.5rem; font-weight: 900; letter-spacing: 5px;
-      text-shadow: 2px 2px #ff00ff; animation: shake 0.2s infinite;
-      pointer-events: none; text-align: center; width: 100%;
-    }
-    @keyframes shake { 0% { transform: translate(-50%, -50%); } 50% { transform: translate(-52%, -48%); } 100% { transform: translate(-48%, -52%); } }
-
-    /* PORTALS */
-    .portal-container { display: flex; justify-content: space-around; padding: 40px 0; background: transparent; position: relative; z-index: 10; }
-    .portal-btn {
-      width: 120px; height: 120px; border-radius: 50%; border: 3px solid #fff;
-      background-image: url('portals.PNG'); background-size: 200% 100%;
-      cursor: pointer; transition: transform 0.2s, box-shadow 0.3s;
-    }
-    .azul-portal { background-position: 0% center; box-shadow: 0 0 25px var(--hack-blue); }
-    .mochkil-portal { background-position: 100% center; box-shadow: 0 0 25px var(--hack-green); }
-    .node-label { font-size: 11px; color: var(--accent); display: block; margin-top: 10px; font-weight: 900; }
-
-    /* DISCOVERY SYSTEM */
-    .discovery-glyph {
-      position: absolute; color: var(--accent); font-size: 12px; 
-      opacity: 0; pointer-events: none; animation: flicker-in 1.5s linear forwards;
-    }
-    .rare-node { color: var(--hack-pink); font-weight: 900; pointer-events: auto; }
-    @keyframes flicker-in { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; transform: translateY(-30px); } }
-
-    /* LOADING OVERLAY */
-    #loading-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #000; z-index: 40000; flex-direction: column;
-      align-items: center; justify-content: center;
-    }
-    .spinner { width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-  </style>
+        /* LOADING OVERLAY */
+        #loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5000; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .spinner { width: 40px; height: 40px; border: 3px solid transparent; border-top: 3px solid var(--hack-pink); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-
 <body>
 
-<div id="recovery-tap" onclick="emergencyBypass()"></div>
+<div class="safety">[!] MAXIMUM_REALITY_UPLINK</div>
 
-<div class="safety">
-  [!] MAXIMUM_REALITY_UPLINK <a href="index.html" style="color:#000; text-decoration: none;">[ ABORT ]</a>
+<div id="hero-glitch">
+    <canvas id="matrix"></canvas>
+    <div class="glitch-title">MAXIMUM_REALITY</div>
 </div>
 
-<div id="boot-sequence"></div>
+<div class="portal-container">
+    <div onclick="location.href='https://maximumreality.github.io/mainframe_zero/'"><div class="portal-btn azul-portal"></div></div>
+    <div onclick="location.href='https://maximumreality.github.io/recipes/'"><div class="portal-btn mochkil-portal"></div></div>
+</div>
 
-<div id="video-override">
-    <button id="start-video-btn">[ INITIATE_BREACH ]</button>
-    <video id="breachVid" playsinline>
-        <source src="e628990e7cdf4a4cbcd508ab01d09731.mov" type="video/mp4">
-    </video>
-    <audio id="glitch-sound" src="https://www.soundjay.com/communication/sounds/digital-glitch-01.mp3"></audio>
+<div class="button-zone">
+    <div class="action-btn breach-btn" onclick="triggerRandomBackdoor()">[ INITIATE_BREACH ]</div>
+    
+    <a href="rss.xml" class="action-btn rss-btn">📡 RSS_SIGNAL</a>
 </div>
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <div style="color: var(--accent); letter-spacing: 2px; font-weight: 900; margin-top: 20px;" id="loading-text">SYNCING...</div>
-</div>
-
-<div id="main-content" onscroll="spawnDiscovery()">
-    <div id="hero-glitch">
-      <canvas id="matrix"></canvas>
-      <div class="glitch-title">MAXIMUM_REALITY</div>
-    </div>
-
-    <div class="portal-container">
-      <div style="text-align: center;">
-        <div class="portal-btn azul-portal" onclick="portalTrigger('https://maximumreality.github.io/mainframe_zero/', 'azul')"></div>
-        <span class="node-label">MAINFRAME_ZERO</span>
-      </div>
-      <div style="text-align: center;">
-        <div class="portal-btn mochkil-portal" onclick="portalTrigger('https://maximumreality.github.io/recipes/', 'mochkil')"></div>
-        <span class="node-label">RECIPE_VAULT</span>
-      </div>
-    </div>
-
-    <div style="padding: 100px 20px; text-align: center; min-height: 120vh;">
-       <p style="color: #333; font-size: 10px; margin-bottom: 50px;">[ SCANNING SECTOR... ]</p>
-       <a href="rss.xml" style="color: var(--accent); text-decoration: none; border: 1px solid var(--accent); padding: 10px 30px; font-size: 12px;">📡 RSS_SIGNAL</a>
-    </div>
+    <div style="color: var(--hack-pink); margin-top: 20px; font-size: 12px;" id="load-text">INTERCEPTING...</div>
 </div>
 
 <script>
-  const bootLog = ["> BOOTING...", "> ESTABLISHING_LINK...", "> ACCESS_GRANTED."];
-  const bootContainer = document.getElementById('boot-sequence');
-  const override = document.getElementById('video-override');
-  const breachVid = document.getElementById('breachVid');
-  const glitchSnd = document.getElementById('glitch-sound');
-  const canvas = document.getElementById('matrix');
-  const ctx = canvas.getContext('2d');
-  
-  let line = 0;
-  let matrixColor = "#00e5ff";
-  let isThrottled = false;
-
-  // 1. BOOT SEQUENCE
-  function typeBoot() {
-    if (line < bootLog.length) {
-      let p = document.createElement('p');
-      p.innerText = bootLog[line];
-      bootContainer.appendChild(p);
-      line++;
-      setTimeout(typeBoot, 400);
-    } else {
-      setTimeout(() => {
-        bootContainer.style.display = 'none';
-        override.style.display = 'flex';
-      }, 500);
-    }
-  }
-
-  // 2. EMERGENCY BYPASS (Safety Net)
-  function emergencyBypass() {
-    document.getElementById('recovery-tap').style.display = 'none';
-    bootContainer.style.display = 'none';
-    override.style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
-    initMatrix();
-  }
-
-  // 3. VIDEO CONTROL
-  document.getElementById('start-video-btn').onclick = () => {
-    glitchSnd.play().catch(()=>{}); 
-    document.getElementById('start-video-btn').style.display = 'none';
-    breachVid.play().catch(emergencyBypass);
-  };
-
-  breachVid.onended = emergencyBypass;
-
-  // 4. MATRIX BACKGROUND
-  function initMatrix() {
+    // 1. SIMPLE MATRIX HERO
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.height = window.innerHeight * 0.4;
     const columns = canvas.width / 14;
     const drops = Array(Math.floor(columns)).fill(1);
 
     function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = matrixColor;
-      ctx.font = "14px monospace";
-      drops.forEach((y, i) => {
-        const text = "01AZULMOCHKIL"[Math.floor(Math.random() * 12)];
-        ctx.fillText(text, i * 14, y * 14);
-        if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      });
+        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#00e5ff";
+        ctx.font = "14px monospace";
+        drops.forEach((y, i) => {
+            const text = "01"[Math.floor(Math.random() * 2)];
+            ctx.fillText(text, i * 14, y * 14);
+            if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        });
     }
     setInterval(draw, 50);
-  }
 
-  // 5. DISCOVERY SYSTEM (Optimized for Mobile)
-  function spawnDiscovery() {
-    if (isThrottled) return;
-    isThrottled = true;
-    setTimeout(() => { isThrottled = false; }, 150);
+    // 2. THE RANDOMIZER LOGIC
+    function triggerRandomBackdoor() {
+        const loader = document.getElementById('loading-overlay');
+        loader.style.display = 'flex';
 
-    if (Math.random() > 0.7) {
-      const main = document.getElementById('main-content');
-      const span = document.createElement('span');
-      const isRare = Math.random() > 0.97;
-      span.className = 'discovery-glyph' + (isRare ? ' rare-node' : '');
-      span.innerText = isRare ? "[!]" : "ø";
-      span.style.left = Math.random() * 90 + "%";
-      span.style.top = (main.scrollTop + (window.innerHeight * 0.5)) + "px";
-      
-      if(isRare) span.onclick = () => portalTrigger('https://maximumreality.xyz/backdoor', 'pink');
-      
-      main.appendChild(span);
-      setTimeout(() => span.remove(), 1500);
+        const backdoors = [
+            'https://maximumreality.github.io/backdoor/backdoor1', // Surveillance
+            'https://maximumreality.github.io/backdoor/backdoor2', // Litterbox (Logs)
+            'https://maximumreality.github.io/backdoor/backdoor3'  // Neural (Brain)
+        ];
+
+        const destination = backdoors[Math.floor(Math.random() * backdoors.length)];
+        
+        // Short delay for the "Intercepting" effect
+        setTimeout(() => {
+            window.location.href = destination;
+        }, 1500);
     }
-  }
-
-  function portalTrigger(url, sector) {
-    document.getElementById('loading-overlay').style.display = 'flex';
-    document.getElementById('loading-text').innerText = "CONNECTING...";
-    setTimeout(() => { window.location.href = url; }, 1000);
-  }
-
-  // START SYSTEM
-  window.onload = () => {
-    typeBoot();
-    // Safety check: if site hasn't loaded in 5 seconds, force show main content
-    setTimeout(() => {
-        if(document.getElementById('main-content').style.display !== 'block' && override.style.display !== 'flex') {
-            emergencyBypass();
-        }
-    }, 5000);
-  };
 </script>
+
 </body>
 </html>
