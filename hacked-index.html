@@ -109,10 +109,60 @@
         <div><span class="node-label">DIR: /CAFE/</span><span>WHISKER_BYTES.SIM</span></div>
       </a>
       
-      <a href="rss.xml" class="node-btn" style="border-style: dashed; opacity: 0.7;">
-        <div style="margin-right: 15px; font-size: 24px;">📡</div>
-        <div><span class="node-label">DIR: /FEED/</span><span>SIGNAL_RSS.XML</span></div>
-      </a>
+      <style>
+  /* NEON RSS STYLING */
+  .neon-uplink {
+    display: block;
+    margin: 30px auto;
+    padding: 20px;
+    width: 90%;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 900;
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    border: 3px solid var(--accent);
+    color: var(--accent);
+    background: transparent;
+    text-transform: uppercase;
+    position: relative;
+    
+    /* THE NEON GLOW */
+    box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
+    text-shadow: 0 0 8px var(--accent);
+    
+    /* THE FLICKER ANIMATION */
+    animation: neon-buzz 4s infinite;
+  }
+
+  @keyframes neon-buzz {
+    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 10px var(--accent), inset 0 0 5px var(--accent);
+      text-shadow: 0 0 10px var(--accent);
+    }
+    20%, 24%, 55% {
+      opacity: 0.3;
+      box-shadow: none;
+      text-shadow: none;
+    }
+  }
+
+  .neon-uplink span {
+    font-size: 0.6rem;
+    display: block;
+    margin-top: 5px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+</style>
+
+<a href="rss.xml" class="neon-uplink">
+  📡 SIGNAL_RSS
+  <span>ENCRYPTED_FEED_UPLINK</span>
+</a>
+
     </div>
 </div>
 
