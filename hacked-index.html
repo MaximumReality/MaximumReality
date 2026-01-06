@@ -27,26 +27,23 @@
       position: sticky; top: 30px; width: 100%; background: rgba(0,0,0,0.8);
       border-bottom: 1px solid var(--theme-accent); z-index: 1000; padding: 12px; 
       backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-      transition: border-color 0.3s;
     }
     nav { display: flex; justify-content: center; gap: 20px; }
     nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
 
     .hero { width: 100%; background: #000; line-height: 0; position: relative; }
-    
-    /* Responsive Video Wrapper for YouTube & Local Video */
-    .video-wrapper { width: 100%; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; }
+    .video-wrapper { width: 100%; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; background: #000; transition: 0.5s; }
     .video-wrapper iframe, .video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
     
-    /* Special vertical container for Mochkil's Short when active */
-    .mochkil-active .video-wrapper { padding-bottom: 177.78%; max-width: 300px; margin: 0 auto; border: 2px solid #32cd32; border-radius: 20px; box-shadow: 0 0 20px rgba(50, 205, 50, 0.4); }
+    /* Vertical Short Mode for Mochkil */
+    .mochkil-active .video-wrapper { padding-bottom: 177.78%; max-width: 280px; margin: 0 auto; border: 2px solid #32cd32; border-radius: 20px; box-shadow: 0 0 20px rgba(50, 205, 50, 0.4); }
 
     .app-intro { max-width: 600px; margin: 12px auto 10px; padding: 0 20px; font-size: 0.7rem; text-align: center; opacity: 0.55; letter-spacing: 0.5px; }
 
     /* 2. THEME TOGGLE UI */
     .toggle-zone { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 15px 0; background: rgba(255, 255, 255, 0.02); margin-top: 10px; }
     .toggle-label { font-size: 0.6rem; letter-spacing: 2px; color: #888; }
-    .switch-base { width: 60px; height: 30px; background: #111; border: 1px solid #333; border-radius: 15px; position: relative; cursor: pointer; transition: 0.3s; }
+    .switch-base { width: 60px; height: 30px; background: #111; border: 1px solid #333; border-radius: 15px; position: relative; cursor: pointer; }
     .switch-handle { width: 24px; height: 24px; border-radius: 50%; position: absolute; top: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     .azul-mode { left: 3px; background: #00e5ff; box-shadow: 0 0 15px #00e5ff; }
     .mochkil-mode { left: 31px; background: #32cd32; box-shadow: 0 0 15px #32cd32; }
@@ -69,7 +66,7 @@
       text-decoration: none; border-radius: 20px;
       background-image: url('portals.PNG'); background-size: 210% 100%; height: 180px;
       display: flex; flex-direction: column; justify-content: flex-end;
-      border: 1px solid rgba(255,255,255,0.2); overflow: hidden; transition: transform 0.2s;
+      border: 1px solid rgba(255,255,255,0.2); overflow: hidden;
     }
     .azul-portal { background-position: left center; border-color: #00e5ff; }
     .mochkil-portal { background-position: right center; border-color: #32cd32; }
@@ -77,41 +74,34 @@
     .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; opacity: 0.8; margin-bottom: 4px; }
     .portal-title-text { font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1.1; }
 
-    .app-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 12px; text-decoration: none; color: white; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.2s ease; }
-    .app-icon { width: 62px; height: 62px; border-radius: 14px; margin-right: 15px; flex-shrink: 0; background: #111; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .app-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 12px; text-decoration: none; color: white; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1); }
+    .app-icon { width: 62px; height: 62px; border-radius: 14px; margin-right: 15px; flex-shrink: 0; background: #111; overflow: hidden; display: flex; align-items: center; justify-content: center; }
     .app-icon img { width: 100%; height: 100%; object-fit: cover; }
     .app-info { flex-grow: 1; }
     .app-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
     .app-desc { font-size: 0.75rem; opacity: 0.6; }
-    .get-btn { background: rgba(255, 255, 255, 0.1); padding: 8px 0; border-radius: 20px; font-weight: 800; font-size: 0.75rem; width: 80px; text-align: center; border: 1px solid var(--theme-accent); color: var(--theme-accent); transition: 0.3s; text-transform: uppercase; }
+    .get-btn { background: rgba(255, 255, 255, 0.1); padding: 8px 0; border-radius: 20px; font-weight: 800; font-size: 0.75rem; width: 80px; text-align: center; border: 1px solid var(--theme-accent); color: var(--theme-accent); text-transform: uppercase; }
 
     footer { padding: 60px 20px; text-align: center; background: #000; border-top: 1px solid #111; }
-    .footer-logo { width: 60px; margin-bottom: 15px; opacity: 0.5; }
-    .legal { color: #333; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; }
-
-    #skipBtn { position: absolute; bottom: 30px; color: #333; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid #222; padding: 5px 10px; border-radius: 10px; cursor: pointer; }
+    #skipBtn { position: absolute; bottom: 30px; color: #333; font-size: 0.5rem; text-transform: uppercase; border: 1px solid #222; padding: 5px 10px; border-radius: 10px; cursor: pointer; }
   </style>
 </head>
 
 <body class="azul-theme">
 
 <div class="safety-banner">
-  ⚠️ YOU ARE IN MAXIMUM_REALITY_OVERLAY 
-  <a href="index.html">[ BACK TO NORMAL SITE ]</a>
+  ⚠️ MAXIMUM_REALITY_OVERLAY ACTIVE 
+  <a href="index.html">[ RETURN TO NORMAL SITE ]</a>
 </div>
 
 <div id="splashScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Courier New', monospace;">
     <div style="width: 250px; margin-bottom: 40px;">
         <div style="color: #00e5ff; font-size: 0.7rem; margin-bottom: 5px;">[ OPERATIVE: AZUL ]</div>
-        <div style="width: 100%; height: 10px; border: 1px solid #00e5ff; padding: 2px;">
-            <div id="azulBar" style="height: 100%; width: 0%; background: #00e5ff;"></div>
-        </div>
+        <div style="width: 100%; height: 10px; border: 1px solid #00e5ff; padding: 2px;"><div id="azulBar" style="height: 100%; width: 0%; background: #00e5ff;"></div></div>
     </div>
     <div style="width: 250px;">
         <div style="color: #32cd32; font-size: 0.7rem; margin-bottom: 5px;">[ OPERATIVE: MOCHKIL ]</div>
-        <div style="width: 100%; height: 10px; border: 1px solid #32cd32; padding: 2px;">
-            <div id="mochkilBar" style="height: 100%; width: 0%; background: #32cd32;"></div>
-        </div>
+        <div style="width: 100%; height: 10px; border: 1px solid #32cd32; padding: 2px;"><div id="mochkilBar" style="height: 100%; width: 0%; background: #32cd32;"></div></div>
     </div>
     <div id="skipBtn" onclick="skipLoading()">OVERRIDE_MAINFRAME</div>
 </div>
@@ -124,18 +114,10 @@
   </nav>
 </header>
 
-<div class="hero" id="hero-container">
+<div class="hero">
   <div class="video-wrapper">
-    <video id="azulVideo" autoplay muted playsinline loop>
-      <source src="intro.MP4" type="video/mp4">
-    </video>
-    <iframe 
-      id="mochkilVideo" 
-      style="display:none;" 
-      src="https://www.youtube.com/embed/fhj37CZKhqg?autoplay=0&mute=1&loop=1&playlist=fhj37CZKhqg&controls=0" 
-      frameborder="0" 
-      allow="autoplay">
-    </iframe>
+    <video id="azulVideo" autoplay muted playsinline loop><source src="intro.MP4" type="video/mp4"></video>
+    <iframe id="mochkilVideo" style="display:none;" src="https://www.youtube.com/embed/fhj37CZKhqg?autoplay=0&mute=1&loop=1&playlist=fhj37CZKhqg&controls=0" frameborder="0" allow="autoplay"></iframe>
   </div>
 </div>
 
@@ -143,9 +125,7 @@
 
 <div class="toggle-zone">
   <span class="toggle-label">OPERATIVE</span>
-  <div class="switch-base" onclick="toggleTheme()">
-    <div id="switchHandle" class="switch-handle azul-mode"></div>
-  </div>
+  <div class="switch-base" onclick="toggleTheme()"><div id="switchHandle" class="switch-handle azul-mode"></div></div>
 </div>
 
 <div class="ticker-container">
@@ -159,50 +139,62 @@
     </div>
 </div>
 
-<section class="app-section" id="apps">
+<section class="app-section">
   <h2 class="section-title">System Portals</h2>
   <div class="portal-container">
     <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
-      <div class="glass-inner">
-        <div class="portal-tag">Sector_01 // Labs</div>
-        <div class="portal-title-text">MAINFRAME ZERO</div>
-      </div>
+      <div class="glass-inner"><div class="portal-tag">Sector_01 // Labs</div><div class="portal-title-text">MAINFRAME ZERO</div></div>
     </a>
     <a href="https://maximumreality.github.io/recipes/" class="portal-card-main mochkil-portal">
-      <div class="glass-inner">
-        <div class="portal-tag">Sector_02 // Kitchen</div>
-        <div class="portal-title-text">THE RECIPE VAULT</div>
-      </div>
+      <div class="glass-inner"><div class="portal-tag">Sector_02 // Kitchen</div><div class="portal-title-text">THE RECIPE VAULT</div></div>
     </a>
   </div>
 
-  <h2 class="section-title">Start Anywhere</h2>
+  <h2 class="section-title">All Protocols</h2>
   <a href="https://youtube.com/shorts/fhj37CZKhqg" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #32cd32;"><img src="logo.png"></div>
     <div class="app-info"><div class="app-name">Mochkil Intro</div><div class="app-desc">Michelin Star Chaos</div></div>
     <div class="get-btn">WATCH</div>
   </a>
+
   <a href="https://maximumreality.github.io/Pulse/index.html" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #a286ef;"><img src="https://maximumreality.github.io/Pulse/poc_cover.png"></div>
-    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">A Novel</div></div>
+    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">The Novel</div></div>
     <div class="get-btn">READ</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/Abduction/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><span style="font-size:30px">🛸</span></div>
+    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Sci-fi Arcade</div></div>
+    <div class="get-btn">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffb6c1;"><img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png"></div>
+    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Cozy Simulator</div></div>
+    <div class="get-btn">OPEN</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/snack_attack/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;"><span style="font-size:30px">🍰</span></div>
+    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">The Arcade Game</div></div>
+    <div class="get-btn">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><img src="https://maximumreality.github.io/azul-story-cyoa/azul.png"></div>
+    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Hacker Story Game</div></div>
+    <div class="get-btn">ENTER</div>
   </a>
 </section>
 
-<footer>
-  <img src="logo.png" alt="Maximum Reality" class="footer-logo">
-  <p class="legal">© 2026 Maximum Reality</p>
-</footer>
+<footer><p style="color:#333; font-size:10px; letter-spacing:2px">© 2026 MAXIMUM REALITY</p></footer>
 
 <script>
     let loadingInterval;
-    
     function skipLoading() {
         clearInterval(loadingInterval);
-        const splash = document.getElementById('splashScreen');
-        splash.style.transition = "opacity 0.4s";
-        splash.style.opacity = "0";
-        setTimeout(() => { splash.style.display = "none"; }, 400);
+        document.getElementById('splashScreen').style.display = "none";
     }
 
     window.addEventListener('load', function() {
@@ -212,45 +204,34 @@
             if (mochkilW < 100) mochkilW += 8;
             document.getElementById('azulBar').style.width = azulW + "%";
             document.getElementById('mochkilBar').style.width = mochkilW + "%";
-            if (azulW >= 100 && mochkilW >= 100) {
-                skipLoading();
-            }
+            if (azulW >= 100 && mochkilW >= 100) skipLoading();
         }, 150);
     });
 
     function toggleTheme() {
         const body = document.body;
         const handle = document.getElementById('switchHandle');
-        const azulT = document.getElementById('azulTicker');
-        const mochkilT = document.getElementById('mochkilTicker');
-        const azulVid = document.getElementById('azulVideo');
-        const mochVid = document.getElementById('mochkilVideo');
+        const azVid = document.getElementById('azulVideo');
+        const moVid = document.getElementById('mochkilVideo');
 
         if (handle.classList.contains('azul-mode')) {
-            // SWITCH TO MOCHKIL MODE
             handle.classList.replace('azul-mode', 'mochkil-mode');
             body.classList.replace('azul-theme', 'mochkil-theme');
             body.classList.add('mochkil-active');
-            
-            azulVid.style.display = 'none';
-            mochVid.style.display = 'block';
-            mochVid.src += "&autoplay=1"; // Trigger play on switch
-
-            azulT.style.display = 'none';
-            mochkilT.style.display = 'flex';
-            setTimeout(() => { mochkilT.style.opacity = '1'; }, 10);
+            azVid.style.display = 'none';
+            moVid.style.display = 'block';
+            moVid.src += "&autoplay=1";
+            document.getElementById('azulTicker').style.display = 'none';
+            document.getElementById('mochkilTicker').style.display = 'flex';
+            setTimeout(() => { document.getElementById('mochkilTicker').style.opacity = '1'; }, 10);
         } else {
-            // SWITCH TO AZUL MODE
             handle.classList.replace('mochkil-mode', 'azul-mode');
             body.classList.replace('mochkil-theme', 'azul-theme');
             body.classList.remove('mochkil-active');
-
-            mochVid.style.display = 'none';
-            azulVid.style.display = 'block';
-
-            mochkilT.style.display = 'none';
-            azulT.style.display = 'flex';
-            setTimeout(() => { azulT.style.opacity = '1'; }, 10);
+            moVid.style.display = 'none';
+            azVid.style.display = 'block';
+            document.getElementById('mochkilTicker').style.display = 'none';
+            document.getElementById('azulTicker').style.display = 'flex';
         }
     }
 </script>
