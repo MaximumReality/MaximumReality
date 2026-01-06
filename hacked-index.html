@@ -10,20 +10,36 @@
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
-    /* TAP TO BYPASS */
+    /* SAFETY BYPASS OVERLAY */
     #recovery-tap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50000; background: transparent; }
-
-    #boot-sequence {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 20000; padding: 20px; font-size: 12px; line-height: 1.5;
-      color: var(--accent); overflow: hidden; pointer-events: none;
-    }
 
     .safety {
       background: #ff00ff; color: #000; padding: 5px; text-align: center; 
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
+    /* BOOT SEQUENCE AREA */
+    #boot-sequence {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 20000; padding: 40px 20px; font-size: 12px; line-height: 1.5;
+      color: var(--accent); overflow: hidden; pointer-events: none;
+    }
+
+    /* VIDEO OVERRIDE AREA */
+    #video-override {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+      z-index: 30000; background: #000; align-items: center; justify-content: center;
+    }
+
+    #start-video-btn {
+      background: #000; border: 3px solid var(--accent); color: var(--accent);
+      padding: 25px; font-family: monospace; font-weight: 900; 
+      letter-spacing: 3px; z-index: 30001; cursor: pointer;
+    }
+
+    #breachVid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+
+    /* MAIN CONTENT (HIDDEN UNTIL BREACH) */
     #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; position: relative; }
     
     #hero-glitch {
@@ -40,45 +56,33 @@
     }
     @keyframes shake { 0% { transform: translate(-50%, -50%); } 50% { transform: translate(-52%, -48%); } 100% { transform: translate(-48%, -52%); } }
 
+    /* PORTALS */
     .portal-container { display: flex; justify-content: space-around; padding: 40px 0; background: transparent; position: relative; z-index: 10; }
     .portal-btn {
-      width: 130px; height: 130px; border-radius: 50%; border: 3px solid #fff;
+      width: 120px; height: 120px; border-radius: 50%; border: 3px solid #fff;
       background-image: url('portals.PNG'); background-size: 200% 100%;
       cursor: pointer; transition: transform 0.2s, box-shadow 0.3s;
     }
     .azul-portal { background-position: 0% center; box-shadow: 0 0 25px var(--hack-blue); }
     .mochkil-portal { background-position: 100% center; box-shadow: 0 0 25px var(--hack-green); }
-
     .node-label { font-size: 11px; color: var(--accent); display: block; margin-top: 10px; font-weight: 900; }
 
+    /* DISCOVERY SYSTEM */
     .discovery-glyph {
-      position: absolute; color: var(--accent); font-size: 10px; 
-      opacity: 0; pointer-events: none; animation: flicker-in 2s linear forwards;
+      position: absolute; color: var(--accent); font-size: 12px; 
+      opacity: 0; pointer-events: none; animation: flicker-in 1.5s linear forwards;
     }
     .rare-node { color: var(--hack-pink); font-weight: 900; pointer-events: auto; }
-    @keyframes flicker-in {
-      0% { opacity: 0; transform: translateY(10px); }
-      20% { opacity: 0.6; }
-      100% { opacity: 0; transform: translateY(-20px); }
-    }
+    @keyframes flicker-in { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; transform: translateY(-30px); } }
 
+    /* LOADING OVERLAY */
     #loading-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; z-index: 40000; flex-direction: column;
       align-items: center; justify-content: center;
     }
-    .spinner {
-      width: 60px; height: 60px; border: 4px solid transparent;
-      border-top: 4px solid var(--accent); border-radius: 50%;
-      animation: spin 0.6s linear infinite; margin-bottom: 25px;
-    }
+    .spinner { width: 50px; height: 50px; border: 3px solid transparent; border-top: 3px solid var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
     @keyframes spin { 100% { transform: rotate(360deg); } }
-
-    #start-video-btn {
-      background: #000; border: 3px solid var(--accent); color: var(--accent);
-      padding: 25px; font-family: monospace; font-weight: 900; 
-      letter-spacing: 3px; z-index: 30001; cursor: pointer;
-    }
   </style>
 </head>
 
@@ -92,9 +96,9 @@
 
 <div id="boot-sequence"></div>
 
-<div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000; align-items: center; justify-content: center;">
+<div id="video-override">
     <button id="start-video-btn">[ INITIATE_BREACH ]</button>
-    <video id="breachVid" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" playsinline>
+    <video id="breachVid" playsinline>
         <source src="e628990e7cdf4a4cbcd508ab01d09731.mov" type="video/mp4">
     </video>
     <audio id="glitch-sound" src="https://www.soundjay.com/communication/sounds/digital-glitch-01.mp3"></audio>
@@ -102,7 +106,7 @@
 
 <div id="loading-overlay">
     <div class="spinner"></div>
-    <div style="color: var(--accent); letter-spacing: 2px; font-weight: 900;" id="loading-text">SYNCING...</div>
+    <div style="color: var(--accent); letter-spacing: 2px; font-weight: 900; margin-top: 20px;" id="loading-text">SYNCING...</div>
 </div>
 
 <div id="main-content" onscroll="spawnDiscovery()">
@@ -123,7 +127,7 @@
     </div>
 
     <div style="padding: 100px 20px; text-align: center; min-height: 120vh;">
-       <p style="color: #222; font-size: 10px; margin-bottom: 50px;">[ SCANNING SECTOR... ]</p>
+       <p style="color: #333; font-size: 10px; margin-bottom: 50px;">[ SCANNING SECTOR... ]</p>
        <a href="rss.xml" style="color: var(--accent); text-decoration: none; border: 1px solid var(--accent); padding: 10px 30px; font-size: 12px;">📡 RSS_SIGNAL</a>
     </div>
 </div>
@@ -138,24 +142,26 @@
   const ctx = canvas.getContext('2d');
   
   let line = 0;
-  let drops;
   let matrixColor = "#00e5ff";
+  let isThrottled = false;
 
+  // 1. BOOT SEQUENCE
   function typeBoot() {
     if (line < bootLog.length) {
       let p = document.createElement('p');
       p.innerText = bootLog[line];
       bootContainer.appendChild(p);
       line++;
-      setTimeout(typeBoot, 500);
+      setTimeout(typeBoot, 400);
     } else {
       setTimeout(() => {
         bootContainer.style.display = 'none';
         override.style.display = 'flex';
-      }, 800);
+      }, 500);
     }
   }
 
+  // 2. EMERGENCY BYPASS (Safety Net)
   function emergencyBypass() {
     document.getElementById('recovery-tap').style.display = 'none';
     bootContainer.style.display = 'none';
@@ -164,68 +170,75 @@
     initMatrix();
   }
 
+  // 3. VIDEO CONTROL
   document.getElementById('start-video-btn').onclick = () => {
-    glitchSnd.play();
+    glitchSnd.play().catch(()=>{}); 
     document.getElementById('start-video-btn').style.display = 'none';
     breachVid.play().catch(emergencyBypass);
   };
 
   breachVid.onended = emergencyBypass;
 
+  // 4. MATRIX BACKGROUND
   function initMatrix() {
     canvas.width = window.innerWidth;
     canvas.height = canvas.offsetHeight;
     const columns = canvas.width / 14;
-    drops = Array(Math.floor(columns)).fill(1);
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = matrixColor;
+      ctx.font = "14px monospace";
+      drops.forEach((y, i) => {
+        const text = "01AZULMOCHKIL"[Math.floor(Math.random() * 12)];
+        ctx.fillText(text, i * 14, y * 14);
+        if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      });
+    }
     setInterval(draw, 50);
   }
 
-  function draw() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = matrixColor;
-    ctx.font = "14px monospace";
-    drops.forEach((y, i) => {
-      const text = "01AZULMOCHKIL"[Math.floor(Math.random() * 12)];
-      ctx.fillText(text, i * 14, y * 14);
-      if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
-    });
-  }
-
+  // 5. DISCOVERY SYSTEM (Optimized for Mobile)
   function spawnDiscovery() {
-    if (Math.random() > 0.8) {
+    if (isThrottled) return;
+    isThrottled = true;
+    setTimeout(() => { isThrottled = false; }, 150);
+
+    if (Math.random() > 0.7) {
       const main = document.getElementById('main-content');
-      const isRare = Math.random() > 0.95;
-      const glyphs = ["∑", "∆", "ø", "µ", "01", "10", "§", "ƒ"];
       const span = document.createElement('span');
+      const isRare = Math.random() > 0.97;
       span.className = 'discovery-glyph' + (isRare ? ' rare-node' : '');
-      span.innerText = isRare ? "[!]" : glyphs[Math.floor(Math.random() * glyphs.length)];
+      span.innerText = isRare ? "[!]" : "ø";
       span.style.left = Math.random() * 90 + "%";
-      span.style.top = (main.scrollTop + window.innerHeight * 0.6) + (Math.random() * 150) + "px";
+      span.style.top = (main.scrollTop + (window.innerHeight * 0.5)) + "px";
       
-      if(isRare) {
-          span.onclick = () => portalTrigger('https://maximumreality.xyz/backdoor', 'pink');
-      }
+      if(isRare) span.onclick = () => portalTrigger('https://maximumreality.xyz/backdoor', 'pink');
       
       main.appendChild(span);
-      setTimeout(() => span.remove(), 2000);
+      setTimeout(() => span.remove(), 1500);
     }
   }
 
   function portalTrigger(url, sector) {
-    const loader = document.getElementById('loading-overlay');
-    const loadText = document.getElementById('loading-text');
-    loader.style.display = 'flex';
-    matrixColor = sector === 'azul' ? '#00e5ff' : (sector === 'mochkil' ? '#32cd32' : '#ff00ff');
-    document.documentElement.style.setProperty('--accent', matrixColor);
-    loadText.innerText = sector === 'azul' ? "UPLINKING_TO_LABS..." : (sector === 'mochkil' ? "ACCESSING_VAULT..." : "BREACHING_BACKDOOR...");
-    glitchSnd.currentTime = 0;
-    glitchSnd.play();
-    setTimeout(() => { window.location.href = url; }, 1200);
+    document.getElementById('loading-overlay').style.display = 'flex';
+    document.getElementById('loading-text').innerText = "CONNECTING...";
+    setTimeout(() => { window.location.href = url; }, 1000);
   }
 
-  window.onload = typeBoot;
+  // START SYSTEM
+  window.onload = () => {
+    typeBoot();
+    // Safety check: if site hasn't loaded in 5 seconds, force show main content
+    setTimeout(() => {
+        if(document.getElementById('main-content').style.display !== 'block' && override.style.display !== 'flex') {
+            emergencyBypass();
+        }
+    }, 5000);
+  };
 </script>
 </body>
 </html>
