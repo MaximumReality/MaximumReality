@@ -110,6 +110,45 @@
   Pick an experience — games, stories, and worlds from the Maximum Reality universe.
 </div>
 
+  <div class="news-ticker-wrap">
+    <div class="ticker-label">LIVE_LEAK:</div>
+    <div class="ticker-text">
+        [AZUL_01]: "SUB-KIBBLE FREQUENCIES DETECTED IN THE KITCHEN SECTOR... MOCHKIL IS USING THE AIR FRYER TO BROADCAST UNENCRYPTED RECIPES TO THE NEIGHBORHOOD... PANTRY SECURITY COMPROMISED... STAY VIGILANT..."
+    </div>
+</div>
+
+<style>
+    .news-ticker-wrap {
+        background: #111;
+        border-top: 1px solid #ff00ff;
+        border-bottom: 1px solid #ff00ff;
+        padding: 8px;
+        margin: 20px 0;
+        display: flex;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+    .ticker-label {
+        color: #ff00ff;
+        font-weight: 800;
+        font-size: 0.7rem;
+        margin-right: 10px;
+        background: rgba(255, 0, 255, 0.1);
+        padding: 2px 5px;
+    }
+    .ticker-text {
+        font-family: 'Courier New', monospace;
+        font-size: 0.7rem;
+        color: #00e5ff;
+        animation: scrollText 15s linear infinite;
+    }
+    @keyframes scrollText {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+</style>
+
+  
 <section class="app-section" id="apps">
   
   <h2 class="section-title">System Portals</h2>
