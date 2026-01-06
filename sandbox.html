@@ -160,13 +160,137 @@
   <h2 class="section-title">System Portals</h2>
   
   <div class="portal-container">
-    <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
-      <div>
-        <div class="portal-tag">Sector_01 // Labs</div>
-        <div class="portal-title-text">MAINFRAME<br>ZERO</div>
-      </div>
+  
+  <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
+    <div class="glass-inner">
+      <div class="portal-tag">Sector_01 // Labs</div>
+      <div class="portal-title-text">MAINFRAME<br>ZERO</div>
       <div class="portal-status-text">● UPLINK_ACTIVE</div>
-    </a>
+    </div>
+  </a>
+
+  <a href="https://maximumreality.github.io/recipes/" class="portal-card-main mochkil-portal">
+    <div class="glass-inner">
+      <div class="portal-tag">Sector_02 // Kitchen</div>
+      <div class="portal-title-text">THE RECIPE<br>VAULT</div>
+      <div class="portal-status-text">● SYS_STABLE</div>
+    </div>
+  </a>
+
+</div>
+
+<style>
+  .portal-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    padding: 0 20px;
+    margin: 20px 0;
+  }
+
+  .portal-card-main {
+    text-decoration: none;
+    border-radius: 20px;
+    background-image: url('portals.PNG'); /* Matching your filename exactly */
+    background-size: 210% 100%; /* Slightly zoomed for detail */
+    height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Keeps text at the bottom */
+    border: 1px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .portal-card-main:active { transform: scale(0.96); }
+
+  /* Positioning the Image */
+  .azul-portal { background-position: left center; border-color: #00e5ff; }
+  .mochkil-portal { background-position: right center; border-color: #32cd32; }
+
+  /* Glassmorphism Text Box */
+  .glass-inner {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 12px;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; opacity: 0.8; margin-bottom: 4px; }
+  .portal-title-text { font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1.1; }
+  .portal-status-text { font-size: 0.5rem; font-family: monospace; margin-top: 8px; font-weight: bold; }
+  
+  .azul-portal .portal-status-text { color: #00e5ff; }
+  .mochkil-portal .portal-status-text { color: #32cd32; }
+</style>
+<div class="portal-container">
+  
+  <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
+    <div class="glass-inner">
+      <div class="portal-tag">Sector_01 // Labs</div>
+      <div class="portal-title-text">MAINFRAME<br>ZERO</div>
+      <div class="portal-status-text">● UPLINK_ACTIVE</div>
+    </div>
+  </a>
+
+  <a href="https://maximumreality.github.io/recipes/" class="portal-card-main mochkil-portal">
+    <div class="glass-inner">
+      <div class="portal-tag">Sector_02 // Kitchen</div>
+      <div class="portal-title-text">THE RECIPE<br>VAULT</div>
+      <div class="portal-status-text">● SYS_STABLE</div>
+    </div>
+  </a>
+
+</div>
+
+<style>
+  .portal-container { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 12px; 
+    padding: 0 20px;
+    margin: 20px 0;
+  }
+
+  .portal-card-main {
+    text-decoration: none;
+    border-radius: 20px;
+    background-image: url('portals.PNG'); /* Matching your filename exactly */
+    background-size: 210% 100%; /* Slightly zoomed for detail */
+    height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Keeps text at the bottom */
+    border: 1px solid rgba(255,255,255,0.2);
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .portal-card-main:active { transform: scale(0.96); }
+
+  /* Positioning the Image */
+  .azul-portal { background-position: left center; border-color: #00e5ff; }
+  .mochkil-portal { background-position: right center; border-color: #32cd32; }
+
+  /* Glassmorphism Text Box */
+  .glass-inner {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 12px;
+    width: 100%;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; opacity: 0.8; margin-bottom: 4px; }
+  .portal-title-text { font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1.1; }
+  .portal-status-text { font-size: 0.5rem; font-family: monospace; margin-top: 8px; font-weight: bold; }
+  
+  .azul-portal .portal-status-text { color: #00e5ff; }
+  .mochkil-portal .portal-status-text { color: #32cd32; }
+</style>
 
     <a href="https://maximumreality.github.io/recipes/" class="portal-card-main mochkil-portal">
       <div>
