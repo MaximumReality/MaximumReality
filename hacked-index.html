@@ -3,137 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TERMINAL_ZERO | MAXIMUM_REALITY</title>
+    <title>SYSTEM_CRITICAL | Maximum Reality</title>
     <style>
-        :root { --blue: #00e5ff; --green: #32cd32; --pink: #ff00ff; --border: rgba(0, 229, 255, 0.3); }
+        :root { --blue: #00e5ff; --green: #32cd32; --pink: #ff00ff; }
         * { margin: 0; padding: 0; box-sizing: border-box; background: #000; cursor: crosshair; }
-        body { font-family: 'Courier New', monospace; color: #fff; overflow-x: hidden; border: 2px solid var(--blue); height: 100vh; position: relative; }
+        body { font-family: 'Courier New', monospace; color: #fff; overflow-x: hidden; height: 100vh; }
 
-        /* HEADER & CRT EFFECTS */
-        .safety { background: var(--pink); color: #000; padding: 5px; text-align: center; font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 1000; letter-spacing: 2px; }
-        
-        .crt-lines {
+        /* 1. SAFE EXIT BANNER */
+        .safety {
+            background: var(--pink); color: #000; padding: 8px; text-align: center; 
+            font-size: 11px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 50000;
+        }
+        .safety a { color: #000; text-decoration: none; border: 1px solid #000; padding: 2px 8px; margin-left: 10px; }
+
+        /* 2. BOOT SEQUENCE OVERLAY */
+        #boot-sequence {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 999;
+            background: #000; z-index: 40000; padding: 40px 20px; font-size: 13px;
+            color: var(--blue); line-height: 1.8;
         }
 
-        /* HERO AREA */
-        #hero { width: 100%; height: 35vh; border-bottom: 1px solid var(--blue); position: relative; margin-top: 25px; }
-        canvas { display: block; width: 100%; height: 100%; opacity: 0.6; }
+        /* 3. FLOATING GLYPHS */
+        .glyph {
+            position: absolute; color: var(--blue); font-size: 12px; 
+            opacity: 0; pointer-events: none; animation: floatUp 3s linear infinite;
+            z-index: 1;
+        }
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            20% { opacity: 0.5; }
+            80% { opacity: 0.5; }
+            100% { opacity: 0; transform: translateY(-100px); }
+        }
+
+        /* MAIN INTERFACE */
+        #main-content { display: none; position: relative; z-index: 10; padding-top: 50px; }
+        
+        #hero { width: 100%; height: 30vh; position: relative; border-bottom: 1px solid var(--blue); }
+        canvas { display: block; width: 100%; height: 100%; }
         .title-glitch {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 1.4rem; font-weight: 900; color: #fff; text-shadow: 3px 3px var(--pink);
-            letter-spacing: 8px; text-align: center; width: 100%;
+            font-size: 1.5rem; font-weight: 900; letter-spacing: 5px; text-shadow: 2px 2px var(--pink);
         }
 
-        /* NAVIGATION NODES */
-        .grid { display: flex; justify-content: space-around; padding: 40px 10px; }
-        .node { text-align: center; position: relative; }
-        .portal {
-            width: 110px; height: 110px; border-radius: 50%; border: 3px double var(--blue);
-            background: url('portals.PNG') no-repeat; background-size: 200% 100%;
-            box-shadow: 0 0 20px var(--border); transition: 0.4s;
-        }
-        .azul { background-position: 0% center; box-shadow: 0 0 20px var(--blue); }
+        .portal-container { display: flex; justify-content: space-around; padding: 30px 0; }
+        .portal-btn { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #fff; background: url('portals.PNG') no-repeat; background-size: 200% 100%; box-shadow: 0 0 20px var(--blue); }
+        .azul { background-position: 0% center; }
         .mochkil { background-position: 100% center; border-color: var(--green); box-shadow: 0 0 20px var(--green); }
-        .label { font-size: 9px; margin-top: 10px; color: var(--blue); font-weight: 900; letter-spacing: 1px; }
 
-        /* BUTTONS */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 25px; padding-bottom: 50px; }
-        .btn {
-            text-decoration: none; padding: 18px 45px; font-size: 12px; font-weight: 900;
-            letter-spacing: 3px; border: 2px solid; position: relative; 
-        }
-        .breach { border-color: var(--pink); color: var(--pink); text-shadow: 0 0 10px var(--pink); }
-        .breach:active { background: var(--pink); color: #000; }
-        .rss { border-color: var(--blue); color: var(--blue); font-size: 10px; padding: 10px 30px; opacity: 0.7; }
+        .button-zone { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .btn { padding: 15px 40px; border: 2px solid var(--pink); color: var(--pink); font-weight: 900; text-decoration: none; font-size: 12px; }
 
-        /* BREACH VIDEO INTERFACE */
-        #video-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center; flex-direction: column;
-        }
-        .video-container { width: 90%; max-width: 500px; position: relative; border: 2px solid var(--pink); box-shadow: 0 0 30px var(--pink); }
-        .video-header { background: var(--pink); color: #000; padding: 5px; font-size: 10px; font-weight: 900; display: flex; justify-content: space-between; }
-        
-        iframe { width: 100%; aspect-ratio: 9/16; border: none; }
-        
-        .close-btn { color: #000; background: transparent; border: none; font-weight: 900; cursor: pointer; }
+        /* VIDEO OVERLAY */
+        #video-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 60000; align-items: center; justify-content: center; flex-direction: column; }
+        .v-header { background: var(--pink); color: #000; width: 90%; max-width: 500px; padding: 5px; font-size: 10px; font-weight: 900; }
+        iframe { width: 90%; max-width: 500px; aspect-ratio: 9/16; border: 2px solid var(--pink); }
     </style>
 </head>
-<body>
+<body onscroll="spawnGlyphs()">
 
-<div class="crt-lines"></div>
-<div class="safety">UPLINK_STATUS: ENCRYPTED // AZUL_POV_DETECTED</div>
-
-<div id="hero">
-    <canvas id="matrix"></canvas>
-    <div class="title-glitch">MAXIMUM_REALITY</div>
+<div class="safety">
+    [!] SYSTEM_BREACH_IN_PROGRESS <a href="https://MaximumReality.xyz">[ SAFE_EXIT ]</a>
 </div>
 
-<div class="grid">
-    <div class="node" onclick="location.href='https://maximumreality.github.io/mainframe_zero/'">
-        <div class="portal azul"></div>
-        <div class="label">MAINFRAME_0</div>
-    </div>
-    <div class="node" onclick="location.href='https://maximumreality.github.io/recipes/'">
-        <div class="portal mochkil"></div>
-        <div class="label">CHEF_VAULT</div>
-    </div>
-</div>
+<div id="boot-sequence"></div>
 
-<div class="controls">
-    <div class="btn breach" onclick="openBreach()">[ INITIATE_BREACH ]</div>
-    <a href="rss.xml" class="btn rss">📡 SIGNAL_RSS</a>
+<div id="main-content">
+    <div id="hero">
+        <canvas id="matrix"></canvas>
+        <div class="title-glitch">MAXIMUM_REALITY</div>
+    </div>
+
+    <div class="portal-container">
+        <div onclick="location.href='https://maximumreality.github.io/mainframe_zero/'"><div class="portal-btn azul"></div></div>
+        <div onclick="location.href='https://maximumreality.github.io/recipes/'"><div class="portal-btn mochkil"></div></div>
+    </div>
+
+    <div class="button-zone">
+        <div class="btn" onclick="openBreach()">[ INITIATE_BREACH ]</div>
+        <a href="rss.xml" class="btn" style="border-color: var(--blue); color: var(--blue);">📡 SIGNAL_RSS</a>
+    </div>
 </div>
 
 <div id="video-overlay">
-    <div class="video-container">
-        <div class="video-header">
-            <span>UPLINK: AZUL_HACK_SEQUENCE</span>
-            <span onclick="closeBreach()" style="cursor:pointer;">[ EXIT_X ]</span>
-        </div>
-        <iframe id="breach-player" src="https://www.youtube.com/embed/ysz6xN2uZQg?enablejsapi=1&rel=0&controls=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
+    <div class="v-header">UPLINK: AZUL_BYPASS_AUTHORIZED <span onclick="closeBreach()" style="float:right;">[X]</span></div>
+    <iframe id="breach-player" src="https://www.youtube.com/embed/ysz6xN2uZQg?enablejsapi=1&rel=0&controls=0" allow="autoplay; encrypted-media"></iframe>
 </div>
 
 <script>
-    // MATRIX BACKGROUND ENGINE
-    const canvas = document.getElementById('matrix');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight * 0.35;
-    const drops = Array(Math.floor(canvas.width / 14)).fill(1);
-
-    function draw() {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#00e5ff"; ctx.font = "14px monospace";
-        drops.forEach((y, i) => {
-            const text = "01"[Math.floor(Math.random() * 2)];
-            ctx.fillText(text, i * 14, y * 14);
-            if (y * 14 > canvas.height && Math.random() > 0.98) drops[i] = 0;
-            drops[i]++;
-        });
+    // 2. BOOT SEQUENCE LOGIC
+    const bootLog = [
+        "> CONNECTING TO MAINFRAME ZERO...",
+        "> BYPASSING FIREWALL [99%]",
+        "> ACCESS GRANTED: (MAXIMUMREALITY)",
+        "> LOADING AZUL_OS V4.2...",
+        "> SCANNING BIOMETRICS...",
+        "> WARNING: SPHYNX CAT DETECTED...",
+        "> INITIALIZING REALITY DISTORTION...",
+        "> [!] AZUL_BYPASS: OPEN SESAME."
+    ];
+    
+    let line = 0;
+    const bootDiv = document.getElementById('boot-sequence');
+    
+    function runBoot() {
+        if (line < bootLog.length) {
+            let p = document.createElement('p');
+            p.innerText = bootLog[line];
+            bootDiv.appendChild(p);
+            line++;
+            setTimeout(runBoot, 400);
+        } else {
+            setTimeout(() => {
+                bootDiv.style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                initMatrix();
+            }, 800);
+        }
     }
-    setInterval(draw, 50);
 
-    // BREACH LOGIC
+    // 3. GLYPH ENGINE (Optimized)
+    const glyphs = ["∑", "∆", "ø", "µ", "§", "ƒ", "01", "10"];
+    function spawnGlyphs() {
+        if (Math.random() > 0.8) {
+            const span = document.createElement('span');
+            span.className = 'glyph';
+            span.innerText = glyphs[Math.floor(Math.random() * glyphs.length)];
+            span.style.left = Math.random() * 95 + "vw";
+            span.style.top = (window.scrollY + window.innerHeight * 0.7) + "px";
+            document.body.appendChild(span);
+            setTimeout(() => span.remove(), 3000);
+        }
+    }
+
+    // MATRIX HERO
+    function initMatrix() {
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = canvas.offsetHeight;
+        const drops = Array(Math.floor(canvas.width / 14)).fill(1);
+        setInterval(() => {
+            ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "#00e5ff"; ctx.font = "14px monospace";
+            drops.forEach((y, i) => {
+                ctx.fillText("01"[Math.floor(Math.random()*2)], i*14, y*14);
+                if (y*14 > canvas.height && Math.random() > 0.98) drops[i] = 0;
+                drops[i]++;
+            });
+        }, 50);
+    }
+
     function openBreach() {
-        const overlay = document.getElementById('video-overlay');
-        overlay.style.display = 'flex';
-        // Force refresh the iframe to trigger autoplay if parameters allow
-        const player = document.getElementById('breach-player');
-        player.src += "&autoplay=1";
+        document.getElementById('video-overlay').style.display = 'flex';
+        document.getElementById('breach-player').src += "&autoplay=1";
     }
 
     function closeBreach() {
-        const backdoors = [
-            'https://maximumreality.github.io/backdoor/backdoor1',
-            'https://maximumreality.github.io/backdoor/backdoor2',
-            'https://maximumreality.github.io/backdoor/backdoor3'
-        ];
+        const backdoors = ['backdoor/backdoor1','backdoor/backdoor2','backdoor/backdoor3'];
         window.location.href = backdoors[Math.floor(Math.random() * backdoors.length)];
     }
+
+    window.onload = runBoot;
 </script>
 </body>
 </html>
