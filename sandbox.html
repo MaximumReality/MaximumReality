@@ -148,6 +148,48 @@
     }
 </style>
 
+  <div class="mochkil-ticker-wrap">
+    <div class="m-ticker-label">SNACK_ALERT:</div>
+    <div class="m-ticker-text">
+        [CHEF_MOCHKIL]: "NEW DROP: DECONSTRUCTED TUNA TARTARE WITH A CATNIP INFUSION... NO MICROWAVES WERE HARMED IN THIS PRODUCTION... PROBABLY... MICHELIN STARS INCOMING... FRIDGE SECURITY BYPASS IN 3... 2... 1..."
+    </div>
+</div>
+
+<style>
+    .mochkil-ticker-wrap {
+        background: #050505;
+        border-top: 1px solid #32cd32;
+        border-bottom: 1px solid #32cd32;
+        padding: 8px;
+        margin: 10px 0;
+        display: flex;
+        overflow: hidden;
+        white-space: nowrap;
+        box-shadow: 0 0 10px rgba(50, 205, 50, 0.2);
+    }
+    .m-ticker-label {
+        color: #000;
+        background: #32cd32;
+        font-weight: 900;
+        font-size: 0.7rem;
+        margin-right: 12px;
+        padding: 2px 8px;
+        border-radius: 2px;
+        text-transform: uppercase;
+    }
+    .m-ticker-text {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #fff;
+        font-weight: bold;
+        animation: scrollMochkil 12s linear infinite;
+    }
+    @keyframes scrollMochkil {
+        0% { transform: translateX(100%); }
+        100% { transform: translateX(-100%); }
+    }
+</style>
+
   
 <section class="app-section" id="apps">
   
