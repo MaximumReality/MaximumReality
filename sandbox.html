@@ -13,8 +13,8 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; transition: 0.3s; }
     
-    body.azul-theme { --theme-accent: #00e5ff; }
-    body.mochkil-theme { --theme-accent: #32cd32; }
+    body.azul-theme { --theme-accent: #00e5ff; --theme-glow: rgba(0, 229, 255, 0.4); }
+    body.mochkil-theme { --theme-accent: #32cd32; --theme-glow: rgba(50, 205, 50, 0.4); }
 
     header {
       position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8);
@@ -33,10 +33,10 @@
     /* 2. THEME TOGGLE UI */
     .toggle-zone { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 15px 0; background: rgba(255, 255, 255, 0.02); margin-top: 10px; }
     .toggle-label { font-size: 0.6rem; letter-spacing: 2px; color: #888; }
-    .switch-base { width: 60px; height: 30px; background: #111; border: 1px solid #333; border-radius: 15px; position: relative; cursor: pointer; }
+    .switch-base { width: 60px; height: 30px; background: #111; border: 1px solid #333; border-radius: 15px; position: relative; cursor: pointer; transition: 0.3s; }
     .switch-handle { width: 24px; height: 24px; border-radius: 50%; position: absolute; top: 2px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .azul-mode { left: 3px; background: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
-    .mochkil-mode { left: 31px; background: #32cd32; box-shadow: 0 0 10px #32cd32; }
+    .azul-mode { left: 3px; background: #00e5ff; box-shadow: 0 0 15px #00e5ff; }
+    .mochkil-mode { left: 31px; background: #32cd32; box-shadow: 0 0 15px #32cd32; }
 
     /* 3. NEWS TICKERS */
     .ticker-container { width: 100%; overflow: hidden; position: relative; height: 40px; margin: 15px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; background: #080808; display: flex; align-items: center; }
@@ -64,7 +64,6 @@
     .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; opacity: 0.8; margin-bottom: 4px; }
     .portal-title-text { font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1.1; }
 
-    /* Standard App Cards */
     .app-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 12px; text-decoration: none; color: white; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.2s ease; }
     .app-icon { width: 62px; height: 62px; border-radius: 14px; margin-right: 15px; flex-shrink: 0; background: #111; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     .app-icon img { width: 100%; height: 100%; object-fit: cover; }
@@ -73,11 +72,14 @@
     .app-desc { font-size: 0.75rem; opacity: 0.6; }
     .get-btn { background: rgba(255, 255, 255, 0.1); padding: 8px 0; border-radius: 20px; font-weight: 800; font-size: 0.75rem; width: 80px; text-align: center; border: 1px solid var(--theme-accent); color: var(--theme-accent); transition: 0.3s; text-transform: uppercase; }
 
-    /* Footer & Curator */
+    /* Footer */
     .transmissions { padding: 40px 10px; background: #050505; border-top: 1px solid #111; }
     footer { padding: 60px 20px; text-align: center; background: #000; border-top: 1px solid #111; }
     .footer-logo { width: 60px; margin-bottom: 15px; opacity: 0.5; }
     .legal { color: #333; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; }
+
+    /* Loading Skip Button Styling */
+    #skipBtn { position: absolute; bottom: 30px; color: #333; font-size: 0.5rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid #222; padding: 5px 10px; border-radius: 10px; cursor: pointer; }
   </style>
 </head>
 
@@ -96,6 +98,7 @@
             <div id="mochkilBar" style="height: 100%; width: 0%; background: #32cd32;"></div>
         </div>
     </div>
+    <div id="skipBtn" onclick="skipLoading()">OVERRIDE_MAINFRAME</div>
 </div>
 
 <header>
@@ -112,7 +115,7 @@
   </video>
 </div>
 
-<div class="app-intro">Pick an experience from the Maximum Reality universe.</div>
+<div class="app-intro">Worlds from the Maximum Reality universe.</div>
 
 <div class="toggle-zone">
   <span class="toggle-label">OPERATIVE</span>
@@ -133,7 +136,6 @@
 </div>
 
 <section class="app-section" id="apps">
-  
   <h2 class="section-title">System Portals</h2>
   <div class="portal-container">
     <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
@@ -151,81 +153,67 @@
   </div>
 
   <h2 class="section-title">Start Anywhere</h2>
-  
   <a href="https://youtube.com/shorts/Y5x8DP7FE2U" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #ff00ff;"><img src="logo.png"></div>
-    <div class="app-info"><div class="app-name">Welcome Mission</div><div class="app-desc">Meet the Creator • System Overview</div></div>
+    <div class="app-info"><div class="app-name">Welcome Mission</div><div class="app-desc">Meet the Creator</div></div>
     <div class="get-btn">WATCH</div>
   </a>
-
   <a href="https://maximumreality.github.io/Pulse/index.html" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #a286ef;"><img src="https://maximumreality.github.io/Pulse/poc_cover.png"></div>
-    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">A Novel • By Lori Sifuentes</div></div>
+    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">A Novel</div></div>
     <div class="get-btn">READ</div>
   </a>
-
   <a href="https://maximumreality.github.io/Abduction/" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
-    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Sci-fi Arcade • Mission Survival</div></div>
+    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Sci-fi Arcade</div></div>
     <div class="get-btn">GET</div>
   </a>
-
   <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #ffb6c1;"><img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png"></div>
-    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Social • Cozy Simulator</div></div>
+    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Cozy Simulator</div></div>
     <div class="get-btn">OPEN</div>
   </a>
-
   <a href="https://maximumreality.github.io/snack_attack/" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #ff00ff;"><span>🍰</span></div>
-    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">Arcade • Fast-Paced Fun</div></div>
+    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">Arcade Game</div></div>
     <div class="get-btn">GET</div>
   </a>
-
   <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #00f2ff;"><img src="https://maximumreality.github.io/azul-story-cyoa/azul.png"></div>
-    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Choose Your Own Adventure • Unlock Videos</div></div>
+    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Story Game</div></div>
     <div class="get-btn">ENTER</div>
   </a>
-
-  <a href="mailto:lori@maximumreality.xyz" target="_blank" class="app-card">
-    <div class="app-icon" style="border: 1px solid #ffffff;"><span>✉️</span></div>
-    <div class="app-info"><div class="app-name">Contact Studio</div><div class="app-desc">Inquiries • lori@maximumreality.xyz</div></div>
-    <div class="get-btn">MAIL</div>
-  </a>
-
-</section>
-
-<section class="transmissions" id="transmissions">
-  <h2 style="text-align:center; color:#ff00ff; margin-bottom:20px; font-size:1.2rem;">📡 LATEST TRANSMISSIONS</h2>
-  <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
 </section>
 
 <footer>
   <img src="logo.png" alt="Maximum Reality" class="footer-logo">
-  <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
+  <p class="legal">© 2026 Maximum Reality</p>
 </footer>
 
 <script>
-    // 1. SPLASH SCRIPT
+    let loadingInterval;
+    
+    function skipLoading() {
+        clearInterval(loadingInterval);
+        const splash = document.getElementById('splashScreen');
+        splash.style.transition = "opacity 0.4s";
+        splash.style.opacity = "0";
+        setTimeout(() => { splash.style.display = "none"; }, 400);
+    }
+
     window.addEventListener('load', function() {
         let azulW = 0, mochkilW = 0;
-        let loading = setInterval(() => {
+        loadingInterval = setInterval(() => {
             if (azulW < 100) azulW += 10;
             if (mochkilW < 100) mochkilW += 8;
-            document.getElementById('azulBar').style.width = Math.min(azulW, 100) + "%";
-            document.getElementById('mochkilBar').style.width = Math.min(mochkilW, 100) + "%";
+            document.getElementById('azulBar').style.width = azulW + "%";
+            document.getElementById('mochkilBar').style.width = mochkilW + "%";
             if (azulW >= 100 && mochkilW >= 100) {
-                clearInterval(loading);
-                setTimeout(() => {
-                    document.getElementById('splashScreen').style.opacity = "0";
-                    setTimeout(() => { document.getElementById('splashScreen').style.display = "none"; }, 800);
-                }, 500);
+                skipLoading();
             }
-        }, 100);
+        }, 150);
     });
 
-    // 2. THEME TOGGLE SCRIPT
     function toggleTheme() {
         const body = document.body;
         const handle = document.getElementById('switchHandle');
@@ -246,13 +234,6 @@
             setTimeout(() => { azulT.style.opacity = '1'; }, 10);
         }
     }
-
-    // 3. CURATOR SCRIPT
-    (function(){
-      var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
-      i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
-      e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
-    })();
 </script>
 
 </body>
