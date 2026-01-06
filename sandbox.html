@@ -13,7 +13,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; transition: 0.3s; }
     
-    /* Variable colors that change with the theme */
     body.azul-theme { --theme-accent: #00e5ff; }
     body.mochkil-theme { --theme-accent: #32cd32; }
 
@@ -39,28 +38,15 @@
     .azul-mode { left: 3px; background: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
     .mochkil-mode { left: 31px; background: #32cd32; box-shadow: 0 0 10px #32cd32; }
 
-    /* 3. NEWS TICKERS (The "Always-Scrolling" Fix) */
+    /* 3. NEWS TICKERS */
     .ticker-container { width: 100%; overflow: hidden; position: relative; height: 40px; margin: 15px 0; border-top: 1px solid #222; border-bottom: 1px solid #222; background: #080808; display: flex; align-items: center; }
-    
-    .news-ticker-wrap, .mochkil-ticker-wrap { 
-      display: flex; align-items: center; white-space: nowrap; width: 100%; position: absolute; left: 0; transition: opacity 0.3s;
-    }
-
+    .news-ticker-wrap, .mochkil-ticker-wrap { display: flex; align-items: center; white-space: nowrap; width: 100%; position: absolute; left: 0; transition: opacity 0.3s; }
     .ticker-label { color: #ff00ff; font-weight: 800; font-size: 0.65rem; margin-right: 15px; background: rgba(255, 0, 255, 0.1); padding: 4px 8px; flex-shrink: 0; }
     .m-ticker-label { color: #000; background: #32cd32; font-weight: 900; font-size: 0.65rem; margin-right: 15px; padding: 4px 8px; flex-shrink: 0; }
-    
-    .ticker-text, .m-ticker-text { 
-      font-family: 'Courier New', monospace; font-size: 0.75rem; 
-      display: inline-block; padding-left: 100%;
-      animation: scrollNews 20s linear infinite; 
-    }
+    .ticker-text, .m-ticker-text { font-family: 'Courier New', monospace; font-size: 0.75rem; display: inline-block; padding-left: 100%; animation: scrollNews 20s linear infinite; }
     .ticker-text { color: #00e5ff; }
     .m-ticker-text { color: #fff; }
-
-    @keyframes scrollNews {
-      0% { transform: translate3d(0, 0, 0); }
-      100% { transform: translate3d(-100%, 0, 0); }
-    }
+    @keyframes scrollNews { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 
     /* 4. PORTALS & CARDS */
     .app-section { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
@@ -75,13 +61,22 @@
     .azul-portal { background-position: left center; border-color: #00e5ff; }
     .mochkil-portal { background-position: right center; border-color: #32cd32; }
     .glass-inner { background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 12px; width: 100%; border-top: 1px solid rgba(255,255,255,0.1); }
-    
-    .app-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 12px; text-decoration: none; color: white; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1); }
-    .app-icon { width: 62px; height: 62px; border-radius: 14px; margin-right: 15px; flex-shrink: 0; background: #111; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .app-icon img { width: 100%; height: 100%; object-fit: cover; }
-    .get-btn { background: rgba(255, 255, 255, 0.1); padding: 8px 0; border-radius: 20px; font-weight: 800; font-size: 0.75rem; width: 80px; text-align: center; border: 1px solid var(--theme-accent); color: var(--theme-accent); transition: 0.3s; }
+    .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1.5px; color: #fff; opacity: 0.8; margin-bottom: 4px; }
+    .portal-title-text { font-size: 0.9rem; font-weight: 900; color: #fff; letter-spacing: 1px; line-height: 1.1; }
 
+    /* Standard App Cards */
+    .app-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.08); border-radius: 22px; padding: 12px; text-decoration: none; color: white; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.2s ease; }
+    .app-icon { width: 62px; height: 62px; border-radius: 14px; margin-right: 15px; flex-shrink: 0; background: #111; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .app-info { flex-grow: 1; }
+    .app-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+    .app-desc { font-size: 0.75rem; opacity: 0.6; }
+    .get-btn { background: rgba(255, 255, 255, 0.1); padding: 8px 0; border-radius: 20px; font-weight: 800; font-size: 0.75rem; width: 80px; text-align: center; border: 1px solid var(--theme-accent); color: var(--theme-accent); transition: 0.3s; text-transform: uppercase; }
+
+    /* Footer & Curator */
+    .transmissions { padding: 40px 10px; background: #050505; border-top: 1px solid #111; }
     footer { padding: 60px 20px; text-align: center; background: #000; border-top: 1px solid #111; }
+    .footer-logo { width: 60px; margin-bottom: 15px; opacity: 0.5; }
     .legal { color: #333; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; }
   </style>
 </head>
@@ -105,15 +100,15 @@
 
 <header>
   <nav>
-    <a href="#">Arcade</a>
-    <a href="#">Transmissions</a>
-    <a href="#">Shop</a>
+    <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
+    <a href="https://youtube.com/@maximumrealitylori" target="_blank">Transmissions</a>
+    <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
   </nav>
 </header>
 
 <div class="hero">
   <video id="heroVideo" autoplay muted playsinline loop>
-    <source id="videoSource" src="intro.MP4" type="video/mp4">
+    <source src="intro.MP4" type="video/mp4">
   </video>
 </div>
 
@@ -137,7 +132,8 @@
     </div>
 </div>
 
-<section class="app-section">
+<section class="app-section" id="apps">
+  
   <h2 class="section-title">System Portals</h2>
   <div class="portal-container">
     <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
@@ -155,14 +151,58 @@
   </div>
 
   <h2 class="section-title">Start Anywhere</h2>
-  <a href="#" class="app-card">
-    <div class="app-icon"><img src="logo.png"></div>
-    <div class="app-info"><div class="app-name">Welcome Mission</div><div class="app-desc">Meet the Creator</div></div>
+  
+  <a href="https://youtube.com/shorts/Y5x8DP7FE2U" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;"><img src="logo.png"></div>
+    <div class="app-info"><div class="app-name">Welcome Mission</div><div class="app-desc">Meet the Creator • System Overview</div></div>
     <div class="get-btn">WATCH</div>
   </a>
+
+  <a href="https://maximumreality.github.io/Pulse/index.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #a286ef;"><img src="https://maximumreality.github.io/Pulse/poc_cover.png"></div>
+    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">A Novel • By Lori Sifuentes</div></div>
+    <div class="get-btn">READ</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/Abduction/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
+    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Sci-fi Arcade • Mission Survival</div></div>
+    <div class="get-btn">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffb6c1;"><img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png"></div>
+    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Social • Cozy Simulator</div></div>
+    <div class="get-btn">OPEN</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/snack_attack/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;"><span>🍰</span></div>
+    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">Arcade • Fast-Paced Fun</div></div>
+    <div class="get-btn">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><img src="https://maximumreality.github.io/azul-story-cyoa/azul.png"></div>
+    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Choose Your Own Adventure • Unlock Videos</div></div>
+    <div class="get-btn">ENTER</div>
+  </a>
+
+  <a href="mailto:lori@maximumreality.xyz" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffffff;"><span>✉️</span></div>
+    <div class="app-info"><div class="app-name">Contact Studio</div><div class="app-desc">Inquiries • lori@maximumreality.xyz</div></div>
+    <div class="get-btn">MAIL</div>
+  </a>
+
+</section>
+
+<section class="transmissions" id="transmissions">
+  <h2 style="text-align:center; color:#ff00ff; margin-bottom:20px; font-size:1.2rem;">📡 LATEST TRANSMISSIONS</h2>
+  <div id="curator-feed-default-feed-layout"><a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a></div>
 </section>
 
 <footer>
+  <img src="logo.png" alt="Maximum Reality" class="footer-logo">
   <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
 </footer>
 
@@ -191,26 +231,28 @@
         const handle = document.getElementById('switchHandle');
         const azulT = document.getElementById('azulTicker');
         const mochkilT = document.getElementById('mochkilTicker');
-        const heroVid = document.getElementById('heroVideo');
 
         if (handle.classList.contains('azul-mode')) {
-            // SWITCH TO MOCHKIL
             handle.classList.replace('azul-mode', 'mochkil-mode');
             body.classList.replace('azul-theme', 'mochkil-theme');
             azulT.style.display = 'none';
             mochkilT.style.display = 'flex';
             setTimeout(() => { mochkilT.style.opacity = '1'; }, 10);
-            // Optionally change video here: heroVid.src = "mochkil_vid.mp4";
         } else {
-            // SWITCH TO AZUL
             handle.classList.replace('mochkil-mode', 'azul-mode');
             body.classList.replace('mochkil-theme', 'azul-theme');
             mochkilT.style.display = 'none';
             azulT.style.display = 'flex';
             setTimeout(() => { azulT.style.opacity = '1'; }, 10);
-            // Optionally change video here: heroVid.src = "intro.MP4";
         }
     }
+
+    // 3. CURATOR SCRIPT
+    (function(){
+      var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+      i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
+      e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+    })();
 </script>
 
 </body>
