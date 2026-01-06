@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | REALITY_NOT_FOUND</title>
+    <style>
+        * { margin: 0; padding: 0; background: #000; color: #00e5ff; font-family: 'Courier New', monospace; }
+        body { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        
+        .glitch-code { font-size: 80px; font-weight: 900; text-shadow: 3px 3px #ff00ff; animation: shake 0.5s infinite; }
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(2px, -2px); }
+            50% { transform: translate(-2px, 2px); }
+            75% { transform: translate(2px, 2px); }
+            100% { transform: translate(0,0); }
+        }
+
+        .azul-msg { border: 1px solid #ff00ff; padding: 20px; margin: 20px 0; max-width: 400px; background: rgba(255, 0, 255, 0.05); }
+        .typing { overflow: hidden; white-space: nowrap; border-right: .15em solid #00e5ff; animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite; font-size: 12px; }
+
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00e5ff; } }
+
+        .return-btn { margin-top: 30px; border: 2px solid #00e5ff; padding: 15px 30px; color: #00e5ff; text-decoration: none; font-size: 12px; font-weight: 900; }
+        .return-btn:active { background: #00e5ff; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div class="glitch-code">404</div>
+    
+    <div class="azul-msg">
+        <p style="color: #ff00ff; font-size: 10px; margin-bottom: 10px;">[ INTERCEPTED_BY: AZUL_AI ]</p>
+        <div class="typing">"You're wandering into uncompiled sectors..."</div>
+        <p style="font-size: 11px; margin-top: 15px; line-height: 1.4;">
+            This node doesn't exist in this timeline. Return to the mainframe before the firewall resets.
+        </p>
+    </div>
+
+    <a href="https://maximumreality.xyz/hacked-index.html" class="return-btn">RETURN_TO_MAINFRAME</a>
+
+</body>
+</html>
