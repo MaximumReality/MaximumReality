@@ -82,9 +82,60 @@
   opacity: 0.55;
   letter-spacing: 0.5px;
 }
+        .portal-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+    .portal-card-main {
+      text-decoration: none; padding: 15px; border-radius: 18px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid;
+      display: flex; flex-direction: column; justify-content: space-between;
+      height: 160px; transition: 0.2s;
+    }
+    .portal-card-main:active { transform: scale(0.95); }
+    .azul-portal { border-color: #00e5ff; color: #00e5ff; box-shadow: 0 0 15px rgba(0, 229, 255, 0.1); }
+    .mochkil-portal { border-color: #32cd32; color: #32cd32; box-shadow: 0 0 15px rgba(50, 205, 50, 0.1); }
+    .portal-tag { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+    .portal-title-text { font-size: 1rem; font-weight: 800; margin-top: 5px; line-height: 1.2; }
+    .portal-status-text { font-size: 0.55rem; font-family: monospace; text-align: right; }
+
     </style>
 </head>
 <body>
+<div id="splashScreen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:'Courier New', monospace;">
+    <div style="width: 250px; margin-bottom: 40px;">
+        <div style="color: #00e5ff; font-size: 0.7rem; margin-bottom: 5px;">[ OPERATIVE: AZUL ]</div>
+        <div style="width: 100%; height: 10px; border: 1px solid #00e5ff; padding: 2px;">
+            <div id="azulBar" style="height: 100%; width: 0%; background: #00e5ff;"></div>
+        </div>
+        <div id="azulStatus" style="color: #00e5ff; font-size: 0.5rem; text-align: right; margin-top: 5px;">BOOTING_QUANTUM_CORES...</div>
+    </div>
+    <div style="width: 250px;">
+        <div style="color: #32cd32; font-size: 0.7rem; margin-bottom: 5px;">[ OPERATIVE: MOCHKIL ]</div>
+        <div style="width: 100%; height: 10px; border: 1px solid #32cd32; padding: 2px;">
+            <div id="mochkilBar" style="height: 100%; width: 0%; background: #32cd32;"></div>
+        </div>
+        <div id="mochkilStatus" style="color: #32cd32; font-size: 0.5rem; text-align: right; margin-top: 5px;">STABILIZING_SNACK_OS...</div>
+    </div>
+</div>
+
+<script>
+    window.addEventListener('load', function() {
+        let azulW = 0, mochkilW = 0;
+        let loading = setInterval(() => {
+            if (azulW < 100) azulW += Math.random() * 15;
+            if (mochkilW < 100) mochkilW += Math.random() * 12;
+            document.getElementById('azulBar').style.width = Math.min(azulW, 100) + "%";
+            document.getElementById('mochkilBar').style.width = Math.min(mochkilW, 100) + "%";
+            if (azulW >= 100) document.getElementById('azulStatus').innerText = "AZUL_READY";
+            if (mochkilW >= 100) document.getElementById('mochkilStatus').innerText = "MOCHKIL_READY";
+            if (azulW >= 100 && mochkilW >= 100) {
+                clearInterval(loading);
+                setTimeout(() => {
+                    document.getElementById('splashScreen').style.opacity = "0";
+                    setTimeout(() => { document.getElementById('splashScreen').style.display = "none"; }, 1000);
+                }, 800);
+            }
+        }, 150);
+    });
+</script>
 
   <header>
     <nav>
@@ -105,7 +156,29 @@
    <!-- App Section -->
 <section class="app-section" id="apps">
   <h2 class="section-title">Start Anywhere</h2>
+  <section class="app-section" id="apps">
+  <h2 class="section-title">System Portals</h2>
   
+  <div class="portal-container">
+    <a href="https://maximumreality.github.io/mainframe_zero/" class="portal-card-main azul-portal">
+      <div>
+        <div class="portal-tag">Sector_01 // Labs</div>
+        <div class="portal-title-text">MAINFRAME<br>ZERO</div>
+      </div>
+      <div class="portal-status-text">● UPLINK_ACTIVE</div>
+    </a>
+
+    <a href="https://maximumreality.github.io/recipes/" class="portal-card-main mochkil-portal">
+      <div>
+        <div class="portal-tag">Sector_02 // Kitchen</div>
+        <div class="portal-title-text">THE RECIPE<br>VAULT</div>
+      </div>
+      <div class="portal-status-text">● SYS_STABLE</div>
+    </a>
+  </div>
+
+  <h2 class="section-title">Start Anywhere</h2>
+
   <a href="https://youtube.com/shorts/Y5x8DP7FE2U" target="_blank" class="app-card">
     <div class="app-icon" style="border: 1px solid #ff00ff;">
       <img src="logo.png" alt="Maximum Reality Logo">
