@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
-
 <channel>
-  <title>Maximum Reality Transmissions</title>
-  <link>https://maximumreality.xyz</link>
-  <description>Latest hacks from Azul and Michelin chaos from Mochkil.</description>
+  <title>Maximum Reality | System Breach</title>
+  <link>https://maximumreality.xyz/hacked-index.html</link>
+  <description>Encrypted updates from Azul's Lab and Mochkil's Kitchen.</description>
   <language>en-us</language>
 
   <item>
-    <title>NEW GAME: Snack Attack</title>
-    <link>https://maximumreality.github.io/snack_attack/</link>
-    <description>Mochkil has seized the kitchen. Play the new arcade dash now.</description>
-    <pubDate>Tue, 06 Jan 2026 12:00:00 GMT</pubDate>
+    <title>[!] BREACH_SUCCESSFUL: AZUL_OS LIVE</title>
+    <link>https://maximumreality.xyz/hacked-index.html</link>
+    <description>The firewall has been bypassed. Surveillance footage of operative Azul is now available in the /SURVEILLANCE/ directory.</description>
+    <pubDate>Tue, 06 Jan 2026 13:00:00 GMT</pubDate>
   </item>
 
   <item>
-    <title>AZUL_OS v4.2 HACK ACTIVE</title>
-    <link>https://maximumreality.xyz/hacked-index.html</link>
-    <description>The mainframe has been compromised. Digital rain detected.</description>
-    <pubDate>Mon, 05 Jan 2026 09:00:00 GMT</pubDate>
+    <title>NEW SECTOR: SNACK_ATTACK.RAW</title>
+    <link>https://maximumreality.github.io/snack_attack/</link>
+    <description>Mochkil has seized the kitchen mainframe. Michelin-star chaos is imminent. Play the arcade dash now.</description>
+    <pubDate>Tue, 06 Jan 2026 12:00:00 GMT</pubDate>
   </item>
 
 </channel>
-
 </rss>
