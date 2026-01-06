@@ -10,6 +10,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
+    /* TERMINAL OVERLAY */
     #boot-sequence {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       z-index: 20000; padding: 20px; font-size: 12px; line-height: 1.5;
@@ -21,9 +22,12 @@
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
+    /* MAIN CONTENT WRAPPER */
+    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
+    
     #hero-glitch {
       width: 100%; height: 50vh; position: relative;
-      border-bottom: 2px solid var(--accent); overflow: hidden; display: none;
+      border-bottom: 2px solid var(--accent); overflow: hidden;
     }
     canvas { display: block; width: 100%; height: 100%; }
 
@@ -33,12 +37,11 @@
       background-size: 100% 3px; pointer-events: none;
     }
 
-    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
-    
     .status-box {
       position: absolute; top: 25%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; width: 100%; pointer-events: none;
     }
+
     .glitch-title {
       font-size: 1.5rem; font-weight: 900; letter-spacing: 5px;
       text-shadow: 2px 2px #ff00ff; animation: shake 0.2s infinite;
@@ -49,6 +52,7 @@
       100% { transform: translate(2px, -2px); }
     }
 
+    /* BUTTONS & LISTS */
     .app-list { padding: 20px; max-width: 500px; margin: 0 auto; padding-bottom: 100px; }
     .node-btn {
       display: flex; align-items: center; padding: 18px; margin-bottom: 15px;
@@ -63,19 +67,23 @@
       font-weight: 900; font-family: monospace; letter-spacing: 2px;
     }
 
-    .neon-uplink {
-      display: block; margin: 30px auto; padding: 20px; width: 90%; text-align: center;
-      text-decoration: none; font-weight: 900; font-family: 'Courier New', monospace;
-      font-size: 1.2rem; letter-spacing: 4px; border: 3px solid var(--accent);
-      color: var(--accent); background: transparent; text-transform: uppercase;
+    /* NEON RSS & OVERRIDE UI */
+    .neon-flicker {
+      animation: neon-buzz 4s infinite;
       box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
-      text-shadow: 0 0 8px var(--accent); animation: neon-buzz 4s infinite;
+      text-shadow: 0 0 8px var(--accent);
     }
+
     @keyframes neon-buzz {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-      20%, 24%, 55% { opacity: 0.3; box-shadow: none; text-shadow: none; }
+      20%, 24%, 55% { opacity: 0.3; }
     }
-    .neon-uplink span { font-size: 0.6rem; display: block; margin-top: 5px; opacity: 0.8; }
+
+    #start-video-btn {
+      background: #000; border: 3px solid var(--accent); color: var(--accent);
+      padding: 25px; font-family: monospace; font-weight: 900; 
+      letter-spacing: 3px; z-index: 30001; cursor: pointer;
+    }
   </style>
 </head>
 
@@ -87,8 +95,9 @@
 
 <div id="boot-sequence"></div>
 
-<div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000;">
-    <video id="breachVid" style="width:100%; height:100%; object-fit:contain;" playsinline>
+<div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000; align-items: center; justify-content: center;">
+    <button id="start-video-btn" class="neon-flicker">[ INITIATE_BREACH ]</button>
+    <video id="breachVid" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" playsinline>
         <source src="breach-detected.mp4" type="video/mp4">
     </video>
 </div>
@@ -131,9 +140,8 @@
         <div><span class="node-label">DIR: /CAFE/</span><span>WHISKER_BYTES.SIM</span></div>
       </a>
 
-      <a href="rss.xml" class="neon-uplink">
+      <a href="rss.xml" class="node-btn neon-flicker" style="margin-top: 30px; justify-content: center; border-width: 3px;">
         📡 SIGNAL_RSS
-        <span>ENCRYPTED_FEED_UPLINK</span>
       </a>
     </div>
 </div>
@@ -144,9 +152,7 @@
     "> BYPASSING FIREWALL [99%]",
     "> ACCESS GRANTED: @MAXIMUMREALITY",
     "> LOADING AZUL_OS_v4.2...",
-    "> SCANNING BIOMETRICS...",
     "> WARNING: SPHYNX CAT DETECTED...",
-    "> INITIALIZING REALITY_DISTORTION...",
     "> [!] AZUL_BYPASS: OPEN SESAME."
   ];
 
@@ -173,8 +179,14 @@
 
   function launchCinematic() {
     bootContainer.style.display = 'none';
-    override.style.display = 'block';
-    breachVid.play();
+    override.style.display = 'flex';
+    const startBtn = document.getElementById('start-video-btn');
+
+    startBtn.onclick = () => {
+      startBtn.style.display = 'none';
+      breachVid.play();
+    };
+
     breachVid.onended = () => {
       override.style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
