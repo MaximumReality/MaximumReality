@@ -110,6 +110,13 @@
   Pick an experience — games, stories, and worlds from the Maximum Reality universe.
 </div>
 
+  <div class="toggle-zone">
+  <span class="toggle-label">SELECT OPERATIVE:</span>
+  <div class="switch-base" onclick="toggleTheme()">
+    <div id="switchHandle" class="switch-handle azul-mode"></div>
+  </div>
+</div>
+
   <div class="news-ticker-wrap">
     <div class="ticker-label">LIVE_LEAK:</div>
     <div class="ticker-text">
@@ -146,6 +153,58 @@
         0% { transform: translateX(100%); }
         100% { transform: translateX(-100%); }
     }
+  .toggle-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px 0;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.toggle-label {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: #888;
+}
+
+.switch-base {
+  width: 60px;
+  height: 30px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+}
+
+.switch-handle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* AZUL STATE */
+.azul-mode {
+  left: 3px;
+  background: #00e5ff;
+  box-shadow: 0 0 10px #00e5ff;
+}
+
+/* MOCHKIL STATE */
+.mochkil-mode {
+  left: 31px;
+  background: #32cd32;
+  box-shadow: 0 0 10px #32cd32;
+}
+
+/* Theme Classes for the Body */
+body.azul-theme { --theme-color: #00e5ff; }
+body.mochkil-theme { --theme-color: #32cd32; }
+
 </style>
 
   <div class="mochkil-ticker-wrap">
@@ -290,6 +349,30 @@
       i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
       e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
     })();
+  function toggleTheme() {
+  const body = document.body;
+  const handle = document.getElementById('switchHandle');
+  const azulTicker = document.querySelector('.news-ticker-wrap'); // From previous code
+  const mochkilTicker = document.querySelector('.mochkil-ticker-wrap'); // From previous code
+
+  if (handle.classList.contains('azul-mode')) {
+    // Switch to Mochkil
+    handle.classList.replace('azul-mode', 'mochkil-mode');
+    body.classList.replace('azul-theme', 'mochkil-theme');
+    
+    // Logic to hide Azul's ticker and show Mochkil's
+    if(azulTicker) azulTicker.style.display = 'none';
+    if(mochkilTicker) mochkilTicker.style.display = 'flex';
+  } else {
+    // Switch to Azul
+    handle.classList.replace('mochkil-mode', 'azul-mode');
+    body.classList.replace('mochkil-theme', 'azul-theme');
+    
+    if(azulTicker) azulTicker.style.display = 'flex';
+    if(mochkilTicker) mochkilTicker.style.display = 'none';
+  }
+}
+
 </script>
 
 </body>
