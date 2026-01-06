@@ -10,6 +10,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
+    /* TERMINAL OVERLAY */
     #boot-sequence {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       z-index: 20000; padding: 20px; font-size: 12px; line-height: 1.5;
@@ -21,10 +22,11 @@
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
+    /* MAIN CONTENT WRAPPER */
     #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
     
     #hero-glitch {
-      width: 100%; height: 50vh; position: relative;
+      width: 100%; height: 45vh; position: relative;
       border-bottom: 2px solid var(--accent); overflow: hidden;
     }
     canvas { display: block; width: 100%; height: 100%; }
@@ -50,26 +52,46 @@
       100% { transform: translate(2px, -2px); }
     }
 
-    .app-list { padding: 20px; max-width: 500px; margin: 0 auto; padding-bottom: 100px; }
+    /* SECTOR PORTALS */
+    .portal-container { display: flex; justify-content: space-around; padding: 20px 0; background: transparent; }
+    .portal-btn {
+      width: 110px; height: 110px; border-radius: 50%; border: 2px solid #fff;
+      background-image: url('image.png'); background-size: 200% 100%;
+      cursor: pointer; transition: transform 0.2s;
+    }
+    .azul-portal { background-position: left center; box-shadow: 0 0 15px var(--hack-blue); }
+    .mochkil-portal { background-position: right center; box-shadow: 0 0 15px var(--hack-green); }
+    .portal-btn:active { transform: scale(0.9); }
+
+    /* APP NODES */
+    .app-list { padding: 0 20px 100px 20px; max-width: 500px; margin: 0 auto; background: transparent; }
     .node-btn {
-      display: flex; align-items: center; padding: 18px; margin-bottom: 15px;
+      display: flex; align-items: center; padding: 15px; margin-bottom: 12px;
       border: 1px solid var(--accent); text-decoration: none; color: #fff;
       background: rgba(0, 229, 255, 0.05); text-transform: uppercase;
     }
-    .node-label { font-size: 10px; color: var(--accent); display: block; margin-bottom: 2px; }
+    .node-label { font-size: 10px; color: var(--accent); display: block; margin-bottom: 2px; background: transparent; }
 
     .switch-trigger {
-      display: block; width: 90%; margin: 20px auto; background: #000;
+      display: block; width: 90%; margin: 10px auto; background: #000;
       border: 2px solid var(--accent); color: var(--accent); padding: 15px;
       font-weight: 900; font-family: monospace; letter-spacing: 2px;
     }
 
-    .neon-flicker {
-      animation: neon-buzz 4s infinite;
-      box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
-      text-shadow: 0 0 8px var(--accent);
+    /* LOADING & OVERRIDES */
+    #loading-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 40000; flex-direction: column;
+      align-items: center; justify-content: center;
     }
+    .spinner {
+      width: 50px; height: 50px; border: 3px solid transparent;
+      border-top: 3px solid var(--accent); border-radius: 50%;
+      animation: spin 0.6s linear infinite; margin-bottom: 20px;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
+    .neon-flicker { animation: neon-buzz 4s infinite; }
     @keyframes neon-buzz {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
       20%, 24%, 55% { opacity: 0.3; }
@@ -78,7 +100,7 @@
     #start-video-btn {
       background: #000; border: 3px solid var(--accent); color: var(--accent);
       padding: 25px; font-family: monospace; font-weight: 900; 
-      letter-spacing: 3px; z-index: 30001; cursor: pointer;
+      letter-spacing: 3px; z-index: 30001;
     }
   </style>
 </head>
@@ -93,12 +115,15 @@
 
 <div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000; align-items: center; justify-content: center;">
     <button id="start-video-btn" class="neon-flicker">[ INITIATE_BREACH ]</button>
-    
     <video id="breachVid" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" playsinline>
-        <source src="breach-detected.mp4" type="video/mp4">
+        <source src="e628990e7cdf4a4cbcd508ab01d09731.mov" type="video/mp4">
     </video>
-
     <audio id="glitch-sound" src="https://www.soundjay.com/communication/sounds/digital-glitch-01.mp3"></audio>
+</div>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <div style="color: var(--accent); letter-spacing: 2px;" id="loading-text">SYNCING_TRANSMISSION...</div>
 </div>
 
 <div id="main-content">
@@ -107,60 +132,54 @@
       <div class="scanlines"></div>
       <div class="status-box">
         <div class="glitch-title" id="operative-id">AZUL_HACK</div>
-        <div style="font-size: 10px; margin-top: 5px; color: var(--accent);">[ STATUS: COMPROMISED ]</div>
+        <div style="font-size: 10px; margin-top: 5px; color: var(--accent); background: transparent;">[ STATUS: COMPROMISED ]</div>
       </div>
     </div>
 
     <button class="switch-trigger" onclick="switchOperative()">TOGGLE_OPERATIVE</button>
 
+    <div class="portal-container">
+      <div style="text-align: center; background: transparent;">
+        <div class="portal-btn azul-portal" onclick="portalTrigger('https://maximumreality.xyz/azul', 'azul')"></div>
+        <span class="node-label">SECTOR_01</span>
+      </div>
+      <div style="text-align: center; background: transparent;">
+        <div class="portal-btn mochkil-portal" onclick="portalTrigger('https://maximumreality.xyz/mochkil', 'mochkil')"></div>
+        <span class="node-label">SECTOR_02</span>
+      </div>
+    </div>
+
     <div class="app-list">
-      <a href="breach-detected.mp4" class="node-btn" style="border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);">
-        <div style="margin-right: 15px; font-size: 24px;">📹</div>
-        <div><span class="node-label">DIR: /SURVEILLANCE/</span><span>BREACH-DETECTED.MP4</span></div>
+      <a href="e628990e7cdf4a4cbcd508ab01d09731.mov" class="node-btn" style="border-color: #ff00ff; color: #ff00ff;">
+        <div style="margin-right: 15px; font-size: 24px; background: transparent;">📹</div>
+        <div style="background: transparent;"><span class="node-label">DIR: /SURVEILLANCE/</span><span>AZUL_BREACH.MOV</span></div>
       </a>
 
       <a href="https://maximumreality.github.io/Abduction/" class="node-btn">
-        <div style="margin-right: 15px; font-size: 24px;">🛸</div>
-        <div><span class="node-label">DIR: /ARCADE/</span><span>ABDUCTION.EXE</span></div>
+        <div style="margin-right: 15px; font-size: 24px; background: transparent;">🛸</div>
+        <div style="background: transparent;"><span class="node-label">DIR: /ARCADE/</span><span>ABDUCTION.EXE</span></div>
       </a>
 
       <a href="https://maximumreality.github.io/snack_attack/" class="node-btn">
-        <div style="margin-right: 15px; font-size: 24px;">🍰</div>
-        <div><span class="node-label">DIR: /KITCHEN/</span><span>SNACK_ATTACK.RAW</span></div>
+        <div style="margin-right: 15px; font-size: 24px; background: transparent;">🍰</div>
+        <div style="background: transparent;"><span class="node-label">DIR: /KITCHEN/</span><span>SNACK_ATTACK.RAW</span></div>
       </a>
 
-      <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" class="node-btn">
-        <div style="margin-right: 15px; font-size: 24px;">🐱</div>
-        <div><span class="node-label">DIR: /LABS/</span><span>AZUL_STORY.DB</span></div>
-      </a>
-
-      <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" class="node-btn">
-        <div style="margin-right: 15px; font-size: 24px;">☕</div>
-        <div><span class="node-label">DIR: /CAFE/</span><span>WHISKER_BYTES.SIM</span></div>
-      </a>
-
-      <a href="rss.xml" class="node-btn neon-flicker" style="margin-top: 30px; justify-content: center; border-width: 3px;">
+      <a href="rss.xml" class="node-btn neon-flicker" style="margin-top: 20px; justify-content: center; border-width: 3px;">
         📡 SIGNAL_RSS
       </a>
     </div>
 </div>
 
 <script>
-  const bootLog = [
-    "> CONNECTING TO MAINFRAME_ZERO...",
-    "> BYPASSING FIREWALL [99%]",
-    "> ACCESS GRANTED: @MAXIMUMREALITY",
-    "> LOADING AZUL_OS_v4.2...",
-    "> WARNING: SPHYNX CAT DETECTED...",
-    "> [!] AZUL_BYPASS: OPEN SESAME."
-  ];
-
+  const bootLog = ["> CONNECTING...", "> FIREWALL BYPASSED", "> AZUL_OS v4.2 LOADED", "> [!] ACCESS GRANTED."];
   const bootContainer = document.getElementById('boot-sequence');
   const override = document.getElementById('video-override');
   const breachVid = document.getElementById('breachVid');
   const glitchSnd = document.getElementById('glitch-sound');
   const canvas = document.getElementById('matrix');
   const ctx = canvas.getContext('2d');
+  
   let currentTheme = 'azul';
   let line = 0;
   let drops;
@@ -171,37 +190,34 @@
       p.innerText = bootLog[line];
       bootContainer.appendChild(p);
       line++;
-      setTimeout(typeBoot, 400);
+      setTimeout(typeBoot, 500);
     } else {
-      setTimeout(launchCinematic, 800);
+      setTimeout(() => {
+        bootContainer.style.display = 'none';
+        override.style.display = 'flex';
+      }, 800);
     }
   }
 
-  function launchCinematic() {
-    bootContainer.style.display = 'none';
-    override.style.display = 'flex';
-    const startBtn = document.getElementById('start-video-btn');
+  document.getElementById('start-video-btn').onclick = () => {
+    glitchSnd.play();
+    document.getElementById('start-video-btn').style.display = 'none';
+    breachVid.play();
+  };
 
-    startBtn.onclick = () => {
-      glitchSnd.play(); // Play sound on tap
-      startBtn.style.display = 'none';
-      breachVid.play(); // Play video on tap
-    };
-
-    breachVid.onended = () => {
-      override.style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      document.getElementById('hero-glitch').style.display = 'block';
-      initMatrix();
-    };
-  }
+  breachVid.onended = () => {
+    override.style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    initMatrix();
+  };
 
   function initMatrix() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight * 0.5;
+    canvas.height = canvas.offsetHeight;
     const columns = canvas.width / 14;
     drops = Array(Math.floor(columns)).fill(1);
-    setInterval(draw, 50);
+    if (window.matrixInterval) clearInterval(window.matrixInterval);
+    window.matrixInterval = setInterval(draw, 50);
   }
 
   function draw() {
@@ -218,17 +234,18 @@
   }
 
   function switchOperative() {
-    const root = document.documentElement;
-    const title = document.getElementById('operative-id');
-    if (currentTheme === 'azul') {
-      currentTheme = 'mochkil';
-      root.style.setProperty('--accent', '#32cd32');
-      title.innerText = "MOCHKIL_CHEF";
-    } else {
-      currentTheme = 'azul';
-      root.style.setProperty('--accent', '#00e5ff');
-      title.innerText = "AZUL_HACK";
-    }
+    currentTheme = (currentTheme === 'azul') ? 'mochkil' : 'azul';
+    document.documentElement.style.setProperty('--accent', currentTheme === 'azul' ? '#00e5ff' : '#32cd32');
+    document.getElementById('operative-id').innerText = currentTheme === 'azul' ? "AZUL_HACK" : "MOCHKIL_CHEF";
+    glitchSnd.currentTime = 0;
+    glitchSnd.play();
+  }
+
+  function portalTrigger(url, sector) {
+    const loader = document.getElementById('loading-overlay');
+    loader.style.display = 'flex';
+    document.documentElement.style.setProperty('--accent', sector === 'azul' ? '#00e5ff' : '#32cd32');
+    setTimeout(() => { window.location.href = url; }, 1500);
   }
 
   window.onload = typeBoot;
