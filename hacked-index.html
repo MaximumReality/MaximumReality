@@ -4,132 +4,120 @@
   <link rel="icon" type="image/png" href="hacker-favicon.PNG">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MAXIMUM_REALITY | DISCOVERY_HUB</title>
+  <title>MAXIMUM_REALITY | RECOVERED</title>
   <style>
     :root { --hack-blue: #00e5ff; --hack-green: #32cd32; --hack-pink: #ff00ff; --accent: var(--hack-blue); }
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
-    /* CORE INTERFACE */
-    .safety { background: #ff00ff; color: #000; padding: 5px; text-align: center; font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000; }
-    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; position: relative; }
-    #hero-glitch { width: 100%; height: 45vh; position: relative; border-bottom: 2px solid var(--accent); overflow: hidden; }
+    /* RECOVERY LAYER - TAP IF BLACK */
+    #recovery-tap {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 50000; background: transparent; display: block;
+    }
+
+    #boot-sequence {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 20000; padding: 20px; font-size: 12px; color: var(--accent);
+      pointer-events: none;
+    }
+
+    #main-content { 
+      display: none; height: 100vh; overflow-y: scroll; 
+      -webkit-overflow-scrolling: touch; position: relative; z-index: 100;
+    }
+    
+    #hero-glitch {
+      width: 100%; height: 40vh; position: relative;
+      border-bottom: 2px solid var(--accent); overflow: hidden;
+    }
     canvas { display: block; width: 100%; height: 100%; }
 
     /* PORTALS */
-    .portal-container { display: flex; justify-content: space-around; padding: 40px 0; position: relative; z-index: 10; }
+    .portal-container { display: flex; justify-content: space-around; padding: 40px 0; position: relative; z-index: 1000; }
     .portal-btn {
-      width: 130px; height: 130px; border-radius: 50%; border: 3px solid #fff;
+      width: 120px; height: 120px; border-radius: 50%; border: 3px solid #fff;
       background-image: url('portals.PNG'); background-size: 200% 100%;
       cursor: pointer; transition: transform 0.2s, box-shadow 0.3s;
     }
-    .azul-portal { background-position: 0% center; box-shadow: 0 0 25px var(--hack-blue); }
-    .mochkil-portal { background-position: 100% center; box-shadow: 0 0 25px var(--hack-green); }
+    .azul-portal { background-position: 0% center; box-shadow: 0 0 20px var(--hack-blue); }
+    .mochkil-portal { background-position: 100% center; box-shadow: 0 0 20px var(--hack-green); }
 
-    /* DISCOVERY ELEMENTS */
-    .discovery-glyph { position: absolute; color: var(--accent); font-size: 12px; opacity: 0; animation: flicker-in 2.5s linear forwards; }
-    .backdoor-node { color: var(--hack-pink); font-weight: 900; pointer-events: auto; cursor: crosshair; text-shadow: 0 0 10px var(--hack-pink); }
-    @keyframes flicker-in { 0% { opacity: 0; } 20% { opacity: 0.8; } 80% { opacity: 0.4; } 100% { opacity: 0; transform: scale(1.5); } }
+    .node-label { font-size: 10px; color: var(--accent); margin-top: 10px; display: block; }
 
-    /* SYSTEM OVERLAYS */
-    #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 40000; flex-direction: column; align-items: center; justify-content: center; }
-    .spinner { width: 60px; height: 60px; border: 4px solid transparent; border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 0.6s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    #video-override {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 30000; background: #000; display: none; align-items: center; justify-content: center;
+    }
   </style>
 </head>
 
-<body onload="typeBoot()">
+<body>
 
-<div class="safety">[!] MAXIMUM_REALITY // DISCOVERY_MODE_ACTIVE</div>
+<div id="recovery-tap" onclick="emergencyBypass()"></div>
 
-<div id="boot-sequence" style="position:fixed; padding:20px; color:var(--accent); font-size:12px;"></div>
+<div id="boot-sequence"></div>
 
-<div id="video-override" style="display:none; position:fixed; width:100%; height:100%; z-index:30000; background:#000; align-items:center; justify-content:center;">
-    <button onclick="startBreach()" style="background:none; border:2px solid var(--accent); color:var(--accent); padding:20px;">[ INITIATE_BREACH ]</button>
-    <video id="breachVid" style="display:none; width:100%; height:100%;" playsinline src="e628990e7cdf4a4cbcd508ab01d09731.mov"></video>
+<div id="video-override">
+    <button onclick="startBreach()" id="breach-btn" style="background:none; border:1px solid #fff; color:#fff; padding:20px;">[ INITIATE_BREACH ]</button>
+    <video id="breachVid" style="display:none; width:100%; height:100%; object-fit: contain;" playsinline src="e628990e7cdf4a4cbcd508ab01d09731.mov"></video>
 </div>
 
-<div id="loading-overlay"><div class="spinner"></div><div id="loading-text" style="margin-top:20px;"></div></div>
-
-<div id="main-content" onscroll="spawnDiscovery()">
-    <div id="hero-glitch"><canvas id="matrix"></canvas></div>
+<div id="main-content">
+    <div id="hero-glitch">
+      <canvas id="matrix"></canvas>
+    </div>
 
     <div class="portal-container">
-      <div style="text-align:center;">
-        <div class="portal-btn azul-portal" onclick="portalTrigger('https://maximumreality.github.io/mainframe_zero/', 'azul')"></div>
-        <p style="font-size:10px; margin-top:10px;">MAINFRAME_ZERO</p>
+      <div style="text-align: center;">
+        <div class="portal-btn azul-portal" onclick="window.location.href='https://maximumreality.github.io/mainframe_zero/'"></div>
+        <span class="node-label">MAINFRAME_ZERO</span>
       </div>
-      <div style="text-align:center;">
-        <div class="portal-btn mochkil-portal" onclick="portalTrigger('https://maximumreality.github.io/recipes/', 'mochkil')"></div>
-        <p style="font-size:10px; margin-top:10px;">RECIPE_VAULT</p>
+      <div style="text-align: center;">
+        <div class="portal-btn mochkil-portal" onclick="window.location.href='https://maximumreality.github.io/recipes/'"></div>
+        <span class="node-label">RECIPE_VAULT</span>
       </div>
     </div>
-
-    <div style="height:150vh; text-align:center; padding-top:100px;">
-        <p style="color:#222; font-size:9px;">SCANNING_FOR_HIDDEN_NODES...</p>
-    </div>
-</div>
+    
+    <div style="height: 100vh;"></div> </div>
 
 <script>
-  const glitchSnd = new Audio('https://www.soundjay.com/communication/sounds/digital-glitch-01.mp3');
-  let currentTheme = 'azul';
+  const bootContainer = document.getElementById('boot-sequence');
+  const mainContent = document.getElementById('main-content');
+  const videoOverlay = document.getElementById('video-override');
 
   function typeBoot() {
-    const log = ["> INITIALIZING...", "> DISCOVERY_MODE: ON", "> WAITING_FOR_USER..."];
+    const logs = ["> LINKING...", "> SCANNING...", "> ACCESSING..."];
     let i = 0;
-    const container = document.getElementById('boot-sequence');
-    const interval = setInterval(() => {
-      container.innerHTML += `<p>${log[i]}</p>`;
+    const itv = setInterval(() => {
+      bootContainer.innerHTML += `<p>${logs[i]}</p>`;
       i++;
-      if(i === log.length) {
-        clearInterval(interval);
-        setTimeout(() => { container.style.display='none'; document.getElementById('video-override').style.display='flex'; }, 1000);
+      if(i === logs.length) {
+        clearInterval(itv);
+        setTimeout(() => {
+          bootContainer.style.display = 'none';
+          videoOverlay.style.display = 'flex';
+        }, 500);
       }
-    }, 600);
+    }, 400);
   }
 
   function startBreach() {
     const vid = document.getElementById('breachVid');
-    event.target.style.display = 'none';
+    document.getElementById('breach-btn').style.display = 'none';
     vid.style.display = 'block';
-    vid.play();
-    vid.onended = () => {
-      document.getElementById('video-override').style.display = 'none';
-      document.getElementById('main-content').style.display = 'block';
-      initMatrix();
-    };
+    vid.play().catch(() => emergencyBypass()); // If iPhone blocks video, just jump in
+    vid.onended = () => emergencyBypass();
   }
 
-  function spawnDiscovery() {
-    if (Math.random() > 0.85) {
-      const main = document.getElementById('main-content');
-      const isBackdoor = Math.random() > 0.95; // 5% chance for a secret node
-      const span = document.createElement('span');
-      span.className = 'discovery-glyph' + (isBackdoor ? ' backdoor-node' : '');
-      span.innerText = isBackdoor ? "[!] ACCESS_POINT" : ["ø", "µ", "§", "∆"][Math.floor(Math.random()*4)];
-      span.style.left = Math.random() * 80 + 10 + "%";
-      span.style.top = (main.scrollTop + window.innerHeight * 0.5) + (Math.random()*200) + "px";
-      
-      if(isBackdoor) {
-        span.onclick = () => portalTrigger('https://maximumreality.xyz/backdoor', 'pink');
-      }
-
-      main.appendChild(span);
-      setTimeout(() => span.remove(), 2500);
-    }
+  function emergencyBypass() {
+    document.getElementById('recovery-tap').style.display = 'none';
+    bootContainer.style.display = 'none';
+    videoOverlay.style.display = 'none';
+    mainContent.style.display = 'block';
+    initMatrix();
   }
 
-  function portalTrigger(url, sector) {
-    const loader = document.getElementById('loading-overlay');
-    loader.style.display = 'flex';
-    const color = sector === 'azul' ? '#00e5ff' : (sector === 'mochkil' ? '#32cd32' : '#ff00ff');
-    document.documentElement.style.setProperty('--accent', color);
-    document.getElementById('loading-text').innerText = "OPENING_PORTAL...";
-    glitchSnd.play();
-    setTimeout(() => { window.location.href = url; }, 1500);
-  }
-
-  // Matrix Logic remains the same...
   function initMatrix() {
     const canvas = document.getElementById('matrix');
     const ctx = canvas.getContext('2d');
@@ -148,6 +136,8 @@
       });
     }, 50);
   }
+
+  window.onload = typeBoot;
 </script>
 </body>
 </html>
