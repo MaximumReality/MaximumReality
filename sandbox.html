@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maximum Reality</title>
+  
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
+
+    /* Navigation */
+    header {
+      position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8);
+      border-bottom: 1px solid rgba(255, 0, 255, 0.3); z-index: 1000; padding: 12px; 
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    }
+    nav { display: flex; justify-content: center; gap: 20px; }
+    nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+
+    /* Hero Video */
+    .hero { width: 100%; background: #000; line-height: 0; padding-top: 45px; }
+    video { width: 100%; height: auto; object-fit: contain; }
+
+    /* App Store Section */
+    .app-section { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
+    .section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #fff; }
+
+    /* App Card Styling */
+    .app-card {
+      display: flex; align-items: center; 
+      background: rgba(255, 255, 255, 0.08); 
+      border-radius: 22px; padding: 12px; 
+      text-decoration: none; color: white; 
+      margin-bottom: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s ease;
+    }
+    .app-card:hover { transform: scale(1.02); background: rgba(255, 255, 255, 0.12); }
+    
+    .app-icon { 
+      width: 62px; height: 62px; border-radius: 14px; 
+      margin-right: 15px; flex-shrink: 0; 
+      background: #111; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .app-icon span { font-size: 30px; }
+
+    .app-info { flex-grow: 1; }
+    .app-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+    .app-desc { font-size: 0.75rem; opacity: 0.6; }
+
+    /* Unified Button Style */
+    .get-btn {
+      background: rgba(255, 255, 255, 0.1); 
+      padding: 8px 0; 
+      border-radius: 20px; 
+      font-weight: 800; 
+      font-size: 0.75rem; 
+      text-transform: uppercase;
+      width: 80px; 
+      text-align: center;
+      border: 1px solid; 
+    }
+
+    .transmissions { padding: 40px 10px; background: #050505; border-top: 1px solid #111; }
+
+    footer { padding: 60px 20px; text-align: center; background: #000; }
+    .footer-logo { width: 60px; margin-bottom: 15px; opacity: 0.5; }
+    .legal { color: #333; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; }
+  .app-intro {
+  max-width: 600px;
+  margin: 12px auto 10px;
+  padding: 0 20px;
+  font-size: 0.7rem;
+  text-align: center;
+  opacity: 0.55;
+  letter-spacing: 0.5px;
+}
+    </style>
+</head>
+<body>
+
+  <header>
+    <nav>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
+      <a href="https://youtube.com/@maximumrealitylori?si=lL502QIOn4Wv1FKu" target="_blank">Transmissions</a>
+      <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <video autoplay muted playsinline loop>
+      <source src="intro.MP4" type="video/mp4">
+    </video>
+  </div>
+<div class="app-intro">
+  Pick an experience — games, stories, and worlds from the Maximum Reality universe.
+</div>
+   <!-- App Section -->
+<section class="app-section" id="apps">
+  <h2 class="section-title">Start Anywhere</h2>
+  
+  <a href="https://youtube.com/shorts/Y5x8DP7FE2U" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;">
+      <img src="logo.png" alt="Maximum Reality Logo">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Welcome Mission</div>
+      <div class="app-desc">Meet the Creator • System Overview</div>
+    </div>
+    <div class="get-btn" style="color: #ff00ff; border-color: #ff00ff;">WATCH</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/Pulse/index.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #a286ef;">
+      <img src="https://maximumreality.github.io/Pulse/poc_cover.png" alt="Pulse Cover">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Pulse of Connection</div>
+      <div class="app-desc">A Novel • By Lori Sifuentes</div>
+    </div>
+    <div class="get-btn" style="color: #a286ef; border-color: #a286ef;">READ</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/Abduction/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
+    <div class="app-info">
+      <div class="app-name">Abduction</div>
+      <div class="app-desc">Sci-fi Arcade • Mission Survival</div>
+    </div>
+    <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffb6c1;">
+      <img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png" alt="Café Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">WhiskerBytes Café</div>
+      <div class="app-desc">Social • Cozy Simulator</div>
+    </div>
+    <div class="get-btn" style="color: #ffb6c1; border-color: #ffb6c1;">OPEN</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/snack_attack/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;"><span>🍰</span></div>
+    <div class="app-info">
+      <div class="app-name">Snack Attack</div>
+      <div class="app-desc">Arcade • Fast-Paced Fun</div>
+    </div>
+    <div class="get-btn" style="color: #ff00ff; border-color: #ff00ff;">GET</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;">
+      <img src="https://maximumreality.github.io/azul-story-cyoa/azul.png" alt="Azul Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Azul's CYOA</div>
+      <div class="app-desc">Choose Your Own Adventure • Unlock Videos</div>
+    </div>
+    <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">ENTER</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/stories/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00d4ff;">
+      <img src="https://maximumreality.github.io/stories/elvie_climbing_tree.PNG" alt="Bedtime Stories Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Bedtime Stories</div>
+      <div class="app-desc">Stories • Azul & Friends colorful picture books</div>
+    </div>
+    <div class="get-btn" style="color: #00d4ff; border-color: #00d4ff;">DATA</div>
+  </a>
+
+  <a href="mailto:lori@maximumreality.xyz" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffffff;">
+      <span style="font-size: 30px;">✉️</span>
+    </div>
+    <div class="app-info">
+      <div class="app-name">Contact Studio</div>
+      <div class="app-desc">Inquiries • lori@maximumreality.xyz</div>
+    </div>
+    <div class="get-btn" style="color: #ffffff; border-color: #ffffff;">MAIL</div>
+  </a>
+
+  <!-- External Links -->
+  <div style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px;">
+    <h3 style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center;">External Links</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+      <a href="https://www.tiktok.com/@zer0chick" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #fff;">
+           <span style="font-size: 24px;">📱</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">TikTok</div>
+      </a>
+
+      <a href="https://www.instagram.com/maximumrealitylori" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #f09433;">
+           <span style="font-size: 24px;">📸</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">Instagram</div>
+      </a>
+
+      <a href="https://www.facebook.com/share/1GKSP5hCmc/" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #1877F2;">
+           <span style="font-size: 24px;">👥</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">Facebook</div>
+      </a>
+    </div>
+  </div>
+</section>
+  
+  <section class="transmissions" id="transmissions">
+    <h2 style="text-align:center; color:#ff00ff; margin-bottom:20px; font-size:1.2rem;">📡 LATEST TRANSMISSIONS</h2>
+    <div id="curator-feed-default-feed-layout">
+      <a href="https://curator.io" target="_blank" class="crt-logo crt-tag">Powered by Curator.io</a>
+    </div>
+  </section>
+
+  <footer>
+    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
+    <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
+  </footer>
+
+  <script type="text/javascript">
+    (function(){
+      var i,e,d=document,s="script";i=d.createElement("script");i.async=1;i.charset="UTF-8";
+      i.src="https://cdn.curator.io/published/cc5930fe-1ec6-45cd-8fe1-077ac0a10f13.js";
+      e=d.getElementsByTagName(s)[0];e.parentNode.insertBefore(i, e);
+    })();
+  </script>
+
+</body>
+</html>
