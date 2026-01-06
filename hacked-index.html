@@ -13,17 +13,10 @@
     body.azul-theme { --theme-accent: #00e5ff; --theme-glow: rgba(0, 229, 255, 0.4); }
     body.mochkil-theme { --theme-accent: #32cd32; --theme-glow: rgba(50, 205, 50, 0.4); }
 
-    /* GLITCH OVERLAY */
-    #glitch-overlay {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 229, 255, 0.1); z-index: 5000; display: none;
-        pointer-events: none; opacity: 0.5;
-    }
-
+    /* BOOMER PROTECTION */
     .safety-banner {
       background: #ff00ff; color: #000; padding: 10px; text-align: center; 
       font-family: monospace; font-size: 11px; font-weight: 900; position: sticky; top: 0; z-index: 2000;
-      border-bottom: 2px solid #000;
     }
     .safety-banner a { color: #000; text-decoration: underline; margin-left: 8px; }
 
@@ -35,67 +28,62 @@
     nav { display: flex; justify-content: center; gap: 15px; }
     nav a { color: #fff; text-decoration: none; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; opacity: 0.7; }
 
-    .hero { width: 100%; background: #000; line-height: 0; position: relative; padding: 20px 0; }
+    /* REALITY DISTORTION FIELD (MATRIX RAIN CANVAS) */
+    .glitch-zone {
+      width: 100%; height: 180px; position: relative; background: #050505;
+      margin: 20px 0; border-top: 1px solid var(--theme-accent); border-bottom: 1px solid var(--theme-accent);
+      overflow: hidden;
+    }
+    canvas { display: block; width: 100%; height: 100%; opacity: 0.6; }
+    .scanlines {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 2px, 3px 100%; pointer-events: none;
+    }
+
+    /* HERO & VIDEO */
+    .hero { width: 100%; background: #000; line-height: 0; position: relative; }
     .video-wrapper { 
         width: 100%; position: relative; padding-bottom: 56.25%; height: 0; 
-        overflow: hidden; background: #000; transition: all 0.4s ease; 
+        overflow: hidden; transition: all 0.4s ease; 
     }
     .video-wrapper iframe, .video-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-    
-    .mochkil-active .video-wrapper { 
-        padding-bottom: 177.78%; max-width: 260px; margin: 0 auto; 
-        border: 2px solid #32cd32; border-radius: 20px; box-shadow: 0 0 25px rgba(50, 205, 50, 0.5); 
-    }
+    .mochkil-active .video-wrapper { padding-bottom: 177.78%; max-width: 250px; margin: 0 auto; border-radius: 20px; border: 2px solid #32cd32; }
 
-    .toggle-zone { display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px 0; background: rgba(255,255,255,0.03); }
-    .switch-base { width: 60px; height: 30px; background: #111; border: 1px solid #333; border-radius: 15px; position: relative; cursor: pointer; }
-    .switch-handle { width: 24px; height: 24px; border-radius: 50%; position: absolute; top: 2px; transition: 0.3s; }
-    .azul-mode { left: 3px; background: #00e5ff; box-shadow: 0 0 15px #00e5ff; }
-    .mochkil-mode { left: 31px; background: #32cd32; box-shadow: 0 0 15px #32cd32; }
+    /* TICKER */
+    .ticker-container { width: 100%; overflow: hidden; height: 40px; border-bottom: 1px solid #222; background: #080808; display: flex; align-items: center; }
+    .ticker-wrap { display: flex; white-space: nowrap; animation: scrollNews 20s linear infinite; }
+    .ticker-text { font-family: monospace; font-size: 0.8rem; color: var(--theme-accent); padding-left: 100%; }
+    @keyframes scrollNews { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-    .ticker-container { width: 100%; overflow: hidden; height: 45px; border-top: 1px solid #222; border-bottom: 1px solid #222; background: #080808; display: flex; align-items: center; }
-    .news-ticker-wrap { display: flex; align-items: center; white-space: nowrap; animation: scrollNews 25s linear infinite; }
-    .ticker-label { color: #ff00ff; font-weight: 900; font-size: 0.65rem; padding: 4px 10px; background: rgba(255,0,255,0.1); margin-right: 15px; }
-    .ticker-text { font-family: monospace; font-size: 0.8rem; color: var(--theme-accent); }
-    @keyframes scrollNews { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
-    .app-section { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
-    .section-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 20px; color: #fff; letter-spacing: 1px; border-left: 3px solid var(--theme-accent); padding-left: 10px; }
-    
+    /* APP LIST */
+    .app-section { padding: 20px; max-width: 600px; margin: 0 auto; }
     .app-card { 
         display: flex; align-items: center; background: #111; border: 1px solid rgba(255,255,255,0.1); 
-        border-radius: 20px; padding: 15px; text-decoration: none; color: white; margin-bottom: 12px;
+        border-radius: 20px; padding: 12px; text-decoration: none; color: white; margin-bottom: 12px;
     }
-    .app-icon { width: 50px; height: 50px; border-radius: 12px; margin-right: 15px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #000; border: 1px solid rgba(255,255,255,0.1); }
-    .app-icon img { width: 100%; height: 100%; border-radius: 12px; object-fit: cover; }
+    .app-icon { width: 50px; height: 50px; border-radius: 12px; margin-right: 15px; flex-shrink: 0; background: #000; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; }
     .app-info { flex-grow: 1; }
-    .app-name { font-weight: 800; font-size: 0.95rem; }
+    .app-name { font-weight: 800; font-size: 0.9rem; }
     .app-desc { font-size: 0.7rem; opacity: 0.5; }
-    .get-btn { border: 1px solid var(--theme-accent); color: var(--theme-accent); font-size: 0.65rem; font-weight: 900; padding: 5px 10px; border-radius: 12px; text-transform: uppercase; }
+    .get-btn { border: 1px solid var(--theme-accent); color: var(--theme-accent); font-size: 0.65rem; font-weight: 900; padding: 5px 10px; border-radius: 12px; }
 
-    /* SOCIAL LINKS & RSS */
-    .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px; }
-    .social-btn { background: #0a0a0a; border: 1px solid #222; padding: 12px; border-radius: 15px; text-decoration: none; color: #888; font-size: 0.7rem; font-weight: bold; text-align: center; }
-    .social-btn:hover { border-color: var(--theme-accent); color: #fff; }
-
-    footer { padding: 50px 20px; text-align: center; border-top: 1px solid #111; opacity: 0.4; font-size: 0.6rem; letter-spacing: 2px; }
+    footer { padding: 40px; text-align: center; opacity: 0.3; font-size: 10px; }
   </style>
 </head>
 
 <body class="azul-theme">
 
-<div id="glitch-overlay"></div>
-
 <div class="safety-banner">
-  ⚠️ CHAOS_MODE: ON <a href="index.html">[ EXIT_TO_VANILLA_SITE ]</a>
+  ⚠️ YOU ARE IN MAXIMUM_REALITY_OVERLAY <a href="index.html">[ EXIT_TO_NORMAL_SITE ]</a>
 </div>
 
 <header>
   <nav>
-    <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
-    <a href="https://youtube.com/@maximumrealitylori" target="_blank">Transmissions</a>
-    <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
-    <a href="rss.xml" style="color: #ff8c00;">RSS</a>
+    <a href="https://maximumreality.xyz">Mainframe</a>
+    <a href="https://youtube.com/@maximumrealitylori" target="_blank">YouTube</a>
+    <a href="rss.xml">RSS</a>
   </nav>
 </header>
 
@@ -106,95 +94,121 @@
   </div>
 </div>
 
-<div class="toggle-zone">
-  <span style="font-size: 0.6rem; color: #555;">OPERATIVE_SELECT</span>
-  <div class="switch-base" onclick="toggleTheme()">
-    <div id="switchHandle" class="switch-handle azul-mode"></div>
-  </div>
-</div>
-
 <div class="ticker-container">
-    <div class="news-ticker-wrap">
-        <div class="ticker-label" id="tickerLabel">AZUL_LINK:</div>
-        <div class="ticker-text" id="tickerText">QUANTUM_KIBBLE_PROTOCOL_INITIATED... BYPASSING_KITCHEN_FIREWALLS...</div>
+    <div class="ticker-wrap">
+        <div class="ticker-text" id="tickerText">INITIALIZING_REALITY_DISTORTION... AZUL_HACK_ACTIVE... BYPASSING_KITCHEN_SENSORS...</div>
     </div>
 </div>
 
-<section class="app-section">
-  <h2 class="section-title">External Uplinks</h2>
-  <div class="social-grid">
-    <a href="https://youtube.com/@maximumrealitylori" class="social-btn">YOUTUBE</a>
-    <a href="https://instagram.com/maximumreality" class="social-btn">INSTAGRAM</a>
-    <a href="https://tiktok.com/@maximumreality" class="social-btn">TIKTOK</a>
-    <a href="rss.xml" class="social-btn" style="color: #ff8c00;">RSS_FEED</a>
+<div class="glitch-zone">
+  <canvas id="matrixCanvas"></canvas>
+  <div class="scanlines"></div>
+  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+    <h2 id="glitchTitle" style="color: #fff; font-size: 1.2rem; font-weight: 900; text-shadow: 0 0 10px var(--theme-accent); letter-spacing: 5px;">HACKING...</h2>
+    <p id="glitchSubtitle" style="font-family: monospace; font-size: 0.6rem; opacity: 0.8;">SCAN_MODE: ACTIVE</p>
   </div>
+</div>
 
-  <h2 class="section-title">Mainframe Protocols</h2>
-  
+<div style="text-align: center; padding: 10px;">
+  <button onclick="toggleTheme()" style="background: transparent; border: 1px solid var(--theme-accent); color: var(--theme-accent); padding: 10px 20px; border-radius: 30px; font-weight: 900; font-size: 0.7rem; cursor: pointer;">
+    SWITCH OPERATIVE
+  </button>
+</div>
+
+<section class="app-section">
+  <h2 style="font-size: 0.8rem; margin-bottom: 15px; opacity: 0.5;">DECRYPTED_PROTOCOLS:</h2>
+
   <a href="https://maximumreality.github.io/Abduction/" class="app-card">
-    <div class="app-icon" style="border-color: #00f2ff;">🛸</div>
-    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Arcade: Sci-Fi Survival</div></div>
+    <div class="app-icon" style="font-size: 20px;">🛸</div>
+    <div class="app-info"><div class="app-name">Abduction</div><div class="app-desc">Sci-Fi Arcade Survival</div></div>
     <div class="get-btn">PLAY</div>
   </a>
 
   <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" class="app-card">
     <div class="app-icon"><img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png"></div>
-    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Sim: Cozy Management</div></div>
+    <div class="app-info"><div class="app-name">WhiskerBytes Café</div><div class="app-desc">Cozy Management Sim</div></div>
     <div class="get-btn">OPEN</div>
   </a>
 
   <a href="https://maximumreality.github.io/snack_attack/" class="app-card">
-    <div class="app-icon">🍰</div>
-    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">Arcade: Mochkil's Dash</div></div>
+    <div class="app-icon" style="font-size: 20px;">🍰</div>
+    <div class="app-info"><div class="app-name">Snack Attack</div><div class="app-desc">Mochkil's Kitchen Dash</div></div>
     <div class="get-btn">GET</div>
   </a>
 
   <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" class="app-card">
     <div class="app-icon"><img src="https://maximumreality.github.io/azul-story-cyoa/azul.png"></div>
-    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Game: Hacker Cat Missions</div></div>
+    <div class="app-info"><div class="app-name">Azul's CYOA</div><div class="app-desc">Hacker Story Mission</div></div>
     <div class="get-btn">ENTER</div>
   </a>
 
   <a href="https://maximumreality.github.io/Pulse/index.html" class="app-card">
     <div class="app-icon"><img src="https://maximumreality.github.io/Pulse/poc_cover.png"></div>
-    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">Novel: Cyberpunk Fiction</div></div>
+    <div class="app-info"><div class="app-name">Pulse of Connection</div><div class="app-desc">Cyberpunk Fiction Novel</div></div>
     <div class="get-btn">READ</div>
   </a>
 </section>
 
-<footer>© 2026 MAXIMUM_REALITY // VERSION_CHAOS_2.0</footer>
+<footer>© 2026 MAXIMUM_REALITY_CHAOS</footer>
 
 <script>
+    // MATRIX RAIN LOGIC
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    let color = "#00e5ff";
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = 180;
+    }
+    window.onresize = resizeCanvas;
+    resizeCanvas();
+
+    const characters = "01AZULMOCHKIL01";
+    const fontSize = 10;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let i = 0; i < columns; i++) drops[i] = 1;
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = color;
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters.charAt(Math.floor(Math.random() * characters.length));
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 50);
+
     function toggleTheme() {
         const body = document.body;
-        const handle = document.getElementById('switchHandle');
         const azVid = document.getElementById('azulVideo');
         const moVid = document.getElementById('mochkilVideo');
-        const label = document.getElementById('tickerLabel');
-        const text = document.getElementById('tickerText');
-        const glitch = document.getElementById('glitch-overlay');
+        const gTitle = document.getElementById('glitchTitle');
+        const gSub = document.getElementById('glitchSubtitle');
 
-        // TRIGGER GLITCH
-        glitch.style.display = 'block';
-        setTimeout(() => { glitch.style.display = 'none'; }, 150);
-
-        if (handle.classList.contains('azul-mode')) {
-            handle.classList.replace('azul-mode', 'mochkil-mode');
+        if (body.classList.contains('azul-theme')) {
             body.classList.replace('azul-theme', 'mochkil-theme');
             body.classList.add('mochkil-active');
+            color = "#32cd32";
             azVid.style.display = 'none';
             moVid.style.display = 'block';
             moVid.src = "https://www.youtube.com/embed/fhj37CZKhqg?autoplay=1&mute=1&loop=1&playlist=fhj37CZKhqg&controls=0";
-            label.innerText = "CHEF_LOG:";
-            text.innerText = "MICHELIN_CHAOS_INITIATED... BYPASSING_TASTE_FILTERS... SNACK_SQUAD_GO!";
+            gTitle.innerText = "SNACK_ATTACK";
+            gSub.innerText = "MODE: MICHELIN_CHAOS";
         } else {
-            handle.classList.replace('mochkil-mode', 'azul-mode');
             body.classList.replace('mochkil-theme', 'azul-theme');
             body.classList.remove('mochkil-active');
+            color = "#00e5ff";
             moVid.style.display = 'none';
             azVid.style.display = 'block';
-            label.innerText = "AZUL_LINK:";
-            text.innerText = "QUANTUM_KIBBLE_PROTOCOL_INITIATED... BYPASSING_KITCHEN_FIREWALLS...";
+            gTitle.innerText = "MAINFRAME";
+            gSub.innerText = "MODE: HACKER_CAT";
         }
     }
 </script>
