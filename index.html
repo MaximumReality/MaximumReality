@@ -100,10 +100,28 @@
   </header>
 
   <div class="hero">
-    <video autoplay muted playsinline loop>
+    <video id="heroVideo" autoplay muted playsinline loop preload="auto">
       <source src="intro.MP4" type="video/mp4">
+      Your browser does not support the video tag.
     </video>
-  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var video = document.getElementById('heroVideo');
+    var playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        // This handles the "Low Power Mode" freeze on iPhone
+        document.body.addEventListener('touchstart', function() {
+          video.play();
+        }, {once: true});
+      });
+    }
+  });
+</script>
+
 <div class="app-intro">
   Pick an experience — games, stories, and worlds from the Maximum Reality universe.
 </div>
