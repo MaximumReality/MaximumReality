@@ -10,7 +10,6 @@
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
-    /* TERMINAL OVERLAY */
     #boot-sequence {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       z-index: 20000; padding: 20px; font-size: 12px; line-height: 1.5;
@@ -22,7 +21,6 @@
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
-    /* MAIN CONTENT WRAPPER */
     #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
     
     #hero-glitch {
@@ -52,7 +50,6 @@
       100% { transform: translate(2px, -2px); }
     }
 
-    /* BUTTONS & LISTS */
     .app-list { padding: 20px; max-width: 500px; margin: 0 auto; padding-bottom: 100px; }
     .node-btn {
       display: flex; align-items: center; padding: 18px; margin-bottom: 15px;
@@ -67,7 +64,6 @@
       font-weight: 900; font-family: monospace; letter-spacing: 2px;
     }
 
-    /* NEON RSS & OVERRIDE UI */
     .neon-flicker {
       animation: neon-buzz 4s infinite;
       box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
@@ -97,9 +93,12 @@
 
 <div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000; align-items: center; justify-content: center;">
     <button id="start-video-btn" class="neon-flicker">[ INITIATE_BREACH ]</button>
+    
     <video id="breachVid" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;" playsinline>
         <source src="breach-detected.mp4" type="video/mp4">
     </video>
+
+    <audio id="glitch-sound" src="https://www.soundjay.com/communication/sounds/digital-glitch-01.mp3"></audio>
 </div>
 
 <div id="main-content">
@@ -159,6 +158,7 @@
   const bootContainer = document.getElementById('boot-sequence');
   const override = document.getElementById('video-override');
   const breachVid = document.getElementById('breachVid');
+  const glitchSnd = document.getElementById('glitch-sound');
   const canvas = document.getElementById('matrix');
   const ctx = canvas.getContext('2d');
   let currentTheme = 'azul';
@@ -183,8 +183,9 @@
     const startBtn = document.getElementById('start-video-btn');
 
     startBtn.onclick = () => {
+      glitchSnd.play(); // Play sound on tap
       startBtn.style.display = 'none';
-      breachVid.play();
+      breachVid.play(); // Play video on tap
     };
 
     breachVid.onended = () => {
@@ -228,7 +229,6 @@
       root.style.setProperty('--accent', '#00e5ff');
       title.innerText = "AZUL_HACK";
     }
-    console.log("UPLINK_STABILITY: " + Math.floor(Math.random() * 100) + "%");
   }
 
   window.onload = typeBoot;
