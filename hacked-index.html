@@ -2,17 +2,14 @@
 <html lang="en">
 <head>
   <link rel="icon" type="image/png" href="hacker-favicon.PNG">
-
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SYSTEM_CRITICAL | Maximum Reality</title>
   <style>
     :root { --hack-blue: #00e5ff; --hack-green: #32cd32; --accent: var(--hack-blue); }
-    
     * { margin: 0; padding: 0; box-sizing: border-box; background: #000; }
     body { font-family: 'Courier New', monospace; color: #fff; overflow: hidden; height: 100vh; }
 
-    /* INITIAL BOOT OVERLAY */
     #boot-sequence {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       z-index: 20000; padding: 20px; font-size: 12px; line-height: 1.5;
@@ -24,7 +21,6 @@
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
-    /* THE RAIN SECTION */
     #hero-glitch {
       width: 100%; height: 50vh; position: relative;
       border-bottom: 2px solid var(--accent); overflow: hidden; display: none;
@@ -37,7 +33,6 @@
       background-size: 100% 3px; pointer-events: none;
     }
 
-    /* THE HACKER UI */
     #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
     
     .status-box {
@@ -67,16 +62,36 @@
       border: 2px solid var(--accent); color: var(--accent); padding: 15px;
       font-weight: 900; font-family: monospace; letter-spacing: 2px;
     }
+
+    .neon-uplink {
+      display: block; margin: 30px auto; padding: 20px; width: 90%; text-align: center;
+      text-decoration: none; font-weight: 900; font-family: 'Courier New', monospace;
+      font-size: 1.2rem; letter-spacing: 4px; border: 3px solid var(--accent);
+      color: var(--accent); background: transparent; text-transform: uppercase;
+      box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
+      text-shadow: 0 0 8px var(--accent); animation: neon-buzz 4s infinite;
+    }
+    @keyframes neon-buzz {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.3; box-shadow: none; text-shadow: none; }
+    }
+    .neon-uplink span { font-size: 0.6rem; display: block; margin-top: 5px; opacity: 0.8; }
   </style>
 </head>
 
-<body class="azul-mode">
+<body>
 
 <div class="safety">
   [!] WARNING: CAT_HACK_DETECTED <a href="index.html" style="color:#000;">[ ABORT_HACK ]</a>
 </div>
 
 <div id="boot-sequence"></div>
+
+<div id="video-override" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:30000; background:#000;">
+    <video id="breachVid" style="width:100%; height:100%; object-fit:contain;" playsinline>
+        <source src="breach-detected.mp4" type="video/mp4">
+    </video>
+</div>
 
 <div id="main-content">
     <div id="hero-glitch">
@@ -91,14 +106,15 @@
     <button class="switch-trigger" onclick="switchOperative()">TOGGLE_OPERATIVE</button>
 
     <div class="app-list">
+      <a href="breach-detected.mp4" class="node-btn" style="border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);">
+        <div style="margin-right: 15px; font-size: 24px;">📹</div>
+        <div><span class="node-label">DIR: /SURVEILLANCE/</span><span>BREACH-DETECTED.MP4</span></div>
+      </a>
+
       <a href="https://maximumreality.github.io/Abduction/" class="node-btn">
         <div style="margin-right: 15px; font-size: 24px;">🛸</div>
         <div><span class="node-label">DIR: /ARCADE/</span><span>ABDUCTION.EXE</span></div>
       </a>
-<a href="breach-detected.mp4" class="node-btn" style="border-color: #ff00ff; color: #ff00ff; box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);">
-  <div style="margin-right: 15px; font-size: 24px;">📹</div>
-  <div><span class="node-label">DIR: /SURVEILLANCE/</span><span>BREACH-DETECTED.MP4</span></div>
-</a>
 
       <a href="https://maximumreality.github.io/snack_attack/" class="node-btn">
         <div style="margin-right: 15px; font-size: 24px;">🍰</div>
@@ -114,61 +130,11 @@
         <div style="margin-right: 15px; font-size: 24px;">☕</div>
         <div><span class="node-label">DIR: /CAFE/</span><span>WHISKER_BYTES.SIM</span></div>
       </a>
-      
-      <style>
-  /* NEON RSS STYLING */
-  .neon-uplink {
-    display: block;
-    margin: 30px auto;
-    padding: 20px;
-    width: 90%;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 900;
-    font-family: 'Courier New', monospace;
-    font-size: 1.2rem;
-    letter-spacing: 4px;
-    border: 3px solid var(--accent);
-    color: var(--accent);
-    background: transparent;
-    text-transform: uppercase;
-    position: relative;
-    
-    /* THE NEON GLOW */
-    box-shadow: 0 0 5px var(--accent), inset 0 0 5px var(--accent);
-    text-shadow: 0 0 8px var(--accent);
-    
-    /* THE FLICKER ANIMATION */
-    animation: neon-buzz 4s infinite;
-  }
 
-  @keyframes neon-buzz {
-    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-      opacity: 1;
-      box-shadow: 0 0 10px var(--accent), inset 0 0 5px var(--accent);
-      text-shadow: 0 0 10px var(--accent);
-    }
-    20%, 24%, 55% {
-      opacity: 0.3;
-      box-shadow: none;
-      text-shadow: none;
-    }
-  }
-
-  .neon-uplink span {
-    font-size: 0.6rem;
-    display: block;
-    margin-top: 5px;
-    letter-spacing: 1px;
-    opacity: 0.8;
-  }
-</style>
-
-<a href="rss.xml" class="neon-uplink">
-  📡 SIGNAL_RSS
-  <span>ENCRYPTED_FEED_UPLINK</span>
-</a>
-
+      <a href="rss.xml" class="neon-uplink">
+        📡 SIGNAL_RSS
+        <span>ENCRYPTED_FEED_UPLINK</span>
+      </a>
     </div>
 </div>
 
@@ -180,13 +146,18 @@
     "> LOADING AZUL_OS_v4.2...",
     "> SCANNING BIOMETRICS...",
     "> WARNING: SPHYNX CAT DETECTED...",
-    "> WARNING: TUXEDO CHEF DETECTED...",
     "> INITIALIZING REALITY_DISTORTION...",
-    "> SYSTEM COMPROMISED. GOOD LUCK."
+    "> [!] AZUL_BYPASS: OPEN SESAME."
   ];
 
   const bootContainer = document.getElementById('boot-sequence');
+  const override = document.getElementById('video-override');
+  const breachVid = document.getElementById('breachVid');
+  const canvas = document.getElementById('matrix');
+  const ctx = canvas.getContext('2d');
+  let currentTheme = 'azul';
   let line = 0;
+  let drops;
 
   function typeBoot() {
     if (line < bootLog.length) {
@@ -196,20 +167,21 @@
       line++;
       setTimeout(typeBoot, 400);
     } else {
-      setTimeout(() => {
-        bootContainer.style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-        document.getElementById('hero-glitch').style.display = 'block';
-        initMatrix();
-      }, 1000);
+      setTimeout(launchCinematic, 800);
     }
   }
 
-  // MATRIX RAIN
-  const canvas = document.getElementById('matrix');
-  const ctx = canvas.getContext('2d');
-  let currentTheme = 'azul';
-  let drops;
+  function launchCinematic() {
+    bootContainer.style.display = 'none';
+    override.style.display = 'block';
+    breachVid.play();
+    breachVid.onended = () => {
+      override.style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      document.getElementById('hero-glitch').style.display = 'block';
+      initMatrix();
+    };
+  }
 
   function initMatrix() {
     canvas.width = window.innerWidth;
@@ -224,7 +196,6 @@
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = (currentTheme === 'azul') ? "#00e5ff" : "#32cd32";
     ctx.font = "14px monospace";
-
     drops.forEach((y, i) => {
       const text = "01AZULMOCHKIL"[Math.floor(Math.random() * 12)];
       ctx.fillText(text, i * 14, y * 14);
@@ -245,12 +216,10 @@
       root.style.setProperty('--accent', '#00e5ff');
       title.innerText = "AZUL_HACK";
     }
+    console.log("UPLINK_STABILITY: " + Math.floor(Math.random() * 100) + "%");
   }
-// Add this inside the function to randomize the "Hackers Connected" feel
-console.log("UPLINK_STABILITY: " + Math.floor(Math.random() * 100) + "%");
 
   window.onload = typeBoot;
 </script>
-
 </body>
 </html>
