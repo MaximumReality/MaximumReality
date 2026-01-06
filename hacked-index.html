@@ -21,7 +21,7 @@
       font-size: 10px; font-weight: 900; position: fixed; top: 0; width: 100%; z-index: 10000;
     }
 
-    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; }
+    #main-content { display: none; height: 100vh; overflow-y: scroll; -webkit-overflow-scrolling: touch; position: relative; }
     
     #hero-glitch {
       width: 100%; height: 45vh; position: relative;
@@ -38,7 +38,7 @@
     @keyframes shake { 0% { transform: translate(-50%, -50%); } 50% { transform: translate(-52%, -48%); } 100% { transform: translate(-48%, -52%); } }
 
     /* SECTOR PORTALS */
-    .portal-container { display: flex; justify-content: space-around; padding: 40px 0; background: transparent; }
+    .portal-container { display: flex; justify-content: space-around; padding: 40px 0; background: transparent; position: relative; z-index: 10; }
     .portal-btn {
       width: 130px; height: 130px; border-radius: 50%; border: 3px solid #fff;
       background-image: url('portals.PNG'); background-size: 200% 100%;
@@ -49,6 +49,18 @@
     .portal-btn:active { transform: scale(0.9); }
 
     .node-label { font-size: 11px; color: var(--accent); display: block; margin-top: 10px; font-weight: 900; }
+
+    /* DISCOVERY GLYPHS */
+    .discovery-glyph {
+      position: absolute; color: var(--accent); font-size: 10px; 
+      opacity: 0; pointer-events: none; animation: flicker-in 2s linear forwards;
+    }
+    @keyframes flicker-in {
+      0% { opacity: 0; transform: translateY(10px); }
+      20% { opacity: 0.6; }
+      80% { opacity: 0.4; }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
 
     /* LOADING SYSTEM */
     #loading-overlay {
@@ -92,7 +104,7 @@
     <div style="color: var(--accent); letter-spacing: 2px; font-weight: 900;" id="loading-text">SYNCING...</div>
 </div>
 
-<div id="main-content">
+<div id="main-content" onscroll="spawnDiscovery()">
     <div id="hero-glitch">
       <canvas id="matrix"></canvas>
       <div class="glitch-title">MAXIMUM_REALITY</div>
@@ -109,7 +121,8 @@
       </div>
     </div>
 
-    <div style="padding: 20px; text-align: center;">
+    <div style="padding: 100px 20px; text-align: center; min-height: 100vh;">
+       <p style="color: #333; font-size: 10px; margin-bottom: 50px;">[ SCROLL_TO_SCAN_SECTOR ]</p>
        <a href="rss.xml" style="color: var(--accent); text-decoration: none; border: 1px solid var(--accent); padding: 10px 30px; font-size: 12px;">📡 RSS_SIGNAL</a>
     </div>
 </div>
@@ -172,6 +185,21 @@
       if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
       drops[i]++;
     });
+  }
+
+  /* DISCOVERY MODE LOGIC */
+  function spawnDiscovery() {
+    if (Math.random() > 0.8) {
+      const main = document.getElementById('main-content');
+      const glyphs = ["∑", "∆", "ø", "µ", "01", "10", "§", "ƒ"];
+      const span = document.createElement('span');
+      span.className = 'discovery-glyph';
+      span.innerText = glyphs[Math.floor(Math.random() * glyphs.length)];
+      span.style.left = Math.random() * 90 + "%";
+      span.style.top = (main.scrollTop + window.innerHeight * 0.6) + (Math.random() * 100) + "px";
+      main.appendChild(span);
+      setTimeout(() => span.remove(), 2000);
+    }
   }
 
   function portalTrigger(url, sector) {
