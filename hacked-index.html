@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="hacker-favicon.PNG">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SYSTEM_CRITICAL | Maximum Reality</title>
@@ -23,17 +24,28 @@
             color: var(--blue); line-height: 1.8;
         }
 
-        /* 3. FLOATING GLYPHS */
+        /* 3. FLOATING GLYPHS & PINK BACKDOORS */
         .glyph {
             position: absolute; color: var(--blue); font-size: 12px; 
-            opacity: 0; pointer-events: none; animation: floatUp 3s linear infinite;
-            z-index: 1;
+            opacity: 0; pointer-events: none; animation: floatUp 3s linear forwards;
+            z-index: 100;
         }
+        
+        /* CLICKABLE PINK NODES */
+        .glyph.pink {
+            color: var(--pink);
+            text-shadow: 0 0 10px var(--pink);
+            font-weight: 900;
+            pointer-events: auto; /* ALLOW CLICKING */
+            cursor: pointer;
+            z-index: 101;
+        }
+
         @keyframes floatUp {
             0% { opacity: 0; transform: translateY(20px); }
-            20% { opacity: 0.5; }
-            80% { opacity: 0.5; }
-            100% { opacity: 0; transform: translateY(-100px); }
+            20% { opacity: 0.7; }
+            80% { opacity: 0.7; }
+            100% { opacity: 0; transform: translateY(-120px); }
         }
 
         /* MAIN INTERFACE */
@@ -44,6 +56,7 @@
         .title-glitch {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 1.5rem; font-weight: 900; letter-spacing: 5px; text-shadow: 2px 2px var(--pink);
+            text-align: center; width: 100%;
         }
 
         .portal-container { display: flex; justify-content: space-around; padding: 30px 0; }
@@ -51,8 +64,9 @@
         .azul { background-position: 0% center; }
         .mochkil { background-position: 100% center; border-color: var(--green); box-shadow: 0 0 20px var(--green); }
 
-        .button-zone { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-        .btn { padding: 15px 40px; border: 2px solid var(--pink); color: var(--pink); font-weight: 900; text-decoration: none; font-size: 12px; }
+        .button-zone { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 100px; }
+        .btn { padding: 15px 40px; border: 2px solid var(--pink); color: var(--pink); font-weight: 900; text-decoration: none; font-size: 12px; transition: 0.3s; }
+        .btn:active { background: var(--pink); color: #000; }
 
         /* VIDEO OVERLAY */
         #video-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 60000; align-items: center; justify-content: center; flex-direction: column; }
@@ -80,27 +94,25 @@
     </div>
 
     <div class="button-zone">
-        <div class="btn" onclick="openBreach()">[ INITIATE_BREACH ]</div>
+        <div class="btn" onclick="openBreach()">[ BREACH_DETECTED ]</div>
         <a href="rss.xml" class="btn" style="border-color: var(--blue); color: var(--blue);">📡 SIGNAL_RSS</a>
     </div>
 </div>
 
 <div id="video-overlay">
-    <div class="v-header">UPLINK: AZUL_BYPASS_AUTHORIZED <span onclick="closeBreach()" style="float:right;">[X]</span></div>
+    <div class="v-header">SURVEILLANCE: AZUL_BYPASS_FEED <span onclick="closeBreach()" style="float:right; cursor:pointer;">[X]</span></div>
     <iframe id="breach-player" src="https://www.youtube.com/embed/ysz6xN2uZQg?enablejsapi=1&rel=0&controls=0" allow="autoplay; encrypted-media"></iframe>
 </div>
 
 <script>
-    // 2. BOOT SEQUENCE LOGIC
     const bootLog = [
         "> CONNECTING TO MAINFRAME ZERO...",
         "> BYPASSING FIREWALL [99%]",
         "> ACCESS GRANTED: (MAXIMUMREALITY)",
         "> LOADING AZUL_OS V4.2...",
-        "> SCANNING BIOMETRICS...",
         "> WARNING: SPHYNX CAT DETECTED...",
         "> INITIALIZING REALITY DISTORTION...",
-        "> [!] AZUL_BYPASS: OPEN SESAME."
+        "> [!] AZUL_BYPASS: ACCESSING LIVE FOOTAGE."
     ];
     
     let line = 0;
@@ -122,15 +134,28 @@
         }
     }
 
-    // 3. GLYPH ENGINE (Optimized)
-    const glyphs = ["∑", "∆", "ø", "µ", "§", "ƒ", "01", "10"];
+    // 3. ENHANCED GLYPH ENGINE
+    const backdoors = [
+        'https://maximumreality.github.io/backdoor/backdoor1',
+        'https://maximumreality.github.io/backdoor/backdoor2',
+        'https://maximumreality.github.io/backdoor/backdoor3'
+    ];
+
     function spawnGlyphs() {
-        if (Math.random() > 0.8) {
+        if (Math.random() > 0.7) {
+            const isPink = Math.random() > 0.85; // Chance of a Pink Backdoor Glyph
             const span = document.createElement('span');
-            span.className = 'glyph';
-            span.innerText = glyphs[Math.floor(Math.random() * glyphs.length)];
-            span.style.left = Math.random() * 95 + "vw";
+            span.className = isPink ? 'glyph pink' : 'glyph';
+            span.innerText = isPink ? "[!]" : ["∑", "∆", "ø", "µ", "§", "ƒ", "01"][Math.floor(Math.random() * 7)];
+            span.style.left = Math.random() * 90 + "vw";
             span.style.top = (window.scrollY + window.innerHeight * 0.7) + "px";
+            
+            if(isPink) {
+                span.onclick = () => {
+                    window.location.href = backdoors[Math.floor(Math.random() * backdoors.length)];
+                };
+            }
+
             document.body.appendChild(span);
             setTimeout(() => span.remove(), 3000);
         }
@@ -155,11 +180,17 @@
 
     function openBreach() {
         document.getElementById('video-overlay').style.display = 'flex';
-        document.getElementById('breach-player').src += "&autoplay=1";
+        // Reload source with autoplay triggered
+        const player = document.getElementById('breach-player');
+        const currentSrc = player.src;
+        if (!currentSrc.includes("autoplay=1")) {
+            player.src = currentSrc + "&autoplay=1";
+        }
     }
 
     function closeBreach() {
-        const backdoors = ['backdoor/backdoor1','backdoor/backdoor2','backdoor/backdoor3'];
+        document.getElementById('video-overlay').style.display = 'none';
+        // Redirect to a random backdoor upon closing as a "trap"
         window.location.href = backdoors[Math.floor(Math.random() * backdoors.length)];
     }
 
