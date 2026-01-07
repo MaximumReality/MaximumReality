@@ -5,46 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MAXIMUM_REALITY | RSS_UPLINK</title>
     <style>
-        * { margin:0; padding:0; background:#000; color:#00e5ff; font-family:'Courier New', monospace; }
-        body { padding:25px; border-left: 5px solid #ff00ff; min-height: 100vh; }
-        .header { border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
-        .glitch { text-shadow: 2px 2px #ff00ff; font-weight: 900; text-transform: uppercase; }
-        .feed-item { border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 25px; background: #050505; }
-        h2 { font-size: 14px; margin-bottom: 10px; color: #ff00ff; }
-        p { font-size: 12px; line-height: 1.6; margin-bottom: 15px; }
-        .btn { display: inline-block; color: #000; background: #00e5ff; padding: 8px 15px; text-decoration: none; font-size: 10px; font-weight: 900; }
-        .scanline { width: 100%; height: 100%; position: fixed; top: 0; left: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03)); background-size: 100% 3px, 3px 100%; pointer-events: none; }
+        :root { --neon-blue: #00e5ff; --neon-pink: #ff00ff; --neon-green: #32cd32; --bg-black: #000; }
+        * { margin:0; padding:0; background:var(--bg-black); color:var(--neon-blue); font-family:'Courier New', monospace; box-sizing: border-box; }
+        
+        body { padding:25px; border-left: 5px solid var(--neon-pink); min-height: 100vh; overflow-x: hidden; }
+        
+        .header { border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 30px; }
+        .glitch { text-shadow: 2px 2px var(--neon-pink); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .feed-item { border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 25px; background: #050505; transition: transform 0.2s; }
+        .feed-item:active { transform: scale(0.98); border-color: var(--neon-blue); }
+        
+        h2 { font-size: 14px; margin-bottom: 10px; color: var(--neon-pink); text-transform: uppercase; }
+        p { font-size: 11px; line-height: 1.6; margin-bottom: 15px; color: #ccc; }
+        
+        .btn { display: inline-block; color: #000; background: var(--neon-blue); padding: 10px 18px; text-decoration: none; font-size: 10px; font-weight: 900; border-radius: 2px; }
+        
+        .scanline { width: 100%; height: 100%; position: fixed; top: 0; left: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 100; }
+        
+        #sector-clock { font-size: 0.7rem; color: var(--neon-green); margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="scanline"></div>
+    
     <div class="header">
         <h1 class="glitch">📡 INTERCEPTED_FEED</h1>
         <p style="font-size: 9px; opacity: 0.7;">[ STATUS: DECRYPTING_SIGNALS ]</p>
-        <p style="font-size: 8px; opacity: 0.5; color: #32cd32;">LAST_SYNC: 2026-01-06 // 18:57:45</p>
-
-    </div>
-    <div class="feed-item" style="border-color: #32cd32;">
-        <h2 style="color: #32cd32;">[!!!] UPLINK_ESTABLISHED: AZUL_OS IS LIVE</h2>
-        <p>CYBERPUNK_NEWS_FLASH: A rogue entry point has been detected in the main App Directory. The "Azul_OS" breach is now fully operational. Creator Lori Sifuentes has reported biometric interference in Sector Zero.</p>
-        <p style="font-size: 8px; color: #32cd32;">SIGNAL_TYPE: HACKER_GREEN_EMISSION</p>
-        <a href="https://maximumreality.xyz/hacked-index.html" class="btn" style="background: #32cd32;">[ VIEW_BREACH ]</a>
+        <div id="sector-clock">MARRAKESH_SECTOR // SYNCING...</div>
     </div>
 
-    <div class="feed-item">
-        <h2>[!] BREACH_SUCCESSFUL: AZUL_OS LIVE</h2>
-        <p>The firewall has been bypassed. Surveillance footage of operative Azul is now available in the /SURVEILLANCE/ directory.</p>
-        <a href="https://maximumreality.xyz/hacked-index.html" class="btn">[ OPEN_UPLINK ]</a>
+    <div class="feed-item" style="border-color: var(--neon-green);">
+        <h2 style="color: var(--neon-green);">[!!!] SYSTEM_BREACH: GREEN_RAIN_OS</h2>
+        <p>The core mainframe has been overwritten with Falling Code. Digital Creator Lori Sifuentes confirms the bypass was initiated via an iPhone 14 Pro Max uplink. Marrakesh Sector is now dark.</p>
+        <p style="font-size: 8px; color: var(--neon-green);">SIGNAL_TYPE: HACKER_GREEN_EMISSION</p>
+        <a href="index.html" class="btn" style="background: var(--neon-green);">[ VIEW_MAINFRAME ]</a>
     </div>
 
     <div class="feed-item">
-        <h2>NEW SECTOR: SNACK_ATTACK.RAW</h2>
-        <p>Mochkil has seized the kitchen mainframe. Michelin-star chaos is imminent. Play the arcade dash now.</p>
-        <a href="https://maximumreality.github.io/snack_attack/" class="btn">[ OPEN_UPLINK ]</a>
+        <h2>[!] DATA_LEAK: FELINE_PHYSICS</h2>
+        <p>Quantum analysis of the "Red Dot Singularity" is now live. Dr. Azul's neural lock has been established. Warning: High-velocity pounce detected in Sector 7.</p>
+        <a href="pounce-trajectory.html" class="btn">[ ANALYZE_POUNCE ]</a>
+    </div>
+
+    <div class="feed-item" style="border-color: var(--neon-pink);">
+        <h2 style="color: var(--neon-pink);">NEW SECTOR: MOCHKIL_SNACK_ATTACK</h2>
+        <p>Operative Mochkil has bypassed the Kitchen Firewall v4.0. Michelin-star chaos is being served. Enter the arcade dash before the Chef resets the system.</p>
+        <a href="https://maximumreality.github.io/snack_attack/" class="btn" style="background: var(--neon-pink);">[ ACCESS_KITCHEN ]</a>
     </div>
 
     <div style="text-align: center; padding: 50px 0;">
-        <a href="https://maximumreality.xyz/hacked-index.html" style="color:#ff00ff; text-decoration: none; font-size: 10px;">[ RETURN_TO_MAINFRAME ]</a>
+        <a href="index.html" style="color:var(--neon-pink); text-decoration: none; font-size: 10px;">[ RETURN_TO_MAINFRAME ]</a>
     </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timestamp = now.toLocaleString('sv-SE', { timeZone: 'Africa/Casablanca' }).replace(' ', ' T:');
+            document.getElementById('sector-clock').innerHTML = "MARRAKESH_SECTOR // SYNC: " + timestamp;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>
