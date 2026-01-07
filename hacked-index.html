@@ -60,13 +60,45 @@
         }
 
         .portal-container { display: flex; justify-content: space-around; padding: 30px 0; }
-        .portal-btn { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #fff; background: url('portals.PNG') no-repeat; background-size: 200% 100%; box-shadow: 0 0 20px var(--blue); }
-        .azul { background-position: 0% center; }
-        .mochkil { background-position: 100% center; border-color: var(--green); box-shadow: 0 0 20px var(--green); }
+        /* Update the existing portal-btn class */
+.portal-btn { 
+    width: 110px; 
+    height: 110px; 
+    border-radius: 50%; 
+    border: 3px solid #fff; 
+    background: url('portals.PNG') no-repeat; 
+    background-size: auto 100%; /* Height stays 100%, width scales naturally */
+}
 
-        .button-zone { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 100px; }
-        .btn { padding: 15px 40px; border: 2px solid var(--pink); color: var(--pink); font-weight: 900; text-decoration: none; font-size: 12px; transition: 0.3s; }
-        .btn:active { background: var(--pink); color: #000; }
+/* AZUL - Left side of the PNG */
+.azul { 
+    background-position: 0% center; 
+    box-shadow: 0 0 20px var(--blue); 
+}
+
+/* MOCHKIL - Right side of the PNG */
+.mochkil { 
+    background-position: 100% center; 
+    border-color: var(--green); 
+    box-shadow: 0 0 20px var(--green); 
+}
+
+/* GHOST LAB - The Middle Ground */
+.ghost-lab { 
+    background-position: 50% center; /* This shows the vertical 'seam' where they meet */
+    border-color: var(--pink); 
+    box-shadow: 0 0 20px var(--pink); 
+    filter: hue-rotate(290deg) brightness(1.2); /* Shifts the colors toward Ghost Lab Pink */
+    animation: pulse-red 2s infinite;
+}
+
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 10px var(--pink); }
+    50% { box-shadow: 0 0 25px var(--pink); }
+    100% { box-shadow: 0 0 10px var(--pink); }
+}
+
 
         /* VIDEO OVERLAY */
         #video-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 60000; align-items: center; justify-content: center; flex-direction: column; }
@@ -89,9 +121,21 @@
     </div>
 
     <div class="portal-container">
-        <div onclick="location.href='https://maximumreality.github.io/mainframe_zero/'"><div class="portal-btn azul"></div></div>
-        <div onclick="location.href='https://maximumreality.github.io/recipes/'"><div class="portal-btn mochkil"></div></div>
+    <div onclick="location.href='https://maximumreality.github.io/mainframe_zero/'">
+        <div class="portal-btn azul"></div>
     </div>
+
+    <div onclick="location.href='https://maximumreality.github.io/hacker_lab/'">
+        <div class="portal-btn ghost-lab"></div>
+    </div>
+
+    <div onclick="location.href='https://maximumreality.github.io/recipes/'">
+        <div class="portal-btn mochkil"></div>
+    </div>
+</div>
+
+</div>
+
 
     <div class="button-zone">
         <div class="btn" onclick="openBreach()">[ BREACH_DETECTED ]</div>
@@ -109,6 +153,7 @@
         "> CONNECTING TO MAINFRAME ZERO...",
         "> BYPASSING FIREWALL [99%]",
         "> ACCESS GRANTED: (MAXIMUMREALITY)",
+        "> DETECTING GHOST_FRAGMENTS in SECTOR_7...",
         "> LOADING AZUL_OS V4.2...",
         "> WARNING: SPHYNX CAT DETECTED...",
         "> INITIALIZING REALITY DISTORTION...",
