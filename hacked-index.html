@@ -250,6 +250,27 @@
         }, 1200);
     });
 </script>
+<footer style="margin-top: 50px; padding: 20px; border-top: 1px solid #222; text-align: center; font-size: 10px; color: #444; letter-spacing: 1px;">
+    <div style="color: var(--blue); margin-bottom: 10px;">
+        ● MAXIMUM_REALITY_SYSTEMS // SECTOR_07_ACCESS
+    </div>
+    
+    <p>DIGITAL_CREATOR: LORI [OP_GHOST]</p>
+    <p>CO-STARS: DR. AZUL & CHEF MOCHKIL</p>
+    
+    <div style="margin-top: 15px; font-family: monospace; color: #333;">
+        [ TIME_STAMP ]: <span id="footer-clock">00:00:00</span> | [ STATUS ]: ENCRYPTED
+    </div>
+
+    <script>
+        function updateFooterClock() {
+            const now = new Date();
+            document.getElementById('footer-clock').innerText = now.toTimeString().split(' ')[0];
+        }
+        setInterval(updateFooterClock, 1000);
+        updateFooterClock();
+    </script>
+</footer>
 
 </body>
 </html>
