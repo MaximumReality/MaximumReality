@@ -67,37 +67,32 @@
     border-radius: 50%; 
     border: 3px solid #fff; 
     background: url('portals.PNG') no-repeat; 
-    background-size: auto 100%; /* Height stays 100%, width scales naturally */
+    /* This makes the image 2x the width of the button */
+    background-size: 200% 100%; 
 }
 
-/* AZUL - Left side of the PNG */
+/* AZUL - Show the far left */
 .azul { 
     background-position: 0% center; 
     box-shadow: 0 0 20px var(--blue); 
 }
 
-/* MOCHKIL - Right side of the PNG */
+/* MOCHKIL - Show the far right */
 .mochkil { 
     background-position: 100% center; 
     border-color: var(--green); 
     box-shadow: 0 0 20px var(--green); 
 }
 
-/* GHOST LAB - The Middle Ground */
+/* GHOST LAB - Show the 'Seam' in the middle */
 .ghost-lab { 
-    background-position: 50% center; /* This shows the vertical 'seam' where they meet */
+    background-position: 50% center; 
     border-color: var(--pink); 
     box-shadow: 0 0 20px var(--pink); 
-    filter: hue-rotate(290deg) brightness(1.2); /* Shifts the colors toward Ghost Lab Pink */
+    filter: hue-rotate(290deg) brightness(1.2); 
     animation: pulse-red 2s infinite;
 }
 
-
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 10px var(--pink); }
-    50% { box-shadow: 0 0 25px var(--pink); }
-    100% { box-shadow: 0 0 10px var(--pink); }
-}
 
 
         /* VIDEO OVERLAY */
