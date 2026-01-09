@@ -40,17 +40,6 @@
         <div id="sector-clock">MARRAKESH_SECTOR // SYNCING...</div>
     </div>
 
-    <div class="log-entry">
-    <div class="timestamp">2026-01-09 // 13:30 GMT+1</div>
-    <div class="author">AZUL // QUANTUM_LEAD</div>
-    <div class="content">
-        <span class="highlight">[SIGNAL_DEGRADATION_WARNING]</span><br>
-        The Agadir node is experiencing massive packet loss. I’ve initiated the 'Silence Protocol' on the backdoor terminal. If the visual feed fails to sync, it’s not your hardware—it’s the local grid. I am currently attempting to tunnel through the static using a legacy JSON handshake. 
-        <br><br>
-        Mochkil is currently using the router as a heat source for a new 'low-bandwidth' sourdough starter. Chaos is at 98% saturation.
-    </div>
-</div>
-
     <div class="feed-item" style="border-left: 5px solid var(--neon-blue); border-top: 1px solid var(--neon-blue); background: linear-gradient(135deg, #050505 0%, #001a1a 100%);">
     <h2 style="color: var(--neon-blue); letter-spacing: 2px;">[ORIGIN_RECOVERED] AWAKENING_SILENCE_TO_NEON</h2>
     <p>YEAR_ZERO_LOG: The first recorded interface of a biological Sphynx with the Quantum Grid. Dr. Azul's neural pathways have successfully merged with the neon mainframe. Whisker-Based Cryptography (WBC) initialized. The silence has ended.</p>
@@ -117,8 +106,11 @@
         <a href="index.html" style="color:var(--neon-pink); text-decoration: none; font-size: 10px; letter-spacing: 1px;">[ RETURN_TO_MAINFRAME ]</a>
     </div>
 
-    <script>
+            <script>
         const signalData = [
+            { time: "13:07", tag: "CRIT", msg: "AGADIR_NODE: Critical Throttling. Data hitting the Gibraltar wall." },
+            { time: "13:08", tag: "AZUL", msg: "Rerouting signal through legacy satellite backdoor. Stay in the static." },
+            { time: "13:10", tag: "CHEF", msg: "Mochkil: Saffron/Sea Salt firewall bypass active. Roasting now." },
             { time: "14:02", tag: "INFO", msg: "Marrakesh Sector remains stable. Potato count: 0." },
             { time: "14:45", tag: "WARN", msg: "Unidentified 'Broom' artifact detected in deleted script layer." },
             { time: "15:20", tag: "CRIT", msg: "Azul detects quantum frequency: 'DOOM_DOOM_DOOM'." },
@@ -129,13 +121,20 @@
         function populateFeed() {
             const scroller = document.getElementById('feed-scroller');
             if(!scroller) return;
+            scroller.innerHTML = ""; // Clear existing
             signalData.forEach(item => {
                 const entry = document.createElement('div');
                 entry.style.marginBottom = "8px";
                 entry.style.fontSize = "11px";
+                // Color code the tags for maximum cyberpunk feel
+                let tagColor = "var(--neon-pink)";
+                if(item.tag === "CRIT") tagColor = "var(--neon-red)";
+                if(item.tag === "AZUL") tagColor = "var(--neon-blue)";
+                if(item.tag === "CHEF") tagColor = "var(--neon-green)";
+
                 entry.innerHTML = `
                     <span style="color: #666;">[${item.time}]</span> 
-                    <span style="color: var(--neon-pink);">[${item.tag}]</span> 
+                    <span style="color: ${tagColor};">[${item.tag}]</span> 
                     <span style="color: #ddd;">${item.msg}</span>
                 `;
                 scroller.appendChild(entry);
@@ -144,12 +143,10 @@
 
         function updateClock() {
             const now = new Date();
-            // Marrakesh Sector Clock (The one in your header)
             const timestamp = now.toLocaleString('sv-SE', { timeZone: 'Africa/Casablanca' }).replace(' ', ' T:');
             const sectorClock = document.getElementById('sector-clock');
             if(sectorClock) sectorClock.innerHTML = "MARRAKESH_SECTOR // SYNC: " + timestamp;
             
-            // Widget Clock (The one inside the green box)
             const widgetClock = document.getElementById('marrakesh-time');
             if(widgetClock) widgetClock.innerText = now.toLocaleTimeString();
         }
@@ -158,5 +155,6 @@
         updateClock();
         populateFeed();
     </script>
+
 </body>
 </html>
