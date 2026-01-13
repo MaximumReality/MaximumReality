@@ -142,9 +142,44 @@
 </div>
 
 <div id="video-overlay">
-    <div class="v-header">SURVEILLANCE: AZUL_BYPASS_FEED <span onclick="closeBreach()" style="float:right; cursor:pointer;">[X]</span></div>
+    <div class="v-header">
+        <span id="feed-status">SURVEILLANCE: AZUL_BYPASS_FEED</span> 
+        <span onclick="closeBreach()" style="float:right; cursor:pointer;">[X]</span>
+    </div>
+    
     <iframe id="breach-player" src="https://www.youtube.com/embed/ysz6xN2uZQg?enablejsapi=1&rel=0&controls=0" allow="autoplay; encrypted-media"></iframe>
+
+    <div style="display: flex; gap: 10px; margin-top: 10px; width: 90%; max-width: 500px;">
+        <div class="btn" style="flex: 1; font-size: 9px; padding: 5px; text-align: center; border-color: var(--blue); color: var(--blue);" onclick="changeFeed('mainframe')">[ EXEC: BYPASS_FEED ]</div>
+        <div class="btn" style="flex: 1; font-size: 9px; padding: 5px; text-align: center; border-color: var(--green); color: var(--green);" onclick="changeFeed('snack')">[ EXEC: SNACK_THEFT ]</div>
+    </div>
 </div>
+
+<script>
+    // These functions work with your existing 'backdoors' array
+    function changeFeed(type) {
+        const player = document.getElementById('breach-player');
+        const status = document.getElementById('feed-status');
+        
+        if (type === 'mainframe') {
+            player.src = "https://www.youtube.com/embed/ysz6xN2uZQg?autoplay=1&rel=0&controls=0";
+            status.innerText = "SURVEILLANCE: AZUL_BYPASS_FEED";
+        } else {
+            player.src = "https://www.youtube.com/embed/J6fos0hl5XI?autoplay=1&rel=0&controls=0";
+            status.innerText = "SURVEILLANCE: MOCHKIL_SNACK_THEFT";
+        }
+    }
+
+    function closeBreach() {
+        // Stops the audio first
+        document.getElementById('breach-player').src = "";
+        document.getElementById('video-overlay').style.display = 'none';
+        
+        // YOUR ORIGINAL TRAP: Redirects to a random backdoor from your list
+        window.location.href = backdoors[Math.floor(Math.random() * backdoors.length)];
+    }
+</script>
+
 
 <script>
     const bootLog = [
