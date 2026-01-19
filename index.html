@@ -361,7 +361,8 @@
   </footer>
  <script>
 async function fetchTransmissions() {
-    const channelId = "UCv7D9b_mFf_M2S_D2pBvCmw"; 
+    // UPDATED: This is your actual Channel ID from @maximumrealitylori
+    const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA"; 
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
 
@@ -371,9 +372,8 @@ async function fetchTransmissions() {
         const container = document.getElementById('transmissions-container');
         const loader = document.getElementById('loading-text');
 
-        if (data.items) {
+        if (data.status === 'ok' && data.items.length > 0) {
             loader.style.display = 'none';
-            // This takes your 3 newest uploads automatically
             data.items.slice(0, 3).forEach(video => {
                 const card = document.createElement('a');
                 card.href = video.link;
@@ -383,23 +383,28 @@ async function fetchTransmissions() {
 
                 card.innerHTML = `
                     <div class="app-icon" style="border: 1px solid #ffea00;">
-                        <img src="${video.thumbnail}" alt="Short Thumbnail">
+                        <img src="${video.thumbnail}" alt="Thumbnail">
                     </div>
                     <div class="app-info">
-                        <div class="app-name" style="color: #ffea00;">📡 NEW TRANSMISSION</div>
+                        <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION RECEIVED</div>
                         <div class="app-desc">${video.title}</div>
                     </div>
                     <div class="get-btn" style="color: #ffea00; border-color: #ffea00;">WATCH</div>
                 `;
                 container.appendChild(card);
             });
+        } else {
+            throw new Error("Feed empty or unavailable");
         }
     } catch (e) {
-        console.error("Transmission Interrupted");
-        document.getElementById('loading-text').innerText = "SIGNAL LOST - CHECK BACK LATER";
+        console.error("Signal Lost:", e);
+        document.getElementById('loading-text').innerHTML = `
+            <div style="text-align:center;">
+                <p style="color:#ffea00; margin-bottom:10px;">SIGNAL INTERRUPTED</p>
+                <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:150px; margin:0 auto; text-decoration:none; display:block;">MANUAL UPLINK</a>
+            </div>`;
     }
 }
-// Run the fetch once the page is ready
 fetchTransmissions();
 </script>
 
