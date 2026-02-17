@@ -430,62 +430,70 @@
     <img src="logo.png" alt="Maximum Reality" class="footer-logo">
     <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
   </footer>
- <script>async function fetchTransmissions() {
+ <script>
+  async function fetchTransmissions() {
     const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA"; 
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     
-    // We use a different helper service as a backup
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&t=${Date.now()}`;
+    // Using an alternative open proxy to bypass the "Signal Interrupted" loop
+    const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}&t=${Date.now()}`;
 
     const container = document.getElementById('transmissions-container');
     const loader = document.getElementById('loading-text');
 
     try {
-        loader.innerText = "[ ATTEMPTING_UPLINK... ]";
-        
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Server Rejected Request");
+        if (!response.ok) throw new Error("Connection Refused");
         
-        const data = await response.json();
+        const wrapper = await response.json();
+        // Parse the raw XML data from the proxy
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(wrapper.contents, "text/xml");
+        const entries = xmlDoc.getElementsByTagName("entry");
 
-        if (data.status === 'ok' && data.items.length > 0) {
+        if (entries.length > 0) {
             loader.style.display = 'none';
-            container.innerHTML = ''; // Wipe the "Interrupted" text if it was there
+            container.innerHTML = ''; 
 
-            data.items.slice(0, 3).forEach(video => {
+            for (let i = 0; i < Math.min(3, entries.length); i++) {
+                const title = entries[i].getElementsByTagName("title")[0].textContent;
+                const link = entries[i].getElementsByTagName("link")[0].getAttribute("href");
+                const videoId = entries[i].getElementsByTagName("yt:videoId")[0].textContent;
+                const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+
                 const card = document.createElement('a');
-                card.href = video.link;
+                card.href = link;
                 card.target = "_blank";
                 card.className = "app-card";
-                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(0,0,0,0.5);";
+                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(0,0,0,0.8);";
 
                 card.innerHTML = `
                     <div class="app-icon" style="border: 1px solid #ffea00;">
-                        <img src="${video.thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="${thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div class="app-info">
                         <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION</div>
-                        <div class="app-desc" style="color:#fff;">${video.title}</div>
+                        <div class="app-desc" style="color:#fff; font-size:10px;">${title}</div>
                     </div>
                     <div class="get-btn" style="color: #ffea00; border-color: #ffea00;">WATCH</div>
                 `;
                 container.appendChild(card);
-            });
+            }
         } else {
-            throw new Error("Data corruption or empty feed");
+            throw new Error("No entries found");
         }
     } catch (e) {
-        console.error("Azul Error Log:", e);
+        // Keeps your creative "Signal Strength Low" UI if the hack fails
         loader.innerHTML = `
-            <div style="text-align:center; border: 1px dashed #ffea00; padding: 15px;">
+            <div style="text-align:center; border: 1px dashed #ffea00; padding: 15px; width: 100%;">
                 <p style="color:#ffea00; font-size:12px;">[!] SIGNAL_STRENGTH_LOW</p>
                 <p style="font-size:10px; opacity:0.6; margin: 10px 0;">The Dark Web filters are heavy today.</p>
                 <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:180px; margin:0 auto; text-decoration:none; display:block;">MANUAL_LINK_ESTABLISHED</a>
             </div>`;
     }
 }
-// Give the page 1 second to breathe before Azul starts hacking
-setTimeout(fetchTransmissions, 1000);
+setTimeout(fetchTransmissions, 1500);
+
 
 
 </script>
