@@ -430,65 +430,63 @@
     <img src="logo.png" alt="Maximum Reality" class="footer-logo">
     <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
   </footer>
- <script>
-async function fetchTransmissions() {
+ <script>async function fetchTransmissions() {
     const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA"; 
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     
-    // ADDED: Cache-buster (&t=) to force a fresh pull from the servers
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=your_api_key_if_you_have_one&t=${Date.now()}`;
+    // We use a different helper service as a backup
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&t=${Date.now()}`;
+
+    const container = document.getElementById('transmissions-container');
+    const loader = document.getElementById('loading-text');
 
     try {
-        // Set a timeout so it doesn't hang forever on a weak signal
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-        const response = await fetch(apiUrl, { signal: controller.signal });
+        loader.innerText = "[ ATTEMPTING_UPLINK... ]";
+        
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error("Server Rejected Request");
+        
         const data = await response.json();
-        clearTimeout(timeoutId);
 
-        const container = document.getElementById('transmissions-container');
-        const loader = document.getElementById('loading-text');
-
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
+        if (data.status === 'ok' && data.items.length > 0) {
             loader.style.display = 'none';
-            // Clear container in case of double-runs
-            container.querySelectorAll('.app-card').forEach(el => el.remove());
+            container.innerHTML = ''; // Wipe the "Interrupted" text if it was there
 
             data.items.slice(0, 3).forEach(video => {
                 const card = document.createElement('a');
                 card.href = video.link;
                 card.target = "_blank";
                 card.className = "app-card";
-                // Style matches your yellow "Transmission" vibe
-                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(255, 234, 0, 0.05);";
+                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(0,0,0,0.5);";
 
                 card.innerHTML = `
                     <div class="app-icon" style="border: 1px solid #ffea00;">
-                        <img src="${video.thumbnail}" alt="Thumbnail">
+                        <img src="${video.thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <div class="app-info">
-                        <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION RECEIVED</div>
-                        <div class="app-desc" style="color: #fff;">${video.title}</div>
+                        <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION</div>
+                        <div class="app-desc" style="color:#fff;">${video.title}</div>
                     </div>
                     <div class="get-btn" style="color: #ffea00; border-color: #ffea00;">WATCH</div>
                 `;
                 container.appendChild(card);
             });
         } else {
-            throw new Error("Empty Feed");
+            throw new Error("Data corruption or empty feed");
         }
     } catch (e) {
-        console.error("Signal Lost:", e);
-        document.getElementById('loading-text').innerHTML = `
-            <div style="text-align:center; padding: 20px;">
-                <p style="color:#ffea00; margin-bottom:10px; font-family:monospace;">[!] SIGNAL_INTERRUPTED</p>
-                <p style="font-size:10px; color:#555; margin-bottom:15px;">Retry protocol initiated or use manual link.</p>
-                <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:150px; margin:0 auto; text-decoration:none; display:block;">MANUAL UPLINK</a>
+        console.error("Azul Error Log:", e);
+        loader.innerHTML = `
+            <div style="text-align:center; border: 1px dashed #ffea00; padding: 15px;">
+                <p style="color:#ffea00; font-size:12px;">[!] SIGNAL_STRENGTH_LOW</p>
+                <p style="font-size:10px; opacity:0.6; margin: 10px 0;">The Dark Web filters are heavy today.</p>
+                <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:180px; margin:0 auto; text-decoration:none; display:block;">MANUAL_LINK_ESTABLISHED</a>
             </div>`;
     }
 }
-fetchTransmissions();
+// Give the page 1 second to breathe before Azul starts hacking
+setTimeout(fetchTransmissions, 1000);
+
 
 </script>
 
