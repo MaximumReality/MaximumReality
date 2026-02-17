@@ -432,25 +432,36 @@
   </footer>
  <script>
 async function fetchTransmissions() {
-    // UPDATED: This is your actual Channel ID from @maximumrealitylori
     const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA"; 
     const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    
+    // ADDED: Cache-buster (&t=) to force a fresh pull from the servers
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&api_key=your_api_key_if_you_have_one&t=${Date.now()}`;
 
     try {
-        const response = await fetch(apiUrl);
+        // Set a timeout so it doesn't hang forever on a weak signal
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const response = await fetch(apiUrl, { signal: controller.signal });
         const data = await response.json();
+        clearTimeout(timeoutId);
+
         const container = document.getElementById('transmissions-container');
         const loader = document.getElementById('loading-text');
 
-        if (data.status === 'ok' && data.items.length > 0) {
+        if (data.status === 'ok' && data.items && data.items.length > 0) {
             loader.style.display = 'none';
+            // Clear container in case of double-runs
+            container.querySelectorAll('.app-card').forEach(el => el.remove());
+
             data.items.slice(0, 3).forEach(video => {
                 const card = document.createElement('a');
                 card.href = video.link;
                 card.target = "_blank";
                 card.className = "app-card";
-                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px;";
+                // Style matches your yellow "Transmission" vibe
+                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(255, 234, 0, 0.05);";
 
                 card.innerHTML = `
                     <div class="app-icon" style="border: 1px solid #ffea00;">
@@ -458,25 +469,27 @@ async function fetchTransmissions() {
                     </div>
                     <div class="app-info">
                         <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION RECEIVED</div>
-                        <div class="app-desc">${video.title}</div>
+                        <div class="app-desc" style="color: #fff;">${video.title}</div>
                     </div>
                     <div class="get-btn" style="color: #ffea00; border-color: #ffea00;">WATCH</div>
                 `;
                 container.appendChild(card);
             });
         } else {
-            throw new Error("Feed empty or unavailable");
+            throw new Error("Empty Feed");
         }
     } catch (e) {
         console.error("Signal Lost:", e);
         document.getElementById('loading-text').innerHTML = `
-            <div style="text-align:center;">
-                <p style="color:#ffea00; margin-bottom:10px;">SIGNAL INTERRUPTED</p>
+            <div style="text-align:center; padding: 20px;">
+                <p style="color:#ffea00; margin-bottom:10px; font-family:monospace;">[!] SIGNAL_INTERRUPTED</p>
+                <p style="font-size:10px; color:#555; margin-bottom:15px;">Retry protocol initiated or use manual link.</p>
                 <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:150px; margin:0 auto; text-decoration:none; display:block;">MANUAL UPLINK</a>
             </div>`;
     }
 }
 fetchTransmissions();
+
 </script>
 
 
