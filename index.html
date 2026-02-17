@@ -431,71 +431,99 @@
     <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
   </footer>
  <script>
-  async function fetchTransmissions() {
-    const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA"; 
-    const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-    
-    // Using an alternative open proxy to bypass the "Signal Interrupted" loop
-    const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(rssUrl)}&t=${Date.now()}`;
+  <script>
+<script>
+async function fetchTransmissions() {
+    const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA";
+    const apiKey = "AIzaSyC4bJH0S9ffr4_mPRQjxR_7PdKqc4YVmk4";
+    const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet&order=date&maxResults=3&type=video`;
 
     const container = document.getElementById('transmissions-container');
     const loader = document.getElementById('loading-text');
 
+    const CACHE_KEY = "mr_youtube_cache";
+    const CACHE_TIME = 60 * 60 * 1000; // 1 hour
+
+    // 🔎 Check cache first
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < CACHE_TIME) {
+            renderVideos(parsed.data);
+            loader.style.display = 'none';
+            return;
+        }
+    }
+
     try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Connection Refused");
-        
-        const wrapper = await response.json();
-        // Parse the raw XML data from the proxy
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(wrapper.contents, "text/xml");
-        const entries = xmlDoc.getElementsByTagName("entry");
+        if (!response.ok) throw new Error("API call failed");
 
-        if (entries.length > 0) {
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+            // Save to cache
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                timestamp: Date.now(),
+                data: data
+            }));
+
+            renderVideos(data);
             loader.style.display = 'none';
-            container.innerHTML = ''; 
-
-            for (let i = 0; i < Math.min(3, entries.length); i++) {
-                const title = entries[i].getElementsByTagName("title")[0].textContent;
-                const link = entries[i].getElementsByTagName("link")[0].getAttribute("href");
-                const videoId = entries[i].getElementsByTagName("yt:videoId")[0].textContent;
-                const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
-
-                const card = document.createElement('a');
-                card.href = link;
-                card.target = "_blank";
-                card.className = "app-card";
-                card.style.cssText = "border: 1px solid #ffea00; width: 100%; max-width: 500px; margin: 10px; background: rgba(0,0,0,0.8);";
-
-                card.innerHTML = `
-                    <div class="app-icon" style="border: 1px solid #ffea00;">
-                        <img src="${thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
-                    </div>
-                    <div class="app-info">
-                        <div class="app-name" style="color: #ffea00;">📡 TRANSMISSION</div>
-                        <div class="app-desc" style="color:#fff; font-size:10px;">${title}</div>
-                    </div>
-                    <div class="get-btn" style="color: #ffea00; border-color: #ffea00;">WATCH</div>
-                `;
-                container.appendChild(card);
-            }
         } else {
-            throw new Error("No entries found");
+            throw new Error("No videos found");
         }
     } catch (e) {
-        // Keeps your creative "Signal Strength Low" UI if the hack fails
         loader.innerHTML = `
             <div style="text-align:center; border: 1px dashed #ffea00; padding: 15px; width: 100%;">
                 <p style="color:#ffea00; font-size:12px;">[!] SIGNAL_STRENGTH_LOW</p>
-                <p style="font-size:10px; opacity:0.6; margin: 10px 0;">The Dark Web filters are heavy today.</p>
+                <p style="font-size:10px; opacity:0.6; margin: 10px 0;">Transmission unstable.</p>
                 <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:180px; margin:0 auto; text-decoration:none; display:block;">MANUAL_UPLINK</a>
             </div>`;
     }
+
+    function renderVideos(data) {
+        container.innerHTML = '';
+
+        data.items.forEach(item => {
+            const title = item.snippet.title;
+            const videoId = item.id.videoId;
+            const link = `https://www.youtube.com/watch?v=${videoId}`;
+            const thumbnail = item.snippet.thumbnails.high.url;
+
+            const card = document.createElement('a');
+            card.href = link;
+            card.target = "_blank";
+            card.className = "app-card";
+            card.style.cssText = `
+                border: 1px solid #ffea00;
+                width: 100%;
+                max-width: 500px;
+                margin: 10px auto;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                text-decoration: none;
+            `;
+
+            card.innerHTML = `
+                <div class="app-icon" style="border: 1px solid #ffea00; flex: 0 0 120px; height: 80px;">
+                    <img src="${thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="app-info" style="padding: 5px; flex: 1;">
+                    <div class="app-name" style="color: #ffea00; font-weight:bold;">📡 TRANSMISSION</div>
+                    <div class="app-desc" style="color:#fff; font-size:10px; margin-top:4px;">${title}</div>
+                </div>
+                <div class="get-btn" style="color: #ffea00; border: 1px solid #ffea00; padding: 5px 10px; align-self:center; margin-right:5px;">WATCH</div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
 }
+
 setTimeout(fetchTransmissions, 1500);
-
-
-
+</script>
+</script>
 </script>
 
 
