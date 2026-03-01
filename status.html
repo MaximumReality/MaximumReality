@@ -73,15 +73,22 @@
     ACTIVATE_VISUAL_FLARE
 </button>
 
+<div id="visual-help" style="font-size: 5rem; text-align: center; display: none; margin-top: 20px;">
+    🆘 🚑 🏥
+</div>
+
 <script>
+
 function startBeacon() {
     let active = false;
+    document.getElementById('visual-help').style.display = 'block'; // Show icons
     setInterval(() => {
         document.body.style.backgroundColor = active ? "#0d0d0d" : "#ff003c";
         document.body.style.color = active ? "#00ff41" : "#ffffff";
         active = !active;
-    }, 500); // Blinks every half-second
+    }, 500);
 }
 </script>
+
 </body>
 </html>
