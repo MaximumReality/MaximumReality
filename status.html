@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAXIMUM REALITY | SYSTEM STATUS</title>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #00ff41; /* Matrix/Terminal Green */
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .frame {
+            border: 2px solid #00ff41;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 15px #00ff41;
+        }
+        h1 { font-size: 1.2rem; text-align: center; border-bottom: 1px solid #00ff41; padding-bottom: 10px; }
+        .stat-row { display: flex; justify-content: space-between; margin: 10px 0; }
+        .warning { color: #ff003c; text-shadow: 0 0 5px #ff003c; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+        .log { background: #1a1a1a; padding: 10px; font-size: 0.8rem; height: 100px; overflow-y: scroll; border: 1px inset #00ff41; }
+    
+
+
+    </style>
+
+</head>
+<body>
+    <div class="frame">
+        <h1>SYSTEM_IDENTITY: LORI_K_SIFUENTES</h1>
+        
+        <div class="stat-row">
+            <span>LOCATION:</span>
+            <span>LQLIAA_GRID_30.29N_9.46W</span>
+        </div>
+        
+        <div class="stat-row">
+            <span>ALTITUDE:</span>
+            <span>LEVEL_03_ISOLATION</span>
+        </div>
+
+        <div class="stat-row">
+            <span>BIO_STATUS:</span>
+            <span class="warning">INFECTION_DETECTED</span>
+        </div>
+
+        <div class="stat-row">
+            <span>NETWORK:</span>
+            <span>WIFI_LOW_BANDWIDTH</span>
+        </div>
+
+        <div class="stat-row">
+            <span>COMPANIONS:</span>
+            <span>AZUL_MOCHKIL</span>
+        </div>
+
+        <div class="log">
+            > Initializing Maximum Reality...<br>
+            > 473km to Casablanca: ROUTE_IMPOSSIBLE<br>
+            > SSDI_REINSTATEMENT: PENDING...<br>
+            > Warning: Epistaxis event logged.<br>
+            > Architect status: ONLINE / REBELLIOUS.
+        </div>
+    </div>
+      <button onclick="startBeacon()" style="width:100%; padding:20px; background:#ff003c; color:white; font-weight:bold; margin-top:20px;">
+    ACTIVATE_VISUAL_FLARE
+</button>
+
+<script>
+function startBeacon() {
+    let active = false;
+    setInterval(() => {
+        document.body.style.backgroundColor = active ? "#0d0d0d" : "#ff003c";
+        document.body.style.color = active ? "#00ff41" : "#ffffff";
+        active = !active;
+    }, 500); // Blinks every half-second
+}
+</script>
+</body>
+</html>
