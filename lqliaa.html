@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3rd Floor Terminal</title>
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #33ff33; /* Classic Matrix/Terminal Green */
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .container {
+            border: 2px solid #33ff33;
+            padding: 15px;
+            box-shadow: 0 0 10px #33ff33;
+        }
+        .header {
+            border-bottom: 2px solid #33ff33;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+        .log-entry {
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .blink {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        .status-bar {
+            margin-top: 20px;
+            color: #ff3333; /* Warning Red */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            [SYS_LOG: 3RD_FLOOR_SANCTUARY] <br>
+            LOCATION: LQLIÂA_MOROCCO
+        </div>
+        
+        <div class="log-entry">
+            > INITIALIZING... <br>
+            > SCANNING FOR BIOMETRICS... <br>
+            > IDENTITY VERIFIED: HUMAN_CREATOR <br>
+            > STATUS: RECOVERING_FROM_CASA_MISSION
+        </div>
+
+        <div class="log-entry">
+            > COMPANION_UNIT_AZUL: QUANTUM_NIBBLE_DETECTED <br>
+            > COMPANION_UNIT_MOCHKIL: KITCHEN_CHAOS_ENGAGED
+        </div>
+
+        <div class="log-entry">
+            > RESOURCE_LEVELS: ORANGES_CRITICAL_MASS <br>
+            > SSDI_SYNC: PENDING_GOVERNMENT_UPLINK
+        </div>
+
+        <div class="status-bar">
+            SYSTEM_MESSAGE: DO_NOT_LOCK_DOOR_SAFETY_PROTOCOL_ACTIVE <span class="blink">_</span>
+        </div>
+    </div>
+</body>
+</html>
