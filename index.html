@@ -447,11 +447,79 @@
         <p id="loading-text" style="color: #a2d2ff;">Receiving Signal...</p>
     </div>
 </section>
+
+ <style>
+  .status-dot { height: 6px; width: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .online { background-color: #39ff14; box-shadow: 0 0 8px #39ff14; }
+  .maintenance { background-color: #ff3131; animation: statusFlicker 2s infinite; }
+  
+  @keyframes statusFlicker {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px #ff3131; }
+    50% { opacity: 0.3; box-shadow: 0 0 0px #ff3131; }
+  }
+</style>
+
+<section style="padding: 40px 20px; max-width: 600px; margin: 0 auto; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+  <h3 style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; text-align: center;">// NEON_CITY_DIRECTORY //</h3>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-family: monospace; font-size: 0.7rem;">
+    
+    <div style="border-left: 2px solid #00ffff; padding-left: 10px;">
+      <h4 style="color: #00ffff; margin-bottom: 8px; font-size: 0.8rem;">[ BLUE_SECTOR ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Word Chaos 🧬</li>
+        <li><span class="status-dot online"></span>Q-Code Pyramid</li>
+        <li><span class="status-dot online"></span>Azul_OS Breach</li>
+        <li><span class="status-dot maintenance"></span>Omni-Azul v2</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #ff9900; padding-left: 10px;">
+      <h4 style="color: #ff9900; margin-bottom: 8px; font-size: 0.8rem;">[ ORANGE_ALLEY ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Snack Attack 🍰</li>
+        <li><span class="status-dot online"></span>Bessara Blast</li>
+        <li><span class="status-dot maintenance"></span>Mochkil Puffs</li>
+        <li><span class="status-dot online"></span>Snack OS 🍳</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #a286ef; padding-left: 10px; margin-top: 10px;">
+      <h4 style="color: #a286ef; margin-bottom: 8px; font-size: 0.8rem;">[ PURPLE_VOID ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Pulse of Connection</li>
+        <li><span class="status-dot online"></span>DeclassifyX</li>
+        <li><span class="status-dot online"></span>Bedtime Stories</li>
+        <li><span class="status-dot online"></span>Lunaverse ✨</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #00f2ff; padding-left: 10px; margin-top: 10px;">
+      <h4 style="color: #00f2ff; margin-bottom: 8px; font-size: 0.8rem;">[ CYAN_SKYLINE ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Sphynx Overdrive</li>
+        <li><span class="status-dot online"></span>Abduction 🛸</li>
+        <li><span class="status-dot online"></span>Space Sector</li>
+        <li><span class="status-dot online"></span>Bureaucracy Heist</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="text-align: center; font-size: 0.55rem; color: #444; margin-top: 20px; letter-spacing: 1px;">SYSTEM_TIME: 2026.03.08_23:14 // ALL_UPLINKS_STABLE</p>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <button id="random-uplink" style="background: transparent; border: 1px solid #ff00ff; color: #ff00ff; padding: 10px 20px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; cursor: pointer; box-shadow: 0 0 10px #ff00ff; transition: all 0.3s;">
+      RANDOM_UPLINK
+    </button>
+  </div>
+</section>
+
  
   <footer>
     <img src="logo.png" alt="Maximum Reality" class="footer-logo">
     <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
   </footer>
+ 
 
 <script>
 async function fetchTransmissions() {
