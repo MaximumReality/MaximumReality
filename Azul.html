@@ -2,148 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AZUL_OS | Maximum Reality Mainframe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AZUL | QUANTUM MAINFRAME</title>
     <style>
+        /* AZUL THEME: CYBER BLUE & LOGIC */
         :root {
             --azul-blue: #2196f3;
-            --neon-glow: rgba(33, 150, 243, 0.6);
-            --desk-bg: #0a0a0c;
+            --bg-black: #000000;
         }
 
-        * {
-            box-sizing: border-box;
+        body, html {
             margin: 0;
             padding: 0;
-        }
-
-        body {
-            background-color: var(--desk-bg);
-            /* Cyberpunk Desk Texture: Dark brushed metal/carbon fiber feel */
-            background-image: 
-                linear-gradient(30deg, #0f0f12 12%, transparent 12.5%, transparent 87%, #0f0f12 87.5%, #0f0f12),
-                linear-gradient(150deg, #0f0f12 12%, transparent 12.5%, transparent 87%, #0f0f12 87.5%, #0f0f12),
-                linear-gradient(30deg, #0f0f12 12%, transparent 12.5%, transparent 87%, #0f0f12 87.5%, #0f0f12),
-                linear-gradient(150deg, #0f0f12 12%, transparent 12.5%, transparent 87%, #0f0f12 87.5%, #0f0f12),
-                linear-gradient(60deg, #16161a 25%, transparent 25.5%, transparent 75%, #16161a 75%, #16161a),
-                linear-gradient(60deg, #16161a 25%, transparent 25.5%, transparent 75%, #16161a 75%, #16161a);
-            background-size: 80px 140px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Courier New', Courier, monospace;
-            overflow: hidden;
-        }
-
-        /* The Phone Bezel Container */
-        .phone-frame {
-            position: relative;
-            width: 380px;
-            height: 800px;
-            background: #000;
-            border: 12px solid #1a1a1a;
-            border-radius: 50px;
-            box-shadow: 
-                0 0 50px rgba(0,0,0,0.8),
-                0 0 20px var(--neon-glow);
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-black);
+            overflow: hidden; /* Prevents double scrolling on iPhone */
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            transition: transform 0.3s ease;
         }
 
-        /* Notch / Dynamic Island Simulation */
-        .phone-frame::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 30px;
-            background: #000;
-            border-radius: 20px;
-            z-index: 10;
-        }
-
-        /* Responsive: Full screen on mobile */
-        @media (max-width: 500px) {
-            .phone-frame {
-                width: 100vw;
-                height: 100vh;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            .phone-frame::before { display: none; }
-        }
-
-        /* Header Info */
+        /* Full Screen Header with Dynamic Island/Notch Support */
         .status-bar {
-            height: 60px;
-            background: #000;
+            background: var(--bg-black);
             color: var(--azul-blue);
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 10px;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            border-bottom: 1px solid #222;
-        }
-
-        /* The Bot Embed Area */
-        #mcontext {
-            flex-grow: 1;
-            width: 100%;
-            background: #000;
-        }
-
-        .footer-note {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
             text-align: center;
-            color: #444;
-            font-size: 10px;
-            pointer-events: none;
+            /* Optimized for iPhone 14 Pro Max Notch height */
+            padding-top: env(safe-area-inset-top, 44px); 
+            padding-bottom: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #1a1a1a;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.15);
+        }
+
+        /* Expands to fill the remaining screen space */
+        #mcontext {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-black);
+        }
+
+        /* Ensures the chat interface fills the entire container */
+        #mcontext iframe {
+            height: 100% !important;
+            width: 100% !important;
+            border: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="phone-frame">
-        <div class="status-bar">AZUL_OS v2.0.2 // SECURE_LINK</div>
-        
-        <div id="mcontext">
-            <script 
-                mode="embed" 
-                isolate="true" 
-                themecolor="#2196f3" 
-                header="off" 
-                accentcolor="#000000" 
-                textcolor="white" 
-                id="webchat" 
-                src="https://cdn.machaao.com/prod/web/js/embed.js" 
-                type="text/javascript" 
-                mkey="MjA5ZmM0MDAtMjI1Mi0xMWYxLTgyYTMtNGRmYWZjOWI1NTA3">
-            </script>
-        </div>
-
-        <div class="footer-note">PROPERTY OF MAXIMUM REALITY LABS</div>
+    <div class="status-bar">
+        AZUL_OS v2.0.2 // SECURE_LINK
     </div>
 
-    <script>
-        // Subtle parallax effect for the "Desk" look on Desktop
-        if (window.innerWidth > 1000) {
-            document.addEventListener('mousemove', (e) => {
-                const moveX = (e.clientX - window.innerWidth / 2) / 50;
-                const moveY = (e.clientY - window.innerHeight / 2) / 50;
-                document.querySelector('.phone-frame').style.transform = 
-                    `rotateX(${-moveY}deg) rotateY(${moveX}deg)`;
-            });
-        }
-    </script>
+    <div id="mcontext">
+        <script 
+            mode="embed" 
+            isolate="true" 
+            themecolor="#2196f3" 
+            header="off" 
+            accentcolor="#000000" 
+            textcolor="white" 
+            id="webchat" 
+            src="https://cdn.machaao.com/prod/web/js/embed.js" 
+            type="text/javascript" 
+            mkey="MjA5ZmM0MDAtMjI1Mi0xMWYxLTgyYTMtNGRmYWZjOWI1NTA3">
+        </script>
+    </div>
+
 </body>
 </html>
