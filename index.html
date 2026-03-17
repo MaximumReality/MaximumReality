@@ -680,6 +680,37 @@ async function fetchTransmissions() {
 
 setTimeout(fetchTransmissions, 1500);
 </script>
+<script>
+  document.getElementById('random-uplink').addEventListener('click', function() {
+    // Collect all cards, but exclude the TikTok/IG/FB ones if you want
+    const links = document.querySelectorAll('.app-card');
+    const randomChance = Math.random();
+    
+    // THE BASEMENT PROTOCOL
+    if (randomChance < 0.2) {
+        this.innerText = "[ ACCESSING BASEMENT... ]";
+        this.style.color = "#ff1a1a";
+        this.style.borderColor = "#ff1a1a";
+        this.style.boxShadow = "0 0 30px #ff1a1a";
+
+        setTimeout(() => {
+            window.location.href = 'hacked-index.html'; 
+        }, 800);
+        
+    } else {
+        // STANDARD UPLINK
+        const randomIndex = Math.floor(Math.random() * links.length);
+        const targetUrl = links[randomIndex].href;
+        
+        this.innerText = "[ UPLINKING... ]";
+        
+        setTimeout(() => {
+            window.open(targetUrl, '_blank');
+            this.innerText = "RANDOM UPLINK";
+        }, 400);
+    }
+  });
+</script>
 
 </body>
 </html>
