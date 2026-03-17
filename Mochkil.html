@@ -2,145 +2,79 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MOCHKIL_CHEF | Snack Attack Mainframe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MOCHKIL | SNACK ATTACK</title>
     <style>
+        /* MOCHKIL THEME: NEON ORANGE & CHAOS */
         :root {
-            --mochkil-orange: #FF9800; /* Neon Orange */
-            --chaos-glow: rgba(255, 152, 0, 0.5);
-            --kitchen-bg: #0d0a08; /* Warmer, darker black */
+            --mochkil-orange: #FF9800;
+            --bg-black: #000000;
         }
 
-        * {
-            box-sizing: border-box;
+        body, html {
             margin: 0;
             padding: 0;
-        }
-
-        body {
-            background-color: var(--kitchen-bg);
-            /* Digital Spice Pattern: A warm, dotted grid for a "Chef" vibe */
-            background-image: radial-gradient(#221810 1px, transparent 1px);
-            background-size: 30px 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-        }
-
-        /* The Phone Bezel Container */
-        .phone-frame {
-            position: relative;
-            width: 380px;
-            height: 800px;
-            background: #000;
-            border: 12px solid #1f1a15; /* Dark chocolate/bronze casing */
-            border-radius: 50px;
-            box-shadow: 
-                0 0 60px rgba(0,0,0,0.9),
-                0 0 25px var(--chaos-glow);
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-black);
+            overflow: hidden; /* Prevents awkward double scrolling */
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        /* Notch / Dynamic Island Simulation */
-        .phone-frame::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 30px;
-            background: #000;
-            border-radius: 20px;
-            z-index: 10;
-        }
-
-        /* Mobile Optimization */
-        @media (max-width: 500px) {
-            .phone-frame {
-                width: 100vw;
-                height: 100vh;
-                border: none;
-                border-radius: 0;
-                box-shadow: none;
-            }
-            .phone-frame::before { display: none; }
-        }
-
-        /* Header Info */
+        /* Full Screen Header with Dynamic Island/Notch Support */
         .status-bar {
-            height: 60px;
-            background: #000;
+            background: var(--bg-black);
             color: var(--mochkil-orange);
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 10px;
-            font-size: 0.8rem;
+            text-align: center;
+            /* This line ensures the text sits perfectly below the iPhone notch */
+            padding-top: env(safe-area-inset-top, 44px); 
+            padding-bottom: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             border-bottom: 1px solid #332211;
             text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.1);
         }
 
-        /* The Bot Embed Area */
+        /* This container expands to fill the rest of the screen */
         #mcontext {
-            flex-grow: 1;
+            flex: 1;
             width: 100%;
-            background: #000;
+            height: 100%;
+            background: var(--bg-black);
         }
 
-        .footer-note {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            text-align: center;
-            color: #554433;
-            font-size: 10px;
-            letter-spacing: 1.5px;
-            pointer-events: none;
+        /* Force the MessengerX iframe to fill the container */
+        #mcontext iframe {
+            height: 100% !important;
+            width: 100% !important;
+            border: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="phone-frame">
-        <div class="status-bar">MOCHKIL_CHEF // SNACK_ATTACK_v1.0</div>
-        
-        <div id="mcontext">
-            <script 
-                mode="embed" 
-                isolate="true" 
-                themecolor="#FF9800" 
-                header="off" 
-                accentcolor="#000000" 
-                textcolor="white" 
-                id="webchat" 
-                src="https://cdn.machaao.com/prod/web/js/embed.js" 
-                type="text/javascript" 
-                mkey="ZmJiNWFkMTAtMjI1OC0xMWYxLTkwZmQtNTEzZDJlMTU0MWU5">
-            </script>
-        </div>
-
-        <div class="footer-note">MAXIMUM REALITY // CULINARY_UNIT</div>
+    <div class="status-bar">
+        MOCHKIL_CHEF // SNACK_ATTACK_v1.0
     </div>
 
-    <script>
-        // Parallax tilt effect for Desktop
-        if (window.innerWidth > 1000) {
-            document.addEventListener('mousemove', (e) => {
-                const moveX = (e.clientX - window.innerWidth / 2) / 60;
-                const moveY = (e.clientY - window.innerHeight / 2) / 60;
-                document.querySelector('.phone-frame').style.transform = 
-                    `rotateX(${-moveY}deg) rotateY(${moveX}deg)`;
-            });
-        }
-    </script>
+    <div id="mcontext">
+        <script 
+            mode="embed" 
+            isolate="true" 
+            themecolor="#FF9800" 
+            header="off" 
+            accentcolor="#000000" 
+            textcolor="white" 
+            id="webchat" 
+            src="https://cdn.machaao.com/prod/web/js/embed.js" 
+            type="text/javascript" 
+            mkey="ZmJiNWFkMTAtMjI1OC0xMWYxLTkwZmQtNTEzZDJlMTU0MWU5">
+        </script>
+    </div>
+
 </body>
 </html>
