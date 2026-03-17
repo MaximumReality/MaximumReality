@@ -680,6 +680,36 @@ async function fetchTransmissions() {
 
 setTimeout(fetchTransmissions, 1500);
 </script>
+document.getElementById('random-uplink').addEventListener('click', function() {
+    const links = document.querySelectorAll('.app-card');
+    const randomChance = Math.random();
+    
+    // THE BASEMENT PROTOCOL: 20% chance to hit the hidden ARG
+    // Or replace (randomChance < 0.2) with (true) to always go there.
+    if (randomChance < 0.2) {
+        this.innerText = "[ ACCESSING BASEMENT... ]";
+        this.style.color = "#ff1a1a";
+        this.style.borderColor = "#ff1a1a";
+        this.style.boxShadow = "0 0 30px #ff1a1a";
+
+        setTimeout(() => {
+            // Replace 'basement-url.html' with your hidden ARG link
+            window.location.href = 'hacked-index.html'; 
+        }, 800);
+        
+    } else {
+        // STANDARD UPLINK: Sends them to a random public game
+        const randomIndex = Math.floor(Math.random() * links.length);
+        const targetUrl = links[randomIndex].href;
+        
+        this.innerText = "[ UPLINKING... ]";
+        
+        setTimeout(() => {
+            window.open(targetUrl, '_blank');
+            this.innerText = "RANDOM UPLINK";
+        }, 400);
+    }
+});
 
 
 </body>
