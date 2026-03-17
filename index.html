@@ -9,7 +9,7 @@
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="apple-touch-icon" href="logo.png">
 
- <meta property="og:image" content="https://maximumreality.xyz/hacker-favicon.PNG">
+<meta property="og:image" content="https://maximumreality.xyz/hacker-favicon.PNG">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="1200">
 
@@ -572,7 +572,10 @@
     </div>
   </div>
 
-  <p style="text-align: center; font-size: 0.55rem; color: #444; margin-top: 20px; letter-spacing: 1px;">SYSTEM_TIME: 2026.03.17_07:27 // ALL_UPLINKS_STABLE</p>
+ <p id="system-clock" style="text-align: center; font-size: 0.55rem; color: #444; margin-top: 20px; letter-spacing: 1px;">
+  SYSTEM_TIME: LOADING... // ALL_UPLINKS_STABLE
+</p>
+
 
   <div style="text-align: center; margin-top: 30px;">
     <button id="random-uplink" style="background: transparent; border: 2px solid #ff00ff; color: #ff00ff; padding: 12px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9rem; font-weight: 800; letter-spacing: 2px; cursor: pointer; border-radius: 30px; box-shadow: 0 0 10px rgba(255, 0, 255, 0.4); transition: all 0.3s;">
@@ -711,6 +714,56 @@ setTimeout(fetchTransmissions, 1500);
     }
   });
 </script>
+ <script>
+  // --- 1. THE SYSTEM CLOCK LOGIC ---
+  function updateClock() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    const clockElement = document.getElementById('system-clock');
+    if(clockElement) {
+      clockElement.innerText = `SYSTEM_TIME: ${year}.${month}.${day}_${hours}:${minutes}:${seconds} // ALL_UPLINKS_STABLE`;
+    }
+  }
+
+  // Run the clock immediately and update every second
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // --- 2. THE RANDOM UPLINK / BASEMENT LOGIC ---
+  document.getElementById('random-uplink').addEventListener('click', function() {
+    const links = document.querySelectorAll('.app-card');
+    const randomChance = Math.random();
+    
+    if (randomChance < 0.2) { // 20% Chance for the Basement
+        this.innerText = "[ ACCESSING BASEMENT... ]";
+        this.style.color = "#ff1a1a";
+        this.style.borderColor = "#ff1a1a";
+        this.style.boxShadow = "0 0 30px #ff1a1a";
+
+        setTimeout(() => {
+            window.location.href = 'hacked-index.html'; 
+        }, 800);
+        
+    } else { // 80% Chance for a Random Game
+        const randomIndex = Math.floor(Math.random() * links.length);
+        const targetUrl = links[randomIndex].href;
+        
+        this.innerText = "[ UPLINKING... ]";
+        
+        setTimeout(() => {
+            window.open(targetUrl, '_blank');
+            this.innerText = "RANDOM UPLINK";
+        }, 400);
+    }
+  });
+</script>
+
 
 </body>
 </html>
