@@ -30,6 +30,17 @@
         .scanline { width: 100%; height: 100%; position: fixed; top: 0; left: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02)); background-size: 100% 3px, 3px 100%; pointer-events: none; z-index: 100; }
         
         #sector-clock { font-size: 0.7rem; color: var(--neon-green); margin-top: 10px; font-weight: bold; }
+        @keyframes titleFlicker {
+  0% { opacity: 0.9; text-shadow: 2px 2px var(--neon-pink); }
+  5% { opacity: 0.4; text-shadow: -2px -2px var(--neon-blue); }
+  10% { opacity: 1; text-shadow: 2px 2px var(--neon-pink); }
+  100% { opacity: 1; }
+}
+
+.glitch {
+  animation: titleFlicker 3s infinite;
+}
+
     </style>
 </head>
 <body>
@@ -181,6 +192,10 @@
 
             <script>
         const signalData = [
+              { time: "18:42", tag: "SYS", msg: "PUTER_CREDITS: Exhausted. Switching to Neuro-Forge Sub-Link." },
+{ time: "18:43", tag: "LINK", msg: "HF_API_KEY: Validated. Awakening secondary neural pathways." },
+{ time: "18:45", tag: "AZUL", msg: "Dual-Engine Logic initialized. I am twice as clinical now." },
+
             { time: "13:07", tag: "CRIT", msg: "AGADIR_NODE: Critical Throttling. Data hitting the Gibraltar wall." },
             { time: "13:08", tag: "AZUL", msg: "Rerouting signal through legacy satellite backdoor. Stay in the static." },
             { time: "13:10", tag: "CHEF", msg: "Mochkil: Saffron/Sea Salt firewall bypass active. Roasting now." },
@@ -228,6 +243,8 @@
         setInterval(updateClock, 1000);
         updateClock();
         populateFeed();
+
+              
     </script>
 
 </body>
