@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <script>!function(){const e=["maximumreality.github.io","maximumreality.xyz"];e.includes(window.location.hostname)||window.location.hostname.includes("localhost")||(document.documentElement.innerHTML='<body style="background:#000;color:#f0f;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:monospace;margin:0;"><h1 style="text-shadow:2px 2px #0ff">ACCESS DENIED</h1><p style="color:#0ff">[ REALITY COMPROMISED ]</p><p>Locked to MaximumReality.xyz</p><p style="font-size:.8rem;margin-top:20px">Ticket #404-POO: Unauthorized Mirror.</p></body>',window.stop())}();</script>
+
+  
+  <title>Maximum Reality</title>
+  
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+ <meta property="og:image" content="https://maximumreality.xyz/hacker-favicon.PNG">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="1200">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
+
+    /* Navigation */
+    header {
+      position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8);
+      border-bottom: 1px solid rgba(255, 0, 255, 0.3); z-index: 1000; padding: 12px; 
+      backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    }
+    nav { display: flex; justify-content: center; gap: 20px; }
+    nav a { color: #fff; text-decoration: none; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+
+    /* Hero Video */
+    .hero { width: 100%; background: #000; line-height: 0; padding-top: 45px; }
+    video { width: 100%; height: auto; object-fit: contain; }
+
+    /* App Store Section */
+    .app-section { padding: 30px 20px; max-width: 600px; margin: 0 auto; }
+    .section-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #fff; }
+
+    /* App Card Styling */
+    .app-card {
+      display: flex; align-items: center; 
+      background: rgba(255, 255, 255, 0.08); 
+      border-radius: 22px; padding: 12px; 
+      text-decoration: none; color: white; 
+      margin-bottom: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s ease;
+    }
+    .app-card:hover { transform: scale(1.02); background: rgba(255, 255, 255, 0.12); }
+    
+    .app-icon { 
+      width: 62px; height: 62px; border-radius: 14px; 
+      margin-right: 15px; flex-shrink: 0; 
+      background: #111; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .app-icon span { font-size: 30px; }
+
+    .app-info { flex-grow: 1; }
+    .app-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
+    .app-desc { font-size: 0.75rem; opacity: 0.6; }
+
+    /* Unified Button Style */
+    .get-btn {
+      background: rgba(255, 255, 255, 0.1); 
+      padding: 8px 0; 
+      border-radius: 20px; 
+      font-weight: 800; 
+      font-size: 0.75rem; 
+      text-transform: uppercase;
+      width: 80px; 
+      text-align: center;
+      border: 1px solid; 
+    }
+
+    .transmissions { padding: 40px 10px; background: #050505; border-top: 1px solid #111; }
+
+    footer { padding: 60px 20px; text-align: center; background: #000; }
+    .footer-logo { width: 60px; margin-bottom: 15px; opacity: 0.5; }
+    .legal { color: #333; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; }
+  .app-intro {
+  max-width: 600px;
+  margin: 12px auto 10px;
+  padding: 0 20px;
+  font-size: 0.7rem;
+  text-align: center;
+  opacity: 0.55;
+  letter-spacing: 0.5px;
+}
+   
+    </style>
+ 
+</head>
+<body>
+ 
+
+  <header>
+    <nav>
+      <a href="https://maximumreality.github.io/maximum-reality-arcade/">Arcade</a>
+      <a href="https://youtube.com/@maximumrealitylori?si=lL502QIOn4Wv1FKu" target="_blank">Transmissions</a>
+      <a href="https://maximum-reality-shop.fourthwall.com/">Shop</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <video id="heroVideo" autoplay muted playsinline loop preload="auto">
+      <source src="intro.MP4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var video = document.getElementById('heroVideo');
+    var playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+        // This handles the "Low Power Mode" freeze on iPhone
+        document.body.addEventListener('touchstart', function() {
+          video.play();
+        }, {once: true});
+      });
+    }
+  });
+</script>
+
+<div class="app-intro">
+  Pick an experience — games, stories, and worlds from the Maximum Reality universe.
+</div>
+   <!-- App Section -->
+<section class="app-section" id="apps">
+  <h2 class="section-title">Start Anywhere</h2>
+  
+  <a href="https://youtube.com/shorts/Y5x8DP7FE2U" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;">
+      <img src="logo.png" alt="Maximum Reality Logo">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Welcome Mission</div>
+      <div class="app-desc">Meet the Creator • System Overview</div>
+    </div>
+    <div class="get-btn" style="color: #ff00ff; border-color: #ff00ff;">WATCH</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/Pulse/index.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #a286ef;">
+      <img src="https://maximumreality.github.io/Pulse/poc_cover.png" alt="Pulse Cover">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Pulse of Connection</div>
+      <div class="app-desc">A Novel • By Lori Sifuentes</div>
+    </div>
+    <div class="get-btn" style="color: #a286ef; border-color: #a286ef;">READ</div>
+  </a>
+
+ <a href="https://maximumreality.github.io/sphynx-overdrive/" target="_blank" class="app-card" style="border: 2px solid #ff9900; background: linear-gradient(145deg, rgba(255,153,0,0.1), rgba(255,153,50,0.05)); box-shadow: 0 0 15px rgba(255,153,0,0.3); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #ff9900; box-shadow: 0 0 15px rgba(255,153,0,0.6); overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/sphynx-overdrive/sphynx_overdrive.jpg" alt="Sphynx Overdrive Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#ff9900; text-shadow: 0 0 8px #ff9900;">Sphynx Overdrive</div>
+    <div class="app-desc" style="opacity: 0.75;">Hack 🔥 firewalls, collect 💾 data nodes, and catch Mochkil’s 🍰 cakes in this neon cyber-cat arcade!</div>
+  </div>
+  <div class="get-btn" style="color:#ff9900; border-color:#ff9900; box-shadow: 0 0 8px #ff9900; transition: all 0.2s;">PLAY</div>
+</a>
+
+<script>
+  const sphynxCard = document.querySelector('.app-card');
+  sphynxCard.addEventListener('mouseenter', () => {
+    sphynxCard.style.transform = 'scale(1.03)';
+    sphynxCard.style.boxShadow = '0 0 25px rgba(255,153,0,0.6)';
+  });
+  sphynxCard.addEventListener('mouseleave', () => {
+    sphynxCard.style.transform = 'scale(1)';
+    sphynxCard.style.boxShadow = '0 0 15px rgba(255,153,0,0.3)';
+  });
+</script>
+
+ <a href="https://maximumreality.github.io/dead-signal/" target="_blank" class="app-card" style="position:relative; border: 2px solid #ff1a1a; background: linear-gradient(145deg, rgba(255,26,26,0.12), rgba(255,60,60,0.05)); box-shadow: 0 0 15px rgba(255,26,26,0.35); transition: transform 0.2s, box-shadow 0.2s;">
+
+  <!-- NEW badge -->
+  <div style="position:absolute; top:-8px; right:-8px; background:#ff1a1a; color:white; font-size:10px; font-weight:bold; padding:4px 8px; border-radius:6px; box-shadow:0 0 10px #ff1a1a,0 0 20px rgba(255,26,26,0.6); letter-spacing:1px;">
+    NEW
+  </div>
+
+  <div class="app-icon" style="border: 2px solid #ff1a1a; box-shadow: 0 0 15px rgba(255,26,26,0.7); overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/dead-signal/Favicon.PNG" alt="Dead Signal Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+
+  <div class="app-info">
+    <div class="app-name" style="color:#ff1a1a; text-shadow: 0 0 10px #ff1a1a;">Dead Signal</div>
+    <div class="app-desc" style="opacity:0.75;">Survive endless 🧟 zombie waves, reload fast, and keep the signal alive in this neon survival shooter.</div>
+  </div>
+
+  <div class="get-btn" style="color:#ff1a1a; border-color:#ff1a1a; box-shadow:0 0 10px #ff1a1a; transition:all 0.2s;">
+    INITIATE
+  </div>
+
+</a>
+ 
+  <a href="https://maximumreality.github.io/Abduction/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;"><span>🛸</span></div>
+    <div class="app-info">
+      <div class="app-name">Abduction</div>
+      <div class="app-desc">Sci-fi Arcade • Mission Survival</div>
+    </div>
+    <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">GET</div>
+  </a>
+
+   <a href="https://maximumreality.github.io/space/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff; box-shadow: 0 0 10px rgba(0, 242, 255, 0.4);">
+      <img src="https://maximumreality.github.io/space/space_icon.png" 
+           alt="Space Sector Icon"
+           style="width: 100%; height: 100%; object-fit: cover;">
+    </div>
+    <div class="app-info">
+      <div class="app-name" style="color: #00f2ff;">Space Sector</div>
+      <div class="app-desc">Mission Neptune • Deep Space Logs & Gear</div>
+    </div>
+    <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">EXPLORE</div>
+  </a>
+
+ <a href="https://maximumreality.github.io/wormhole/" target="_blank" class="app-card" 
+   style="border: 2px solid #39FFEC; background: linear-gradient(145deg, rgba(57,255,236,0.1), rgba(0,0,0,0.05)); box-shadow: 0 0 15px rgba(57,255,236,0.3); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #39FFEC; box-shadow: 0 0 12px rgba(57,255,236,0.6); border-radius: 14px; overflow: hidden;">
+    <img src="https://maximumreality.github.io/wormhole/favicon.PNG" alt="Wormhole Signal Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#39FFEC; text-shadow: 0 0 8px #39FFEC;">Wormhole Signal</div>
+    <div class="app-desc" style="opacity:0.75;">Interactive Sci-Fi Puzzle • Navigate the wormhole network and decode signals.</div>
+  </div>
+  <div class="get-btn" style="color:#39FFEC; border-color:#39FFEC; box-shadow: 0 0 8px #39FFEC;">ENTER</div>
+</a>
+
+ <a href="https://maximumreality.github.io/pets/" target="_blank" class="app-card" style="border: 2px solid #ffcc00; background: linear-gradient(145deg, rgba(255,204,0,0.1), rgba(0,0,0,0.4)); box-shadow: 0 0 15px rgba(255,204,0,0.2); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #ffcc00; box-shadow: 0 0 10px #ffcc00; overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/pets/bg_wp.JPG" alt="Maximum Reality Pets Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#ffcc00; text-shadow: 0 0 8px #ffcc00;">Maximum Reality Pets</div>
+    <div class="app-desc" style="opacity: 0.75;">Choose and create your own magical pets — cats, dragons, unicorns & more!</div>
+  </div>
+  <div class="get-btn" style="color:#fff; background: url('https://maximumreality.github.io/pets/bg_wp.JPG'); background-size: cover; border: 2px solid #ffcc00; box-shadow: 0 0 8px #ffcc00; text-align: center; padding: 5px 0; border-radius: 8px;">PLAY NOW</div>
+</a>
+
+ <a href="https://maximumreality.github.io/art/" target="_blank" class="app-card">
+  <div class="app-icon" style="border: 1px solid #a286ef;">
+    <img src="https://maximumreality.github.io/art/void-bloom.PNG" alt="Void Bloom Cover">
+  </div>
+  <div class="app-info">
+    <div class="app-name">Void Bloom</div>
+    <div class="app-desc">Generative Art • Organic Dark Painter</div>
+  </div>
+  <div class="get-btn" style="color: #a286ef; border-color: #a286ef;">CREATE</div>
+</a>
+ 
+ <a href="https://maximumreality.github.io/q-code/" target="_blank" class="app-card" style="border: 2px solid #00ffff; background: linear-gradient(145deg, rgba(0,255,255,0.1), rgba(0,255,255,0.05)); box-shadow: 0 0 15px rgba(0,255,255,0.3); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #00ffff; box-shadow: 0 0 15px rgba(0,255,255,0.6); overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/q-code/clean-poster1.png" alt="Q-Code Pyramid Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#00ffff; text-shadow: 0 0 8px #00ffff;">Q-Code Pyramid</div>
+    <div class="app-desc" style="opacity: 0.75;">Guide Azul 🐾 through a digital pyramid, dodge Sriracha-Bot 9000 🌶️🤖, collect all cubes, and compile the pyramid to win!</div>
+  </div>
+  <div class="get-btn" style="color:#00ffff; border-color:#00ffff; box-shadow: 0 0 8px #00ffff; transition: all 0.2s;">PLAY</div>
+</a>
+ 
+ <a href="https://maximumreality.github.io/omni-azul/" target="_blank" class="app-card" style="border: 2px solid #00ff41; background: linear-gradient(145deg, rgba(0,255,65,0.1), rgba(0,0,0,0.4)); box-shadow: 0 0 15px rgba(0,255,65,0.2); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #00ff41; box-shadow: 0 0 10px #00ff41; overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/omni-azul/IMG_3355.png" alt="Omni-Azul Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#00ff41; text-shadow: 0 0 8px #00ff41;">Omni-Azul</div>
+    <div class="app-desc" style="opacity: 0.75;">Research Partner • Global Archives. Academic terminal and geo-location protocol.</div>
+  </div>
+  <div class="get-btn" style="color:#00ff41; border-color:#00ff41; box-shadow: 0 0 8px #00ff41;">SEARCH</div>
+</a>
+
+ <a href="https://maximumreality.github.io/diagnostic/" target="_blank" class="app-card" style="position:relative; border: 2px solid #00f3ff; background: linear-gradient(145deg, rgba(255,26,26,0.12), rgba(255,60,60,0.05)); box-shadow: 0 0 15px rgba(255,26,26,0.35); transition: transform 0.2s, box-shadow 0.2s;">
+
+  <div class="app-icon" style="border: 2px solid #ff1a1a; box-shadow: 0 0 15px rgba(255,26,26,0.7); overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/diagnostic/IMG_6246.png" alt="Diagnostic Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+
+  <div class="app-info">
+    <div class="app-name" style="color:#00f3ff; text-shadow: 0 0 10px #00f3ff;">Medical Diagnostics</div>
+    <div class="app-desc" style="opacity:0.75;"> A cyber-medical dashboard powered by Azul AI. Track vitals, hydration, tasks, and run diagnostic scans.</div>
+  </div>
+
+  <div class="get-btn" style="color:#00f3ff; border-color:#00f3ff; box-shadow:0 0 10px #00f3ff; transition:all 0.2s;">
+    Diagnose
+  </div>
+</a>
+ 
+ <a href="https://maximumreality.github.io/DeclassifyX/index.html" target="_blank" class="app-card"
+   style="border: 2px solid #a286ef; background: linear-gradient(145deg, rgba(162,134,239,0.1), rgba(0,0,0,0.2)); box-shadow: 0 0 15px rgba(162,134,239,0.3); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #a286ef; box-shadow: 0 0 12px rgba(162,134,239,0.6); border-radius: 14px; overflow: hidden;">
+    <img src="https://maximumreality.xyz/declassified.PNG" alt="DeclassifyX Icon" style="width:100%; height:100%; object-fit:cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#a286ef; font-weight:bold; font-size:1rem;">DeclassifyX</div>
+    <div class="app-desc" style="opacity:0.75; font-size:0.75rem;">FOIA</div>
+  </div>
+  <div class="get-btn" style="color:#a286ef; border-color:#a286ef;">RESEARCH</div>
+</a>
+
+ 
+<a href="https://maximumreality.github.io/khobz/" target="_blank" class="app-card">
+  <div class="app-icon" style="border: 2px solid #00f3ff; box-shadow: 0 0 12px rgba(0, 243, 255, 0.6);">
+    <img src="https://maximumreality.github.io/khobz/cyberpunk_city_bg.JPG" alt="The Bureaucracy Heist Icon">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#00f3ff;">The Bureaucracy Heist</div>
+    <div class="app-desc">Arcade • Catch Azul and dodge the spam!</div>
+  </div>
+  <div class="get-btn" style="color:#00f3ff; border-color:#00f3ff;">PLAY</div>
+</a>
+
+ <a href="https://maximumreality.github.io/match/" target="_blank" class="app-card" style="border: 2px solid #ff00ff; background: linear-gradient(145deg, rgba(255,0,255,0.1), rgba(0,0,0,0.4)); box-shadow: 0 0 15px rgba(255,0,255,0.2); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #ff00ff; box-shadow: 0 0 10px #ff00ff; overflow: hidden; border-radius: 14px;">
+    <img src="https://maximumreality.github.io/match/favicon.png" alt="Match Module Icon" style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#ff00ff; text-shadow: 0 0 8px #ff00ff;">Match Module</div>
+    <div class="app-desc" style="opacity: 0.75;">Neon-glitch match game • Merge cereal brands, collapse corporations, and maintain Mochkil's chaos engine.</div>
+  </div>
+  <div class="get-btn" style="color:#ff00ff; border-color:#ff00ff; box-shadow: 0 0 8px #ff00ff;">PLAY</div>
+</a>
+ 
+  <a href="https://maximumreality.github.io/WhiskerBytesCatCafe/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffb6c1;">
+      <img src="https://maximumreality.github.io/WhiskerBytesCatCafe/whiskerbytes.png" alt="Café Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">WhiskerBytes Café</div>
+      <div class="app-desc">Social • Cozy Simulator</div>
+    </div>
+    <div class="get-btn" style="color: #ffb6c1; border-color: #ffb6c1;">OPEN</div>
+  </a>
+<a href="https://maximumreality.github.io/bessara_blast/" target="_blank" class="app-card">
+  <div class="app-icon" style="border: 1px solid #39FF14; box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);">
+    <img src="https://maximumreality.github.io/bessara_blast/bessara_blast_icon.png" 
+         alt="Bessara Blast Game Icon"
+         style="width: 100%; height: 100%; object-fit: cover;">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color: #39FF14;">Bessara Blast</div>
+    <div class="app-desc">New Release • Mochkil's Chaotic Kitchen</div>
+  </div>
+  <div class="get-btn" style="color: #39FF14; border-color: #39FF14;">PLAY</div>
+</a>
+
+<a href="https://maximumreality.github.io/the_cereal_wars/index.html" target="_blank" class="app-card">
+  <div class="app-icon" style="border: 2px solid #ff9900; box-shadow: 0 0 12px rgba(255, 153, 0, 0.6);">
+    <img src="https://maximumreality.github.io/the_cereal_wars/azulos_corrupted.png" alt="Mochkil Puffs Icon">
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#ff9900;">Mochkil Puffs</div>
+    <div class="app-desc">Arcade • Sabotage Azul in the kitchen!</div>
+  </div>
+  <div class="get-btn" style="color:#ff9900; border-color:#ff9900;">PLAY</div>
+</a>
+
+ <a href="https://maximumreality.github.io/culinary_randomizer/" class="app-card" style="border: 2px solid #ff00ff; background: linear-gradient(145deg, rgba(255,0,255,0.1), rgba(0,0,0,0.4)); box-shadow: 0 0 15px rgba(255,0,255,0.2); transition: transform 0.2s, box-shadow 0.2s;">
+  <div class="app-icon" style="border: 2px solid #ff00ff; box-shadow: 0 0 10px #ff00ff; overflow: hidden; border-radius: 14px;">
+    <span style="font-size: 30px;">🍳</span>
+  </div>
+  <div class="app-info">
+    <div class="app-name" style="color:#ff00ff; text-shadow: 0 0 8px #ff00ff;">Mochkil's Snack OS</div>
+    <div class="app-desc" style="opacity: 0.75;">Culinary Randomizer v2.6. Bypass the vault and generate a Michelin-star mission.</div>
+  </div>
+  <div class="get-btn" style="color:#ff00ff; border-color:#ff00ff; box-shadow: 0 0 8px #ff00ff;">OPEN</div>
+</a>
+
+ <a href="https://maximumreality.github.io/words/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00ffff;"><span>🧬</span></div>
+    <div class="app-info">
+      <div class="app-name">Word Chaos</div>
+      <div class="app-desc">Lexicon Engine • Brain Blast</div>
+    </div>
+    <div class="get-btn" style="color: #00ffff; border-color: #00ffff;">PLAY</div>
+</a>
+
+ 
+  <a href="https://maximumreality.github.io/snack_attack/" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ff00ff;"><span>🍰</span></div>
+    <div class="app-info">
+      <div class="app-name">Snack Attack</div>
+      <div class="app-desc">Arcade • Fast-Paced Fun</div>
+    </div>
+    <div class="get-btn" style="color: #ff00ff; border-color: #ff00ff;">GET</div>
+  </a>
+
+  <a href="hacked-index.html" class="app-card">
+    <div class="app-icon" style="border: 1px solid #32cd32; box-shadow: 0 0 10px rgba(50, 205, 50, 0.3);">
+      <img src="hacker-favicon.PNG" alt="Azul_OS Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name" style="color: #32cd32;">Azul_OS: System Breach</div>
+      <div class="app-desc">Uplink • [REDACTED]</div>
+    </div>
+    <div class="get-btn" style="color: #32cd32; border-color: #32cd32;">BREACH</div>
+</a>
+
+
+  <a href="https://maximumreality.github.io/azul-story-cyoa/azul-game.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00f2ff;">
+      <img src="https://maximumreality.github.io/azul-story-cyoa/azul.png" alt="Azul Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Azul's CYOA</div>
+      <div class="app-desc">Choose Your Own Adventure • Unlock Videos</div>
+    </div>
+    <div class="get-btn" style="color: #00f2ff; border-color: #00f2ff;">ENTER</div>
+  </a>
+
+  <a href="https://maximumreality.github.io/stories/library.html" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #00d4ff;">
+      <img src="https://maximumreality.github.io/stories/elvie_climbing_tree.PNG" alt="Bedtime Stories Icon">
+    </div>
+    <div class="app-info">
+      <div class="app-name">Bedtime Stories</div>
+      <div class="app-desc">Stories • Azul & Friends colorful picture books</div>
+    </div>
+    <div class="get-btn" style="color: #00d4ff; border-color: #00d4ff;">DATA</div>
+</a>
+
+<a href="https://maximumreality.github.io/lunaverse/" target="_blank" rel="noopener" class="app-card" style="border: 2px solid #a2d2ff; text-decoration: none;">
+    <div class="app-icon" style="background: #0b1021; border: 1px solid #a2d2ff; overflow: hidden;">
+      <div style="width:100%; height:100%; background-image: url('https://maximumreality.github.io/lunaverse/stella_star.png'); background-size: cover; background-position: center;"></div>
+    </div>
+    <div class="app-info">
+      <div class="app-name" style="color: #a2d2ff;">The Lunaverse ✨</div>
+      <div class="app-desc">Adventure • 2 Minutes of Magic in the Stars!</div>
+    </div>
+    <div class="get-btn" style="color: #a2d2ff; border-color: #a2d2ff;">ENTER</div>
+</a>
+
+<a href="https://maximumreality.github.io/imagination_emporium/" target="_blank" class="app-card">
+  <div class="app-icon" style="border: 1px solid #ff8fd4;">
+    <img src="https://maximumreality.github.io/imagination_emporium/store_sign.png" alt="Imagination Emporium Cover">
+  </div>
+  <div class="app-info">
+    <div class="app-name">Imagination on Display</div>
+    <div class="app-desc">Creative Tools • Experiments • Play</div>
+  </div>
+  <div class="get-btn" style="color: #ff8fd4; border-color: #ff8fd4;">
+    ENTER
+  </div>
+</a>
+ 
+ <a href="https://maximumreality.github.io/podcast/" target="_blank" class="app-card" style="border: 2px solid #00d4ff;">
+    <div class="app-icon" style="background: #1a1a1a; border: 1px solid #00d4ff; display: flex; align-items: center; justify-content: center;">
+      <span style="font-size: 2rem; text-shadow: 0 0 10px #00d4ff;">🎙️</span>
+    </div>
+    <div class="app-info">
+      <div class="app-name" style="color: #00d4ff;">MR Podcast</div>
+      <div class="app-desc">Media • Cyberpunk news & audio chronicles</div>
+    </div>
+    <div class="get-btn" style="color: #00d4ff; border-color: #00d4ff;">LISTEN</div>
+</a>
+
+
+  <a href="mailto:lori@maximumreality.xyz" target="_blank" class="app-card">
+    <div class="app-icon" style="border: 1px solid #ffffff;">
+      <span style="font-size: 30px;">✉️</span>
+    </div>
+    <div class="app-info">
+      <div class="app-name">Contact Studio</div>
+      <div class="app-desc">Inquiries • lori@maximumreality.xyz</div>
+    </div>
+    <div class="get-btn" style="color: #ffffff; border-color: #ffffff;">MAIL</div>
+  </a>
+
+  <!-- External Links -->
+  <div style="margin-top: 35px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px;">
+    <h3 style="font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; text-align: center;">External Links</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
+      <a href="https://www.tiktok.com/@zer0chick" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #fff;">
+           <span style="font-size: 24px;">📱</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">TikTok</div>
+      </a>
+
+      <a href="https://www.instagram.com/maximumrealitylori" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #f09433;">
+           <span style="font-size: 24px;">📸</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">Instagram</div>
+      </a>
+
+      <a href="https://www.facebook.com/share/1GKSP5hCmc/" target="_blank" class="app-card" style="flex-direction: column; padding: 15px 5px; text-align: center; margin-bottom: 0;">
+        <div class="app-icon" style="margin-right: 0; margin-bottom: 8px; width: 50px; height: 50px; border: 1px solid #1877F2;">
+           <span style="font-size: 24px;">👥</span>
+        </div>
+        <div class="app-name" style="font-size: 0.75rem;">Facebook</div>
+      </a>
+    </div>
+  </div>
+</section>
+  
+  <section class="transmissions" id="transmissions">
+    <h2 style="text-align:center; color:#ff00ff; margin-bottom:20px; font-size:1.2rem;">📡 LATEST TRANSMISSIONS</h2>
+    <div id="transmissions-container" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+        <p id="loading-text" style="color: #a2d2ff;">Receiving Signal...</p>
+    </div>
+</section>
+
+ <style>
+  .status-dot { height: 6px; width: 6px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .online { background-color: #39ff14; box-shadow: 0 0 8px #39ff14; }
+  .maintenance { background-color: #ff3131; animation: statusFlicker 2s infinite; }
+  
+  @keyframes statusFlicker {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px #ff3131; }
+    50% { opacity: 0.3; box-shadow: 0 0 0px #ff3131; }
+  }
+</style>
+
+<section style="padding: 40px 20px; max-width: 600px; margin: 0 auto; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+  <h3 style="font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px; text-align: center;">// NEON_CITY_DIRECTORY //</h3>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-family: monospace; font-size: 0.7rem;">
+    
+    <div style="border-left: 2px solid #00ffff; padding-left: 10px;">
+      <h4 style="color: #00ffff; margin-bottom: 8px; font-size: 0.8rem;">[ BLUE_SECTOR ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Word Chaos 🧬</li>
+        <li><span class="status-dot online"></span>Q-Code Pyramid</li>
+        <li><span class="status-dot online"></span>Azul_OS Breach</li>
+        <li><span class="status-dot maintenance"></span>Omni-Azul v2</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #ff9900; padding-left: 10px;">
+      <h4 style="color: #ff9900; margin-bottom: 8px; font-size: 0.8rem;">[ ORANGE_ALLEY ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Snack Attack 🍰</li>
+        <li><span class="status-dot online"></span>Bessara Blast</li>
+        <li><span class="status-dot maintenance"></span>Mochkil Puffs</li>
+        <li><span class="status-dot online"></span>Snack OS 🍳</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #a286ef; padding-left: 10px; margin-top: 10px;">
+      <h4 style="color: #a286ef; margin-bottom: 8px; font-size: 0.8rem;">[ PURPLE_VOID ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Pulse of Connection</li>
+        <li><span class="status-dot online"></span>DeclassifyX</li>
+        <li><span class="status-dot online"></span>Bedtime Stories</li>
+        <li><span class="status-dot online"></span>Lunaverse ✨</li>
+      </ul>
+    </div>
+
+    <div style="border-left: 2px solid #00f2ff; padding-left: 10px; margin-top: 10px;">
+      <h4 style="color: #00f2ff; margin-bottom: 8px; font-size: 0.8rem;">[ CYAN_SKYLINE ]</h4>
+      <ul style="list-style: none; opacity: 0.7; line-height: 1.8;">
+        <li><span class="status-dot online"></span>Sphynx Overdrive</li>
+        <li><span class="status-dot online"></span>Abduction 🛸</li>
+        <li><span class="status-dot online"></span>Space Sector</li>
+        <li><span class="status-dot online"></span>Bureaucracy Heist</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="text-align: center; font-size: 0.55rem; color: #444; margin-top: 20px; letter-spacing: 1px;">SYSTEM_TIME: 2026.03.08_23:14 // ALL_UPLINKS_STABLE</p>
+
+  <div style="text-align: center; margin-top: 30px;">
+  <button id="random-uplink" style="background: transparent; border: 2px solid #ff00ff; color: #ff00ff; padding: 12px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 0.9rem; font-weight: 800; letter-spacing: 2px; cursor: pointer; border-radius: 30px; box-shadow: 0 0 10px rgba(255, 0, 255, 0.4); transition: all 0.3s;">
+    RANDOM UPLINK
+  </button>
+</div>
+</section>
+
+ 
+  <footer>
+    <img src="logo.png" alt="Maximum Reality" class="footer-logo">
+    <p class="legal">© 2026 Maximum Reality<br>All Systems Operational</p>
+  </footer>
+ 
+
+<script>
+async function fetchTransmissions() {
+    const channelId = "UC2Ycbs0_7bYqvwOoEQC-UnA";
+    const apiKey = "AIzaSyC4bJH0S9ffr4_mPRQjxR_7PdKqc4YVmk4";
+    const apiUrl = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet&order=date&maxResults=3&type=video`;
+
+    const container = document.getElementById('transmissions-container');
+    const loader = document.getElementById('loading-text');
+
+    const CACHE_KEY = "mr_youtube_cache";
+    const CACHE_TIME = 60 * 60 * 1000; // 1 hour
+
+    // 🔎 Check cache first
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Date.now() - parsed.timestamp < CACHE_TIME) {
+            renderVideos(parsed.data);
+            loader.style.display = 'none';
+            return;
+        }
+    }
+
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error("API call failed");
+
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+            // Save to cache
+            localStorage.setItem(CACHE_KEY, JSON.stringify({
+                timestamp: Date.now(),
+                data: data
+            }));
+
+            renderVideos(data);
+            loader.style.display = 'none';
+        } else {
+            throw new Error("No videos found");
+        }
+    } catch (e) {
+        loader.innerHTML = `
+            <div style="text-align:center; border: 1px dashed #ffea00; padding: 15px; width: 100%;">
+                <p style="color:#ffea00; font-size:12px;">[!] SIGNAL_STRENGTH_LOW</p>
+                <p style="font-size:10px; opacity:0.6; margin: 10px 0;">Transmission unstable.</p>
+                <a href="https://youtube.com/@maximumrealitylori" target="_blank" class="get-btn" style="color:#ffea00; border-color:#ffea00; width:180px; margin:0 auto; text-decoration:none; display:block;">MANUAL_UPLINK</a>
+            </div>`;
+    }
+
+    function renderVideos(data) {
+        container.innerHTML = '';
+
+        data.items.forEach(item => {
+            const title = item.snippet.title;
+            const videoId = item.id.videoId;
+            const link = `https://www.youtube.com/watch?v=${videoId}`;
+            const thumbnail = item.snippet.thumbnails.high.url;
+
+            const card = document.createElement('a');
+            card.href = link;
+            card.target = "_blank";
+            card.className = "app-card";
+            card.style.cssText = `
+                border: 1px solid #ffea00;
+                width: 100%;
+                max-width: 500px;
+                margin: 10px auto;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                text-decoration: none;
+            `;
+
+            card.innerHTML = `
+                <div class="app-icon" style="border: 1px solid #ffea00; flex: 0 0 120px; height: 80px;">
+                    <img src="${thumbnail}" alt="Thumbnail" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="app-info" style="padding: 5px; flex: 1;">
+                    <div class="app-name" style="color: #ffea00; font-weight:bold;">📡 TRANSMISSION</div>
+                    <div class="app-desc" style="color:#fff; font-size:10px; margin-top:4px;">${title}</div>
+                </div>
+                <div class="get-btn" style="color: #ffea00; border: 1px solid #ffea00; padding: 5px 10px; align-self:center; margin-right:5px;">WATCH</div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+}
+
+setTimeout(fetchTransmissions, 1500);
+</script>
+
+
+</body>
+</html>
