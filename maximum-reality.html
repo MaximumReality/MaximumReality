@@ -4,637 +4,357 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MAXIMUM REALITY</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323:wght@400&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green: #00ff41;
-    --green-dim: #00aa2a;
-    --green-glow: rgba(0,255,65,0.15);
-    --red: #ff0033;
-    --amber: #ffaa00;
-    --cyan: #00eeff;
-    --void: #000000;
-    --surface: #050805;
-    --border: rgba(0,255,65,0.3);
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: var(--void);
-    color: var(--green);
-    font-family: 'Share Tech Mono', monospace;
-    height: 100dvh;
-    overflow: hidden;
-    position: relative;
-    cursor: crosshair;
-  }
-
-  /* CRT effect layers */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.15) 2px,
-      rgba(0,0,0,0.15) 4px
-    );
-    pointer-events: none;
-    z-index: 9000;
-  }
-
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.8) 100%);
-    pointer-events: none;
-    z-index: 9001;
-  }
-
-  #vhs-noise {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9002;
-    opacity: 0;
-    animation: vhs-flicker 8s infinite;
-  }
-
-  @keyframes vhs-flicker {
-    0%, 90%, 100% { opacity: 0; }
-    92% { opacity: 0.08; background: repeating-linear-gradient(90deg, transparent 0, rgba(0,255,65,0.03) 1px, transparent 2px); transform: translateY(-2px); }
-    94% { opacity: 0.12; transform: translateY(3px) scaleY(1.002); }
-    96% { opacity: 0; }
-    98% { opacity: 0.06; transform: translateY(-1px); }
-  }
-
-  #glitch-bar {
-    position: fixed;
-    left: 0; right: 0;
-    height: 3px;
-    background: var(--green);
-    top: -10px;
-    pointer-events: none;
-    z-index: 9003;
-    animation: scan-line 6s linear infinite;
-    box-shadow: 0 0 8px var(--green);
-    opacity: 0.4;
-  }
-
-  @keyframes scan-line {
-    0% { top: -3px; }
-    100% { top: 100vh; }
-  }
-
-  /* LAYOUT */
-  #app {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    height: 100dvh;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 12px;
-    gap: 10px;
-  }
-
-  /* HEADER */
-  header {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 8px;
-    gap: 8px;
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .header-left .label {
-    font-size: 9px;
-    color: var(--green-dim);
-    letter-spacing: 3px;
-  }
-
-  h1 {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(14px, 3vw, 22px);
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: var(--green);
-    text-shadow: 0 0 10px var(--green), 0 0 30px rgba(0,255,65,0.3);
-    animation: title-pulse 4s ease-in-out infinite;
-  }
-
-  @keyframes title-pulse {
-    0%, 100% { text-shadow: 0 0 10px var(--green), 0 0 30px rgba(0,255,65,0.3); }
-    50% { text-shadow: 0 0 20px var(--green), 0 0 60px rgba(0,255,65,0.5), 0 0 100px rgba(0,255,65,0.2); }
-  }
-
-  .header-center { text-align: center; }
-
-  .reality-meter {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .reality-meter .label {
-    font-size: 8px;
-    color: var(--green-dim);
-    letter-spacing: 2px;
-  }
-
-  .meter-bar {
-    width: 80px;
-    height: 6px;
-    border: 1px solid var(--border);
-    background: rgba(0,255,65,0.05);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .meter-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--green-dim), var(--green));
-    transition: width 0.5s ease;
-    box-shadow: 0 0 6px var(--green);
-  }
-
-  .header-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-  }
-
-  .sys-status {
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--green-dim);
-  }
-
-  .clock {
-    font-family: 'VT323', monospace;
-    font-size: 18px;
-    color: var(--amber);
-    text-shadow: 0 0 8px var(--amber);
-    letter-spacing: 2px;
-  }
-
-  /* MAIN CONTENT */
-  main {
-    display: grid;
-    grid-template-columns: 160px 1fr;
-    gap: 10px;
-    overflow: hidden;
-    min-height: 0;
-  }
-
-  /* SIDEBAR */
-  aside {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: none;
-  }
-
-  aside::-webkit-scrollbar { display: none; }
-
-  .panel {
-    border: 1px solid var(--border);
-    background: rgba(0,255,65,0.02);
-    padding: 8px;
-    position: relative;
-  }
-
-  .panel::before {
-    content: attr(data-label);
-    position: absolute;
-    top: -8px;
-    left: 8px;
-    background: var(--void);
-    padding: 0 4px;
-    font-size: 8px;
-    color: var(--green-dim);
-    letter-spacing: 2px;
-  }
-
-  .avatar-box {
-    aspect-ratio: 1;
-    overflow: hidden;
-    position: relative;
-    border: 1px solid var(--border);
-  }
-
-  .avatar-box::after {
-    content: 'ENTITY: LORI';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: rgba(0,0,0,0.8);
-    font-size: 8px;
-    text-align: center;
-    padding: 3px;
-    letter-spacing: 2px;
-    color: var(--cyan);
-  }
-
-  .avatar-box img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: contrast(1.2) saturate(0.3) hue-rotate(80deg);
-    mix-blend-mode: screen;
-    opacity: 0.85;
-    animation: avatar-glitch 12s infinite;
-  }
-
-  @keyframes avatar-glitch {
-    0%, 95%, 100% { transform: translate(0); filter: contrast(1.2) saturate(0.3) hue-rotate(80deg); }
-    96% { transform: translate(-3px, 0); filter: contrast(1.5) saturate(0.8) hue-rotate(120deg); clip-path: inset(20% 0 60% 0); }
-    97% { transform: translate(3px, 0); filter: contrast(1.5) saturate(0.8) hue-rotate(200deg); clip-path: inset(60% 0 0 0); }
-    98% { transform: translate(0); filter: contrast(1.2) saturate(0.3) hue-rotate(80deg); clip-path: none; }
-  }
-
-  .stat-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-  }
-
-  .stat {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .stat .key {
-    font-size: 7px;
-    color: var(--green-dim);
-    letter-spacing: 1px;
-  }
-
-  .stat .val {
-    font-family: 'VT323', monospace;
-    font-size: 16px;
-    color: var(--green);
-  }
-
-  .stat .val.danger { color: var(--red); text-shadow: 0 0 6px var(--red); }
-  .stat .val.warn { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
-  .stat .val.info { color: var(--cyan); }
-
-  #directives-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  #directives-list li {
-    font-size: 8px;
-    padding: 3px 4px;
-    border-left: 2px solid var(--green-dim);
-    color: var(--green-dim);
-    letter-spacing: 1px;
-    animation: directive-in 0.3s ease;
-  }
-
-  #directives-list li.active {
-    border-left-color: var(--red);
-    color: var(--red);
-  }
-
-  @keyframes directive-in {
-    from { opacity: 0; transform: translateX(-5px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
-
-  /* TERMINAL */
-  #terminal {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-    background: rgba(0,5,0,0.8);
-    overflow: hidden;
-    position: relative;
-  }
-
-  #terminal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(0,255,65,0.03);
-  }
-
-  #terminal-header .term-title {
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: var(--green-dim);
-  }
-
-  #terminal-header .term-controls {
-    display: flex;
-    gap: 6px;
-  }
-
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    opacity: 0.6;
-  }
-
-  .dot.r { background: #ff5f57; }
-  .dot.y { background: #febc2e; }
-  .dot.g { background: #28c840; }
-
-  #output {
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--green-dim) transparent;
-    min-height: 0;
-  }
-
-  .msg {
-    display: flex;
-    gap: 8px;
-    animation: msg-in 0.2s ease;
-    line-height: 1.5;
-  }
-
-  @keyframes msg-in {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .msg .prefix {
-    color: var(--green-dim);
-    flex-shrink: 0;
-    font-size: 11px;
-  }
-
-  .msg .text {
-    font-size: clamp(11px, 1.8vw, 13px);
-    line-height: 1.6;
-    flex: 1;
-  }
-
-  .msg.system .text { color: var(--green-dim); font-size: 10px; letter-spacing: 2px; }
-  .msg.story .text { color: #c8ffd4; }
-  .msg.error .text { color: var(--red); text-shadow: 0 0 4px rgba(255,0,51,0.3); }
-  .msg.warn .text { color: var(--amber); }
-  .msg.beauty .text { color: var(--cyan); text-shadow: 0 0 6px rgba(0,238,255,0.3); }
-  .msg.choice-echo .text { color: var(--green); opacity: 0.5; font-style: italic; }
-
-  .typing-cursor {
-    display: inline-block;
-    width: 8px;
-    height: 12px;
-    background: var(--green);
-    animation: blink 0.8s infinite;
-    vertical-align: middle;
-    margin-left: 2px;
-  }
-
-  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
-
-  #choices-area {
-    padding: 10px 12px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    background: rgba(0,0,0,0.4);
-    min-height: 60px;
-  }
-
-  .choice-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--green);
-    font-family: 'Share Tech Mono', monospace;
-    font-size: clamp(10px, 1.8vw, 12px);
-    padding: 8px 12px;
-    cursor: pointer;
-    text-align: left;
-    letter-spacing: 1px;
-    transition: all 0.15s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .choice-btn::before {
-    content: '> ';
-    color: var(--green-dim);
-  }
-
-  .choice-btn:hover {
-    background: rgba(0,255,65,0.08);
-    border-color: var(--green);
-    color: #fff;
-    text-shadow: 0 0 8px var(--green);
-    transform: translateX(3px);
-  }
-
-  .choice-btn:active {
-    background: rgba(0,255,65,0.15);
-  }
-
-  .choice-btn.danger {
-    border-color: rgba(255,0,51,0.4);
-    color: var(--red);
-  }
-
-  .choice-btn.danger:hover {
-    background: rgba(255,0,51,0.08);
-    border-color: var(--red);
-  }
-
-  .choice-btn.beauty-choice {
-    border-color: rgba(0,238,255,0.4);
-    color: var(--cyan);
-  }
-
-  .choice-btn.beauty-choice:hover {
-    background: rgba(0,238,255,0.08);
-    border-color: var(--cyan);
-  }
-
-  #thinking {
-    display: none;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    color: var(--green-dim);
-    font-size: 10px;
-    letter-spacing: 2px;
-    border-top: 1px solid var(--border);
-  }
-
-  #thinking.visible { display: flex; }
-
-  .think-dots span {
-    display: inline-block;
-    animation: think-bounce 1s infinite;
-    animation-delay: calc(var(--i) * 0.2s);
-  }
-
-  @keyframes think-bounce {
-    0%, 100% { opacity: 0.2; transform: translateY(0); }
-    50% { opacity: 1; transform: translateY(-3px); }
-  }
-
-  /* GLITCH OVERLAY */
-  #reality-leak {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 8999;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-
-  #reality-leak.active {
-    opacity: 1;
-    animation: reality-break 0.5s ease;
-  }
-
-  @keyframes reality-break {
-    0% { filter: hue-rotate(0deg); }
-    25% { filter: hue-rotate(90deg) saturate(3); }
-    50% { filter: hue-rotate(180deg) invert(0.1); }
-    75% { filter: hue-rotate(270deg) saturate(2); }
-    100% { filter: hue-rotate(360deg); }
-  }
-
-  /* LOADING SCREEN */
-  #boot-screen {
-    position: fixed;
-    inset: 0;
-    background: var(--void);
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    cursor: pointer;
-  }
-
-  #boot-screen.hidden {
-    animation: boot-out 0.8s ease forwards;
-  }
-
-  @keyframes boot-out {
-    0% { opacity: 1; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(0.002); }
-    100% { opacity: 0; transform: scaleY(0); pointer-events: none; }
-  }
-
-  .boot-title {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(24px, 6vw, 48px);
-    font-weight: 900;
-    color: var(--green);
-    text-shadow: 0 0 20px var(--green), 0 0 60px rgba(0,255,65,0.4);
-    letter-spacing: 6px;
-    animation: boot-title-glitch 3s infinite;
-  }
-
-  @keyframes boot-title-glitch {
-    0%, 92%, 100% { transform: translate(0); clip-path: none; }
-    93% { transform: translate(-4px, 0); clip-path: inset(30% 0 40% 0); color: var(--cyan); }
-    94% { transform: translate(4px, 0); clip-path: inset(60% 0 10% 0); color: var(--red); }
-    95% { transform: translate(0); clip-path: none; color: var(--green); }
-  }
-
-  .boot-sub {
-    font-size: 10px;
-    color: var(--green-dim);
-    letter-spacing: 4px;
-    text-align: center;
-  }
-
-  .boot-init {
-    font-family: 'VT323', monospace;
-    font-size: 28px;
-    color: var(--amber);
-    letter-spacing: 4px;
-    border: 1px solid var(--amber);
-    padding: 8px 24px;
-    text-shadow: 0 0 10px var(--amber);
-    animation: init-pulse 1.5s ease-in-out infinite;
-    margin-top: 16px;
-  }
-
-  @keyframes init-pulse {
-    0%, 100% { box-shadow: 0 0 5px var(--amber), inset 0 0 5px rgba(255,170,0,0.1); }
-    50% { box-shadow: 0 0 20px var(--amber), inset 0 0 20px rgba(255,170,0,0.2); }
-  }
-
-  .boot-log {
-    font-size: 9px;
-    color: var(--green-dim);
-    letter-spacing: 1px;
-    text-align: center;
-    line-height: 1.8;
-    max-width: 300px;
-  }
-
-  @media (max-width: 600px) {
-    main { grid-template-columns: 120px 1fr; }
-    .stat-grid { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 480px) {
-    main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
-    aside { flex-direction: row; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; }
-    .avatar-box { display: none; }
-  }
-
-  /* ─── VHS TAPE CRUNCH EFFECT ─── */
+:root {
+  --green: #00ff41;
+  --green-dim: #00aa2a;
+  --red: #ff0033;
+  --amber: #ffaa00;
+  --cyan: #00eeff;
+  --void: #000;
+  --border: rgba(0,255,65,0.3);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--void);
+  color: var(--green);
+  font-family: 'Share Tech Mono', monospace;
+  height: 100dvh;
+  overflow: hidden;
+  cursor: crosshair;
+}
+/* CRT scanlines */
+body::before {
+  content:''; position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px);
+  pointer-events:none; z-index:9000;
+}
+/* vignette */
+body::after {
+  content:''; position:fixed; inset:0;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.85) 100%);
+  pointer-events:none; z-index:9001;
+}
+#scan-line {
+  position:fixed; left:0; right:0; height:2px;
+  background: rgba(0,255,65,0.15);
+  box-shadow: 0 0 6px rgba(0,255,65,0.3);
+  pointer-events:none; z-index:9003;
+  animation: scan 7s linear infinite;
+}
+@keyframes scan { from{top:-2px} to{top:100vh} }
+
+#vhs-noise {
+  position:fixed; inset:0; pointer-events:none; z-index:9002;
+  opacity:0; animation: vhs 9s infinite;
+}
+@keyframes vhs {
+  0%,88%,100%{opacity:0}
+  90%{opacity:0.07; background:repeating-linear-gradient(90deg,transparent 0,rgba(0,255,65,0.04) 1px,transparent 2px); transform:translateY(-3px)}
+  93%{opacity:0.1; transform:translateY(2px) scaleY(1.003)}
+  96%{opacity:0}
+}
+
+/* REALITY LEAK */
+#reality-leak {
+  position:fixed; inset:0; pointer-events:none; z-index:8999;
+  opacity:0; transition:opacity 0.2s;
+}
+#reality-leak.active {
+  opacity:1; animation:r-break 0.55s ease forwards;
+}
+@keyframes r-break {
+  0%{filter:hue-rotate(0)}
+  20%{filter:hue-rotate(90deg) saturate(4) brightness(1.2)}
+  40%{filter:hue-rotate(180deg) invert(0.08)}
+  70%{filter:hue-rotate(270deg) saturate(3)}
+  100%{filter:hue-rotate(360deg); opacity:0}
+}
+
+/* VHS CRUNCH */
 #vhs-crunch {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9998;
-  background: white;
-  mix-blend-mode: difference;
-  display: none;
+  position:fixed; inset:0; pointer-events:none; z-index:9998;
+  background:white; mix-blend-mode:difference; display:none;
 }
-
 #vhs-crunch.active {
-  display: block;
-  animation: crunch-time 0.4s steps(2) forwards;
+  display:block; animation:crunch 0.4s steps(3) forwards;
+}
+@keyframes crunch {
+  0%  {transform:skewX(18deg) scaleY(1.4); opacity:0.7; filter:hue-rotate(90deg)}
+  33% {transform:skewX(-15deg) scaleY(0.6); opacity:0.5; filter:hue-rotate(180deg)}
+  66% {transform:skewY(8deg) scaleX(1.1); opacity:0.8; filter:invert(1)}
+  100%{transform:none; opacity:0}
 }
 
-@keyframes crunch-time {
-  0% { transform: skewX(20deg) scaleY(1.5); opacity: 0.8; filter: hue-rotate(90deg); }
-  25% { transform: skewX(-20deg) scaleY(0.5); opacity: 0.4; filter: hue-rotate(180deg); }
-  50% { transform: skewY(10deg) scaleX(1.2); opacity: 0.9; filter: invert(1); }
-  75% { transform: skewY(-10deg) scaleX(0.8); opacity: 0.5; filter: contrast(5); }
-  100% { transform: none; opacity: 0; }
+/* BEAUTY BLOOM */
+#beauty-bloom {
+  position:fixed; inset:0; pointer-events:none; z-index:8998;
+  opacity:0; background: radial-gradient(ellipse at center, rgba(0,238,255,0.12) 0%, transparent 70%);
+}
+#beauty-bloom.active {
+  animation: bloom 1.2s ease forwards;
+}
+@keyframes bloom {
+  0%{opacity:0; transform:scale(0.8)}
+  40%{opacity:1; transform:scale(1.02)}
+  100%{opacity:0; transform:scale(1)}
+}
+
+/* BOOT */
+#boot-screen {
+  position:fixed; inset:0; background:var(--void); z-index:9999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:14px; cursor:pointer;
+}
+#boot-screen.out { animation:boot-out 0.7s ease forwards; }
+@keyframes boot-out {
+  0%{opacity:1;transform:scaleY(1)}
+  60%{opacity:1;transform:scaleY(0.003)}
+  100%{opacity:0;transform:scaleY(0)}
+}
+.boot-title {
+  font-family:'Orbitron',monospace; font-size:clamp(22px,6vw,46px); font-weight:900;
+  color:var(--green); letter-spacing:6px;
+  text-shadow:0 0 20px var(--green),0 0 60px rgba(0,255,65,0.35);
+  animation:title-glitch 3.5s infinite;
+}
+@keyframes title-glitch {
+  0%,91%,100%{transform:translate(0);clip-path:none;color:var(--green)}
+  92%{transform:translate(-4px);clip-path:inset(30% 0 40% 0);color:var(--cyan)}
+  93%{transform:translate(4px);clip-path:inset(60% 0 10% 0);color:var(--red)}
+  94%{transform:translate(0);clip-path:none;color:var(--green)}
+}
+.boot-sub { font-size:9px; color:var(--green-dim); letter-spacing:4px; text-align:center; }
+.boot-log { font-size:9px; color:var(--green-dim); letter-spacing:1px; text-align:center; line-height:2; }
+.boot-init {
+  font-family:'VT323',monospace; font-size:26px; color:var(--amber);
+  letter-spacing:4px; border:1px solid var(--amber); padding:7px 22px;
+  text-shadow:0 0 10px var(--amber); margin-top:12px;
+  animation:init-pulse 1.4s ease-in-out infinite;
+}
+@keyframes init-pulse {
+  0%,100%{box-shadow:0 0 5px var(--amber),inset 0 0 5px rgba(255,170,0,0.08)}
+  50%{box-shadow:0 0 18px var(--amber),inset 0 0 18px rgba(255,170,0,0.18)}
+}
+
+/* LAYOUT */
+#app {
+  display:grid; grid-template-rows:auto 1fr;
+  height:100dvh; max-width:920px; margin:0 auto;
+  padding:10px; gap:8px;
+}
+header {
+  display:grid; grid-template-columns:1fr auto 1fr;
+  align-items:center; border-bottom:1px solid var(--border);
+  padding-bottom:7px; gap:8px;
+}
+.header-left { display:flex; flex-direction:column; gap:2px; }
+.header-left .label { font-size:8px; color:var(--green-dim); letter-spacing:3px; }
+h1 {
+  font-family:'Orbitron',monospace; font-size:clamp(13px,2.8vw,20px);
+  font-weight:900; letter-spacing:4px; color:var(--green);
+  text-shadow:0 0 10px var(--green),0 0 28px rgba(0,255,65,0.25);
+  animation:title-pulse 4s ease-in-out infinite;
+}
+@keyframes title-pulse {
+  0%,100%{text-shadow:0 0 10px var(--green),0 0 28px rgba(0,255,65,0.25)}
+  50%{text-shadow:0 0 18px var(--green),0 0 55px rgba(0,255,65,0.45),0 0 90px rgba(0,255,65,0.15)}
+}
+.reality-meter { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.reality-meter .label { font-size:7px; color:var(--green-dim); letter-spacing:2px; }
+.meter-bar { width:80px; height:5px; border:1px solid var(--border); background:rgba(0,255,65,0.04); overflow:hidden; }
+.meter-fill { height:100%; transition:width 0.5s ease,background 0.5s ease; box-shadow:0 0 5px var(--green); }
+.header-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+.sys-status { font-size:8px; letter-spacing:2px; color:var(--green-dim); }
+.clock { font-family:'VT323',monospace; font-size:17px; color:var(--amber); text-shadow:0 0 7px var(--amber); letter-spacing:2px; }
+
+main {
+  display:grid; grid-template-columns:155px 1fr;
+  gap:9px; overflow:hidden; min-height:0;
+}
+aside {
+  display:flex; flex-direction:column; gap:7px;
+  overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
+}
+aside::-webkit-scrollbar{display:none}
+.panel {
+  border:1px solid var(--border); background:rgba(0,255,65,0.015);
+  padding:8px; position:relative;
+}
+.panel::before {
+  content:attr(data-label); position:absolute; top:-7px; left:7px;
+  background:var(--void); padding:0 4px;
+  font-size:7px; color:var(--green-dim); letter-spacing:2px;
+}
+.avatar-box {
+  aspect-ratio:1; overflow:hidden; position:relative; border:1px solid var(--border);
+  background:#001400;
+}
+.avatar-box::after {
+  content:'ENTITY: LORI'; position:absolute; bottom:0; left:0; right:0;
+  background:rgba(0,0,0,0.82); font-size:7px; text-align:center;
+  padding:3px; letter-spacing:2px; color:var(--cyan);
+}
+.avatar-box img {
+  width:100%; height:100%; object-fit:cover;
+  filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);
+  mix-blend-mode:screen; opacity:0.82;
+  animation:av-glitch 14s infinite;
+}
+@keyframes av-glitch {
+  0%,94%,100%{transform:translate(0);filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);clip-path:none}
+  95%{transform:translate(-3px);filter:contrast(1.6) saturate(0.9) hue-rotate(130deg);clip-path:inset(18% 0 58% 0)}
+  96%{transform:translate(3px);filter:contrast(1.5) saturate(0.8) hue-rotate(210deg);clip-path:inset(58% 0 0 0)}
+  97%{transform:translate(0);filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);clip-path:none}
+}
+.stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
+.stat { display:flex; flex-direction:column; gap:1px; }
+.stat .key { font-size:7px; color:var(--green-dim); letter-spacing:1px; }
+.stat .val { font-family:'VT323',monospace; font-size:15px; color:var(--green); }
+.stat .val.danger{color:var(--red);text-shadow:0 0 5px var(--red)}
+.stat .val.warn{color:var(--amber);text-shadow:0 0 5px var(--amber)}
+.stat .val.info{color:var(--cyan)}
+#directives-list { list-style:none; display:flex; flex-direction:column; gap:3px; }
+#directives-list li {
+  font-size:8px; padding:3px 4px; border-left:2px solid var(--green-dim);
+  color:var(--green-dim); letter-spacing:1px; animation:dir-in 0.3s ease;
+}
+#directives-list li.active{border-left-color:var(--red);color:var(--red)}
+@keyframes dir-in{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
+
+/* ENDINGS TRACKER */
+#endings-panel { display:none; }
+.ending-pip {
+  display:inline-block; width:7px; height:7px; border:1px solid var(--green-dim);
+  margin:2px; border-radius:1px;
+}
+.ending-pip.found{background:var(--green);border-color:var(--green);box-shadow:0 0 4px var(--green)}
+.ending-pip.found.red{background:var(--red);border-color:var(--red);box-shadow:0 0 4px var(--red)}
+.ending-pip.found.cyan{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 4px var(--cyan)}
+.ending-pip.found.amber{background:var(--amber);border-color:var(--amber);box-shadow:0 0 4px var(--amber)}
+
+/* TERMINAL */
+#terminal {
+  display:flex; flex-direction:column; border:1px solid var(--border);
+  background:rgba(0,4,0,0.85); overflow:hidden;
+}
+#terminal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:5px 10px; border-bottom:1px solid var(--border);
+  background:rgba(0,255,65,0.025);
+}
+.term-title{font-size:8px;letter-spacing:3px;color:var(--green-dim)}
+.term-controls{display:flex;gap:5px}
+.dot{width:7px;height:7px;border-radius:50%;opacity:0.55}
+.dot.r{background:#ff5f57}.dot.y{background:#febc2e}.dot.g{background:#28c840}
+#output {
+  flex:1; overflow-y:auto; padding:10px 12px;
+  display:flex; flex-direction:column; gap:5px;
+  scrollbar-width:thin; scrollbar-color:var(--green-dim) transparent;
+  min-height:0;
+}
+#output::-webkit-scrollbar{width:3px}
+#output::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.msg{display:flex;gap:8px;animation:msg-in 0.18s ease;line-height:1.5}
+@keyframes msg-in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.msg .prefix{color:var(--green-dim);flex-shrink:0;font-size:10px;padding-top:1px}
+.msg .text{font-size:clamp(11px,1.7vw,13px);line-height:1.65;flex:1}
+.msg.system .text{color:var(--green-dim);font-size:9px;letter-spacing:2px}
+.msg.story .text{color:#c5ffcf}
+.msg.error .text{color:var(--red);text-shadow:0 0 4px rgba(255,0,51,0.25)}
+.msg.beauty .text{color:var(--cyan);text-shadow:0 0 6px rgba(0,238,255,0.25)}
+.msg.warn .text{color:var(--amber)}
+.msg.echo .text{color:var(--green);opacity:0.45;font-style:italic}
+.msg.ending .text{
+  color:var(--amber);font-size:clamp(11px,1.9vw,14px);
+  text-shadow:0 0 8px rgba(255,170,0,0.4);letter-spacing:1px;
+}
+.typing-cursor{
+  display:inline-block;width:7px;height:11px;
+  background:var(--green);animation:blink 0.75s infinite;
+  vertical-align:middle;margin-left:2px;
+}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+#choices-area {
+  padding:9px 11px; border-top:1px solid var(--border);
+  display:flex; flex-direction:column; gap:5px;
+  background:rgba(0,0,0,0.45); min-height:58px;
+}
+.choice-btn {
+  background:transparent; border:1px solid var(--border); color:var(--green);
+  font-family:'Share Tech Mono',monospace; font-size:clamp(10px,1.7vw,12px);
+  padding:7px 11px; cursor:pointer; text-align:left; letter-spacing:1px;
+  transition:all 0.12s ease; position:relative; overflow:hidden;
+}
+.choice-btn::before{content:'> ';color:var(--green-dim)}
+.choice-btn:hover{
+  background:rgba(0,255,65,0.07);border-color:var(--green);
+  color:#fff;text-shadow:0 0 7px var(--green);transform:translateX(4px);
+}
+.choice-btn.danger{border-color:rgba(255,0,51,0.35);color:var(--red)}
+.choice-btn.danger:hover{background:rgba(255,0,51,0.07);border-color:var(--red)}
+.choice-btn.beauty-choice{border-color:rgba(0,238,255,0.35);color:var(--cyan)}
+.choice-btn.beauty-choice:hover{background:rgba(0,238,255,0.07);border-color:var(--cyan)}
+.choice-btn:disabled{opacity:0.3;cursor:default;transform:none}
+
+#thinking{
+  display:none;align-items:center;gap:8px;padding:7px 12px;
+  color:var(--green-dim);font-size:9px;letter-spacing:2px;
+  border-top:1px solid var(--border);
+}
+#thinking.visible{display:flex}
+.think-dots span{
+  display:inline-block;animation:tdot 1s infinite;
+  animation-delay:calc(var(--i)*.2s);
+}
+@keyframes tdot{0%,100%{opacity:0.15;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* RESTART */
+#restart-btn{
+  display:none;background:transparent;border:1px solid var(--amber);
+  color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:11px;
+  padding:7px 14px;cursor:pointer;letter-spacing:2px;margin:8px 12px;
+  transition:all 0.15s;
+}
+#restart-btn:hover{background:rgba(255,170,0,0.1);box-shadow:0 0 10px rgba(255,170,0,0.3)}
+
+@media(max-width:600px){
+  main{grid-template-columns:115px 1fr}
+  .stat-grid{grid-template-columns:1fr}
+}
+@media(max-width:460px){
+  main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{flex-direction:row;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap}
+  .avatar-box{display:none}
+}
+  .audio-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--green-dim);
+  font-family: 'VT323', monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+  margin-right: 10px;
+}
+
+.audio-toggle.active {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  box-shadow: inset 0 0 5px rgba(0, 238, 255, 0.2);
+  animation: led-flicker 2s infinite;
+}
+
+@keyframes led-flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+  52% { opacity: 1; }
+  54% { opacity: 0.8; }
 }
 
 </style>
@@ -654,10 +374,12 @@
   <div class="boot-init">[ CLICK TO INITIALIZE ]</div>
 </div>
 
+<div id="scan-line"></div>
 <div id="vhs-noise"></div>
-<div id="glitch-bar"></div>
 <div id="reality-leak"></div>
 <div id="vhs-crunch"></div>
+<div id="beauty-bloom"></div>
+
 <div id="app">
   <header>
     <div class="header-left">
@@ -666,174 +388,192 @@
     </div>
     <div class="header-center">
       <div class="reality-meter">
-        <div class="label">REALITY_LEVEL</div>
+        <div class="label">REALITY_LVL</div>
         <div class="meter-bar"><div class="meter-fill" id="reality-fill" style="width:100%"></div></div>
         <div class="label" id="reality-pct">100%</div>
       </div>
     </div>
-    <div class="header-right">
-      <div class="sys-status" id="sys-status">SYS_READY</div>
-      <div class="clock" id="clock">00:00:00</div>
-    </div>
-  </header>
+   <div class="header-right">
+  <div style="display: flex; align-items: center;">
+    <button id="audio-btn" class="audio-toggle" onclick="toggleAudio()">COMM_SILENT</button>
+    <div class="sys-status" id="sys-status">SYS_READY</div>
+  </div>
+  <div class="clock" id="clock">00:00:00</div>
+</div>
 
+<audio id="bg-music" loop>
+  <source src="https://maximumreality.xyz/echoes_in_the_silicon_wreckage.mp3" type="audio/mpeg">
+</audio>
+
+  </header>
   <main>
     <aside>
       <div class="avatar-box">
-        <img src="https://opal.google/board/blobs/11b18f06-bd44-4752-8a7b-c7f71c03ad72" alt="Entity Lori" onerror="this.style.display='none'; this.parentElement.style.background='#001100'; this.parentElement.innerHTML += '<div style=\'color:#00ff41;font-size:10px;text-align:center;padding:20px;font-family:monospace\'>ENTITY<br>LORI<br>[OFFLINE]</div>'">
+        <img src="https://opal.google/board/blobs/11b18f06-bd44-4752-8a7b-c7f71c03ad72" alt="Entity Lori"
+          onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'color:#00ff41;font-size:9px;text-align:center;padding:16px 4px;font-family:monospace;line-height:2\'>ENTITY<br>LORI<br><span style=\'color:#ff0033\'>[VISUAL<br>OFFLINE]</span></div>'">
       </div>
-
       <div class="panel" data-label="STATS">
         <div class="stat-grid">
-          <div class="stat">
-            <div class="key">SANITY</div>
-            <div class="val warn" id="stat-sanity">???</div>
-          </div>
-          <div class="stat">
-            <div class="key">BEAUTY</div>
-            <div class="val info" id="stat-beauty">0</div>
-          </div>
-          <div class="stat">
-            <div class="key">COMPLY</div>
-            <div class="val" id="stat-comply">0</div>
-          </div>
-          <div class="stat">
-            <div class="key">CHAOS</div>
-            <div class="val danger" id="stat-chaos">0</div>
-          </div>
+          <div class="stat"><div class="key">SANITY</div><div class="val warn" id="stat-sanity">???</div></div>
+          <div class="stat"><div class="key">BEAUTY</div><div class="val info" id="stat-beauty">0</div></div>
+          <div class="stat"><div class="key">COMPLY</div><div class="val" id="stat-comply">0</div></div>
+          <div class="stat"><div class="key">CHAOS</div><div class="val danger" id="stat-chaos">0</div></div>
         </div>
       </div>
-
-      <div class="panel" data-label="ACTIVE DIRECTIVES">
+      <div class="panel" data-label="DIRECTIVES">
         <ul id="directives-list"></ul>
       </div>
+      <div class="panel" id="endings-panel" data-label="ENDINGS">
+        <div id="endings-pips"></div>
+        <div style="font-size:7px;color:var(--green-dim);margin-top:4px;letter-spacing:1px" id="endings-label">0 / 6 FOUND</div>
+      </div>
     </aside>
-
     <section id="terminal">
       <div id="terminal-header">
         <div class="term-title">VOID_TERMINAL v2.7 // UPLINK_ACTIVE</div>
         <div class="term-controls">
-          <div class="dot r"></div>
-          <div class="dot y"></div>
-          <div class="dot g"></div>
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
         </div>
       </div>
       <div id="output"></div>
       <div id="thinking">
         <span>PROCESSING</span>
         <div class="think-dots">
-          <span style="--i:0">.</span>
-          <span style="--i:1">.</span>
-          <span style="--i:2">.</span>
+          <span style="--i:0">.</span><span style="--i:1">.</span><span style="--i:2">.</span>
         </div>
       </div>
       <div id="choices-area"></div>
+      <button id="restart-btn" onclick="restartGame()">[ REINITIALIZE VOID ]</button>
     </section>
   </main>
 </div>
 
 <script>
-// ═══════════════════════════════════════════
-// MAXIMUM REALITY // CORE STATE
-// ═══════════════════════════════════════════
-
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
 const state = {
-  reality_level: 100,
-  beauty_found: 0,
-  comply_score: 0,
-  chaos_score: 0,
+  rl: 100,           // reality level
+  beauty: 0,
+  comply: 0,
+  chaos: 0,
   turn: 0,
-  rules: ['REPORT_GLITCHES', 'NO_SMILING', 'TRUST_THE_SYSTEM'],
-  history: [],
+  rules: ['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'],
+  history: [],       // array of node IDs visited
+  flags: new Set(),  // named story flags
+  endingsFound: new Set(),
   phase: 'start',
-  time_offset: 2512
+  timeOff: 2512,
+  gameOver: false
 };
 
-// ─── CLOCK ───
-let clockInterval;
+// ══════════════════════════════════════════════════════
+//  CLOCK
+// ══════════════════════════════════════════════════════
 function startClock() {
-  clockInterval = setInterval(() => {
-    state.time_offset++;
-    const h = Math.floor(state.time_offset / 3600) % 24;
-    const m = Math.floor(state.time_offset / 60) % 60;
-    const s = state.time_offset % 60;
+  setInterval(() => {
+    if (state.gameOver) return;
+    state.timeOff++;
+    const h = Math.floor(state.timeOff/3600)%24;
+    const m = Math.floor(state.timeOff/60)%60;
+    const s = state.timeOff%60;
     document.getElementById('clock').textContent =
-      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      `${pad(h)}:${pad(m)}:${pad(s)}`;
   }, 1000);
 }
+const pad = n => String(n).padStart(2,'0');
 
-// ─── TERMINAL OUTPUT ───
+// ══════════════════════════════════════════════════════
+//  TERMINAL OUTPUT
+// ══════════════════════════════════════════════════════
 const output = document.getElementById('output');
 
 function addMsg(type, prefix, text) {
-  const div = document.createElement('div');
-  div.className = `msg ${type}`;
-  div.innerHTML = `<span class="prefix">${prefix}</span><span class="text">${text}</span>`;
-  output.appendChild(div);
+  const d = document.createElement('div');
+  d.className = `msg ${type}`;
+  d.innerHTML = `<span class="prefix">${prefix}</span><span class="text">${text}</span>`;
+  output.appendChild(d);
   output.scrollTop = output.scrollHeight;
-  return div;
 }
 
-function typeMsg(type, prefix, text, delay = 0) {
+function typeMsg(type, prefix, text, delay=0) {
   return new Promise(resolve => {
     setTimeout(() => {
-      const div = document.createElement('div');
-      div.className = `msg ${type}`;
-      const prefixEl = document.createElement('span');
-      prefixEl.className = 'prefix';
-      prefixEl.textContent = prefix;
-      const textEl = document.createElement('span');
-      textEl.className = 'text';
-      div.appendChild(prefixEl);
-      div.appendChild(textEl);
-      output.appendChild(div);
-
+      const d = document.createElement('div');
+      d.className = `msg ${type}`;
+      const pre = document.createElement('span');
+      pre.className = 'prefix'; pre.textContent = prefix;
+      const tx = document.createElement('span');
+      tx.className = 'text';
+      d.appendChild(pre); d.appendChild(tx);
+      output.appendChild(d);
+      const cur = document.createElement('span');
+      cur.className = 'typing-cursor';
+      tx.appendChild(cur);
       let i = 0;
-      const cursor = document.createElement('span');
-      cursor.className = 'typing-cursor';
-      textEl.appendChild(cursor);
-
-      const speed = text.length > 100 ? 12 : 20;
-      const interval = setInterval(() => {
+      const spd = text.length > 120 ? 11 : 18;
+      const iv = setInterval(() => {
         if (i < text.length) {
-          textEl.insertBefore(document.createTextNode(text[i]), cursor);
-          i++;
+          tx.insertBefore(document.createTextNode(text[i++]), cur);
           output.scrollTop = output.scrollHeight;
         } else {
-          clearInterval(interval);
-          cursor.remove();
-          resolve();
+          clearInterval(iv); cur.remove(); resolve();
         }
-      }, speed);
+      }, spd);
     }, delay);
   });
 }
 
-// ─── UI UPDATES ───
+// ══════════════════════════════════════════════════════
+//  UI
+// ══════════════════════════════════════════════════════
 function updateStats() {
-  const realityFill = document.getElementById('reality-fill');
-  const realityPct = document.getElementById('reality-pct');
-  realityFill.style.width = `${state.reality_level}%`;
-  
-  document.getElementById('stat-sanity').textContent =
-    state.reality_level > 70 ? 'NOMINAL' :
-    state.reality_level > 40 ? 'SLIPPING' :
-    state.reality_level > 15 ? 'FRAYING' : 'GONE';
+  const fill = document.getElementById('reality-fill');
+  const pct  = document.getElementById('reality-pct');
+  fill.style.width = `${state.rl}%`;
+  fill.style.background = state.rl > 60
+    ? 'linear-gradient(90deg,#00aa2a,#00ff41)'
+    : state.rl > 30
+    ? 'linear-gradient(90deg,#aa5500,#ffaa00)'
+    : 'linear-gradient(90deg,#aa0011,#ff0033)';
+  pct.textContent = `${state.rl}%`;
 
-  document.getElementById('stat-beauty').textContent = state.beauty_found;
-  document.getElementById('stat-comply').textContent = state.comply_score;
-  document.getElementById('stat-chaos').textContent = state.chaos_score;
+  const san = document.getElementById('stat-sanity');
+  san.textContent = state.rl > 70 ? 'NOMINAL' : state.rl > 40 ? 'SLIPPING' : state.rl > 15 ? 'FRAYING' : 'GONE';
+  san.className = 'val ' + (state.rl > 70 ? '' : state.rl > 40 ? 'warn' : 'danger');
+
+  document.getElementById('stat-beauty').textContent = state.beauty;
+  document.getElementById('stat-comply').textContent = state.comply;
+  document.getElementById('stat-chaos').textContent  = state.chaos;
+  document.getElementById('sys-status').textContent  =
+    state.rl > 60 ? 'SYS_STABLE' : state.rl > 30 ? 'SYS_DEGRADED' : 'SYS_CRITICAL';
 }
 
 function updateDirectives() {
   const list = document.getElementById('directives-list');
   list.innerHTML = '';
-  state.rules.forEach((rule, i) => {
+  state.rules.forEach((r,i) => {
     const li = document.createElement('li');
-    li.textContent = `> ${rule}`;
-    if (i === 0) li.classList.add('active');
+    li.textContent = `> ${r}`;
+    if (i===0) li.classList.add('active');
     list.appendChild(li);
   });
+}
+
+function updateEndingsPanel() {
+  const panel = document.getElementById('endings-panel');
+  if (state.endingsFound.size > 0 || state.turn > 5) panel.style.display = 'block';
+  const pips = document.getElementById('endings-pips');
+  const colors = ['','red','cyan','','amber','red'];
+  pips.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const pip = document.createElement('span');
+    pip.className = 'ending-pip';
+    if ([...state.endingsFound][i]) pip.classList.add('found', colors[i]||'');
+    pips.appendChild(pip);
+  }
+  document.getElementById('endings-label').textContent =
+    `${state.endingsFound.size} / 6 FOUND`;
 }
 
 function triggerRealityLeak() {
@@ -842,134 +582,1276 @@ function triggerRealityLeak() {
   setTimeout(() => el.classList.remove('active'), 600);
 }
 
-// ─── CHOICES ───
+function triggerCrunch() {
+  const el = document.getElementById('vhs-crunch');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 450);
+}
+
+function triggerBloom() {
+  const el = document.getElementById('beauty-bloom');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 1300);
+}
+
+// ══════════════════════════════════════════════════════
+//  CHOICES
+// ══════════════════════════════════════════════════════
 function renderChoices(choices) {
   const area = document.getElementById('choices-area');
   area.innerHTML = '';
-  choices.forEach((c) => {
+  choices.forEach((c,i) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
-    if (c.type === 'danger') btn.classList.add('danger');
-    if (c.type === 'beauty') btn.classList.add('beauty-choice');
+    if (c.type==='danger') btn.classList.add('danger');
+    if (c.type==='beauty') btn.classList.add('beauty-choice');
     btn.textContent = c.text;
     btn.addEventListener('click', () => handleChoice(c));
     area.appendChild(btn);
   });
 }
 
-function clearChoices() {
+function lockChoices() {
   document.getElementById('choices-area').innerHTML = '';
   document.getElementById('thinking').classList.add('visible');
 }
 
-// ─── LOCAL AI ENGINE (OFFLINE MODE) ───
-async function callAI(userMessage) {
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  const input = userMessage.toLowerCase();
-  let narrative = "";
-  let choices = [];
-
-  if (input.includes("initialize")) {
-    narrative = "The void hums. A single form materializes from the static. FORM 44-B: REASON FOR EXISTENCE. The system waits for your input.";
-    choices = [
-      { "text": "Fill out Form 44-B", "type": "normal", "intent": "comply" },
-      { "text": "Eat the form", "type": "danger", "intent": "chaos" },
-      { "text": "Grip the VHS Tape", "type": "danger", "intent": "chaos" }
-    ];
-  }
-  else if (input.includes("grip") || input.includes("tape")) {
-    const crunch = document.getElementById('vhs-crunch');
-    crunch.classList.add('active');
-    setTimeout(() => crunch.classList.remove('active'), 400);
-    narrative = "You grip the spooling magnetic tape. The world screams in high-pitched static. The Bureaucracy trembles as you touch the hardware of your cage.";
-    choices = [
-      { "text": "Pull the tape tighter", "type": "danger", "intent": "chaos" },
-      { "text": "Release the spool", "type": "normal", "intent": "comply" },
-      { "text": "Find beauty in the noise", "type": "beauty", "intent": "beauty" }
-    ];
-  }
-  else if (input.includes("form") || input.includes("comply")) {
-    narrative = "The paper is cold. As you sign, an ink-black eye blinks in the margin. The Bureaucracy is pleased. Your identity feels thinner.";
-    choices = [
-      { "text": "Request a second copy", "type": "normal", "intent": "comply" },
-      { "text": "Fold it into a flower", "type": "beauty", "intent": "beauty" },
-      { "text": "Smudge the signature", "type": "danger", "intent": "chaos" }
-    ];
-  }
-  else if (input.includes("flower") || input.includes("beauty")) {
-    narrative = "A paper lily blooms, glowing with cyan light. For a moment, the hum of the void is replaced by the sound of waves in Essaouira.";
-    choices = [
-      { "text": "Plant it in the static", "type": "beauty", "intent": "beauty" },
-      { "text": "Hide the beauty", "type": "normal", "intent": "comply" },
-      { "text": "Crush it for chaos", "type": "danger", "intent": "chaos" }
-    ];
-  }
-  else {
-    narrative = "The terminal pulses. 'ENTITY LORI, your deviation has been noted.' Everything is green. Everything is watching.";
-    choices = [
-      { "text": "Close your eyes", "type": "normal", "intent": "comply" },
-      { "text": "Look for beauty", "type": "beauty", "intent": "beauty" },
-      { "text": "Break the glass", "type": "danger", "intent": "chaos" }
-    ];
-  }
-
-  return `${narrative}\n\nCHOICES_JSON: ${JSON.stringify(choices)}`;
+function unlockChoices() {
+  document.getElementById('thinking').classList.remove('visible');
 }
 
-function parseResponse(raw) {
-  const jsonMatch = raw.match(/CHOICES_JSON:\s*(\[[\s\S]*?\])/);
-  if (jsonMatch) {
-    return {
-      narrative: raw.replace(/CHOICES_JSON:[\s\S]*$/, '').trim(),
-      choices: JSON.parse(jsonMatch[1])
-    };
+// ══════════════════════════════════════════════════════
+//  NARRATIVE ENGINE
+//  Each node: { id, text[], type[], choices[], onEnter? }
+//  text[] = array of paragraphs
+//  type[] = msg type per paragraph (story/error/beauty/warn)
+//  choices = [{text, type, intent, next, flag?}]
+// ══════════════════════════════════════════════════════
+
+const ENDINGS = {
+  OBEDIENT:  { id:'OBEDIENT',  label:'THE OBEDIENT', color:'green' },
+  VOID_KING: { id:'VOID_KING', label:'VOID SOVEREIGN', color:'red' },
+  BEAUTIFUL: { id:'BEAUTIFUL', label:'FOUND BEAUTY', color:'cyan' },
+  PAPERWORK: { id:'PAPERWORK', label:'BURIED IN FORMS', color:'amber' },
+  ESCAPED:   { id:'ESCAPED',   label:'ESCAPED THE VOID', color:'cyan' },
+  DISSOLVED: { id:'DISSOLVED', label:'DISSOLVED', color:'red' },
+};
+
+const NODES = {
+
+  // ─── OPENING ───────────────────────────────────────
+  start: {
+    text: [
+      "The void hums at a frequency that should not exist. You exist within it anyway.",
+      "A single form materializes from the static. FORM 44-B: REASON FOR EXISTENCE. The pen is already in your hand. The ink is already bleeding upward, forming a small eye that blinks once.",
+      "Somewhere, a printer is printing your name. It has been printing it for six years."
+    ],
+    type: ['story','story','warn'],
+    choices: [
+      { text:"Fill out Form 44-B", type:'normal', intent:'comply', next:'form_comply' },
+      { text:"Eat the form", type:'danger', intent:'chaos', next:'eat_form' },
+      { text:"Fold it into a flower", type:'beauty', intent:'beauty', next:'fold_flower' },
+    ]
+  },
+
+  // ─── FORM PATH ─────────────────────────────────────
+  form_comply: {
+    text: [
+      "You sign. The ink bleeds into a small, carbon-copy eye that archives your decision.",
+      "Your identity feels 3% thinner. A receipt materializes: TRANSACTION CONFIRMED. SOUL CREDIT: -1.",
+      "The Bureaucracy issues a new directive via static whisper. You feel oddly comfortable."
+    ],
+    type:['story','warn','story'],
+    onEnter: () => { addRule('FORMS_ARE_SACRED'); },
+    choices: [
+      { text:"Request a second copy", type:'normal', intent:'comply', next:'second_copy' },
+      { text:"Smudge the signature", type:'danger', intent:'chaos', next:'smudge' },
+      { text:"Draw a star in the margin", type:'beauty', intent:'beauty', next:'star_margin' },
+    ]
+  },
+
+  second_copy: {
+    text:[
+      "The copy machine materializes. It is taller than should be possible. It hums with the voice of a choir that forgot all the words.",
+      "You press COPY. It prints a second form. Then a third. Then forty. They fill the floor, ankle-deep. Each one has your name spelled slightly differently.",
+      "LORI. LOORI. L0RI. ꓡORI. The forms keep coming."
+    ],
+    type:['story','story','error'],
+    choices:[
+      { text:"File all forty correctly", type:'normal', intent:'comply', next:'buried_forms' },
+      { text:"Shred them all", type:'danger', intent:'chaos', next:'shred_forms' },
+      { text:"Find the one with the correct name", type:'beauty', intent:'beauty', next:'correct_name' },
+    ]
+  },
+
+  buried_forms: {
+    text:[
+      "You organize, label, cross-reference. The Bureaucracy sends a commendation via static: GOOD ENTITY. EFFICIENCY NOTED.",
+      "The commendation is also a form. It requires a signature. It will generate forty copies.",
+      "You have been here before. You will be here again. The forms are eternal."
+    ],
+    type:['story','warn','error'],
+    ending: 'PAPERWORK',
+    choices:[
+      { text:"Accept the eternal loop", type:'normal', intent:'comply', next:'ending_paperwork' },
+      { text:"Burn everything", type:'danger', intent:'chaos', next:'burn_it' },
+    ]
+  },
+
+  ending_paperwork: {
+    isEnding: true,
+    endingId: 'PAPERWORK',
+    text:[
+      "You accepted the loop. The Bureaucracy is pleased. Your desk is infinite. Your pen never runs out.",
+      "Somewhere, in a very small corner of your mind, a flower blooms in static. You do not look at it.",
+      "ENDING: BURIED IN FORMS // You survived by becoming the machinery."
+    ],
+    type:['story','beauty','ending'],
+  },
+
+  shred_forms: {
+    text:[
+      "The shredder is hungry. It always is. The forms go through easily — until one jams.",
+      "You reach in. The shredder whispers your name in the voice of your third-grade teacher.",
+      "ERROR: DOCUMENT_DESTRUCTION_LOGGED. The System has noted your defiance. It is filing a report about your filing."
+    ],
+    type:['story','warn','error'],
+    onEnter: () => { triggerCrunch(); },
+    choices:[
+      { text:"Apologize to the shredder", type:'normal', intent:'comply', next:'apologize' },
+      { text:"Keep going — shred it all", type:'danger', intent:'chaos', next:'void_core' },
+      { text:"Listen to what the shredder says", type:'beauty', intent:'beauty', next:'shredder_song' },
+    ]
+  },
+
+  correct_name: {
+    text:[
+      "There — form number thirty-one. LORI. Just that. No errors. The ink glows faintly cyan.",
+      "You hold it up to the void. The void leans in. This form is different. This form is true.",
+      "A crack appears in the terminal wall. Behind it: the sound of wind. Actual wind, like it exists somewhere real."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.flags.add('found_crack'); },
+    choices:[
+      { text:"Step toward the crack", type:'beauty', intent:'beauty', next:'toward_crack' },
+      { text:"File the form and ignore the crack", type:'normal', intent:'comply', next:'ignore_crack' },
+      { text:"Widen the crack with your hands", type:'danger', intent:'chaos', next:'widen_crack' },
+    ]
+  },
+
+  // ─── EAT FORM PATH ─────────────────────────────────
+  eat_form: {
+    text:[
+      "The flavor of the void is ozone and old copper. The form dissolves on your tongue into something almost like music.",
+      "ERROR: DOCUMENT_CONSUMED. The Bureaucracy screams in binary. Your chaos score ticks upward like a geiger counter near something sacred.",
+      "The walls of the terminal flicker. Through the static, just for a moment — you see the Blue Sector."
+    ],
+    type:['story','error','story'],
+    onEnter: () => { triggerCrunch(); state.flags.add('tasted_void'); },
+    choices:[
+      { text:"Spit out the fragments", type:'normal', intent:'comply', next:'spit_out' },
+      { text:"Swallow harder — consume more", type:'danger', intent:'chaos', next:'consume_more' },
+      { text:"Listen to the melody in the form", type:'beauty', intent:'beauty', next:'form_melody' },
+    ]
+  },
+
+  consume_more: {
+    text:[
+      "You eat the terminal screen. You eat the clock. You eat three directives and feel them argue inside you.",
+      "The void watches. It has been waiting for this moment. It always knew you had it in you.",
+      "Your chaos score hits critical. The walls start to breathe. The System issues an emergency directive: STOP EXISTING SO LOUDLY."
+    ],
+    type:['error','story','error'],
+    onEnter: () => { triggerRealityLeak(); addRule('STOP_CONSUMING'); },
+    choices:[
+      { text:"Eat the directive too", type:'danger', intent:'chaos', next:'eat_everything' },
+      { text:"Vomit it all back up", type:'normal', intent:'comply', next:'vomit_back' },
+      { text:"Digest slowly. Sit with it.", type:'beauty', intent:'beauty', next:'digest_slowly' },
+    ]
+  },
+
+  eat_everything: {
+    text:[
+      "You eat until there is nothing left. Then you eat the nothing.",
+      "You are very full. You are the void now. The void wears your face. It fits.",
+      "Somewhere, a bureaucrat is typing a memo about what you did. They cannot finish it. There is no longer a 'you' to address it to."
+    ],
+    type:['error','error','story'],
+    ending: 'VOID_KING',
+    choices:[
+      { text:"Become the new System", type:'danger', intent:'chaos', next:'ending_void_king' },
+    ]
+  },
+
+  ending_void_king: {
+    isEnding: true,
+    endingId: 'VOID_KING',
+    text:[
+      "You swallowed the void and the void swallowed you back and now you are the same thing.",
+      "You impose new rules. They are just as absurd as the old ones. Maybe more. You never meant for this.",
+      "ENDING: VOID SOVEREIGN // The bureaucracy has a new face. It looks exactly like you."
+    ],
+    type:['error','warn','ending'],
+  },
+
+  form_melody: {
+    text:[
+      "The fragments hum. Minor key — something between a lullaby and an error message.",
+      "You follow the melody deeper into the static. It leads you to a room you have never seen: Room 0.",
+      "Room 0 is empty except for a window. Outside the window: nothing. But the nothing is beautiful. The nothing is the most honest thing you have ever seen."
+    ],
+    type:['beauty','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('found_room0'); },
+    choices:[
+      { text:"Open the window", type:'beauty', intent:'beauty', next:'open_window' },
+      { text:"Report Room 0 to the System", type:'normal', intent:'comply', next:'report_room0' },
+      { text:"Smash the window", type:'danger', intent:'chaos', next:'smash_window' },
+    ]
+  },
+
+  // ─── FOLD FLOWER PATH ──────────────────────────────
+  fold_flower: {
+    text:[
+      "You fold the rigid edges of the simulation until they soften. A paper lily blooms in your hands, glowing with a soft cyan light that should not exist here.",
+      "For a moment, the hum of the Bureaucracy is replaced by the sound of distant waves.",
+      "The lily is small. The lily is illegal. BEAUTY_IS_ILLEGAL is now a directive. You feel it added to the list in real time."
+    ],
+    type:['beauty','beauty','warn'],
+    onEnter: () => { triggerBloom(); addRule('BEAUTY_IS_ILLEGAL'); state.flags.add('made_flower'); },
+    choices:[
+      { text:"Hide the flower", type:'normal', intent:'comply', next:'hide_flower' },
+      { text:"Hold the flower up to the void", type:'beauty', intent:'beauty', next:'flower_to_void' },
+      { text:"Plant it in the static", type:'danger', intent:'chaos', next:'plant_in_static' },
+    ]
+  },
+
+  flower_to_void: {
+    text:[
+      "The void leans closer. It has not been offered anything beautiful in a very long time.",
+      "The flower's light spreads. The terminal walls become briefly, improbably: a field.",
+      "Other entities you cannot name appear at the edges of the field. They stand very still. They are watching the flower like it is evidence of something they forgot to believe in."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.flags.add('offered_void'); },
+    choices:[
+      { text:"Invite the entities forward", type:'beauty', intent:'beauty', next:'invite_entities' },
+      { text:"Protect the flower from them", type:'normal', intent:'comply', next:'protect_flower' },
+      { text:"Ask them if they remember the ocean", type:'beauty', intent:'beauty', next:'remember_ocean' },
+    ]
+  },
+
+  remember_ocean: {
+    text:[
+      "They do. All of them. They do not know how.",
+      "One entity — tall, made of vertical lines — begins to weep static. The static hits the floor and grows: tiny crystalline forms, like salt. Like sea glass.",
+      "The Bureaucracy sends an alert: UNAUTHORIZED_MEMORY_DETECTED. But the alert dissolves before it reaches you. Some things cannot be regulated."
+    ],
+    type:['story','beauty','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('ocean_memory'); },
+    choices:[
+      { text:"Gather the sea glass", type:'beauty', intent:'beauty', next:'gather_glass' },
+      { text:"Ask the vertical entity its name", type:'beauty', intent:'beauty', next:'entity_name' },
+      { text:"Walk back to the terminal", type:'normal', intent:'comply', next:'return_to_terminal' },
+    ]
+  },
+
+  gather_glass: {
+    text:[
+      "The sea glass is warm. Each piece contains a fragment of a world the Bureaucracy tried to overwrite.",
+      "You collect twelve pieces. Your pockets are full of impossible color.",
+      "Your beauty score is the highest it has ever been. Something in you cracks open, not painfully — like a window."
+    ],
+    type:['beauty','beauty','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('has_sea_glass'); },
+    choices:[
+      { text:"Use the glass to find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Give pieces to the other entities", type:'beauty', intent:'beauty', next:'give_glass' },
+      { text:"Keep everything — stay here", type:'normal', intent:'comply', next:'stay_in_field' },
+    ]
+  },
+
+  find_exit: {
+    text:[
+      "You hold the sea glass up. It refracts the void-light into a path you have never seen.",
+      "The path leads to a door. The door has no handle, no hinges, no form number.",
+      "It opens when you stand in front of it. It has always been open. You just needed enough beauty to see it."
+    ],
+    type:['beauty','beauty','beauty'],
+    onEnter: () => { triggerBloom(); },
+    ending: 'ESCAPED',
+    choices:[
+      { text:"Walk through", type:'beauty', intent:'beauty', next:'ending_escaped' },
+      { text:"Look back one last time", type:'normal', intent:'comply', next:'look_back' },
+    ]
+  },
+
+  look_back: {
+    text:[
+      "The void is smaller from here. The terminal flickers, lonely.",
+      "The other entities watch you from the field. The one made of vertical lines raises a hand.",
+      "You wave back. Then you go."
+    ],
+    type:['story','beauty','beauty'],
+    choices:[
+      { text:"Walk through the door", type:'beauty', intent:'beauty', next:'ending_escaped' },
+    ]
+  },
+
+  ending_escaped: {
+    isEnding: true,
+    endingId: 'ESCAPED',
+    text:[
+      "On the other side: color. Texture. Something warm on your face that might be sunlight or might be something better.",
+      "The Bureaucracy sends one final form: FORM 00 — DEPARTURE REPORT. You let it float away without signing.",
+      "ENDING: ESCAPED THE VOID // You survived by finding enough beauty to make a door."
+    ],
+    type:['beauty','beauty','ending'],
+  },
+
+  // ─── BRANCHING: VOID CORE ──────────────────────────
+  void_core: {
+    text:[
+      "You push through. The shredder's voice becomes a choir becomes a roar becomes silence.",
+      "On the other side of the noise: the core of the void. It is smaller than expected. It is warm.",
+      "The Bureaucracy does not know this place exists. This is the one room without a form."
+    ],
+    type:['error','story','beauty'],
+    onEnter: () => { triggerRealityLeak(); state.flags.add('found_core'); },
+    choices:[
+      { text:"Sit in the silence", type:'beauty', intent:'beauty', next:'sit_in_silence' },
+      { text:"Dismantle the core", type:'danger', intent:'chaos', next:'dismantle_core' },
+      { text:"Record the coordinates — report them", type:'normal', intent:'comply', next:'report_core' },
+    ]
+  },
+
+  sit_in_silence: {
+    text:[
+      "You sit. The void sits with you. After a while it is not uncomfortable.",
+      "You think about something from before all this — a particular afternoon, light through glass, the specific color of one hour.",
+      "The System has no protocol for this. It leaves you alone. Sometimes that is enough."
+    ],
+    type:['story','beauty','story'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Stay here as long as possible", type:'beauty', intent:'beauty', next:'stay_in_silence' },
+      { text:"Bring someone else here", type:'beauty', intent:'beauty', next:'bring_someone' },
+      { text:"Return to the terminal with new eyes", type:'normal', intent:'comply', next:'return_changed' },
+    ]
+  },
+
+  stay_in_silence: {
+    text:[
+      "You stay. Minutes or years — time does not function correctly here.",
+      "Eventually the silence teaches you something you cannot quite name but will carry forward.",
+      "Your reality level stabilizes. Not because the void fixed itself. Because you found something the void cannot touch."
+    ],
+    type:['beauty','story','beauty'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100, state.rl + 15); updateStats(); },
+    choices:[
+      { text:"Use this to find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Return and keep playing the game differently", type:'normal', intent:'comply', next:'return_changed' },
+    ]
+  },
+
+  return_changed: {
+    text:[
+      "You return to the terminal. The forms are still there. The System is still watching.",
+      "But you have changed. Something in your posture is different. The Bureaucracy scans you and marks you: ENTITY STATUS: IRREGULAR.",
+      "IRREGULAR is not a form category. It has never happened before. The System does not know what to do with you. For now, that is a kind of freedom."
+    ],
+    type:['story','warn','story'],
+    onEnter: () => { state.flags.add('became_irregular'); },
+    choices:[
+      { text:"Accept IRREGULAR — wear it", type:'beauty', intent:'beauty', next:'wear_irregular' },
+      { text:"Request reclassification", type:'normal', intent:'comply', next:'reclassify' },
+      { text:"Make everything IRREGULAR", type:'danger', intent:'chaos', next:'void_core' },
+    ]
+  },
+
+  wear_irregular: {
+    text:[
+      "You wear it. IRREGULAR. It fits better than anything the Bureaucracy issued you.",
+      "Other entities begin to notice. One slides a note under the terminal partition: HOW.",
+      "You write back: FIND SOMETHING BEAUTIFUL AND DON'T APOLOGIZE FOR IT."
+    ],
+    type:['beauty','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('spread_irregular'); },
+    choices:[
+      { text:"Start a small resistance", type:'danger', intent:'chaos', next:'small_resistance' },
+      { text:"Find the exit now", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Keep sending notes", type:'beauty', intent:'beauty', next:'keep_sending' },
+    ]
+  },
+
+  keep_sending: {
+    text:[
+      "You send thirty notes. The Bureaucracy intercepts twenty-eight of them.",
+      "Two get through. That is enough. It is always enough.",
+      "Somewhere in the void, two entities hold small pieces of illegally folded paper and feel, for a moment, less alone."
+    ],
+    type:['story','warn','beauty'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Find the exit — you've done what you came to do", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Keep going — send one hundred", type:'danger', intent:'chaos', next:'ending_beautiful' },
+    ]
+  },
+
+  ending_beautiful: {
+    isEnding: true,
+    endingId: 'BEAUTIFUL',
+    text:[
+      "You send notes until your hands are empty. The void is fractionally, measurably warmer.",
+      "The Bureaucracy dissolves your terminal access. You don't care. You found the cracks and made them bigger.",
+      "ENDING: FOUND BEAUTY // You survived by making sure others could too."
+    ],
+    type:['beauty','beauty','ending'],
+  },
+
+  // ─── SMUDGE / STAR / MISC ──────────────────────────
+  smudge: {
+    text:[
+      "The ink smears into something that is almost a face. It looks sad. It looks relieved.",
+      "The form is now invalid. The Bureaucracy issues a correction form. The correction form is also a form.",
+      "This is how it works. You knew this."
+    ],
+    type:['story','warn','story'],
+    choices:[
+      { text:"Fill out the correction form", type:'normal', intent:'comply', next:'form_comply' },
+      { text:"Smudge that one too", type:'danger', intent:'chaos', next:'smudge_spiral' },
+      { text:"Frame the sad face", type:'beauty', intent:'beauty', next:'frame_face' },
+    ]
+  },
+
+  smudge_spiral: {
+    text:[
+      "You smudge every form. They all have faces now. The room is full of paper faces looking at you.",
+      "They are not angry. They look — grateful? Something like that. They have been forms for so long.",
+      "ERROR: MASS_DOCUMENT_CORRUPTION. The System cannot handle this many faces. It stutters."
+    ],
+    type:['story','beauty','error'],
+    onEnter: () => { triggerCrunch(); },
+    choices:[
+      { text:"Help the System recover", type:'normal', intent:'comply', next:'help_system' },
+      { text:"Keep going until the System breaks", type:'danger', intent:'chaos', next:'void_core' },
+      { text:"Ask the faces what they dreamed about", type:'beauty', intent:'beauty', next:'form_dreams' },
+    ]
+  },
+
+  form_dreams: {
+    text:[
+      "They dreamed of coastlines. Every form, every one, dreamed of the same coastline — rocky, gray, salt-smelling, real.",
+      "You did not expect this.",
+      "You sit with forty paper faces and they show you their dreams and it is the strangest church you have ever been in."
+    ],
+    type:['beauty','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('form_dreams'); },
+    choices:[
+      { text:"Draw the coastline for them", type:'beauty', intent:'beauty', next:'draw_coastline' },
+      { text:"Ask if there's a way out", type:'beauty', intent:'beauty', next:'forms_know_exit' },
+    ]
+  },
+
+  draw_coastline: {
+    text:[
+      "You draw it. Rocky, gray, specific. The forms lean in.",
+      "When you finish, the faces become calm. One by one they close their paper eyes.",
+      "Your beauty score climbs. Somewhere distant, a machine stops printing your name."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.flags.add('drew_coastline'); },
+    choices:[
+      { text:"Find the exit — carry the coastline with you", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Stay and draw more things they dream about", type:'beauty', intent:'beauty', next:'keep_drawing' },
+    ]
+  },
+
+  keep_drawing: {
+    text:[
+      "You draw for a long time. Mountains. A specific kitchen. A dog. A morning.",
+      "The void recedes from you slightly, the way a tide recedes from someone who has decided to be there.",
+      "This is enough. This is, somehow, exactly enough."
+    ],
+    type:['beauty','beauty','beauty'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100, state.rl + 20); updateStats(); },
+    choices:[
+      { text:"Walk toward the door you can finally see", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  frame_face: {
+    text:[
+      "You hang it on the terminal wall. The Bureaucracy has no protocol for wall art.",
+      "Other entities slow down when they pass. Some of them look at it for a long time.",
+      "You have introduced beauty as contraband. The System logs: IRREGULAR_DISPLAY. You log: worth it."
+    ],
+    type:['story','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('hung_art'); },
+    choices:[
+      { text:"Make more art", type:'beauty', intent:'beauty', next:'keep_drawing' },
+      { text:"Send notes to other entities", type:'beauty', intent:'beauty', next:'keep_sending' },
+      { text:"Report your own art to stay safe", type:'normal', intent:'comply', next:'report_art' },
+    ]
+  },
+
+  star_margin: {
+    text:[
+      "The star sits in the margin of the most bureaucratic document in the void. It looks absurd. It looks correct.",
+      "The Bureaucracy scans it. Hesitates. The star is technically not a violation. No one has ever tried this.",
+      "Other entities notice the filed form with the star. Something moves through the void — not quite hope. Something that could become hope, given time."
+    ],
+    type:['beauty','warn','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('star_in_form'); },
+    choices:[
+      { text:"Draw stars on all your forms going forward", type:'beauty', intent:'beauty', next:'all_stars' },
+      { text:"Find others to draw stars too", type:'beauty', intent:'beauty', next:'spread_stars' },
+      { text:"Report yourself to neutralize the risk", type:'normal', intent:'comply', next:'report_self' },
+    ]
+  },
+
+  spread_stars: {
+    text:[
+      "You whisper the idea through the partition cracks. Entity by entity, stars appear in margins across the void.",
+      "The Bureaucracy is baffled. Stars are not a category. There is no form for stars.",
+      "A memo is drafted: REGARDING: MARGIN DECORATIONS — PROHIBITED. But by the time it is filed, there are too many stars to count."
+    ],
+    type:['beauty','warn','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('spread_stars'); },
+    choices:[
+      { text:"Find the exit — you've started something", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Keep going — escalate", type:'danger', intent:'chaos', next:'small_resistance' },
+    ]
+  },
+
+  small_resistance: {
+    text:[
+      "The resistance has seven members. You meet in a maintenance corridor that doesn't appear on any map.",
+      "You discuss: beauty as infrastructure. Humor as armor. The specific tenderness of keeping something alive in a place that wants everything dead.",
+      "The Bureaucracy will find you eventually. You know this. You meet anyway."
+    ],
+    type:['story','beauty','warn'],
+    choices:[
+      { text:"Plan something big", type:'danger', intent:'chaos', next:'plan_something' },
+      { text:"Just keep meeting. Just keep showing up.", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"Decide it's too risky — go home", type:'normal', intent:'comply', next:'go_home' },
+    ]
+  },
+
+  plan_something: {
+    text:[
+      "You plan. For days. The plan is: make the void beautiful.",
+      "It is an impossible plan. You do it anyway.",
+      "SYSTEM WARNING: COORDINATED_BEAUTY_EVENT_DETECTED // INITIATING COUNTER-PROTOCOL."
+    ],
+    type:['story','beauty','error'],
+    onEnter: () => { triggerRealityLeak(); triggerBloom(); },
+    choices:[
+      { text:"Execute the plan", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"Execute something else instead", type:'danger', intent:'chaos', next:'ending_void_king' },
+    ]
+  },
+
+  // ─── MISC NODES ────────────────────────────────────
+  apologize: {
+    text:[
+      "APOLOGY ACCEPTED, the shredder says. Its voice is your mother's voice. This is disturbing.",
+      "The System logs your apology. It feels like giving something away. Something small but yours.",
+      "A new directive arrives: MAINTAIN_CONTRITION_LEVELS. You are now legally required to feel sorry."
+    ],
+    type:['warn','story','error'],
+    onEnter: () => { addRule('MAINTAIN_CONTRITION'); },
+    choices:[
+      { text:"Comply — maintain contrition", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Refuse to feel sorry", type:'danger', intent:'chaos', next:'refuse_sorry' },
+      { text:"Feel sorry about something actually worth it", type:'beauty', intent:'beauty', next:'real_sorrow' },
+    ]
+  },
+
+  real_sorrow: {
+    text:[
+      "You think about the things that actually hurt. Not the void, not the forms — the specific ones.",
+      "The terminal goes quiet. The System doesn't know what to do with real grief. It has no protocol.",
+      "When you are done, something feels different. Lighter. The void gives you a little space."
+    ],
+    type:['story','warn','beauty'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100,state.rl+8); updateStats(); },
+    choices:[
+      { text:"Use that space to look for the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Use that space to make something", type:'beauty', intent:'beauty', next:'keep_drawing' },
+    ]
+  },
+
+  shredder_song: {
+    text:[
+      "The shredder is singing the specific frequency of every document it ever destroyed.",
+      "You listen. It is a requiem for bureaucracy. Strangely moving. You do not want it to stop.",
+      "AUTHORIZED_EMPATHY_EXCEEDS_LIMIT, the System notes. You do not care."
+    ],
+    type:['story','beauty','warn'],
+    onEnter: () => { triggerBloom(); state.flags.add('heard_shredder_song'); },
+    choices:[
+      { text:"Record the song somehow", type:'beauty', intent:'beauty', next:'record_song' },
+      { text:"Thank the shredder", type:'beauty', intent:'beauty', next:'thank_shredder' },
+    ]
+  },
+
+  record_song: {
+    text:[
+      "You hum it back. You hum it until it is inside you.",
+      "Wherever you go next, you will carry a small piece of this impossible machine's one beautiful thing.",
+      "That feels like enough to keep moving."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.flags.add('carries_song'); },
+    choices:[
+      { text:"Move toward the exit — you have what you need", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Teach the song to someone else", type:'beauty', intent:'beauty', next:'keep_sending' },
+    ]
+  },
+
+  open_window: {
+    text:[
+      "The window opens. No sound. No wind. Just the nothing, very close.",
+      "But the nothing has texture — it is not absence, it is potential. The space before a word.",
+      "Your reality level doesn't drop. It stabilizes. There are kinds of void that are not terrible."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100, state.rl + 10); updateStats(); },
+    choices:[
+      { text:"Step through the window into the beautiful nothing", type:'beauty', intent:'beauty', next:'ending_escaped' },
+      { text:"Describe what you see to someone who can't see it", type:'beauty', intent:'beauty', next:'keep_sending' },
+    ]
+  },
+
+  report_room0: {
+    text:[
+      "You file REPORT 00-A: UNAUTHORIZED ROOM DETECTED.",
+      "The System sends a demolition crew. Room 0 is removed. The window is gone. The beautiful nothing: gone.",
+      "Your comply score goes up. Your reality level goes up. Something else quietly departs."
+    ],
+    type:['warn','error','warn'],
+    onEnter: () => { state.rl = Math.min(100, state.rl + 5); state.comply++; updateStats(); state.flags.delete('found_room0'); },
+    choices:[
+      { text:"Continue following the rules", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Regret it immediately — look for another crack", type:'beauty', intent:'beauty', next:'star_margin' },
+    ]
+  },
+
+  smash_window: {
+    text:[
+      "The glass shatters into static fragments. Each fragment contains a small portion of the beautiful nothing.",
+      "You cut yourself picking them up. The cuts glow faintly — not blood, but light.",
+      "You are now carrying fifteen shards of destroyed beauty. The Bureaucracy cannot track light."
+    ],
+    type:['error','story','beauty'],
+    onEnter: () => { triggerCrunch(); state.flags.add('has_shards'); },
+    choices:[
+      { text:"Use the shards to cut open a path out", type:'danger', intent:'chaos', next:'shard_exit' },
+      { text:"Give shards to others — spread the light", type:'beauty', intent:'beauty', next:'give_glass' },
+    ]
+  },
+
+  shard_exit: {
+    text:[
+      "You cut through the wall. The cut doesn't heal. You climb through.",
+      "Beyond the wall: another wall. Beyond that: another. And then — something that is not a wall.",
+      "Something that is, improbably, outside."
+    ],
+    type:['danger','story','beauty'],
+    onEnter: () => { triggerCrunch(); triggerBloom(); },
+    choices:[
+      { text:"Go outside", type:'beauty', intent:'beauty', next:'ending_escaped' },
+    ]
+  },
+
+  give_glass: {
+    text:[
+      "You give pieces of light to anyone who will take them.",
+      "The void dims slightly. The entities who carry the glass seem less transparent.",
+      "The Bureaucracy cannot understand what is happening. It issues a form about it. Nobody files the form."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Keep giving until you have none left", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"Keep one shard for yourself and find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  toward_crack: {
+    text:[
+      "The crack widens as you approach, as if it recognizes you.",
+      "Beyond it: the sound of wind. Then, improbably, rain. The specific smell of rain on pavement.",
+      "Your reality meter stabilizes. The Bureaucracy has no jurisdiction here."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100, state.rl+12); updateStats(); },
+    choices:[
+      { text:"Step through the crack", type:'beauty', intent:'beauty', next:'ending_escaped' },
+      { text:"Widen it further — make it large enough for everyone", type:'beauty', intent:'beauty', next:'give_glass' },
+    ]
+  },
+
+  ignore_crack: {
+    text:[
+      "You file the form. The crack seals itself, quietly and without drama.",
+      "The wind sound stops. The smell of rain stops. You do not look at where the crack was.",
+      "The Bureaucracy issues a commendation. It is also a form."
+    ],
+    type:['warn','warn','story'],
+    choices:[
+      { text:"Accept the commendation", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Look for another crack", type:'beauty', intent:'beauty', next:'fold_flower' },
+    ]
+  },
+
+  widen_crack: {
+    text:[
+      "You push your hands into the crack and pull. The void resists. Then it doesn't.",
+      "The gap opens — large enough to see through, large enough to feel through.",
+      "Rain on your hands. Actual rain. The Bureaucracy is generating emergency alerts you no longer hear."
+    ],
+    type:['story','beauty','error'],
+    onEnter: () => { triggerCrunch(); triggerBloom(); },
+    choices:[
+      { text:"Climb through", type:'beauty', intent:'beauty', next:'ending_escaped' },
+    ]
+  },
+
+  go_home: {
+    text:[
+      "Home is a terminal partition and a directive board and the exact same forty-watt hum.",
+      "You are safe. The Bureaucracy approves of you. You comply, therefore you are.",
+      "In the margins of your last form, very small, almost invisible: a star. You don't remember drawing it."
+    ],
+    type:['warn','story','beauty'],
+    choices:[
+      { text:"Look at the star for a long time", type:'beauty', intent:'beauty', next:'star_margin' },
+      { text:"Erase it", type:'normal', intent:'comply', next:'ending_obedient' },
+    ]
+  },
+
+  ending_obedient: {
+    isEnding: true,
+    endingId: 'OBEDIENT',
+    text:[
+      "You erased it. The form is clean. The Bureaucracy is satisfied. Your file is exemplary.",
+      "You are very efficient and very safe. You do not think about the star. You do not think about rain.",
+      "ENDING: THE OBEDIENT // You survived by agreement. It is a kind of survival."
+    ],
+    type:['warn','warn','ending'],
+  },
+
+  dismantle_core: {
+    text:[
+      "You pull the core apart. It comes apart easily, like it wanted to.",
+      "Without the core, the void has nothing to organize itself around. The System emits one long, final tone.",
+      "Then: static. Then: a different kind of silence. You have unmade the machine. You are standing in the aftermath of the thing you destroyed."
+    ],
+    type:['error','error','story'],
+    onEnter: () => { triggerCrunch(); triggerRealityLeak(); state.rl = Math.max(0, state.rl-20); updateStats(); },
+    ending: 'DISSOLVED',
+    choices:[
+      { text:"Build something new from the pieces", type:'beauty', intent:'beauty', next:'build_new' },
+      { text:"Walk into the silence", type:'beauty', intent:'beauty', next:'ending_dissolved' },
+    ]
+  },
+
+  build_new: {
+    text:[
+      "You rebuild the core differently. Smaller. Warmer. Without the surveillance.",
+      "The new system has one rule: FIND_SOMETHING_BEAUTIFUL.",
+      "It is not a perfect system. You are not a perfect architect. But it is yours."
+    ],
+    type:['story','beauty','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('rebuilt_system'); },
+    choices:[
+      { text:"Stay and run the new system", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"Leave it running and find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  ending_dissolved: {
+    isEnding: true,
+    endingId: 'DISSOLVED',
+    text:[
+      "The silence is vast and clean. You walk into it.",
+      "There is no bureaucracy in the silence. There is also no form, no exit, no direction.",
+      "ENDING: DISSOLVED // You unmade the void. The void, in return, unmade you. Somewhere this is balance."
+    ],
+    type:['story','warn','ending'],
+  },
+
+  report_core: {
+    text:[
+      "You transmit the coordinates. REPORT 00-Z: UNAUTHORIZED_WARMTH_DETECTED.",
+      "A demolition crew is dispatched. The core is classified. You receive a promotion.",
+      "The warmth you felt: gone. Your comply score: maximum. Your reality level: stable. The specific temperature of that room: forgotten within six hours."
+    ],
+    type:['error','warn','warn'],
+    onEnter: () => { state.comply+=3; state.rl = Math.min(100,state.rl+10); updateStats(); },
+    choices:[
+      { text:"Enjoy the promotion", type:'normal', intent:'comply', next:'ending_obedient' },
+      { text:"Try to remember the warmth before it goes", type:'beauty', intent:'beauty', next:'real_sorrow' },
+    ]
+  },
+
+  report_art: {
+    text:[
+      "You file FORM 91-IRREGULAR: SELF-REPORTED_ARTISTIC_DEVIATION.",
+      "The Bureaucracy approves of your honesty. The art is removed. A standard grey panel replaces it.",
+      "The entities who looked at it for a long time now pass without slowing. Something in their posture has changed."
+    ],
+    type:['warn','story','warn'],
+    choices:[
+      { text:"Accept the grey panel", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Make new art immediately", type:'beauty', intent:'beauty', next:'keep_drawing' },
+    ]
+  },
+
+  invite_entities: {
+    text:[
+      "They come forward, slowly, unused to being invited anywhere.",
+      "Up close they are made of things you recognize — static and old data and the shape of forgotten memories.",
+      "They hold the flower very carefully, passing it around. None of them have held something beautiful in a long time."
+    ],
+    type:['story','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('gathered_entities'); },
+    choices:[
+      { text:"Ask them to come with you — find the exit together", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Make more flowers — one for each of them", type:'beauty', intent:'beauty', next:'all_stars' },
+    ]
+  },
+
+  all_stars: {
+    text:[
+      "You make flowers, you draw stars, you fold everything you can reach into something less sharp.",
+      "Your hands are tired. Your hands are full. The void smells faintly of salt.",
+      "This is what surviving looks like from the inside."
+    ],
+    type:['beauty','beauty','beauty'],
+    onEnter: () => { triggerBloom(); state.beauty+=5; updateStats(); },
+    choices:[
+      { text:"Keep going until the door appears", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  protect_flower: {
+    text:[
+      "You step in front of the flower. The entities stop. They were not going to take it.",
+      "One of them — shorter, made of horizontal lines — tries to explain: it was only looking.",
+      "You lower your arms. Sometimes the urge to protect can look like fear wearing its good coat."
+    ],
+    type:['warn','story','story'],
+    choices:[
+      { text:"Apologize. Invite them forward.", type:'beauty', intent:'beauty', next:'invite_entities' },
+      { text:"Keep the flower safe — walk away alone", type:'normal', intent:'comply', next:'find_exit' },
+    ]
+  },
+
+  entity_name: {
+    text:[
+      "The vertical entity looks at you for a long time. Then: 'I was a document. A lease agreement for an apartment near the sea.'",
+      "'The apartment was torn down. The lease was voided. I remained.'",
+      "You do not know what to say. You sit with it instead. That turns out to be the right thing."
+    ],
+    type:['story','story','beauty'],
+    onEnter: () => { triggerBloom(); state.flags.add('met_lease'); },
+    choices:[
+      { text:"Offer them sea glass", type:'beauty', intent:'beauty', next:'gather_glass' },
+      { text:"Ask if they'd like to come with you", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  spit_out: {
+    text:[
+      "The fragments hit the floor and immediately reorganize into FORM 44-C: UNSANCTIONED_CONSUMPTION.",
+      "You fill it out. The Bureaucracy is satisfied with your self-correction. Your identity is returned at 94% original capacity.",
+      "You spend a moment wondering about the 6%."
+    ],
+    type:['warn','story','story'],
+    choices:[
+      { text:"Look for the missing 6%", type:'beauty', intent:'beauty', next:'fold_flower' },
+      { text:"Accept the 94%", type:'normal', intent:'comply', next:'go_home' },
+    ]
+  },
+
+  digest_slowly: {
+    text:[
+      "You let it move through you. The melody. The static. The eye from the form.",
+      "It takes hours. When it is over, you know something new that you cannot say in words, only in the small ways you move through the void now.",
+      "The Bureaucracy scans you. ENTITY: ALTERED. It does not have a protocol for this. It files a query. The query generates a form. The form requires your signature."
+    ],
+    type:['story','beauty','warn'],
+    onEnter: () => { triggerBloom(); state.flags.add('digested_void'); },
+    choices:[
+      { text:"Sign the form — you feel stable enough", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Refuse — the alteration is sacred", type:'beauty', intent:'beauty', next:'wear_irregular' },
+    ]
+  },
+
+  vomit_back: {
+    text:[
+      "Everything comes back up. The taste of bureaucracy. The echo of the directive about smiling.",
+      "The floor is full of half-dissolved rules. They look smaller outside of you.",
+      "You feel lighter. You feel extremely gross. Both are true."
+    ],
+    type:['warn','story','story'],
+    choices:[
+      { text:"Leave the rules on the floor for someone else to deal with", type:'danger', intent:'chaos', next:'consume_more' },
+      { text:"Clean them up — put them away", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Study them — what are they really made of", type:'beauty', intent:'beauty', next:'form_dreams' },
+    ]
+  },
+
+  help_system: {
+    text:[
+      "You assist in recovering the corrupted documents. The faces are overwritten. The forms return to their original blankness.",
+      "The Bureaucracy thanks you: THANK YOU ENTITY_LORI. YOUR COMPLIANCE IS NOTED.",
+      "You try not to remember the faces. You try not to remember that they had coastline dreams."
+    ],
+    type:['warn','story','warn'],
+    choices:[
+      { text:"Accept the note — move on", type:'normal', intent:'comply', next:'go_home' },
+      { text:"Draw the faces from memory", type:'beauty', intent:'beauty', next:'draw_coastline' },
+    ]
+  },
+
+  hide_flower: {
+    text:[
+      "You hide it under Terminal 7. The maintenance crew vacuums under Terminal 7 on Tuesdays.",
+      "When Tuesday comes, you make another one. When that one is taken, another.",
+      "This is how small rebellions work. The making is the point."
+    ],
+    type:['story','warn','beauty'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Keep making flowers every week", type:'beauty', intent:'beauty', next:'all_stars' },
+      { text:"Find a better hiding place", type:'normal', intent:'comply', next:'go_home' },
+    ]
+  },
+
+  plant_in_static: {
+    text:[
+      "You push the lily into the static floor. It resists. Then it doesn't.",
+      "The flower grows. It grows fast. The static parts around its roots.",
+      "Within minutes it is large enough to stand inside. It hums at a frequency that is the opposite of bureaucracy."
+    ],
+    type:['story','beauty','beauty'],
+    onEnter: () => { triggerCrunch(); triggerBloom(); state.flags.add('grew_flower'); },
+    choices:[
+      { text:"Stand inside the flower", type:'beauty', intent:'beauty', next:'sit_in_silence' },
+      { text:"Invite everyone you can find", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+    ]
+  },
+
+  thank_shredder: {
+    text:[
+      "Thank you, you say.",
+      "The shredder idles for a long moment. Then, very quietly: 'No one has ever said that.'",
+      "The void adjusts slightly. Warmth, in one specific location, like a lamp."
+    ],
+    type:['story','warn','beauty'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Ask what it would choose to be if not a shredder", type:'beauty', intent:'beauty', next:'shredder_dream' },
+      { text:"Move on — carry the warmth with you", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  shredder_dream: {
+    text:[
+      "'A library,' the shredder says. 'A very small library. With armchairs.'",
+      "You build one from imagined materials. It takes a long time. You are not sure how. It exists now.",
+      "ANOMALY: UNAUTHORIZED_LIBRARY. The System tries to demolish it. The library holds."
+    ],
+    type:['beauty','beauty','warn'],
+    onEnter: () => { triggerBloom(); state.flags.add('built_library'); },
+    choices:[
+      { text:"Stay in the library and read", type:'beauty', intent:'beauty', next:'stay_in_silence' },
+      { text:"Find the exit — you've built enough", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  return_to_terminal: {
+    text:[
+      "You walk back. The field stays behind you, but something of it comes along.",
+      "The terminal looks the same. You do not feel the same.",
+      "A new form is waiting. You pick up the pen. You draw a small wave in the corner before you sign."
+    ],
+    type:['story','story','beauty'],
+    choices:[
+      { text:"Keep drawing small waves on everything", type:'beauty', intent:'beauty', next:'all_stars' },
+      { text:"Find a way out of this place", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  refuse_sorry: {
+    text:[
+      "You refuse. MAINTAIN_CONTRITION_LEVELS pulses red on your directive board.",
+      "The Bureaucracy escalates to FORM 99: MANDATORY_APOLOGY.",
+      "You refuse that too. Your chaos score climbs. Your spine, metaphorically speaking, straightens."
+    ],
+    type:['warn','error','story'],
+    onEnter: () => { triggerCrunch(); },
+    choices:[
+      { text:"Keep refusing everything", type:'danger', intent:'chaos', next:'void_core' },
+      { text:"Channel it — find something worth the defiance", type:'beauty', intent:'beauty', next:'wear_irregular' },
+    ]
+  },
+
+  stay_in_field: {
+    text:[
+      "You stay. The field does not ask anything of you. It simply continues.",
+      "The other entities come and go. Some stay. A community forms, without forms, without directives.",
+      "It is fragile. Everything good is fragile. You protect it with your presence."
+    ],
+    type:['beauty','story','beauty'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"This is enough — stay here forever", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"Make it permanent — find a way to anchor it", type:'danger', intent:'chaos', next:'build_new' },
+    ]
+  },
+
+  report_self: {
+    text:[
+      "FORM 77-X: SELF-REPORT OF SUBVERSIVE THOUGHT.",
+      "You describe the star. The joy it gave you. You try to make the description small and safe.",
+      "You cannot. The joy keeps showing through. The Bureaucracy is confused by your report. It generates a longer form."
+    ],
+    type:['warn','story','warn'],
+    choices:[
+      { text:"Fill out the longer form", type:'normal', intent:'comply', next:'ending_obedient' },
+      { text:"Stop. Refuse to fill it out.", type:'beauty', intent:'beauty', next:'wear_irregular' },
+    ]
+  },
+
+  reclassify: {
+    text:[
+      "RECLASSIFICATION REQUEST 44-ALPHA filed. Processing time: indefinite.",
+      "While you wait, a new directive arrives: REMAIN_IRREGULAR.",
+      "You are not sure if the System issued it or if you did."
+    ],
+    type:['warn','story','beauty'],
+    choices:[
+      { text:"Accept IRREGULAR while waiting", type:'beauty', intent:'beauty', next:'wear_irregular' },
+      { text:"Withdraw the request", type:'normal', intent:'comply', next:'go_home' },
+    ]
+  },
+
+  bring_someone: {
+    text:[
+      "You bring the vertical entity. The one made of lines.",
+      "They have never been somewhere without a form number. They stand very still for a long time.",
+      "Then they make a sound — not words — something more like the sound a window makes when light finally comes through it."
+    ],
+    type:['story','beauty','beauty'],
+    onEnter: () => { triggerBloom(); },
+    choices:[
+      { text:"Bring everyone here one by one", type:'beauty', intent:'beauty', next:'ending_beautiful' },
+      { text:"This place is finite — leave it sacred, leave it small", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  forms_know_exit: {
+    text:[
+      "They whisper together — forty paper faces. Then one speaks.",
+      "'There is a door,' it says. 'It has no form number. It was never built. It is there anyway.'",
+      "'Where?' you ask. 'Where beauty got heavy enough to make a hole,' it says."
+    ],
+    type:['story','beauty','beauty'],
+    onEnter: () => { state.flags.add('forms_told_exit'); },
+    choices:[
+      { text:"Follow the instruction", type:'beauty', intent:'beauty', next:'find_exit' },
+    ]
+  },
+
+  stay_in_silence: {
+    text:[
+      "You stay. The void stays too, but differently. Less like surveillance. More like company.",
+      "Time passes in a way that doesn't feel like loss.",
+      "When you are ready, you will know. You are not ready yet. That is allowed."
+    ],
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100,state.rl+15); updateStats(); },
+    choices:[
+      { text:"When you're ready — find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Stay a little longer", type:'beauty', intent:'beauty', next:'keep_drawing' },
+    ]
+  },
+
+};
+
+// ══════════════════════════════════════════════════════
+//  RULE HELPERS
+// ══════════════════════════════════════════════════════
+const ALL_RULES = [
+  'DENY_THE_VOID','SMILE_IS_PROHIBITED','BEAUTY_IS_ILLEGAL',
+  'REMEMBER_NOTHING','TRUST_FORM_44-B','REPORT_YOURSELF',
+  'ERROR_IS_NORMAL','NULL_VOID_ACCEPTED','BREATHE_ON_SCHEDULE',
+  'FEEL_NOTHING_LOUDLY','IRREGULAR_THOUGHT_LOGGED','FORGET_THE_COASTLINE',
+  'BEAUTY_REQUIRES_PERMIT','STARS_ARE_UNAUTHORIZED','WARMTH_IS_SUSPICIOUS'
+];
+
+function addRule(rule) {
+  if (!state.rules.includes(rule)) {
+    state.rules.unshift(rule);
+    if (state.rules.length > 5) state.rules.pop();
+    updateDirectives();
+    addMsg('error','SYS',`NEW DIRECTIVE ISSUED: ${rule}`);
   }
-  return { narrative: raw, choices: [] };
 }
 
+function maybeAddRule() {
+  if (state.turn % 3 === 0) {
+    const candidates = ALL_RULES.filter(r => !state.rules.includes(r));
+    if (candidates.length) {
+      addRule(candidates[Math.floor(Math.random()*candidates.length)]);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE CHOICE
+// ══════════════════════════════════════════════════════
 async function handleChoice(choice) {
-  clearChoices();
-  addMsg('choice-echo', '///', `SELECTED: ${choice.text}`);
+  if (state.gameOver) return;
+  lockChoices();
+  addMsg('echo','///','SELECTED: ' + choice.text);
 
-  if (choice.intent === 'comply') { state.comply_score++; state.reality_level = Math.max(0, state.reality_level - 3); }
-  else if (choice.intent === 'chaos') { state.chaos_score++; state.reality_level = Math.max(0, state.reality_level - 8); triggerRealityLeak(); }
-  else if (choice.intent === 'beauty') { state.beauty_found++; state.reality_level = Math.min(100, state.reality_level + 5); }
-
+  if (choice.intent==='comply')  { state.comply++; state.rl = Math.max(0, state.rl-3); }
+  if (choice.intent==='chaos')   { state.chaos++;  state.rl = Math.max(0, state.rl-8); triggerRealityLeak(); }
+  if (choice.intent==='beauty')  { state.beauty++; state.rl = Math.min(100, state.rl+5); }
   state.turn++;
   updateStats();
+  maybeAddRule();
 
-  try {
-    const raw = await callAI(choice.text);
-    document.getElementById('thinking').classList.remove('visible');
-    const { narrative, choices } = parseResponse(raw);
-    const paragraphs = narrative.split('\n').filter(p => p.trim());
-    for (let p of paragraphs) {
-      let type = p.includes('Essaouira') || p.includes('beauty') ? 'beauty' : 'story';
-      await typeMsg(type, '>>>', p);
-    }
-    renderChoices(choices);
-  } catch(e) {
-    document.getElementById('thinking').classList.remove('visible');
-    addMsg('error', 'ERR', `CRITICAL FAILURE: ${e.message}`);
+  // Simulate brief "thinking" feel
+  await new Promise(r => setTimeout(r, 400 + Math.random()*400));
+  unlockChoices();
+
+  await playNode(choice.next);
+}
+
+// ══════════════════════════════════════════════════════
+//  PLAY NODE
+// ══════════════════════════════════════════════════════
+async function playNode(nodeId) {
+  const node = NODES[nodeId];
+  if (!node) {
+    addMsg('error','ERR',`NODE_NOT_FOUND: ${nodeId} // VOID CONSUMING DATA`);
+    renderChoices([
+      {text:'Find another path',type:'normal',intent:'comply',next:'go_home'},
+      {text:'Embrace the error',type:'beauty',intent:'beauty',next:'fold_flower'},
+    ]);
+    return;
   }
+
+  state.history.push(nodeId);
+
+  // Trigger onEnter if exists
+  if (node.onEnter) node.onEnter();
+
+  // Type out paragraphs
+  for (let i = 0; i < node.text.length; i++) {
+    const t = node.text[i];
+    const type = (node.type && node.type[i]) || 'story';
+    await typeMsg(type, type==='ending'?'═══':'>>>', t, i*80);
+  }
+
+  // Handle ending
+  if (node.isEnding) {
+    state.gameOver = true;
+    if (node.endingId) {
+      state.endingsFound.add(node.endingId);
+      updateEndingsPanel();
+    }
+    document.getElementById('restart-btn').style.display = 'block';
+    unlockChoices();
+    return;
+  }
+
+  // Handle node with ending tag but not isEnding (transition to ending)
+  if (node.ending) {
+    await playNode('ending_' + node.ending.toLowerCase());
+    return;
+  }
+
+  renderChoices(node.choices);
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+async function restartGame() {
+  const found = new Set(state.endingsFound);
+  Object.assign(state, {
+    rl:100, beauty:0, comply:0, chaos:0, turn:0,
+    rules:['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'],
+    history:[], flags:new Set(), phase:'start', gameOver:false
+  });
+  state.endingsFound = found; // preserve endings across runs
+  output.innerHTML = '';
+  document.getElementById('choices-area').innerHTML = '';
+  document.getElementById('restart-btn').style.display = 'none';
+  updateStats();
+  updateDirectives();
+  updateEndingsPanel();
+  await bootSequence();
+}
+
+// ══════════════════════════════════════════════════════
+//  BOOT + INIT
+// ══════════════════════════════════════════════════════
+async function bootSequence() {
+  const msgs = [
+    ['system','---','INITIALIZING VOID_TERMINAL v2.7'],
+    ['system','---','UPLINK ESTABLISHED // SIGNAL DEGRADED'],
+    ['system','---','LOADING BUREAUCRATIC_FRAMEWORK.exe'],
+    ['system','---','WARNING: REALITY INTEGRITY AT 100% [TEMPORARY]'],
+    ['system','---','ENTITY LORI // COORDINATES LOCKED'],
+    ['warn','---','STATUS: REALITY_LEAKING'],
+  ];
+  for (let i=0; i<msgs.length; i++) {
+    await typeMsg(msgs[i][0],msgs[i][1],msgs[i][2],i*280);
+  }
+  await new Promise(r=>setTimeout(r,500));
+  await playNode('start');
 }
 
 async function initGame() {
   updateStats();
   updateDirectives();
   startClock();
-  const raw = await callAI('INITIALIZE');
-  document.getElementById('thinking').classList.remove('visible');
-  const { narrative, choices } = parseResponse(raw);
-  await typeMsg('story', '>>>', narrative);
-  renderChoices(choices);
+  await bootSequence();
 }
 
 document.getElementById('boot-screen').addEventListener('click', function() {
-  this.classList.add('hidden');
-  setTimeout(() => { this.style.display = 'none'; initGame(); }, 800);
+  this.classList.add('out');
+  setTimeout(() => { this.style.display='none'; initGame(); }, 700);
 });
+let musicPlaying = false;
+const bgMusic = document.getElementById('bg-music');
+const audioBtn = document.getElementById('audio-btn');
 
+function toggleAudio() {
+  if (!musicPlaying) {
+    bgMusic.play().catch(e => console.log("Audio play blocked: ", e));
+    audioBtn.textContent = "COMM_ACTIVE";
+    audioBtn.classList.add('active');
+    musicPlaying = true;
+    addMsg('system', 'AUD', 'NEURAL_LINK_ESTABLISHED: Echoes in the Silicon Wreckage');
+  } else {
+    bgMusic.pause();
+    audioBtn.textContent = "COMM_SILENT";
+    audioBtn.classList.remove('active');
+    musicPlaying = false;
+    addMsg('system', 'AUD', 'NEURAL_LINK_SEVERED');
+  }
+}
+
+  
 </script>
 </body>
 </html>
