@@ -316,6 +316,95 @@
   <div class="get-btn" style="color:#39FFEC; border-color:#39FFEC; box-shadow: 0 0 8px #39FFEC;">ENTER</div>
 </a>
 
+ <a href="https://maximumreality.xyz/maximum-reality.html" target="_blank" class="app-card">
+  <div class="app-icon">
+    <img src="https://maximumreality.xyz/max-real-favicon.jpeg" alt="Maximum Reality Cover">
+  </div>
+  <div class="app-info">
+    <div class="app-name">Maximum Reality</div>
+    <div class="app-desc">Interactive Story • Beauty in the Void</div>
+  </div>
+  <div class="get-btn">PLAY</div>
+</a>
+
+<style>
+@keyframes pulseGlow {
+  0% { box-shadow: 0 0 12px 3px #a286ef88; }
+  50% { box-shadow: 0 0 20px 6px #a286efbb; }
+  100% { box-shadow: 0 0 12px 3px #a286ef88; }
+}
+
+.app-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid #a286ef;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #fff;
+  background-color: #1b1b1f;
+  transition: transform 0.3s ease;
+}
+
+.app-card:hover {
+  transform: translateY(-4px);
+  animation: pulseGlow 1.5s infinite;
+}
+
+.app-icon {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #a286ef;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-card:hover .app-icon {
+  transform: scale(1.05);
+}
+
+.app-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-name {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 2px;
+}
+
+.app-desc {
+  font-size: 0.9em;
+  color: #ccc;
+}
+
+.get-btn {
+  padding: 6px 12px;
+  border: 1px solid #a286ef;
+  color: #a286ef;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.get-btn:hover {
+  background: #a286ef33;
+  color: #fff;
+}
+</style>
+
  <a href="https://maximumreality.github.io/pets/" target="_blank" class="app-card" style="border: 2px solid #ffcc00; background: linear-gradient(145deg, rgba(255,204,0,0.1), rgba(0,0,0,0.4)); box-shadow: 0 0 15px rgba(255,204,0,0.2); transition: transform 0.2s, box-shadow 0.2s;">
   <div class="app-icon" style="border: 2px solid #ffcc00; box-shadow: 0 0 10px #ffcc00; overflow: hidden; border-radius: 14px;">
     <img src="https://maximumreality.github.io/pets/bg_wp.JPG" alt="Maximum Reality Pets Icon" style="width: 100%; height: 100%; object-fit: cover;">
@@ -676,6 +765,7 @@
         <li><span class="status-dot online"></span>Bedtime Stories</li>
         <li><span class="status-dot online"></span>The Lunaverse ✨</li>
         <li><span class="status-dot online"></span>Void Bloom Art</li>
+     
       </ul>
     </div>
 
