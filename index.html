@@ -130,6 +130,22 @@
   20% { opacity: 1; }
   100% { opacity: 0.2; }
 }
+   
+.chat-uplink:active {
+  transform: scale(0.95);
+  filter: brightness(1.2);
+  transition: all 0.1s ease;
+}
+
+/* Add a slow breathing glow to the icons */
+.chat-uplink .app-icon {
+  animation: iconPulse 3s infinite ease-in-out;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 5px currentColor; }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px currentColor; }
+}
   
     </style>
  
