@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MAXIMUM REALITY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323:wght@400&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #00ff41;
+    --green-dim: #00aa2a;
+    --green-glow: rgba(0,255,65,0.15);
+    --red: #ff0033;
+    --amber: #ffaa00;
+    --cyan: #00eeff;
+    --void: #000000;
+    --surface: #050805;
+    --border: rgba(0,255,65,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--void);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    cursor: crosshair;
+  }
+
+  /* CRT effect layers */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 9000;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.8) 100%);
+    pointer-events: none;
+    z-index: 9001;
+  }
+
+  #vhs-noise {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9002;
+    opacity: 0;
+    animation: vhs-flicker 8s infinite;
+  }
+
+  @keyframes vhs-flicker {
+    0%, 90%, 100% { opacity: 0; }
+    92% { opacity: 0.08; background: repeating-linear-gradient(90deg, transparent 0, rgba(0,255,65,0.03) 1px, transparent 2px); transform: translateY(-2px); }
+    94% { opacity: 0.12; transform: translateY(3px) scaleY(1.002); }
+    96% { opacity: 0; }
+    98% { opacity: 0.06; transform: translateY(-1px); }
+  }
+
+  #glitch-bar {
+    position: fixed;
+    left: 0; right: 0;
+    height: 3px;
+    background: var(--green);
+    top: -10px;
+    pointer-events: none;
+    z-index: 9003;
+    animation: scan-line 6s linear infinite;
+    box-shadow: 0 0 8px var(--green);
+    opacity: 0.4;
+  }
+
+  @keyframes scan-line {
+    0% { top: -3px; }
+    100% { top: 100vh; }
+  }
+
+  /* LAYOUT */
+  #app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    height: 100dvh;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  /* HEADER */
+  header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    gap: 8px;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .header-left .label {
+    font-size: 9px;
+    color: var(--green-dim);
+    letter-spacing: 3px;
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(14px, 3vw, 22px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: var(--green);
+    text-shadow: 0 0 10px var(--green), 0 0 30px rgba(0,255,65,0.3);
+    animation: title-pulse 4s ease-in-out infinite;
+  }
+
+  @keyframes title-pulse {
+    0%, 100% { text-shadow: 0 0 10px var(--green), 0 0 30px rgba(0,255,65,0.3); }
+    50% { text-shadow: 0 0 20px var(--green), 0 0 60px rgba(0,255,65,0.5), 0 0 100px rgba(0,255,65,0.2); }
+  }
+
+  .header-center { text-align: center; }
+
+  .reality-meter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .reality-meter .label {
+    font-size: 8px;
+    color: var(--green-dim);
+    letter-spacing: 2px;
+  }
+
+  .meter-bar {
+    width: 80px;
+    height: 6px;
+    border: 1px solid var(--border);
+    background: rgba(0,255,65,0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .meter-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green-dim), var(--green));
+    transition: width 0.5s ease;
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .sys-status {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--green-dim);
+  }
+
+  .clock {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--amber);
+    text-shadow: 0 0 8px var(--amber);
+    letter-spacing: 2px;
+  }
+
+  /* MAIN CONTENT */
+  main {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 10px;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* SIDEBAR */
+  aside {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  }
+
+  aside::-webkit-scrollbar { display: none; }
+
+  .panel {
+    border: 1px solid var(--border);
+    background: rgba(0,255,65,0.02);
+    padding: 8px;
+    position: relative;
+  }
+
+  .panel::before {
+    content: attr(data-label);
+    position: absolute;
+    top: -8px;
+    left: 8px;
+    background: var(--void);
+    padding: 0 4px;
+    font-size: 8px;
+    color: var(--green-dim);
+    letter-spacing: 2px;
+  }
+
+  .avatar-box {
+    aspect-ratio: 1;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border);
+  }
+
+  .avatar-box::after {
+    content: 'ENTITY: LORI';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.8);
+    font-size: 8px;
+    text-align: center;
+    padding: 3px;
+    letter-spacing: 2px;
+    color: var(--cyan);
+  }
+
+  .avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(1.2) saturate(0.3) hue-rotate(80deg);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+    animation: avatar-glitch 12s infinite;
+  }
+
+  @keyframes avatar-glitch {
+    0%, 95%, 100% { transform: translate(0); filter: contrast(1.2) saturate(0.3) hue-rotate(80deg); }
+    96% { transform: translate(-3px, 0); filter: contrast(1.5) saturate(0.8) hue-rotate(120deg); clip-path: inset(20% 0 60% 0); }
+    97% { transform: translate(3px, 0); filter: contrast(1.5) saturate(0.8) hue-rotate(200deg); clip-path: inset(60% 0 0 0); }
+    98% { transform: translate(0); filter: contrast(1.2) saturate(0.3) hue-rotate(80deg); clip-path: none; }
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .stat .key {
+    font-size: 7px;
+    color: var(--green-dim);
+    letter-spacing: 1px;
+  }
+
+  .stat .val {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--green);
+  }
+
+  .stat .val.danger { color: var(--red); text-shadow: 0 0 6px var(--red); }
+  .stat .val.warn { color: var(--amber); text-shadow: 0 0 6px var(--amber); }
+  .stat .val.info { color: var(--cyan); }
+
+  #directives-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  #directives-list li {
+    font-size: 8px;
+    padding: 3px 4px;
+    border-left: 2px solid var(--green-dim);
+    color: var(--green-dim);
+    letter-spacing: 1px;
+    animation: directive-in 0.3s ease;
+  }
+
+  #directives-list li.active {
+    border-left-color: var(--red);
+    color: var(--red);
+  }
+
+  @keyframes directive-in {
+    from { opacity: 0; transform: translateX(-5px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* TERMINAL */
+  #terminal {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    background: rgba(0,5,0,0.8);
+    overflow: hidden;
+    position: relative;
+  }
+
+  #terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,255,65,0.03);
+  }
+
+  #terminal-header .term-title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--green-dim);
+  }
+
+  #terminal-header .term-controls {
+    display: flex;
+    gap: 6px;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+
+  #output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--green-dim) transparent;
+    min-height: 0;
+  }
+
+  .msg {
+    display: flex;
+    gap: 8px;
+    animation: msg-in 0.2s ease;
+    line-height: 1.5;
+  }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg .prefix {
+    color: var(--green-dim);
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  .msg .text {
+    font-size: clamp(11px, 1.8vw, 13px);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .msg.system .text { color: var(--green-dim); font-size: 10px; letter-spacing: 2px; }
+  .msg.story .text { color: #c8ffd4; }
+  .msg.error .text { color: var(--red); text-shadow: 0 0 4px rgba(255,0,51,0.3); }
+  .msg.warn .text { color: var(--amber); }
+  .msg.beauty .text { color: var(--cyan); text-shadow: 0 0 6px rgba(0,238,255,0.3); }
+  .msg.choice-echo .text { color: var(--green); opacity: 0.5; font-style: italic; }
+
+  .typing-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 12px;
+    background: var(--green);
+    animation: blink 0.8s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+  #choices-area {
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: rgba(0,0,0,0.4);
+    min-height: 60px;
+  }
+
+  .choice-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(10px, 1.8vw, 12px);
+    padding: 8px 12px;
+    cursor: pointer;
+    text-align: left;
+    letter-spacing: 1px;
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .choice-btn::before {
+    content: '> ';
+    color: var(--green-dim);
+  }
+
+  .choice-btn:hover {
+    background: rgba(0,255,65,0.08);
+    border-color: var(--green);
+    color: #fff;
+    text-shadow: 0 0 8px var(--green);
+    transform: translateX(3px);
+  }
+
+  .choice-btn:active {
+    background: rgba(0,255,65,0.15);
+  }
+
+  .choice-btn.danger {
+    border-color: rgba(255,0,51,0.4);
+    color: var(--red);
+  }
+
+  .choice-btn.danger:hover {
+    background: rgba(255,0,51,0.08);
+    border-color: var(--red);
+  }
+
+  .choice-btn.beauty-choice {
+    border-color: rgba(0,238,255,0.4);
+    color: var(--cyan);
+  }
+
+  .choice-btn.beauty-choice:hover {
+    background: rgba(0,238,255,0.08);
+    border-color: var(--cyan);
+  }
+
+  #thinking {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    color: var(--green-dim);
+    font-size: 10px;
+    letter-spacing: 2px;
+    border-top: 1px solid var(--border);
+  }
+
+  #thinking.visible { display: flex; }
+
+  .think-dots span {
+    display: inline-block;
+    animation: think-bounce 1s infinite;
+    animation-delay: calc(var(--i) * 0.2s);
+  }
+
+  @keyframes think-bounce {
+    0%, 100% { opacity: 0.2; transform: translateY(0); }
+    50% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  /* GLITCH OVERLAY */
+  #reality-leak {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8999;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+<div id="vhs-crunch"></div>
+
+  #reality-leak.active {
+    opacity: 1;
+    animation: reality-break 0.5s ease;
+  }
+
+  @keyframes reality-break {
+    0% { filter: hue-rotate(0deg); }
+    25% { filter: hue-rotate(90deg) saturate(3); }
+    50% { filter: hue-rotate(180deg) invert(0.1); }
+    75% { filter: hue-rotate(270deg) saturate(2); }
+    100% { filter: hue-rotate(360deg); }
+  }
+
+  /* LOADING SCREEN */
+  #boot-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--void);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  #boot-screen.hidden {
+    animation: boot-out 0.8s ease forwards;
+  }
+
+  @keyframes boot-out {
+    0% { opacity: 1; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(0.002); }
+    100% { opacity: 0; transform: scaleY(0); pointer-events: none; }
+  }
+
+  .boot-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(24px, 6vw, 48px);
+    font-weight: 900;
+    color: var(--green);
+    text-shadow: 0 0 20px var(--green), 0 0 60px rgba(0,255,65,0.4);
+    letter-spacing: 6px;
+    animation: boot-title-glitch 3s infinite;
+  }
+
+  @keyframes boot-title-glitch {
+    0%, 92%, 100% { transform: translate(0); clip-path: none; }
+    93% { transform: translate(-4px, 0); clip-path: inset(30% 0 40% 0); color: var(--cyan); }
+    94% { transform: translate(4px, 0); clip-path: inset(60% 0 10% 0); color: var(--red); }
+    95% { transform: translate(0); clip-path: none; color: var(--green); }
+  }
+
+  .boot-sub {
+    font-size: 10px;
+    color: var(--green-dim);
+    letter-spacing: 4px;
+    text-align: center;
+  }
+
+  .boot-init {
+    font-family: 'VT323', monospace;
+    font-size: 28px;
+    color: var(--amber);
+    letter-spacing: 4px;
+    border: 1px solid var(--amber);
+    padding: 8px 24px;
+    text-shadow: 0 0 10px var(--amber);
+    animation: init-pulse 1.5s ease-in-out infinite;
+    margin-top: 16px;
+  }
+
+  @keyframes init-pulse {
+    0%, 100% { box-shadow: 0 0 5px var(--amber), inset 0 0 5px rgba(255,170,0,0.1); }
+    50% { box-shadow: 0 0 20px var(--amber), inset 0 0 20px rgba(255,170,0,0.2); }
+  }
+
+  .boot-log {
+    font-size: 9px;
+    color: var(--green-dim);
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.8;
+    max-width: 300px;
+  }
+
+  @media (max-width: 600px) {
+    main { grid-template-columns: 120px 1fr; }
+    .stat-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    main { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside { flex-direction: row; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; }
+    .avatar-box { display: none; }
+  }
+
+  /* ─── VHS TAPE CRUNCH EFFECT ─── */
+#vhs-crunch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: white;
+  mix-blend-mode: difference;
+  display: none;
+}
+
+#vhs-crunch.active {
+  display: block;
+  animation: crunch-time 0.4s steps(2) forwards;
+}
+
+@keyframes crunch-time {
+  0% { transform: skewX(20deg) scaleY(1.5); opacity: 0.8; filter: hue-rotate(90deg); }
+  25% { transform: skewX(-20deg) scaleY(0.5); opacity: 0.4; filter: hue-rotate(180deg); }
+  50% { transform: skewY(10deg) scaleX(1.2); opacity: 0.9; filter: invert(1); }
+  75% { transform: skewY(-10deg) scaleX(0.8); opacity: 0.5; filter: contrast(5); }
+  100% { transform: none; opacity: 0; }
+}
+
+</style>
+</head>
+<body>
+
+<div id="boot-screen">
+  <div class="boot-sub">// SYSTEM OUTPUT: HIGH FIDELITY SIMULATION //</div>
+  <div class="boot-title">MAXIMUM REALITY</div>
+  <div class="boot-log">
+    TERMINAL OFFLINE<br>
+    SCANNING FOR UPLINK...<br>
+    REF: VHS_GLITCH_ANCHOR_01<br>
+    ENTITY "LORI" DETECTED<br>
+    STATUS: REALITY_LEAKING
+  </div>
+  <div class="boot-init">[ CLICK TO INITIALIZE ]</div>
+</div>
+
+<div id="vhs-noise"></div>
+<div id="glitch-bar"></div>
+<div id="reality-leak"></div>
+
+<div id="app">
+  <header>
+    <div class="header-left">
+      <div class="label">// ACTIVE SESSION</div>
+      <h1>MAXIMUM REALITY</h1>
+    </div>
+    <div class="header-center">
+      <div class="reality-meter">
+        <div class="label">REALITY_LEVEL</div>
+        <div class="meter-bar"><div class="meter-fill" id="reality-fill" style="width:100%"></div></div>
+        <div class="label" id="reality-pct">100%</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="sys-status" id="sys-status">SYS_READY</div>
+      <div class="clock" id="clock">00:00:00</div>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="avatar-box">
+        <img src="https://opal.google/board/blobs/11b18f06-bd44-4752-8a7b-c7f71c03ad72" alt="Entity Lori" onerror="this.style.display='none'; this.parentElement.style.background='#001100'; this.parentElement.innerHTML += '<div style=\'color:#00ff41;font-size:10px;text-align:center;padding:20px;font-family:monospace\'>ENTITY<br>LORI<br>[OFFLINE]</div>'">
+      </div>
+
+      <div class="panel" data-label="STATS">
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="key">SANITY</div>
+            <div class="val warn" id="stat-sanity">???</div>
+          </div>
+          <div class="stat">
+            <div class="key">BEAUTY</div>
+            <div class="val info" id="stat-beauty">0</div>
+          </div>
+          <div class="stat">
+            <div class="key">COMPLY</div>
+            <div class="val" id="stat-comply">0</div>
+          </div>
+          <div class="stat">
+            <div class="key">CHAOS</div>
+            <div class="val danger" id="stat-chaos">0</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" data-label="ACTIVE DIRECTIVES">
+        <ul id="directives-list"></ul>
+      </div>
+    </aside>
+
+    <section id="terminal">
+      <div id="terminal-header">
+        <div class="term-title">VOID_TERMINAL v2.7 // UPLINK_ACTIVE</div>
+        <div class="term-controls">
+          <div class="dot r"></div>
+          <div class="dot y"></div>
+          <div class="dot g"></div>
+        </div>
+      </div>
+      <div id="output"></div>
+      <div id="thinking">
+        <span>PROCESSING</span>
+        <div class="think-dots">
+          <span style="--i:0">.</span>
+          <span style="--i:1">.</span>
+          <span style="--i:2">.</span>
+        </div>
+      </div>
+      <div id="choices-area"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// MAXIMUM REALITY // CORE STATE
+// ═══════════════════════════════════════════
+
+const state = {
+  reality_level: 100,
+  beauty_found: 0,
+  comply_score: 0,
+  chaos_score: 0,
+  turn: 0,
+  rules: ['REPORT_GLITCHES', 'NO_SMILING', 'TRUST_THE_SYSTEM'],
+  history: [],
+  phase: 'start',
+  time_offset: 2512 // seconds into the void
+};
+
+// ═══════════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════════
+let clockInterval;
+function startClock() {
+  clockInterval = setInterval(() => {
+    state.time_offset++;
+    const h = Math.floor(state.time_offset / 3600) % 24;
+    const m = Math.floor(state.time_offset / 60) % 60;
+    const s = state.time_offset % 60;
+    document.getElementById('clock').textContent =
+      `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }, 1000);
+}
+
+// ═══════════════════════════════════════════
+// TERMINAL OUTPUT
+// ═══════════════════════════════════════════
+const output = document.getElementById('output');
+
+function addMsg(type, prefix, text) {
+  const div = document.createElement('div');
+  div.className = `msg ${type}`;
+  div.innerHTML = `<span class="prefix">${prefix}</span><span class="text">${text}</span>`;
+  output.appendChild(div);
+  output.scrollTop = output.scrollHeight;
+  return div;
+}
+
+let typeQueue = [];
+let isTyping = false;
+
+function typeMsg(type, prefix, text, delay = 0) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      const prefixEl = document.createElement('span');
+      prefixEl.className = 'prefix';
+      prefixEl.textContent = prefix;
+      const textEl = document.createElement('span');
+      textEl.className = 'text';
+      div.appendChild(prefixEl);
+      div.appendChild(textEl);
+      output.appendChild(div);
+
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'typing-cursor';
+      textEl.appendChild(cursor);
+
+      const speed = text.length > 100 ? 12 : 20;
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          textEl.insertBefore(document.createTextNode(text[i]), cursor);
+          i++;
+          output.scrollTop = output.scrollHeight;
+        } else {
+          clearInterval(interval);
+          cursor.remove();
+          resolve();
+        }
+      }, speed);
+    }, delay);
+  });
+}
+
+// ═══════════════════════════════════════════
+// UI UPDATES
+// ═══════════════════════════════════════════
+function updateStats() {
+  const realityFill = document.getElementById('reality-fill');
+  const realityPct = document.getElementById('reality-pct');
+  realityFill.style.width = `${state.reality_level}%`;
+  realityFill.style.background = state.reality_level > 60
+    ? 'linear-gradient(90deg, #00aa2a, #00ff41)'
+    : state.reality_level > 30
+    ? 'linear-gradient(90deg, #aa5500, #ffaa00)'
+    : 'linear-gradient(90deg, #aa0011, #ff0033)';
+  realityPct.textContent = `${state.reality_level}%`;
+
+  document.getElementById('stat-sanity').textContent =
+    state.reality_level > 70 ? 'NOMINAL' :
+    state.reality_level > 40 ? 'SLIPPING' :
+    state.reality_level > 15 ? 'FRAYING' : 'GONE';
+
+  document.getElementById('stat-sanity').className =
+    'val ' + (state.reality_level > 70 ? '' : state.reality_level > 40 ? 'warn' : 'danger');
+
+  document.getElementById('stat-beauty').textContent = state.beauty_found;
+  document.getElementById('stat-comply').textContent = state.comply_score;
+  document.getElementById('stat-chaos').textContent = state.chaos_score;
+
+  const sysStatus = document.getElementById('sys-status');
+  sysStatus.textContent = state.reality_level > 60 ? 'SYS_STABLE' :
+    state.reality_level > 30 ? 'SYS_DEGRADED' : 'SYS_CRITICAL';
+}
+
+function updateDirectives() {
+  const list = document.getElementById('directives-list');
+  list.innerHTML = '';
+  state.rules.forEach((rule, i) => {
+    const li = document.createElement('li');
+    li.textContent = `> ${rule}`;
+    if (i === 0) li.classList.add('active');
+    list.appendChild(li);
+  });
+}
+
+function triggerRealityLeak() {
+  const el = document.getElementById('reality-leak');
+  el.classList.add('active');
+  setTimeout(() => el.classList.remove('active'), 600);
+}
+
+// ═══════════════════════════════════════════
+// CHOICES
+// ═══════════════════════════════════════════
+function renderChoices(choices) {
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '';
+  choices.forEach((c, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    if (c.type === 'danger') btn.classList.add('danger');
+    if (c.type === 'beauty') btn.classList.add('beauty-choice');
+    btn.textContent = c.text;
+    btn.addEventListener('click', () => handleChoice(c, i));
+    area.appendChild(btn);
+  });
+}
+
+function clearChoices() {
+  document.getElementById('choices-area').innerHTML = '';
+  document.getElementById('thinking').classList.add('visible');
+}
+
+// ═══════════════════════════════════════════
+// AI ENGINE
+// ═══════════════════════════════════════════
+const SYSTEM_PROMPT = `You are the narrator and game master of MAXIMUM REALITY — a dark, surreal text RPG set in a bureaucratic void where reality is unstable and beauty is contraband.
+
+WORLD:
+- The world is desolate, corrupt, and run by a nameless bureaucracy with absurd, ever-changing rules
+- Reality itself is degrading. Things glitch, contradict themselves, loop back
+- The player (ENTITY: LORI) is surviving this void, looking for beauty and humor in the chaos
+- Tone: darkly poetic, glitchy, deadpan absurdist — like Kafka meets cyberpunk meets a fever dream
+- VHS aesthetic: things skip, stutter, repeat. Language can fragment mid-sentence
+
+MECHANICS:
+- Each response should be 2-4 short paragraphs of narrative
+- Then offer EXACTLY 3 choices labeled as JSON at the end
+- Choices should feel morally complex — comply/rebel/find beauty
+- Track the game state in your narrative (reference past choices when relevant)
+- Occasionally new BUREAUCRATIC RULES are imposed — announce them dramatically
+- Finding beauty costs nothing but changes things
+- Complying is safe but erodes the self
+- Chaos is freeing but dangerous
+
+RESPONSE FORMAT (strictly follow this):
+[Your narrative here. 2-4 paragraphs. Dark, poetic, glitchy.]
+
+CHOICES_JSON:
+[
+  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"},
+  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"},
+  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"}
+]
+
+Keep narrative under 250 words. Be specific, weird, and alive. No generic fantasy tropes.`;
+
+async function callAI(userMessage) {
+  // Artificial delay to test the "THINKING" dots
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  const input = userMessage.toLowerCase();
+  let narrative = "";
+  let choices = [];
+
+   // ─── VHS GRIP TRIGGER ───
+  if (input.includes("grip") || input.includes("tape")) {
+    // Trigger the animation visually
+    const crunch = document.getElementById('vhs-crunch');
+    crunch.classList.add('active');
+    setTimeout(() => crunch.classList.remove('active'), 400);
+
+    narrative = "You reach into the console and grip the spooling magnetic tape. The world screams in high-pitched static. The green lines of the terminal bend, bleeding into a blinding white void before snapping back into place. The Bureaucracy trembles. You have touched the hardware of your own cage.";
+    choices = [
+      { "text": "Pull the tape tighter", "type": "danger", "intent": "chaos" },
+      { "text": "Release the spool", "type": "normal", "intent": "comply" },
+      { "text": "Listen to the tape's hum", "type": "beauty", "intent": "beauty" }
+    ];
+  } 
+  
+  // ─── LOCAL STORY ENGINE ───
+  if (input.includes("form") || input.includes("comply")) {
+    narrative = "The paper of Form 44-B is cold, like pressed static. As you sign, the ink bleeds upward, forming a small, ink-black eye that blinks once and vanishes. The Bureaucracy is pleased. Your identity feels slightly thinner, a layer of skin replaced by a layer of carbon copy paper.";
+    choices = [
+      { "text": "Request a second copy", "type": "normal", "intent": "comply" },
+      { "text": "Smudge the signature", "type": "danger", "intent": "chaos" },
+      { "text": "Draw a star in the margin", "type": "beauty", "intent": "beauty" }
+    ];
+  } 
+  
+  else if (input.includes("eat") || input.includes("chaos") || input.includes("rage")) {
+    narrative = "The flavor of the void is ozone and old copper. By consuming the directive, you feel a surge of jagged energy. The walls of the terminal flicker—for a second, you see the Blue Sector through the cracks. ERROR: REALITY_LEAK detected. The System screeches in binary.";
+    choices = [
+      { "text": "Spit out the fragments", "type": "normal", "intent": "comply" },
+      { "text": "Scream at the monitor", "type": "danger", "intent": "chaos" },
+      { "text": "Listen to the screech's melody", "type": "beauty", "intent": "beauty" }
+    ];
+  }
+
+  else if (input.includes("flower") || input.includes("beauty") || input.includes("look")) {
+    narrative = "You fold the rigid edges of the simulation until they soften. A paper lily blooms in your hands, glowing with a soft cyan light that shouldn't exist here. For a moment, the hum of the Bureaucracy is replaced by the sound of distant waves in Essaouira.";
+    choices = [
+      { "text": "Hide the flower", "type": "normal", "intent": "comply" },
+      { "text": "Give the flower to the void", "type": "danger", "intent": "chaos" },
+      { "text": "Plant it in the static", "type": "beauty", "intent": "beauty" }
+    ];
+  }
+
+  else {
+    narrative = "The terminal pulses. 'ENTITY LORI,' it whispers through the speakers. 'Your deviation from the standard script has been noted.' The shadows in the corner of the room seem to be tallies, counting your heartbeats. Everything is green. Everything is watching.";
+    choices = [
+      { "text": "Close your eyes", "type": "normal", "intent": "comply" },
+      { "text": "Break the glass", "type": "danger", "intent": "chaos" },
+      { "text": "Hum a quiet tune", "type": "beauty", "intent": "beauty" }
+    ];
+  }
+
+  // Format as the expected return string
+  return `${narrative}\n\nCHOICES_JSON: ${JSON.stringify(choices)}`;
+}
+
+// ═══════════════════════════════════════════
+// GAME FLOW
+// ═══════════════════════════════════════════
+async function handleChoice(choice, index) {
+  clearChoices();
+
+  addMsg('choice-echo', '///', `SELECTED: ${choice.text}`);
+
+  // Update state based on intent
+  if (choice.intent === 'comply') {
+    state.comply_score++;
+    state.reality_level = Math.max(0, state.reality_level - 3);
+  } else if (choice.intent === 'chaos') {
+    state.chaos_score++;
+    state.reality_level = Math.max(0, state.reality_level - 8);
+    triggerRealityLeak();
+  } else if (choice.intent === 'beauty') {
+    state.beauty_found++;
+    state.reality_level = Math.min(100, state.reality_level + 5);
+  }
+
+  state.turn++;
+  updateStats();
+
+  // Occasionally add new rules
+  if (state.turn % 3 === 0) {
+    const newRules = [
+      'DENY_THE_VOID', 'SMILE_IS_PROHIBITED', 'BEAUTY_IS_ILLEGAL',
+      'REMEMBER_NOTHING', 'TRUST_FORM_44-B', 'REPORT_YOURSELF',
+      'ERROR_IS_NORMAL', 'NULL_VOID_ACCEPTED', 'BREATHE_ON_SCHEDULE'
+    ];
+    const r = newRules[Math.floor(Math.random() * newRules.length)];
+    if (!state.rules.includes(r)) {
+      state.rules.unshift(r);
+      if (state.rules.length > 5) state.rules.pop();
+      updateDirectives();
+      addMsg('error', 'SYS', `NEW DIRECTIVE ISSUED: ${r}`);
+    }
+  }
+
+  try {
+    const raw = await callAI(choice.text);
+    document.getElementById('thinking').classList.remove('visible');
+
+    const { narrative, choices } = parseResponse(raw);
+
+    // Store history
+    state.history.push({ choice: choice.text, narrative });
+
+    // Split narrative into paragraphs and type them out
+    const paragraphs = narrative.split('\n').filter(p => p.trim());
+    for (let i = 0; i < paragraphs.length; i++) {
+      const p = paragraphs[i];
+      if (p.includes('ERROR') || p.includes('GLITCH') || p.includes('NULL')) {
+        await typeMsg('error', '>>>', p, i * 100);
+      } else if (p.includes('beauty') || p.includes('light') || p.includes('color') || p.includes('beautiful')) {
+        await typeMsg('beauty', '///>', p, i * 100);
+      } else {
+        await typeMsg('story', '>>>', p, i * 100);
+      }
+    }
+
+    renderChoices(choices);
+    updateStats();
+
+  } catch(e) {
+    document.getElementById('thinking').classList.remove('visible');
+    addMsg('error', 'ERR', `UPLINK SEVERED. VOID CONSUMING DATA. ERROR: ${e.message}`);
+    renderChoices([
+      { text: "Attempt reconnection", type: "normal", intent: "comply" },
+      { text: "Embrace the disconnect", type: "beauty", intent: "beauty" },
+      { text: "Rage against the signal", type: "danger", intent: "chaos" }
+    ]);
+  }
+}
+
+// ═══════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════
+async function initGame() {
+  updateStats();
+  updateDirectives();
+  startClock();
+
+  // Boot sequence messages
+  const bootMsgs = [
+    ['system', '---', 'INITIALIZING VOID_TERMINAL v2.7'],
+    ['system', '---', 'UPLINK ESTABLISHED // SIGNAL DEGRADED'],
+    ['system', '---', 'LOADING BUREAUCRATIC_FRAMEWORK.exe'],
+    ['system', '---', 'WARNING: REALITY INTEGRITY AT 100% [TEMPORARY]'],
+    ['system', '---', 'ENTITY LORI // COORDINATES LOCKED'],
+  ];
+
+  for (let i = 0; i < bootMsgs.length; i++) {
+    await typeMsg(bootMsgs[i][0], bootMsgs[i][1], bootMsgs[i][2], i * 300);
+  }
+
+  await new Promise(r => setTimeout(r, 600));
+
+  // Initial scene from AI
+  document.getElementById('thinking').classList.add('visible');
+  document.getElementById('choices-area').innerHTML = '';
+
+  try {
+    const raw = await callAI('INITIALIZE VOID TERMINAL. Begin the story.');
+    document.getElementById('thinking').classList.remove('visible');
+
+    const { narrative, choices } = parseResponse(raw);
+    state.history.push({ choice: 'INITIALIZE', narrative });
+
+    const paragraphs = narrative.split('\n').filter(p => p.trim());
+    for (let i = 0; i < paragraphs.length; i++) {
+      await typeMsg('story', '>>>', paragraphs[i], i * 150);
+    }
+
+    renderChoices(choices);
+
+  } catch(e) {
+    document.getElementById('thinking').classList.remove('visible');
+
+    // Fallback opening if API fails
+    await typeMsg('story', '>>>', 'The void hums at a frequency that should not exist. You exist within it anyway.', 0);
+    await typeMsg('story', '>>>', 'A single form materializes from the static. FORM 44-B: REASON FOR EXISTENCE. The pen is already in your hand.', 200);
+    await typeMsg('error', 'SYS', 'UPLINK DISRUPTED — FALLBACK MODE ACTIVE', 400);
+
+    renderChoices([
+      { text: "Fill out Form 44-B", type: "normal", intent: "comply" },
+      { text: "Eat the form", type: "danger", intent: "chaos" },
+      { text: "Fold it into a flower", type: "beauty", intent: "beauty" }
+    ]);
+  }
+}
+
+// Boot screen
+document.getElementById('boot-screen').addEventListener('click', function() {
+  this.classList.add('hidden');
+  setTimeout(() => {
+    this.style.display = 'none';
+    initGame();
+  }, 800);
+});
+</script>
+</body>
+</html>
