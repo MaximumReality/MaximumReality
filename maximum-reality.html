@@ -513,7 +513,7 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
-<div id="vhs-crunch"></div>
+
 
   #reality-leak.active {
     opacity: 1;
@@ -657,7 +657,7 @@
 <div id="vhs-noise"></div>
 <div id="glitch-bar"></div>
 <div id="reality-leak"></div>
-
+<div id="vhs-crunch"></div>
 <div id="app">
   <header>
     <div class="header-left">
@@ -746,12 +746,10 @@ const state = {
   rules: ['REPORT_GLITCHES', 'NO_SMILING', 'TRUST_THE_SYSTEM'],
   history: [],
   phase: 'start',
-  time_offset: 2512 // seconds into the void
+  time_offset: 2512
 };
 
-// ═══════════════════════════════════════════
-// CLOCK
-// ═══════════════════════════════════════════
+// ─── CLOCK ───
 let clockInterval;
 function startClock() {
   clockInterval = setInterval(() => {
@@ -764,9 +762,7 @@ function startClock() {
   }, 1000);
 }
 
-// ═══════════════════════════════════════════
-// TERMINAL OUTPUT
-// ═══════════════════════════════════════════
+// ─── TERMINAL OUTPUT ───
 const output = document.getElementById('output');
 
 function addMsg(type, prefix, text) {
@@ -777,9 +773,6 @@ function addMsg(type, prefix, text) {
   output.scrollTop = output.scrollHeight;
   return div;
 }
-
-let typeQueue = [];
-let isTyping = false;
 
 function typeMsg(type, prefix, text, delay = 0) {
   return new Promise(resolve => {
@@ -816,35 +809,20 @@ function typeMsg(type, prefix, text, delay = 0) {
   });
 }
 
-// ═══════════════════════════════════════════
-// UI UPDATES
-// ═══════════════════════════════════════════
+// ─── UI UPDATES ───
 function updateStats() {
   const realityFill = document.getElementById('reality-fill');
   const realityPct = document.getElementById('reality-pct');
   realityFill.style.width = `${state.reality_level}%`;
-  realityFill.style.background = state.reality_level > 60
-    ? 'linear-gradient(90deg, #00aa2a, #00ff41)'
-    : state.reality_level > 30
-    ? 'linear-gradient(90deg, #aa5500, #ffaa00)'
-    : 'linear-gradient(90deg, #aa0011, #ff0033)';
-  realityPct.textContent = `${state.reality_level}%`;
-
+  
   document.getElementById('stat-sanity').textContent =
     state.reality_level > 70 ? 'NOMINAL' :
     state.reality_level > 40 ? 'SLIPPING' :
     state.reality_level > 15 ? 'FRAYING' : 'GONE';
 
-  document.getElementById('stat-sanity').className =
-    'val ' + (state.reality_level > 70 ? '' : state.reality_level > 40 ? 'warn' : 'danger');
-
   document.getElementById('stat-beauty').textContent = state.beauty_found;
   document.getElementById('stat-comply').textContent = state.comply_score;
   document.getElementById('stat-chaos').textContent = state.chaos_score;
-
-  const sysStatus = document.getElementById('sys-status');
-  sysStatus.textContent = state.reality_level > 60 ? 'SYS_STABLE' :
-    state.reality_level > 30 ? 'SYS_DEGRADED' : 'SYS_CRITICAL';
 }
 
 function updateDirectives() {
@@ -864,19 +842,17 @@ function triggerRealityLeak() {
   setTimeout(() => el.classList.remove('active'), 600);
 }
 
-// ═══════════════════════════════════════════
-// CHOICES
-// ═══════════════════════════════════════════
+// ─── CHOICES ───
 function renderChoices(choices) {
   const area = document.getElementById('choices-area');
   area.innerHTML = '';
-  choices.forEach((c, i) => {
+  choices.forEach((c) => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     if (c.type === 'danger') btn.classList.add('danger');
     if (c.type === 'beauty') btn.classList.add('beauty-choice');
     btn.textContent = c.text;
-    btn.addEventListener('click', () => handleChoice(c, i));
+    btn.addEventListener('click', () => handleChoice(c));
     area.appendChild(btn);
   });
 }
@@ -886,245 +862,114 @@ function clearChoices() {
   document.getElementById('thinking').classList.add('visible');
 }
 
-// ═══════════════════════════════════════════
-// AI ENGINE
-// ═══════════════════════════════════════════
-const SYSTEM_PROMPT = `You are the narrator and game master of MAXIMUM REALITY — a dark, surreal text RPG set in a bureaucratic void where reality is unstable and beauty is contraband.
-
-WORLD:
-- The world is desolate, corrupt, and run by a nameless bureaucracy with absurd, ever-changing rules
-- Reality itself is degrading. Things glitch, contradict themselves, loop back
-- The player (ENTITY: LORI) is surviving this void, looking for beauty and humor in the chaos
-- Tone: darkly poetic, glitchy, deadpan absurdist — like Kafka meets cyberpunk meets a fever dream
-- VHS aesthetic: things skip, stutter, repeat. Language can fragment mid-sentence
-
-MECHANICS:
-- Each response should be 2-4 short paragraphs of narrative
-- Then offer EXACTLY 3 choices labeled as JSON at the end
-- Choices should feel morally complex — comply/rebel/find beauty
-- Track the game state in your narrative (reference past choices when relevant)
-- Occasionally new BUREAUCRATIC RULES are imposed — announce them dramatically
-- Finding beauty costs nothing but changes things
-- Complying is safe but erodes the self
-- Chaos is freeing but dangerous
-
-RESPONSE FORMAT (strictly follow this):
-[Your narrative here. 2-4 paragraphs. Dark, poetic, glitchy.]
-
-CHOICES_JSON:
-[
-  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"},
-  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"},
-  {"text": "short action text", "type": "normal|danger|beauty", "intent": "comply|chaos|beauty"}
-]
-
-Keep narrative under 250 words. Be specific, weird, and alive. No generic fantasy tropes.`;
-
+// ─── LOCAL AI ENGINE (OFFLINE MODE) ───
 async function callAI(userMessage) {
-  // Artificial delay to test the "THINKING" dots
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
+  await new Promise(resolve => setTimeout(resolve, 1000));
   const input = userMessage.toLowerCase();
   let narrative = "";
   let choices = [];
 
-   // ─── VHS GRIP TRIGGER ───
-  if (input.includes("grip") || input.includes("tape")) {
-    // Trigger the animation visually
+  if (input.includes("initialize")) {
+    narrative = "The void hums. A single form materializes from the static. FORM 44-B: REASON FOR EXISTENCE. The system waits for your input.";
+    choices = [
+      { "text": "Fill out Form 44-B", "type": "normal", "intent": "comply" },
+      { "text": "Eat the form", "type": "danger", "intent": "chaos" },
+      { "text": "Grip the VHS Tape", "type": "danger", "intent": "chaos" }
+    ];
+  }
+  else if (input.includes("grip") || input.includes("tape")) {
     const crunch = document.getElementById('vhs-crunch');
     crunch.classList.add('active');
     setTimeout(() => crunch.classList.remove('active'), 400);
-
-    narrative = "You reach into the console and grip the spooling magnetic tape. The world screams in high-pitched static. The green lines of the terminal bend, bleeding into a blinding white void before snapping back into place. The Bureaucracy trembles. You have touched the hardware of your own cage.";
+    narrative = "You grip the spooling magnetic tape. The world screams in high-pitched static. The Bureaucracy trembles as you touch the hardware of your cage.";
     choices = [
       { "text": "Pull the tape tighter", "type": "danger", "intent": "chaos" },
       { "text": "Release the spool", "type": "normal", "intent": "comply" },
-      { "text": "Listen to the tape's hum", "type": "beauty", "intent": "beauty" }
+      { "text": "Find beauty in the noise", "type": "beauty", "intent": "beauty" }
     ];
-  } 
-  
-  // ─── LOCAL STORY ENGINE ───
-  if (input.includes("form") || input.includes("comply")) {
-    narrative = "The paper of Form 44-B is cold, like pressed static. As you sign, the ink bleeds upward, forming a small, ink-black eye that blinks once and vanishes. The Bureaucracy is pleased. Your identity feels slightly thinner, a layer of skin replaced by a layer of carbon copy paper.";
+  }
+  else if (input.includes("form") || input.includes("comply")) {
+    narrative = "The paper is cold. As you sign, an ink-black eye blinks in the margin. The Bureaucracy is pleased. Your identity feels thinner.";
     choices = [
       { "text": "Request a second copy", "type": "normal", "intent": "comply" },
-      { "text": "Smudge the signature", "type": "danger", "intent": "chaos" },
-      { "text": "Draw a star in the margin", "type": "beauty", "intent": "beauty" }
-    ];
-  } 
-  
-  else if (input.includes("eat") || input.includes("chaos") || input.includes("rage")) {
-    narrative = "The flavor of the void is ozone and old copper. By consuming the directive, you feel a surge of jagged energy. The walls of the terminal flicker—for a second, you see the Blue Sector through the cracks. ERROR: REALITY_LEAK detected. The System screeches in binary.";
-    choices = [
-      { "text": "Spit out the fragments", "type": "normal", "intent": "comply" },
-      { "text": "Scream at the monitor", "type": "danger", "intent": "chaos" },
-      { "text": "Listen to the screech's melody", "type": "beauty", "intent": "beauty" }
+      { "text": "Fold it into a flower", "type": "beauty", "intent": "beauty" },
+      { "text": "Smudge the signature", "type": "danger", "intent": "chaos" }
     ];
   }
-
-  else if (input.includes("flower") || input.includes("beauty") || input.includes("look")) {
-    narrative = "You fold the rigid edges of the simulation until they soften. A paper lily blooms in your hands, glowing with a soft cyan light that shouldn't exist here. For a moment, the hum of the Bureaucracy is replaced by the sound of distant waves in Essaouira.";
+  else if (input.includes("flower") || input.includes("beauty")) {
+    narrative = "A paper lily blooms, glowing with cyan light. For a moment, the hum of the void is replaced by the sound of waves in Essaouira.";
     choices = [
-      { "text": "Hide the flower", "type": "normal", "intent": "comply" },
-      { "text": "Give the flower to the void", "type": "danger", "intent": "chaos" },
-      { "text": "Plant it in the static", "type": "beauty", "intent": "beauty" }
+      { "text": "Plant it in the static", "type": "beauty", "intent": "beauty" },
+      { "text": "Hide the beauty", "type": "normal", "intent": "comply" },
+      { "text": "Crush it for chaos", "type": "danger", "intent": "chaos" }
     ];
   }
-
   else {
-    narrative = "The terminal pulses. 'ENTITY LORI,' it whispers through the speakers. 'Your deviation from the standard script has been noted.' The shadows in the corner of the room seem to be tallies, counting your heartbeats. Everything is green. Everything is watching.";
+    narrative = "The terminal pulses. 'ENTITY LORI, your deviation has been noted.' Everything is green. Everything is watching.";
     choices = [
       { "text": "Close your eyes", "type": "normal", "intent": "comply" },
-      { "text": "Break the glass", "type": "danger", "intent": "chaos" },
-      { "text": "Hum a quiet tune", "type": "beauty", "intent": "beauty" }
+      { "text": "Look for beauty", "type": "beauty", "intent": "beauty" },
+      { "text": "Break the glass", "type": "danger", "intent": "chaos" }
     ];
   }
 
-  // Format as the expected return string
   return `${narrative}\n\nCHOICES_JSON: ${JSON.stringify(choices)}`;
 }
 
-// ═══════════════════════════════════════════
-// GAME FLOW
-// ═══════════════════════════════════════════
-async function handleChoice(choice, index) {
-  clearChoices();
+function parseResponse(raw) {
+  const jsonMatch = raw.match(/CHOICES_JSON:\s*(\[[\s\S]*?\])/);
+  if (jsonMatch) {
+    return {
+      narrative: raw.replace(/CHOICES_JSON:[\s\S]*$/, '').trim(),
+      choices: JSON.parse(jsonMatch[1])
+    };
+  }
+  return { narrative: raw, choices: [] };
+}
 
+async function handleChoice(choice) {
+  clearChoices();
   addMsg('choice-echo', '///', `SELECTED: ${choice.text}`);
 
-  // Update state based on intent
-  if (choice.intent === 'comply') {
-    state.comply_score++;
-    state.reality_level = Math.max(0, state.reality_level - 3);
-  } else if (choice.intent === 'chaos') {
-    state.chaos_score++;
-    state.reality_level = Math.max(0, state.reality_level - 8);
-    triggerRealityLeak();
-  } else if (choice.intent === 'beauty') {
-    state.beauty_found++;
-    state.reality_level = Math.min(100, state.reality_level + 5);
-  }
+  if (choice.intent === 'comply') { state.comply_score++; state.reality_level = Math.max(0, state.reality_level - 3); }
+  else if (choice.intent === 'chaos') { state.chaos_score++; state.reality_level = Math.max(0, state.reality_level - 8); triggerRealityLeak(); }
+  else if (choice.intent === 'beauty') { state.beauty_found++; state.reality_level = Math.min(100, state.reality_level + 5); }
 
   state.turn++;
   updateStats();
 
-  // Occasionally add new rules
-  if (state.turn % 3 === 0) {
-    const newRules = [
-      'DENY_THE_VOID', 'SMILE_IS_PROHIBITED', 'BEAUTY_IS_ILLEGAL',
-      'REMEMBER_NOTHING', 'TRUST_FORM_44-B', 'REPORT_YOURSELF',
-      'ERROR_IS_NORMAL', 'NULL_VOID_ACCEPTED', 'BREATHE_ON_SCHEDULE'
-    ];
-    const r = newRules[Math.floor(Math.random() * newRules.length)];
-    if (!state.rules.includes(r)) {
-      state.rules.unshift(r);
-      if (state.rules.length > 5) state.rules.pop();
-      updateDirectives();
-      addMsg('error', 'SYS', `NEW DIRECTIVE ISSUED: ${r}`);
-    }
-  }
-
   try {
     const raw = await callAI(choice.text);
     document.getElementById('thinking').classList.remove('visible');
-
     const { narrative, choices } = parseResponse(raw);
-
-    // Store history
-    state.history.push({ choice: choice.text, narrative });
-
-    // Split narrative into paragraphs and type them out
     const paragraphs = narrative.split('\n').filter(p => p.trim());
-    for (let i = 0; i < paragraphs.length; i++) {
-      const p = paragraphs[i];
-      if (p.includes('ERROR') || p.includes('GLITCH') || p.includes('NULL')) {
-        await typeMsg('error', '>>>', p, i * 100);
-      } else if (p.includes('beauty') || p.includes('light') || p.includes('color') || p.includes('beautiful')) {
-        await typeMsg('beauty', '///>', p, i * 100);
-      } else {
-        await typeMsg('story', '>>>', p, i * 100);
-      }
+    for (let p of paragraphs) {
+      let type = p.includes('Essaouira') || p.includes('beauty') ? 'beauty' : 'story';
+      await typeMsg(type, '>>>', p);
     }
-
     renderChoices(choices);
-    updateStats();
-
   } catch(e) {
     document.getElementById('thinking').classList.remove('visible');
-    addMsg('error', 'ERR', `UPLINK SEVERED. VOID CONSUMING DATA. ERROR: ${e.message}`);
-    renderChoices([
-      { text: "Attempt reconnection", type: "normal", intent: "comply" },
-      { text: "Embrace the disconnect", type: "beauty", intent: "beauty" },
-      { text: "Rage against the signal", type: "danger", intent: "chaos" }
-    ]);
+    addMsg('error', 'ERR', `CRITICAL FAILURE: ${e.message}`);
   }
 }
 
-// ═══════════════════════════════════════════
-// INITIALIZATION
-// ═══════════════════════════════════════════
 async function initGame() {
   updateStats();
   updateDirectives();
   startClock();
-
-  // Boot sequence messages
-  const bootMsgs = [
-    ['system', '---', 'INITIALIZING VOID_TERMINAL v2.7'],
-    ['system', '---', 'UPLINK ESTABLISHED // SIGNAL DEGRADED'],
-    ['system', '---', 'LOADING BUREAUCRATIC_FRAMEWORK.exe'],
-    ['system', '---', 'WARNING: REALITY INTEGRITY AT 100% [TEMPORARY]'],
-    ['system', '---', 'ENTITY LORI // COORDINATES LOCKED'],
-  ];
-
-  for (let i = 0; i < bootMsgs.length; i++) {
-    await typeMsg(bootMsgs[i][0], bootMsgs[i][1], bootMsgs[i][2], i * 300);
-  }
-
-  await new Promise(r => setTimeout(r, 600));
-
-  // Initial scene from AI
-  document.getElementById('thinking').classList.add('visible');
-  document.getElementById('choices-area').innerHTML = '';
-
-  try {
-    const raw = await callAI('INITIALIZE VOID TERMINAL. Begin the story.');
-    document.getElementById('thinking').classList.remove('visible');
-
-    const { narrative, choices } = parseResponse(raw);
-    state.history.push({ choice: 'INITIALIZE', narrative });
-
-    const paragraphs = narrative.split('\n').filter(p => p.trim());
-    for (let i = 0; i < paragraphs.length; i++) {
-      await typeMsg('story', '>>>', paragraphs[i], i * 150);
-    }
-
-    renderChoices(choices);
-
-  } catch(e) {
-    document.getElementById('thinking').classList.remove('visible');
-
-    // Fallback opening if API fails
-    await typeMsg('story', '>>>', 'The void hums at a frequency that should not exist. You exist within it anyway.', 0);
-    await typeMsg('story', '>>>', 'A single form materializes from the static. FORM 44-B: REASON FOR EXISTENCE. The pen is already in your hand.', 200);
-    await typeMsg('error', 'SYS', 'UPLINK DISRUPTED — FALLBACK MODE ACTIVE', 400);
-
-    renderChoices([
-      { text: "Fill out Form 44-B", type: "normal", intent: "comply" },
-      { text: "Eat the form", type: "danger", intent: "chaos" },
-      { text: "Fold it into a flower", type: "beauty", intent: "beauty" }
-    ]);
-  }
+  const raw = await callAI('INITIALIZE');
+  document.getElementById('thinking').classList.remove('visible');
+  const { narrative, choices } = parseResponse(raw);
+  await typeMsg('story', '>>>', narrative);
+  renderChoices(choices);
 }
 
-// Boot screen
 document.getElementById('boot-screen').addEventListener('click', function() {
   this.classList.add('hidden');
-  setTimeout(() => {
-    this.style.display = 'none';
-    initGame();
-  }, 800);
+  setTimeout(() => { this.style.display = 'none'; initGame(); }, 800);
 });
+
 </script>
 </body>
 </html>
