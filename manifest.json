@@ -1,0 +1,15 @@
+{
+  "name": "MAXIMUM REALITY",
+  "short_name": "MAX_REAL",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ff41",
+  "icons": [
+    {
+      "src": "https://maximumreality.xyz/max-real-favicon.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
