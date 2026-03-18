@@ -322,6 +322,19 @@ aside::-webkit-scrollbar{display:none}
   animation-delay:calc(var(--i)*.2s);
 }
 @keyframes tdot{0%,100%{opacity:0.15;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+/* HOME BUTTON */
+#home-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--green-dim);font-family:'Share Tech Mono',monospace;font-size:8px;
+  padding:3px 8px;cursor:pointer;letter-spacing:2px;text-decoration:none;
+  transition:all 0.15s;
+}
+#home-btn:hover{
+  border-color:var(--green);color:var(--green);
+  text-shadow:0 0 6px var(--green);background:rgba(0,255,65,0.05);
+}
+#home-btn::before{content:'⌂ ';font-size:10px}
 
 /* RESTART */
 #restart-btn{
@@ -463,8 +476,11 @@ body.music-active #terminal {
     <section id="terminal">
       <div id="terminal-header">
         <div class="term-title">VOID_TERMINAL v2.7 // UPLINK_ACTIVE</div>
-        <div class="term-controls">
-          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <a id="home-btn" href="https://maximumreality.xyz" target="_blank">HOME</a>
+          <div class="term-controls">
+            <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          </div>
         </div>
       </div>
       <div id="output"></div>
