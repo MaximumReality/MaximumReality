@@ -356,6 +356,26 @@ aside::-webkit-scrollbar{display:none}
   52% { opacity: 1; }
   54% { opacity: 0.8; }
 }
+  /* When music is active, the VHS noise and scanline become more unstable */
+body.music-active #scan-line {
+  animation: scan 4s linear infinite; /* Faster scan */
+  opacity: 0.4;
+}
+
+body.music-active #vhs-noise {
+  animation: vhs 4s infinite; /* More frequent glitching */
+}
+
+/* Subtle pulse for the terminal border to the beat */
+body.music-active #terminal {
+  animation: border-pulse 2s infinite ease-in-out;
+}
+
+@keyframes border-pulse {
+  0%, 100% { border-color: var(--border); }
+  50% { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 238, 255, 0.1); }
+}
+
 
 </style>
 </head>
@@ -1840,16 +1860,19 @@ function toggleAudio() {
     bgMusic.play().catch(e => console.log("Audio play blocked: ", e));
     audioBtn.textContent = "COMM_ACTIVE";
     audioBtn.classList.add('active');
+    document.body.classList.add('music-active'); // ADD THIS
     musicPlaying = true;
     addMsg('system', 'AUD', 'NEURAL_LINK_ESTABLISHED: Echoes in the Silicon Wreckage');
   } else {
     bgMusic.pause();
     audioBtn.textContent = "COMM_SILENT";
     audioBtn.classList.remove('active');
+    document.body.classList.remove('music-active'); // ADD THIS
     musicPlaying = false;
     addMsg('system', 'AUD', 'NEURAL_LINK_SEVERED');
   }
 }
+
 
   
 </script>
