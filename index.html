@@ -803,7 +803,8 @@ async function fetchTransmissions() {
 setTimeout(fetchTransmissions, 1500);
 </script>
 <script>
-  // --- 1. THE SYSTEM CLOCK LOGIC ---
+document.addEventListener("DOMContentLoaded", function(){
+
   function updateClock() {
     const now = new Date();
     const year = now.getFullYear();
@@ -814,57 +815,65 @@ setTimeout(fetchTransmissions, 1500);
     const seconds = String(now.getSeconds()).padStart(2, '0');
     
     const clockElement = document.getElementById('system-clock');
-    if(clockElement) {
+    if(clockElement){
       clockElement.innerText = `SYSTEM_TIME: ${year}.${month}.${day}_${hours}:${minutes}:${seconds} // ALL_UPLINKS_STABLE`;
     }
   }
+
   setInterval(updateClock, 1000);
   updateClock();
 
-  // --- 2. THE RANDOM UPLINK / BASEMENT LOGIC ---
-  document.getElementById('random-uplink').addEventListener('click', function() {
-    // We only want to pick from the actual game/chat cards
-    // This excludes the "External Links" section at the bottom
+  const uplinkBtn = document.getElementById('random-uplink');
+  if(!uplinkBtn) return;
+
+  uplinkBtn.addEventListener('click', function(){
+
     const allCards = document.querySelectorAll('.app-card');
-    const internalLinks = Array.from(allCards).filter(card => {
+    const internalLinks = Array.from(allCards).filter(card=>{
         const href = card.getAttribute('href');
-        // Exclude social media and mail
-        return !href.includes('tiktok.com') && 
-               !href.includes('instagram.com') && 
-               !href.includes('facebook.com') && 
+        return href && 
+               !href.includes('tiktok.com') &&
+               !href.includes('instagram.com') &&
+               !href.includes('facebook.com') &&
                !href.includes('mailto:');
     });
 
     const randomChance = Math.random();
-    
-    // THE BASEMENT PROTOCOL (20% Chance)
-    if (randomChance < 0.2) {
+
+    if(randomChance < 0.2){
+        // THE BASEMENT PROTOCOL
         this.innerText = "[ ACCESSING BASEMENT... ]";
         this.style.color = "#ff1a1a";
         this.style.borderColor = "#ff1a1a";
-        this.style.boxShadow = "0 0 30px #ff1a1a";
+        this.style.boxShadow = "0 0 50px #ff1a1a";
+        
+        // Visual Glitch Effect: Red Flash
+        const flash = document.createElement('div');
+        flash.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,0,0,0.3);z-index:9999;pointer-events:none;mix-blend-mode:overlay;";
+        document.body.appendChild(flash);
 
-        setTimeout(() => {
-            window.location.href = 'hacked-index.html'; 
-        }, 800);
-        
+        setTimeout(()=>{
+            window.location.href='hacked-index.html';
+        },800);
+
     } else {
-        // STANDARD UPLINK (80% Chance)
-        const randomIndex = Math.floor(Math.random() * internalLinks.length);
+        // STANDARD UPLINK
+        const randomIndex = Math.floor(Math.random()*internalLinks.length);
         const targetUrl = internalLinks[randomIndex].href;
-        
-        this.innerText = "[ UPLINKING... ]";
-        
-        setTimeout(() => {
-            window.open(targetUrl, '_blank');
-            this.innerText = "RANDOM UPLINK";
-            // Reset style just in case it was red from a previous near-miss
-            this.style.color = "#ff00ff";
-            this.style.borderColor = "#ff00ff";
-            this.style.boxShadow = "0 0 10px rgba(255, 0, 255, 0.4)";
-        }, 400);
+
+        this.innerText="[ UPLINKING... ]";
+
+        setTimeout(()=>{
+            window.open(targetUrl,'_blank');
+            this.innerText="RANDOM UPLINK";
+            this.style.color="#ff00ff";
+            this.style.borderColor="#ff00ff";
+            this.style.boxShadow="0 0 10px rgba(255,0,255,0.4)";
+        },400);
     }
   });
+});
 </script>
+
 </body>
 </html>
