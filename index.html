@@ -803,37 +803,6 @@ async function fetchTransmissions() {
 setTimeout(fetchTransmissions, 1500);
 </script>
 <script>
-  document.getElementById('random-uplink').addEventListener('click', function() {
-    // Collect all cards, but exclude the TikTok/IG/FB ones if you want
-    const links = document.querySelectorAll('.app-card');
-    const randomChance = Math.random();
-    
-    // THE BASEMENT PROTOCOL
-    if (randomChance < 0.2) {
-        this.innerText = "[ ACCESSING BASEMENT... ]";
-        this.style.color = "#ff1a1a";
-        this.style.borderColor = "#ff1a1a";
-        this.style.boxShadow = "0 0 30px #ff1a1a";
-
-        setTimeout(() => {
-            window.location.href = 'hacked-index.html'; 
-        }, 800);
-        
-    } else {
-        // STANDARD UPLINK
-        const randomIndex = Math.floor(Math.random() * links.length);
-        const targetUrl = links[randomIndex].href;
-        
-        this.innerText = "[ UPLINKING... ]";
-        
-        setTimeout(() => {
-            window.open(targetUrl, '_blank');
-            this.innerText = "RANDOM UPLINK";
-        }, 400);
-    }
-  });
-</script>
- <script>
   // --- 1. THE SYSTEM CLOCK LOGIC ---
   function updateClock() {
     const now = new Date();
@@ -849,17 +818,27 @@ setTimeout(fetchTransmissions, 1500);
       clockElement.innerText = `SYSTEM_TIME: ${year}.${month}.${day}_${hours}:${minutes}:${seconds} // ALL_UPLINKS_STABLE`;
     }
   }
-
-  // Run the clock immediately and update every second
   setInterval(updateClock, 1000);
   updateClock();
 
   // --- 2. THE RANDOM UPLINK / BASEMENT LOGIC ---
   document.getElementById('random-uplink').addEventListener('click', function() {
-    const links = document.querySelectorAll('.app-card');
+    // We only want to pick from the actual game/chat cards
+    // This excludes the "External Links" section at the bottom
+    const allCards = document.querySelectorAll('.app-card');
+    const internalLinks = Array.from(allCards).filter(card => {
+        const href = card.getAttribute('href');
+        // Exclude social media and mail
+        return !href.includes('tiktok.com') && 
+               !href.includes('instagram.com') && 
+               !href.includes('facebook.com') && 
+               !href.includes('mailto:');
+    });
+
     const randomChance = Math.random();
     
-    if (randomChance < 0.2) { // 20% Chance for the Basement
+    // THE BASEMENT PROTOCOL (20% Chance)
+    if (randomChance < 0.2) {
         this.innerText = "[ ACCESSING BASEMENT... ]";
         this.style.color = "#ff1a1a";
         this.style.borderColor = "#ff1a1a";
@@ -869,20 +848,23 @@ setTimeout(fetchTransmissions, 1500);
             window.location.href = 'hacked-index.html'; 
         }, 800);
         
-    } else { // 80% Chance for a Random Game
-        const randomIndex = Math.floor(Math.random() * links.length);
-        const targetUrl = links[randomIndex].href;
+    } else {
+        // STANDARD UPLINK (80% Chance)
+        const randomIndex = Math.floor(Math.random() * internalLinks.length);
+        const targetUrl = internalLinks[randomIndex].href;
         
         this.innerText = "[ UPLINKING... ]";
         
         setTimeout(() => {
             window.open(targetUrl, '_blank');
             this.innerText = "RANDOM UPLINK";
+            // Reset style just in case it was red from a previous near-miss
+            this.style.color = "#ff00ff";
+            this.style.borderColor = "#ff00ff";
+            this.style.boxShadow = "0 0 10px rgba(255, 0, 255, 0.4)";
         }, 400);
     }
   });
 </script>
-
-
 </body>
 </html>
