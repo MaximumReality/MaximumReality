@@ -144,9 +144,76 @@
 
 @keyframes iconPulse {
   0%, 100% { transform: scale(1); box-shadow: 0 0 5px currentColor; }
-  50% { transform: scale(1.05); box-shadow: 0 0 15px currentColor; }
+  50% { transform: scale(1.05); box-shadow: 0 0 15px /* Standardize all app cards except Azul & Mochkil */
+.app-section .app-card:not(.chat-uplink) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #fff;
+  background-color: #1b1b1f;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 80px; /* Ensures uniform height */
 }
-  
+
+.app-section .app-card:not(.chat-uplink) .app-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.app-section .app-card:not(.chat-uplink) .app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.app-section .app-card:not(.chat-uplink) .app-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.app-section .app-card:not(.chat-uplink) .app-name {
+  font-weight: bold;
+  font-size: 1.05em;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-section .app-card:not(.chat-uplink) .app-desc {
+  font-size: 0.85em;
+  color: #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-section .app-card:not(.chat-uplink) .get-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  text-align: center;
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect for all except Azul & Mochkil */
+.app-section .app-card:not(.chat-uplink):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 15px rgba(255,255,255,0.2);
+}
+.app-section .app-card:not(.chat-uplink):hover .app-icon {
+  transform: scale(1.05);
+}
+   
     </style>
  
 </head>
