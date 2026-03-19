@@ -1,7 +1,7 @@
 {
   "name": "MAXIMUM REALITY",
   "short_name": "MAX_REAL",
-  "start_url": "index.html",
+  "start_url": "/maximum-reality.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#00ff41",
