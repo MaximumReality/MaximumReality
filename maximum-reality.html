@@ -199,8 +199,9 @@ aside::-webkit-scrollbar{display:none}
 .avatar-box {
   aspect-ratio:1; overflow:hidden; position:relative;
   border:1px solid var(--border); background:#000d00;
-  display:flex; align-items:center; justify-content:center;
+  display:block; width:100%;
 }
+
 .avatar-box::after {
   content:'ENTITY: LORI'; position:absolute; bottom:0; left:0; right:0;
   background:rgba(0,0,0,0.82); font-size:7px; text-align:center;
@@ -208,9 +209,9 @@ aside::-webkit-scrollbar{display:none}
 }
 /* The canvas portrait sits inside */
 #entity-canvas {
-  position:absolute; inset:0; width:100%; height:100%;
+  display:block; width:100%; height:100%;
+  position:absolute; top:0; left:0;
 }
-
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
 .stat { display:flex; flex-direction:column; gap:1px; }
 .stat .key { font-size:7px; color:var(--green-dim); letter-spacing:1px; }
@@ -480,9 +481,11 @@ body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; 
 
   function resize() {
     const box = canvas.parentElement;
-    canvas.width  = box.clientWidth;
-    canvas.height = box.clientHeight;
+    const size = box.clientWidth;
+    canvas.width  = size;
+    canvas.height = size;
   }
+
   resize();
   window.addEventListener('resize', resize);
 
