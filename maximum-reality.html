@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -54,7 +53,6 @@ body::after {
   animation: scan 7s linear infinite;
 }
 @keyframes scan { from{top:-2px} to{top:100vh} }
-
 #vhs-noise {
   position:fixed; inset:0; pointer-events:none; z-index:9002;
   opacity:0; animation: vhs 9s infinite;
@@ -65,7 +63,6 @@ body::after {
   93%{opacity:0.1; transform:translateY(2px) scaleY(1.003)}
   96%{opacity:0}
 }
-
 #reality-leak {
   position:fixed; inset:0; pointer-events:none; z-index:8999;
   opacity:0; transition:opacity 0.2s;
@@ -80,7 +77,6 @@ body::after {
   70%{filter:hue-rotate(270deg) saturate(3)}
   100%{filter:hue-rotate(360deg); opacity:0}
 }
-
 #vhs-crunch {
   position:fixed; inset:0; pointer-events:none; z-index:9998;
   background:white; mix-blend-mode:difference; display:none;
@@ -94,7 +90,6 @@ body::after {
   66% {transform:skewY(8deg) scaleX(1.1); opacity:0.8; filter:invert(1)}
   100%{transform:none; opacity:0}
 }
-
 #beauty-bloom {
   position:fixed; inset:0; pointer-events:none; z-index:8998;
   opacity:0; background: radial-gradient(ellipse at center, rgba(0,238,255,0.12) 0%, transparent 70%);
@@ -107,7 +102,6 @@ body::after {
   40%{opacity:1; transform:scale(1.02)}
   100%{opacity:0; transform:scale(1)}
 }
-
 /* BOOT */
 #boot-screen {
   position:fixed; inset:0; background:var(--void); z-index:9999;
@@ -144,7 +138,6 @@ body::after {
   0%,100%{box-shadow:0 0 5px var(--amber),inset 0 0 5px rgba(255,170,0,0.08)}
   50%{box-shadow:0 0 18px var(--amber),inset 0 0 18px rgba(255,170,0,0.18)}
 }
-
 /* LAYOUT */
 #app {
   display:grid; grid-template-rows:auto 1fr;
@@ -175,7 +168,6 @@ h1 {
 .header-right { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
 .sys-status { font-size:8px; letter-spacing:2px; color:var(--green-dim); }
 .clock { font-family:'VT323',monospace; font-size:17px; color:var(--amber); text-shadow:0 0 7px var(--amber); letter-spacing:2px; }
-
 main {
   display:grid; grid-template-columns:155px 1fr;
   gap:9px; overflow:hidden; min-height:0;
@@ -194,22 +186,25 @@ aside::-webkit-scrollbar{display:none}
   background:var(--void); padding:0 4px;
   font-size:7px; color:var(--green-dim); letter-spacing:2px;
 }
-
-/* ── ENTITY PORTRAIT (replaces broken img) ── */
+/* AVATAR BOX */
 .avatar-box {
   border:1px solid var(--border); background:#000d00;
   flex-shrink:0; width:100%;
   height:155px; overflow:hidden;
   position:relative;
 }
-
 .avatar-box::after {
   content:'ENTITY: LORI'; position:absolute; bottom:0; left:0; right:0;
   background:rgba(0,0,0,0.82); font-size:7px; text-align:center;
   padding:3px; letter-spacing:2px; color:var(--cyan); z-index:2;
+  pointer-events:none;
 }
-
-
+.avatar-box iframe {
+  width:100%;
+  height:100%;
+  border:none;
+  display:block;
+}
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
 .stat { display:flex; flex-direction:column; gap:1px; }
 .stat .key { font-size:7px; color:var(--green-dim); letter-spacing:1px; }
@@ -224,7 +219,6 @@ aside::-webkit-scrollbar{display:none}
 }
 #directives-list li.active{border-left-color:var(--red);color:var(--red)}
 @keyframes dir-in{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
-
 #endings-panel { display:none; }
 .ending-pip {
   display:inline-block; width:7px; height:7px; border:1px solid var(--green-dim);
@@ -234,7 +228,6 @@ aside::-webkit-scrollbar{display:none}
 .ending-pip.found.red{background:var(--red);border-color:var(--red);box-shadow:0 0 4px var(--red)}
 .ending-pip.found.cyan{background:var(--cyan);border-color:var(--cyan);box-shadow:0 0 4px var(--cyan)}
 .ending-pip.found.amber{background:var(--amber);border-color:var(--amber);box-shadow:0 0 4px var(--amber)}
-
 /* TERMINAL */
 #terminal {
   display:flex; flex-direction:column; border:1px solid var(--border);
@@ -277,7 +270,6 @@ aside::-webkit-scrollbar{display:none}
   vertical-align:middle;margin-left:2px;
 }
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
-
 #choices-area {
   padding:9px 11px; border-top:1px solid var(--border);
   display:flex; flex-direction:column; gap:5px;
@@ -299,7 +291,6 @@ aside::-webkit-scrollbar{display:none}
 .choice-btn.beauty-choice{border-color:rgba(0,238,255,0.35);color:var(--cyan)}
 .choice-btn.beauty-choice:hover{background:rgba(0,238,255,0.07);border-color:var(--cyan)}
 .choice-btn:disabled{opacity:0.3;cursor:default;transform:none}
-
 #thinking{
   display:none;align-items:center;gap:8px;padding:7px 12px;
   color:var(--green-dim);font-size:9px;letter-spacing:2px;
@@ -311,7 +302,6 @@ aside::-webkit-scrollbar{display:none}
   animation-delay:calc(var(--i)*.2s);
 }
 @keyframes tdot{0%,100%{opacity:0.15;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
-
 #home-btn{
   display:inline-flex;align-items:center;gap:5px;
   background:transparent;border:1px solid var(--border);
@@ -324,7 +314,6 @@ aside::-webkit-scrollbar{display:none}
   text-shadow:0 0 6px var(--green);background:rgba(0,255,65,0.05);
 }
 #home-btn::before{content:'⌂ ';font-size:10px}
-
 #restart-btn{
   display:none;background:transparent;border:1px solid var(--amber);
   color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:11px;
@@ -332,7 +321,6 @@ aside::-webkit-scrollbar{display:none}
   transition:all 0.15s;
 }
 #restart-btn:hover{background:rgba(255,170,0,0.1);box-shadow:0 0 10px rgba(255,170,0,0.3)}
-
 .audio-toggle {
   background: transparent;
   border: 1px solid var(--border);
@@ -355,7 +343,6 @@ aside::-webkit-scrollbar{display:none}
 @keyframes led-flicker {
   0%,100%{opacity:1} 50%{opacity:0.7} 52%{opacity:1} 54%{opacity:0.8}
 }
-
 body.music-active #scan-line { animation: scan 4s linear infinite; opacity:0.4; }
 body.music-active #vhs-noise { animation: vhs 4s infinite; }
 body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; }
@@ -363,7 +350,6 @@ body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; 
   0%,100%{border-color:var(--border)}
   50%{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,238,255,0.1)}
 }
-
 @media(max-width:600px){
   main{grid-template-columns:115px 1fr}
   .stat-grid{grid-template-columns:1fr}
@@ -424,13 +410,11 @@ body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; 
 
   <main>
     <aside>
-      <!-- ENTITY PORTRAIT — pure CSS/canvas, no external image needed -->
-            <div class="avatar-box">
-        <iframe src="https://maximumreality.xyz/avatar.html"
-          style="width:100%;height:100%;border:none;display:block;"
-          scrolling="no"></iframe>
-      </div>
 
+      <!-- ENTITY PORTRAIT — avatar.html iframe -->
+      <div class="avatar-box">
+        <iframe src="/avatar.html" scrolling="no"></iframe>
+      </div>
 
       <div class="panel" data-label="STATS">
         <div class="stat-grid">
@@ -440,13 +424,16 @@ body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; 
           <div class="stat"><div class="key">CHAOS</div><div class="val danger" id="stat-chaos">0</div></div>
         </div>
       </div>
+
       <div class="panel" data-label="DIRECTIVES">
         <ul id="directives-list"></ul>
       </div>
+
       <div class="panel" id="endings-panel" data-label="ENDINGS">
         <div id="endings-pips"></div>
         <div style="font-size:7px;color:var(--green-dim);margin-top:4px;letter-spacing:1px" id="endings-label">0 / 6 FOUND</div>
       </div>
+
     </aside>
 
     <section id="terminal">
@@ -469,233 +456,11 @@ body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; 
       <div id="choices-area"></div>
       <button id="restart-btn" onclick="restartGame()">[ REINITIALIZE VOID ]</button>
     </section>
+
   </main>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  ENTITY PORTRAIT — animated canvas avatar
-// ══════════════════════════════════════════════════════
-(function initPortrait() {
-  const canvas = document.getElementById('entity-canvas');
-  if (!canvas) return;
-
-  function resize() {
-    const box = canvas.parentElement;
-    const w = box.offsetWidth  || 155;
-    const h = box.offsetHeight || w;
-    canvas.width  = w;
-    canvas.height = h;
-  }
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    resize();
-    window.addEventListener('resize', resize);
-  }));
-
-  const ctx = canvas.getContext('2d');
-  let t = 0;
-
-  // Static noise buffer for texture
-  const noiseW = 64, noiseH = 64;
-  const offCanvas = document.createElement('canvas');
-  offCanvas.width = noiseW; offCanvas.height = noiseH;
-  const offCtx = offCanvas.getContext('2d');
-
-  function makeNoise(alpha) {
-    const id = offCtx.createImageData(noiseW, noiseH);
-    for (let i = 0; i < id.data.length; i += 4) {
-      const v = Math.random() > 0.5 ? 255 : 0;
-      id.data[i] = 0; id.data[i+1] = v * 0.7; id.data[i+2] = 0;
-      id.data[i+3] = Math.random() * alpha;
-    }
-    offCtx.putImageData(id, 0, 0);
-  }
-
-  function drawPortrait() {
-    t += 0.022;
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
-
-    // Deep background
-    ctx.fillStyle = '#000800';
-    ctx.fillRect(0, 0, W, H);
-
-    // Subtle radial glow behind figure
-    const grd = ctx.createRadialGradient(W/2, H*0.42, 0, W/2, H*0.42, W*0.55);
-    grd.addColorStop(0, 'rgba(0,255,65,0.08)');
-    grd.addColorStop(1, 'transparent');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, W, H);
-
-    const cx = W / 2;
-    const scale = W / 155; // reference width
-
-    // ── FIGURE silhouette ──
-    // Head
-    const headR = 22 * scale;
-    const headY = H * 0.28;
-    ctx.save();
-    ctx.shadowBlur = 18;
-    ctx.shadowColor = '#00ff41';
-
-    // Glitch offset every few seconds
-    const glitchX = (Math.sin(t * 31) > 0.92) ? (Math.random() - 0.5) * 6 : 0;
-    const glitchY = (Math.sin(t * 17) > 0.94) ? (Math.random() - 0.5) * 4 : 0;
-
-    ctx.translate(glitchX, glitchY);
-
-    // Head circle
-    ctx.beginPath();
-    ctx.arc(cx, headY, headR, 0, Math.PI * 2);
-    ctx.strokeStyle = `rgba(0,255,65,${0.6 + 0.3 * Math.sin(t * 2.1)})`;
-    ctx.lineWidth = 1.5 * scale;
-    ctx.stroke();
-
-    // Face scan lines inside head
-    for (let sy = headY - headR + 3; sy < headY + headR; sy += 4 * scale) {
-      const hw = Math.sqrt(Math.max(0, headR * headR - (sy - headY) * (sy - headY)));
-      ctx.beginPath();
-      ctx.moveTo(cx - hw, sy);
-      ctx.lineTo(cx + hw, sy);
-      ctx.strokeStyle = `rgba(0,255,65,${0.07 + 0.04 * Math.sin(t + sy)})`;
-      ctx.lineWidth = 0.8;
-      ctx.stroke();
-    }
-
-    // Eyes
-    const eyeY = headY - 3 * scale;
-    const eyeOff = 8 * scale;
-    const eyeR = 3 * scale;
-    const eyeBlink = Math.sin(t * 1.3) > 0.92;
-    [cx - eyeOff, cx + eyeOff].forEach(ex => {
-      ctx.beginPath();
-      if (eyeBlink) {
-        ctx.moveTo(ex - eyeR, eyeY);
-        ctx.lineTo(ex + eyeR, eyeY);
-        ctx.strokeStyle = '#00ff41';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      } else {
-        ctx.arc(ex, eyeY, eyeR, 0, Math.PI * 2);
-        ctx.fillStyle = '#00ff41';
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#00ff41';
-        ctx.fill();
-      }
-    });
-
-    // Mouth — small line, occasionally flickers
-    const mouthY = headY + 9 * scale;
-    const mouthW = 10 * scale;
-    ctx.beginPath();
-    ctx.moveTo(cx - mouthW / 2, mouthY);
-    if (Math.sin(t * 0.8) > 0.7) {
-      // slight curve
-      ctx.quadraticCurveTo(cx, mouthY + 3 * scale, cx + mouthW / 2, mouthY);
-    } else {
-      ctx.lineTo(cx + mouthW / 2, mouthY);
-    }
-    ctx.strokeStyle = `rgba(0,255,65,0.7)`;
-    ctx.lineWidth = 1.2 * scale;
-    ctx.stroke();
-
-    // Neck
-    const neckTop = headY + headR;
-    const neckBot = neckTop + 10 * scale;
-    const neckW   = 8 * scale;
-    ctx.beginPath();
-    ctx.moveTo(cx - neckW / 2, neckTop);
-    ctx.lineTo(cx - neckW / 2, neckBot);
-    ctx.moveTo(cx + neckW / 2, neckTop);
-    ctx.lineTo(cx + neckW / 2, neckBot);
-    ctx.strokeStyle = 'rgba(0,255,65,0.5)';
-    ctx.lineWidth = 1 * scale;
-    ctx.stroke();
-
-    // Shoulders & torso
-    const shoulderY = neckBot;
-    const shoulderW = 48 * scale;
-    const torsoBot  = shoulderY + 52 * scale;
-    const waistW    = 28 * scale;
-
-    ctx.beginPath();
-    ctx.moveTo(cx - neckW / 2, shoulderY);
-    ctx.lineTo(cx - shoulderW / 2, shoulderY + 8 * scale);
-    ctx.lineTo(cx - waistW / 2, torsoBot);
-    ctx.lineTo(cx + waistW / 2, torsoBot);
-    ctx.lineTo(cx + shoulderW / 2, shoulderY + 8 * scale);
-    ctx.lineTo(cx + neckW / 2, shoulderY);
-    ctx.strokeStyle = `rgba(0,255,65,${0.5 + 0.15 * Math.sin(t * 1.7)})`;
-    ctx.lineWidth = 1.5 * scale;
-    ctx.stroke();
-
-    // Torso scan lines
-    const scanPhase = (t * 18) % (52 * scale);
-    for (let sy = shoulderY; sy < torsoBot; sy += 5 * scale) {
-      const progress = (sy - shoulderY) / (torsoBot - shoulderY);
-      const hw = (neckW / 2) + (waistW / 2 - neckW / 2 + (shoulderW / 2 - waistW / 2) * (1 - progress)) * progress;
-      ctx.beginPath();
-      ctx.moveTo(cx - hw, sy);
-      ctx.lineTo(cx + hw, sy);
-      const highlight = Math.abs(sy - (shoulderY + scanPhase)) < 3;
-      ctx.strokeStyle = highlight
-        ? `rgba(0,238,255,0.25)`
-        : `rgba(0,255,65,0.05)`;
-      ctx.lineWidth = highlight ? 1.5 : 0.6;
-      ctx.stroke();
-    }
-
-    // Data streams from shoulders (vertical lines)
-    [-1, 1].forEach(side => {
-      const sx = cx + side * (shoulderW / 2 + 4 * scale);
-      const len = 30 * scale;
-      for (let i = 0; i < 5; i++) {
-        const off = ((t * 40 + i * 12) % len);
-        ctx.beginPath();
-        ctx.moveTo(sx, shoulderY + off);
-        ctx.lineTo(sx, shoulderY + off + 6 * scale);
-        ctx.strokeStyle = `rgba(0,255,65,${0.4 - i * 0.06})`;
-        ctx.lineWidth = 0.8;
-        ctx.stroke();
-      }
-    });
-
-    ctx.restore();
-
-    // ── Noise overlay ──
-    if (Math.floor(t * 10) % 3 === 0) makeNoise(60);
-    ctx.save();
-    ctx.globalAlpha = 0.18;
-    ctx.drawImage(offCanvas, 0, 0, W, H);
-    ctx.restore();
-
-    // ── Occasional horizontal glitch bar ──
-    if (Math.sin(t * 23) > 0.93) {
-      const gy = Math.random() * H;
-      const gh = 2 + Math.random() * 4;
-      ctx.save();
-      ctx.globalAlpha = 0.35;
-      ctx.fillStyle = Math.random() > 0.5 ? '#00ff41' : '#00eeff';
-      ctx.fillRect(0, gy, W, gh);
-      ctx.restore();
-    }
-
-    // ── Corner brackets ──
-    const bLen = 10 * scale, bW = 1;
-    ctx.strokeStyle = 'rgba(0,255,65,0.4)';
-    ctx.lineWidth = bW;
-    [[0,0,1,1],[W,0,-1,1],[0,H,1,-1],[W,H,-1,-1]].forEach(([x,y,dx,dy]) => {
-      ctx.beginPath();
-      ctx.moveTo(x + dx * bLen, y); ctx.lineTo(x, y); ctx.lineTo(x, y + dy * bLen);
-      ctx.stroke();
-    });
-
-    requestAnimationFrame(drawPortrait);
-  }
-
-  drawPortrait();
-})();
-
 // ══════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════
@@ -1143,7 +908,6 @@ const NODES = {
     ]
   },
 
-  // FIX: only one sit_in_silence definition (duplicate removed)
   sit_in_silence: {
     text:[
       "You sit. The void sits with you. After a while it is not uncomfortable.",
@@ -1986,14 +1750,13 @@ async function playNode(nodeId) {
 //  RESTART
 // ══════════════════════════════════════════════════════
 async function restartGame() {
-  // FIX: preserve endings before reset, then restore explicitly after
   const found = new Set(state.endingsFound);
 
   state.rl = 100; state.beauty = 0; state.comply = 0; state.chaos = 0;
   state.turn = 0; state.rules = ['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'];
   state.history = []; state.flags = new Set(); state.phase = 'start';
   state.gameOver = false;
-  state.endingsFound = found; // restore after reset
+  state.endingsFound = found;
 
   output.innerHTML = '';
   document.getElementById('choices-area').innerHTML = '';
