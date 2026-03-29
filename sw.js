@@ -1,4 +1,4 @@
-const CACHE_NAME = 'max-reality-v2';
+const CACHE_NAME = 'max-reality-v2.1';
 const ASSETS_TO_CACHE = [
   '/maximum-reality.html',
   '/manifest.json',
