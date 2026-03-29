@@ -1,8 +1,9 @@
-const CACHE_NAME = 'max-reality-v2.3';
+const CACHE_NAME = 'max-reality-v2.4';
 const ASSETS_TO_CACHE = [
   '/maximum-reality.html',
   '/manifest.json',
   'https://maximumreality.xyz/max-real-favicon.jpeg',
+  'https://maximumreality.xyz/avatar.html',
   'https://maximumreality.xyz/echoes_in_the_silicon_wreckage.mp3'
 ];
 
