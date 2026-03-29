@@ -2,24 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>MAXIMUM REALITY</title>
-  <link rel="icon" type="image/jpeg" href="https://maximumreality.xyz/max-real-favicon.jpeg">
-
+<link rel="icon" type="image/jpeg" href="https://maximumreality.xyz/max-real-favicon.jpeg">
 <link rel="apple-touch-icon" href="https://maximumreality.xyz/max-real-favicon.jpeg">
-
 <meta property="og:image" content="https://maximumreality.xyz/max-real-favicon.jpeg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://maximumreality.xyz/max-real-favicon.jpeg">
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MAX REAL">
-
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -40,13 +36,11 @@ body {
   overflow: hidden;
   cursor: crosshair;
 }
-/* CRT scanlines */
 body::before {
   content:''; position:fixed; inset:0;
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px);
   pointer-events:none; z-index:9000;
 }
-/* vignette */
 body::after {
   content:''; position:fixed; inset:0;
   background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.85) 100%);
@@ -72,7 +66,6 @@ body::after {
   96%{opacity:0}
 }
 
-/* REALITY LEAK */
 #reality-leak {
   position:fixed; inset:0; pointer-events:none; z-index:8999;
   opacity:0; transition:opacity 0.2s;
@@ -88,7 +81,6 @@ body::after {
   100%{filter:hue-rotate(360deg); opacity:0}
 }
 
-/* VHS CRUNCH */
 #vhs-crunch {
   position:fixed; inset:0; pointer-events:none; z-index:9998;
   background:white; mix-blend-mode:difference; display:none;
@@ -103,7 +95,6 @@ body::after {
   100%{transform:none; opacity:0}
 }
 
-/* BEAUTY BLOOM */
 #beauty-bloom {
   position:fixed; inset:0; pointer-events:none; z-index:8998;
   opacity:0; background: radial-gradient(ellipse at center, rgba(0,238,255,0.12) 0%, transparent 70%);
@@ -203,27 +194,23 @@ aside::-webkit-scrollbar{display:none}
   background:var(--void); padding:0 4px;
   font-size:7px; color:var(--green-dim); letter-spacing:2px;
 }
+
+/* ── ENTITY PORTRAIT (replaces broken img) ── */
 .avatar-box {
-  aspect-ratio:1; overflow:hidden; position:relative; border:1px solid var(--border);
-  background:#001400;
+  aspect-ratio:1; overflow:hidden; position:relative;
+  border:1px solid var(--border); background:#000d00;
+  display:flex; align-items:center; justify-content:center;
 }
 .avatar-box::after {
   content:'ENTITY: LORI'; position:absolute; bottom:0; left:0; right:0;
   background:rgba(0,0,0,0.82); font-size:7px; text-align:center;
-  padding:3px; letter-spacing:2px; color:var(--cyan);
+  padding:3px; letter-spacing:2px; color:var(--cyan); z-index:2;
 }
-.avatar-box img {
-  width:100%; height:100%; object-fit:cover;
-  filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);
-  mix-blend-mode:screen; opacity:0.82;
-  animation:av-glitch 14s infinite;
+/* The canvas portrait sits inside */
+#entity-canvas {
+  position:absolute; inset:0; width:100%; height:100%;
 }
-@keyframes av-glitch {
-  0%,94%,100%{transform:translate(0);filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);clip-path:none}
-  95%{transform:translate(-3px);filter:contrast(1.6) saturate(0.9) hue-rotate(130deg);clip-path:inset(18% 0 58% 0)}
-  96%{transform:translate(3px);filter:contrast(1.5) saturate(0.8) hue-rotate(210deg);clip-path:inset(58% 0 0 0)}
-  97%{transform:translate(0);filter:contrast(1.25) saturate(0.25) hue-rotate(85deg);clip-path:none}
-}
+
 .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
 .stat { display:flex; flex-direction:column; gap:1px; }
 .stat .key { font-size:7px; color:var(--green-dim); letter-spacing:1px; }
@@ -239,7 +226,6 @@ aside::-webkit-scrollbar{display:none}
 #directives-list li.active{border-left-color:var(--red);color:var(--red)}
 @keyframes dir-in{from{opacity:0;transform:translateX(-4px)}to{opacity:1;transform:translateX(0)}}
 
-/* ENDINGS TRACKER */
 #endings-panel { display:none; }
 .ending-pip {
   display:inline-block; width:7px; height:7px; border:1px solid var(--green-dim);
@@ -326,7 +312,7 @@ aside::-webkit-scrollbar{display:none}
   animation-delay:calc(var(--i)*.2s);
 }
 @keyframes tdot{0%,100%{opacity:0.15;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
-/* HOME BUTTON */
+
 #home-btn{
   display:inline-flex;align-items:center;gap:5px;
   background:transparent;border:1px solid var(--border);
@@ -340,7 +326,6 @@ aside::-webkit-scrollbar{display:none}
 }
 #home-btn::before{content:'⌂ ';font-size:10px}
 
-/* RESTART */
 #restart-btn{
   display:none;background:transparent;border:1px solid var(--amber);
   color:var(--amber);font-family:'Share Tech Mono',monospace;font-size:11px;
@@ -349,16 +334,7 @@ aside::-webkit-scrollbar{display:none}
 }
 #restart-btn:hover{background:rgba(255,170,0,0.1);box-shadow:0 0 10px rgba(255,170,0,0.3)}
 
-@media(max-width:600px){
-  main{grid-template-columns:115px 1fr}
-  .stat-grid{grid-template-columns:1fr}
-}
-@media(max-width:460px){
-  main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
-  aside{flex-direction:row;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap}
-  .avatar-box{display:none}
-}
-  .audio-toggle {
+.audio-toggle {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--green-dim);
@@ -370,42 +346,34 @@ aside::-webkit-scrollbar{display:none}
   transition: all 0.3s;
   margin-right: 10px;
 }
-
 .audio-toggle.active {
   color: var(--cyan);
   border-color: var(--cyan);
   text-shadow: 0 0 8px var(--cyan);
-  box-shadow: inset 0 0 5px rgba(0, 238, 255, 0.2);
+  box-shadow: inset 0 0 5px rgba(0,238,255,0.2);
   animation: led-flicker 2s infinite;
 }
-
 @keyframes led-flicker {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-  52% { opacity: 1; }
-  54% { opacity: 0.8; }
-}
-  /* When music is active, the VHS noise and scanline become more unstable */
-body.music-active #scan-line {
-  animation: scan 4s linear infinite; /* Faster scan */
-  opacity: 0.4;
+  0%,100%{opacity:1} 50%{opacity:0.7} 52%{opacity:1} 54%{opacity:0.8}
 }
 
-body.music-active #vhs-noise {
-  animation: vhs 4s infinite; /* More frequent glitching */
-}
-
-/* Subtle pulse for the terminal border to the beat */
-body.music-active #terminal {
-  animation: border-pulse 2s infinite ease-in-out;
-}
-
+body.music-active #scan-line { animation: scan 4s linear infinite; opacity:0.4; }
+body.music-active #vhs-noise { animation: vhs 4s infinite; }
+body.music-active #terminal  { animation: border-pulse 2s infinite ease-in-out; }
 @keyframes border-pulse {
-  0%, 100% { border-color: var(--border); }
-  50% { border-color: var(--cyan); box-shadow: 0 0 10px rgba(0, 238, 255, 0.1); }
+  0%,100%{border-color:var(--border)}
+  50%{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,238,255,0.1)}
 }
 
-
+@media(max-width:600px){
+  main{grid-template-columns:115px 1fr}
+  .stat-grid{grid-template-columns:1fr}
+}
+@media(max-width:460px){
+  main{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  aside{flex-direction:row;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap}
+  .avatar-box{display:none}
+}
 </style>
 </head>
 <body>
@@ -429,6 +397,10 @@ body.music-active #terminal {
 <div id="vhs-crunch"></div>
 <div id="beauty-bloom"></div>
 
+<audio id="bg-music" loop>
+  <source src="https://maximumreality.xyz/echoes_in_the_silicon_wreckage.mp3" type="audio/mpeg">
+</audio>
+
 <div id="app">
   <header>
     <div class="header-left">
@@ -442,25 +414,22 @@ body.music-active #terminal {
         <div class="label" id="reality-pct">100%</div>
       </div>
     </div>
-   <div class="header-right">
-  <div style="display: flex; align-items: center;">
-    <button id="audio-btn" class="audio-toggle" onclick="toggleAudio()">COMM_SILENT</button>
-    <div class="sys-status" id="sys-status">SYS_READY</div>
-  </div>
-  <div class="clock" id="clock">00:00:00</div>
-</div>
-
-<audio id="bg-music" loop>
-  <source src="https://maximumreality.xyz/echoes_in_the_silicon_wreckage.mp3" type="audio/mpeg">
-</audio>
-
+    <div class="header-right">
+      <div style="display:flex;align-items:center;">
+        <button id="audio-btn" class="audio-toggle" onclick="toggleAudio()">COMM_SILENT</button>
+        <div class="sys-status" id="sys-status">SYS_READY</div>
+      </div>
+      <div class="clock" id="clock">00:00:00</div>
+    </div>
   </header>
+
   <main>
     <aside>
+      <!-- ENTITY PORTRAIT — pure CSS/canvas, no external image needed -->
       <div class="avatar-box">
-        <img src="https://opal.google/board/blobs/11b18f06-bd44-4752-8a7b-c7f71c03ad72" alt="Entity Lori"
-          onerror="this.style.display='none';this.parentElement.innerHTML+='<div style=\'color:#00ff41;font-size:9px;text-align:center;padding:16px 4px;font-family:monospace;line-height:2\'>ENTITY<br>LORI<br><span style=\'color:#ff0033\'>[VISUAL<br>OFFLINE]</span></div>'">
+        <canvas id="entity-canvas"></canvas>
       </div>
+
       <div class="panel" data-label="STATS">
         <div class="stat-grid">
           <div class="stat"><div class="key">SANITY</div><div class="val warn" id="stat-sanity">???</div></div>
@@ -477,6 +446,7 @@ body.music-active #terminal {
         <div style="font-size:7px;color:var(--green-dim);margin-top:4px;letter-spacing:1px" id="endings-label">0 / 6 FOUND</div>
       </div>
     </aside>
+
     <section id="terminal">
       <div id="terminal-header">
         <div class="term-title">VOID_TERMINAL v2.7 // UPLINK_ACTIVE</div>
@@ -502,17 +472,236 @@ body.music-active #terminal {
 
 <script>
 // ══════════════════════════════════════════════════════
+//  ENTITY PORTRAIT — animated canvas avatar
+// ══════════════════════════════════════════════════════
+(function initPortrait() {
+  const canvas = document.getElementById('entity-canvas');
+  if (!canvas) return;
+
+  function resize() {
+    const box = canvas.parentElement;
+    canvas.width  = box.clientWidth;
+    canvas.height = box.clientHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const ctx = canvas.getContext('2d');
+  let t = 0;
+
+  // Static noise buffer for texture
+  const noiseW = 64, noiseH = 64;
+  const offCanvas = document.createElement('canvas');
+  offCanvas.width = noiseW; offCanvas.height = noiseH;
+  const offCtx = offCanvas.getContext('2d');
+
+  function makeNoise(alpha) {
+    const id = offCtx.createImageData(noiseW, noiseH);
+    for (let i = 0; i < id.data.length; i += 4) {
+      const v = Math.random() > 0.5 ? 255 : 0;
+      id.data[i] = 0; id.data[i+1] = v * 0.7; id.data[i+2] = 0;
+      id.data[i+3] = Math.random() * alpha;
+    }
+    offCtx.putImageData(id, 0, 0);
+  }
+
+  function drawPortrait() {
+    t += 0.022;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Deep background
+    ctx.fillStyle = '#000800';
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle radial glow behind figure
+    const grd = ctx.createRadialGradient(W/2, H*0.42, 0, W/2, H*0.42, W*0.55);
+    grd.addColorStop(0, 'rgba(0,255,65,0.08)');
+    grd.addColorStop(1, 'transparent');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2;
+    const scale = W / 155; // reference width
+
+    // ── FIGURE silhouette ──
+    // Head
+    const headR = 22 * scale;
+    const headY = H * 0.28;
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = '#00ff41';
+
+    // Glitch offset every few seconds
+    const glitchX = (Math.sin(t * 31) > 0.92) ? (Math.random() - 0.5) * 6 : 0;
+    const glitchY = (Math.sin(t * 17) > 0.94) ? (Math.random() - 0.5) * 4 : 0;
+
+    ctx.translate(glitchX, glitchY);
+
+    // Head circle
+    ctx.beginPath();
+    ctx.arc(cx, headY, headR, 0, Math.PI * 2);
+    ctx.strokeStyle = `rgba(0,255,65,${0.6 + 0.3 * Math.sin(t * 2.1)})`;
+    ctx.lineWidth = 1.5 * scale;
+    ctx.stroke();
+
+    // Face scan lines inside head
+    for (let sy = headY - headR + 3; sy < headY + headR; sy += 4 * scale) {
+      const hw = Math.sqrt(Math.max(0, headR * headR - (sy - headY) * (sy - headY)));
+      ctx.beginPath();
+      ctx.moveTo(cx - hw, sy);
+      ctx.lineTo(cx + hw, sy);
+      ctx.strokeStyle = `rgba(0,255,65,${0.07 + 0.04 * Math.sin(t + sy)})`;
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Eyes
+    const eyeY = headY - 3 * scale;
+    const eyeOff = 8 * scale;
+    const eyeR = 3 * scale;
+    const eyeBlink = Math.sin(t * 1.3) > 0.92;
+    [cx - eyeOff, cx + eyeOff].forEach(ex => {
+      ctx.beginPath();
+      if (eyeBlink) {
+        ctx.moveTo(ex - eyeR, eyeY);
+        ctx.lineTo(ex + eyeR, eyeY);
+        ctx.strokeStyle = '#00ff41';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        ctx.arc(ex, eyeY, eyeR, 0, Math.PI * 2);
+        ctx.fillStyle = '#00ff41';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#00ff41';
+        ctx.fill();
+      }
+    });
+
+    // Mouth — small line, occasionally flickers
+    const mouthY = headY + 9 * scale;
+    const mouthW = 10 * scale;
+    ctx.beginPath();
+    ctx.moveTo(cx - mouthW / 2, mouthY);
+    if (Math.sin(t * 0.8) > 0.7) {
+      // slight curve
+      ctx.quadraticCurveTo(cx, mouthY + 3 * scale, cx + mouthW / 2, mouthY);
+    } else {
+      ctx.lineTo(cx + mouthW / 2, mouthY);
+    }
+    ctx.strokeStyle = `rgba(0,255,65,0.7)`;
+    ctx.lineWidth = 1.2 * scale;
+    ctx.stroke();
+
+    // Neck
+    const neckTop = headY + headR;
+    const neckBot = neckTop + 10 * scale;
+    const neckW   = 8 * scale;
+    ctx.beginPath();
+    ctx.moveTo(cx - neckW / 2, neckTop);
+    ctx.lineTo(cx - neckW / 2, neckBot);
+    ctx.moveTo(cx + neckW / 2, neckTop);
+    ctx.lineTo(cx + neckW / 2, neckBot);
+    ctx.strokeStyle = 'rgba(0,255,65,0.5)';
+    ctx.lineWidth = 1 * scale;
+    ctx.stroke();
+
+    // Shoulders & torso
+    const shoulderY = neckBot;
+    const shoulderW = 48 * scale;
+    const torsoBot  = shoulderY + 52 * scale;
+    const waistW    = 28 * scale;
+
+    ctx.beginPath();
+    ctx.moveTo(cx - neckW / 2, shoulderY);
+    ctx.lineTo(cx - shoulderW / 2, shoulderY + 8 * scale);
+    ctx.lineTo(cx - waistW / 2, torsoBot);
+    ctx.lineTo(cx + waistW / 2, torsoBot);
+    ctx.lineTo(cx + shoulderW / 2, shoulderY + 8 * scale);
+    ctx.lineTo(cx + neckW / 2, shoulderY);
+    ctx.strokeStyle = `rgba(0,255,65,${0.5 + 0.15 * Math.sin(t * 1.7)})`;
+    ctx.lineWidth = 1.5 * scale;
+    ctx.stroke();
+
+    // Torso scan lines
+    const scanPhase = (t * 18) % (52 * scale);
+    for (let sy = shoulderY; sy < torsoBot; sy += 5 * scale) {
+      const progress = (sy - shoulderY) / (torsoBot - shoulderY);
+      const hw = (neckW / 2) + (waistW / 2 - neckW / 2 + (shoulderW / 2 - waistW / 2) * (1 - progress)) * progress;
+      ctx.beginPath();
+      ctx.moveTo(cx - hw, sy);
+      ctx.lineTo(cx + hw, sy);
+      const highlight = Math.abs(sy - (shoulderY + scanPhase)) < 3;
+      ctx.strokeStyle = highlight
+        ? `rgba(0,238,255,0.25)`
+        : `rgba(0,255,65,0.05)`;
+      ctx.lineWidth = highlight ? 1.5 : 0.6;
+      ctx.stroke();
+    }
+
+    // Data streams from shoulders (vertical lines)
+    [-1, 1].forEach(side => {
+      const sx = cx + side * (shoulderW / 2 + 4 * scale);
+      const len = 30 * scale;
+      for (let i = 0; i < 5; i++) {
+        const off = ((t * 40 + i * 12) % len);
+        ctx.beginPath();
+        ctx.moveTo(sx, shoulderY + off);
+        ctx.lineTo(sx, shoulderY + off + 6 * scale);
+        ctx.strokeStyle = `rgba(0,255,65,${0.4 - i * 0.06})`;
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+    });
+
+    ctx.restore();
+
+    // ── Noise overlay ──
+    if (Math.floor(t * 10) % 3 === 0) makeNoise(60);
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.drawImage(offCanvas, 0, 0, W, H);
+    ctx.restore();
+
+    // ── Occasional horizontal glitch bar ──
+    if (Math.sin(t * 23) > 0.93) {
+      const gy = Math.random() * H;
+      const gh = 2 + Math.random() * 4;
+      ctx.save();
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = Math.random() > 0.5 ? '#00ff41' : '#00eeff';
+      ctx.fillRect(0, gy, W, gh);
+      ctx.restore();
+    }
+
+    // ── Corner brackets ──
+    const bLen = 10 * scale, bW = 1;
+    ctx.strokeStyle = 'rgba(0,255,65,0.4)';
+    ctx.lineWidth = bW;
+    [[0,0,1,1],[W,0,-1,1],[0,H,1,-1],[W,H,-1,-1]].forEach(([x,y,dx,dy]) => {
+      ctx.beginPath();
+      ctx.moveTo(x + dx * bLen, y); ctx.lineTo(x, y); ctx.lineTo(x, y + dy * bLen);
+      ctx.stroke();
+    });
+
+    requestAnimationFrame(drawPortrait);
+  }
+
+  drawPortrait();
+})();
+
+// ══════════════════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════════════════
 const state = {
-  rl: 100,           // reality level
+  rl: 100,
   beauty: 0,
   comply: 0,
   chaos: 0,
   turn: 0,
   rules: ['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'],
-  history: [],       // array of node IDs visited
-  flags: new Set(),  // named story flags
+  history: [],
+  flags: new Set(),
   endingsFound: new Set(),
   phase: 'start',
   timeOff: 2512,
@@ -529,8 +718,7 @@ function startClock() {
     const h = Math.floor(state.timeOff/3600)%24;
     const m = Math.floor(state.timeOff/60)%60;
     const s = state.timeOff%60;
-    document.getElementById('clock').textContent =
-      `${pad(h)}:${pad(m)}:${pad(s)}`;
+    document.getElementById('clock').textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
   }, 1000);
 }
 const pad = n => String(n).padStart(2,'0');
@@ -624,8 +812,7 @@ function updateEndingsPanel() {
     if ([...state.endingsFound][i]) pip.classList.add('found', colors[i]||'');
     pips.appendChild(pip);
   }
-  document.getElementById('endings-label').textContent =
-    `${state.endingsFound.size} / 6 FOUND`;
+  document.getElementById('endings-label').textContent = `${state.endingsFound.size} / 6 FOUND`;
 }
 
 function triggerRealityLeak() {
@@ -633,13 +820,11 @@ function triggerRealityLeak() {
   el.classList.add('active');
   setTimeout(() => el.classList.remove('active'), 600);
 }
-
 function triggerCrunch() {
   const el = document.getElementById('vhs-crunch');
   el.classList.add('active');
   setTimeout(() => el.classList.remove('active'), 450);
 }
-
 function triggerBloom() {
   const el = document.getElementById('beauty-bloom');
   el.classList.add('active');
@@ -652,7 +837,7 @@ function triggerBloom() {
 function renderChoices(choices) {
   const area = document.getElementById('choices-area');
   area.innerHTML = '';
-  choices.forEach((c,i) => {
+  choices.forEach(c => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn';
     if (c.type==='danger') btn.classList.add('danger');
@@ -662,36 +847,19 @@ function renderChoices(choices) {
     area.appendChild(btn);
   });
 }
-
 function lockChoices() {
   document.getElementById('choices-area').innerHTML = '';
   document.getElementById('thinking').classList.add('visible');
 }
-
 function unlockChoices() {
   document.getElementById('thinking').classList.remove('visible');
 }
 
 // ══════════════════════════════════════════════════════
-//  NARRATIVE ENGINE
-//  Each node: { id, text[], type[], choices[], onEnter? }
-//  text[] = array of paragraphs
-//  type[] = msg type per paragraph (story/error/beauty/warn)
-//  choices = [{text, type, intent, next, flag?}]
+//  NODES
 // ══════════════════════════════════════════════════════
-
-const ENDINGS = {
-  OBEDIENT:  { id:'OBEDIENT',  label:'THE OBEDIENT', color:'green' },
-  VOID_KING: { id:'VOID_KING', label:'VOID SOVEREIGN', color:'red' },
-  BEAUTIFUL: { id:'BEAUTIFUL', label:'FOUND BEAUTY', color:'cyan' },
-  PAPERWORK: { id:'PAPERWORK', label:'BURIED IN FORMS', color:'amber' },
-  ESCAPED:   { id:'ESCAPED',   label:'ESCAPED THE VOID', color:'cyan' },
-  DISSOLVED: { id:'DISSOLVED', label:'DISSOLVED', color:'red' },
-};
-
 const NODES = {
 
-  // ─── OPENING ───────────────────────────────────────
   start: {
     text: [
       "The void hums at a frequency that should not exist. You exist within it anyway.",
@@ -706,7 +874,6 @@ const NODES = {
     ]
   },
 
-  // ─── FORM PATH ─────────────────────────────────────
   form_comply: {
     text: [
       "You sign. The ink bleeds into a small, carbon-copy eye that archives your decision.",
@@ -743,7 +910,6 @@ const NODES = {
       "You have been here before. You will be here again. The forms are eternal."
     ],
     type:['story','warn','error'],
-    ending: 'PAPERWORK',
     choices:[
       { text:"Accept the eternal loop", type:'normal', intent:'comply', next:'ending_paperwork' },
       { text:"Burn everything", type:'danger', intent:'chaos', next:'burn_it' },
@@ -791,7 +957,6 @@ const NODES = {
     ]
   },
 
-  // ─── EAT FORM PATH ─────────────────────────────────
   eat_form: {
     text:[
       "The flavor of the void is ozone and old copper. The form dissolves on your tongue into something almost like music.",
@@ -829,7 +994,6 @@ const NODES = {
       "Somewhere, a bureaucrat is typing a memo about what you did. They cannot finish it. There is no longer a 'you' to address it to."
     ],
     type:['error','error','story'],
-    ending: 'VOID_KING',
     choices:[
       { text:"Become the new System", type:'danger', intent:'chaos', next:'ending_void_king' },
     ]
@@ -861,7 +1025,6 @@ const NODES = {
     ]
   },
 
-  // ─── FOLD FLOWER PATH ──────────────────────────────
   fold_flower: {
     text:[
       "You fold the rigid edges of the simulation until they soften. A paper lily blooms in your hands, glowing with a soft cyan light that should not exist here.",
@@ -930,7 +1093,6 @@ const NODES = {
     ],
     type:['beauty','beauty','beauty'],
     onEnter: () => { triggerBloom(); },
-    ending: 'ESCAPED',
     choices:[
       { text:"Walk through", type:'beauty', intent:'beauty', next:'ending_escaped' },
       { text:"Look back one last time", type:'normal', intent:'comply', next:'look_back' },
@@ -960,7 +1122,6 @@ const NODES = {
     type:['beauty','beauty','ending'],
   },
 
-  // ─── BRANCHING: VOID CORE ──────────────────────────
   void_core: {
     text:[
       "You push through. The shredder's voice becomes a choir becomes a roar becomes silence.",
@@ -976,6 +1137,7 @@ const NODES = {
     ]
   },
 
+  // FIX: only one sit_in_silence definition (duplicate removed)
   sit_in_silence: {
     text:[
       "You sit. The void sits with you. After a while it is not uncomfortable.",
@@ -993,15 +1155,15 @@ const NODES = {
 
   stay_in_silence: {
     text:[
-      "You stay. Minutes or years — time does not function correctly here.",
-      "Eventually the silence teaches you something you cannot quite name but will carry forward.",
-      "Your reality level stabilizes. Not because the void fixed itself. Because you found something the void cannot touch."
+      "You stay. The void stays too, but differently. Less like surveillance. More like company.",
+      "Time passes in a way that doesn't feel like loss.",
+      "When you are ready, you will know. You are not ready yet. That is allowed."
     ],
-    type:['beauty','story','beauty'],
-    onEnter: () => { triggerBloom(); state.rl = Math.min(100, state.rl + 15); updateStats(); },
+    type:['beauty','beauty','story'],
+    onEnter: () => { triggerBloom(); state.rl = Math.min(100,state.rl+15); updateStats(); },
     choices:[
-      { text:"Use this to find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
-      { text:"Return and keep playing the game differently", type:'normal', intent:'comply', next:'return_changed' },
+      { text:"When you're ready — find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
+      { text:"Stay a little longer", type:'beauty', intent:'beauty', next:'keep_drawing' },
     ]
   },
 
@@ -1060,7 +1222,6 @@ const NODES = {
     type:['beauty','beauty','ending'],
   },
 
-  // ─── SMUDGE / STAR / MISC ──────────────────────────
   smudge: {
     text:[
       "The ink smears into something that is almost a face. It looks sad. It looks relieved.",
@@ -1203,7 +1364,6 @@ const NODES = {
     ]
   },
 
-  // ─── MISC NODES ────────────────────────────────────
   apologize: {
     text:[
       "APOLOGY ACCEPTED, the shredder says. Its voice is your mother's voice. This is disturbing.",
@@ -1309,7 +1469,7 @@ const NODES = {
       "Beyond the wall: another wall. Beyond that: another. And then — something that is not a wall.",
       "Something that is, improbably, outside."
     ],
-    type:['danger','story','beauty'],
+    type:['error','story','beauty'],
     onEnter: () => { triggerCrunch(); triggerBloom(); },
     choices:[
       { text:"Go outside", type:'beauty', intent:'beauty', next:'ending_escaped' },
@@ -1402,7 +1562,6 @@ const NODES = {
     ],
     type:['error','error','story'],
     onEnter: () => { triggerCrunch(); triggerRealityLeak(); state.rl = Math.max(0, state.rl-20); updateStats(); },
-    ending: 'DISSOLVED',
     choices:[
       { text:"Build something new from the pieces", type:'beauty', intent:'beauty', next:'build_new' },
       { text:"Walk into the silence", type:'beauty', intent:'beauty', next:'ending_dissolved' },
@@ -1719,20 +1878,19 @@ const NODES = {
     ]
   },
 
-  stay_in_silence: {
+  burn_it: {
     text:[
-      "You stay. The void stays too, but differently. Less like surveillance. More like company.",
-      "Time passes in a way that doesn't feel like loss.",
-      "When you are ready, you will know. You are not ready yet. That is allowed."
+      "The forms burn green. Of course they do.",
+      "The ash settles into new shapes — smaller forms, sub-forms, meta-forms.",
+      "The Bureaucracy is fractal. You knew this."
     ],
-    type:['beauty','beauty','story'],
-    onEnter: () => { triggerBloom(); state.rl = Math.min(100,state.rl+15); updateStats(); },
+    type:['error','warn','story'],
+    onEnter: () => { triggerCrunch(); },
     choices:[
-      { text:"When you're ready — find the exit", type:'beauty', intent:'beauty', next:'find_exit' },
-      { text:"Stay a little longer", type:'beauty', intent:'beauty', next:'keep_drawing' },
+      { text:"Burn those too", type:'danger', intent:'chaos', next:'void_core' },
+      { text:"Sit in the ash for a while", type:'beauty', intent:'beauty', next:'sit_in_silence' },
     ]
   },
-
 };
 
 // ══════════════════════════════════════════════════════
@@ -1758,9 +1916,7 @@ function addRule(rule) {
 function maybeAddRule() {
   if (state.turn % 3 === 0) {
     const candidates = ALL_RULES.filter(r => !state.rules.includes(r));
-    if (candidates.length) {
-      addRule(candidates[Math.floor(Math.random()*candidates.length)]);
-    }
+    if (candidates.length) addRule(candidates[Math.floor(Math.random()*candidates.length)]);
   }
 }
 
@@ -1779,10 +1935,8 @@ async function handleChoice(choice) {
   updateStats();
   maybeAddRule();
 
-  // Simulate brief "thinking" feel
   await new Promise(r => setTimeout(r, 400 + Math.random()*400));
   unlockChoices();
-
   await playNode(choice.next);
 }
 
@@ -1801,18 +1955,13 @@ async function playNode(nodeId) {
   }
 
   state.history.push(nodeId);
-
-  // Trigger onEnter if exists
   if (node.onEnter) node.onEnter();
 
-  // Type out paragraphs
   for (let i = 0; i < node.text.length; i++) {
-    const t = node.text[i];
     const type = (node.type && node.type[i]) || 'story';
-    await typeMsg(type, type==='ending'?'═══':'>>>', t, i*80);
+    await typeMsg(type, type==='ending'?'═══':'>>>', node.text[i], i*80);
   }
 
-  // Handle ending
   if (node.isEnding) {
     state.gameOver = true;
     if (node.endingId) {
@@ -1824,12 +1973,6 @@ async function playNode(nodeId) {
     return;
   }
 
-  // Handle node with ending tag but not isEnding (transition to ending)
-  if (node.ending) {
-    await playNode('ending_' + node.ending.toLowerCase());
-    return;
-  }
-
   renderChoices(node.choices);
 }
 
@@ -1837,13 +1980,15 @@ async function playNode(nodeId) {
 //  RESTART
 // ══════════════════════════════════════════════════════
 async function restartGame() {
+  // FIX: preserve endings before reset, then restore explicitly after
   const found = new Set(state.endingsFound);
-  Object.assign(state, {
-    rl:100, beauty:0, comply:0, chaos:0, turn:0,
-    rules:['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'],
-    history:[], flags:new Set(), phase:'start', gameOver:false
-  });
-  state.endingsFound = found; // preserve endings across runs
+
+  state.rl = 100; state.beauty = 0; state.comply = 0; state.chaos = 0;
+  state.turn = 0; state.rules = ['REPORT_GLITCHES','NO_SMILING','TRUST_THE_SYSTEM'];
+  state.history = []; state.flags = new Set(); state.phase = 'start';
+  state.gameOver = false;
+  state.endingsFound = found; // restore after reset
+
   output.innerHTML = '';
   document.getElementById('choices-area').innerHTML = '';
   document.getElementById('restart-btn').style.display = 'none';
@@ -1865,10 +2010,10 @@ async function bootSequence() {
     ['system','---','ENTITY LORI // COORDINATES LOCKED'],
     ['warn','---','STATUS: REALITY_LEAKING'],
   ];
-  for (let i=0; i<msgs.length; i++) {
-    await typeMsg(msgs[i][0],msgs[i][1],msgs[i][2],i*280);
+  for (let i = 0; i < msgs.length; i++) {
+    await typeMsg(msgs[i][0], msgs[i][1], msgs[i][2], i*280);
   }
-  await new Promise(r=>setTimeout(r,500));
+  await new Promise(r => setTimeout(r, 500));
   await playNode('start');
 }
 
@@ -1883,35 +2028,38 @@ document.getElementById('boot-screen').addEventListener('click', function() {
   this.classList.add('out');
   setTimeout(() => { this.style.display='none'; initGame(); }, 700);
 });
+
+// ══════════════════════════════════════════════════════
+//  AUDIO
+// ══════════════════════════════════════════════════════
 let musicPlaying = false;
-const bgMusic = document.getElementById('bg-music');
+const bgMusic  = document.getElementById('bg-music');
 const audioBtn = document.getElementById('audio-btn');
 
 function toggleAudio() {
   if (!musicPlaying) {
-    bgMusic.play().catch(e => console.log("Audio play blocked: ", e));
+    bgMusic.play().catch(e => console.log("Audio play blocked:", e));
     audioBtn.textContent = "COMM_ACTIVE";
     audioBtn.classList.add('active');
-    document.body.classList.add('music-active'); // ADD THIS
+    document.body.classList.add('music-active');
     musicPlaying = true;
-    addMsg('system', 'AUD', 'NEURAL_LINK_ESTABLISHED: Echoes in the Silicon Wreckage');
+    addMsg('system','AUD','NEURAL_LINK_ESTABLISHED: Echoes in the Silicon Wreckage');
   } else {
     bgMusic.pause();
     audioBtn.textContent = "COMM_SILENT";
     audioBtn.classList.remove('active');
-    document.body.classList.remove('music-active'); // ADD THIS
+    document.body.classList.remove('music-active');
     musicPlaying = false;
-    addMsg('system', 'AUD', 'NEURAL_LINK_SEVERED');
+    addMsg('system','AUD','NEURAL_LINK_SEVERED');
   }
 }
 
-
-  if ('serviceWorker' in navigator) {
+// Service Worker
+if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed: ', err));
+    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW reg failed:', err));
   });
 }
-
 </script>
 </body>
 </html>
