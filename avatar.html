@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { background:#000; display:flex; justify-content:center; padding:20px; }
+
+.sidebar { width:155px; display:flex; flex-direction:column; gap:8px; }
+
+.avatar-box {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(0,255,65,0.3);
+  background: #000d00;
+}
+
+.avatar-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.82);
+  font-size: 7px;
+  text-align: center;
+  padding: 3px;
+  letter-spacing: 2px;
+  color: #00eeff;
+  font-family: monospace;
+  z-index: 2;
+}
+
+#entity-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="avatar-box">
+    <canvas id="entity-canvas"></canvas>
+    <div class="avatar-label">ENTITY: LORI</div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('entity-canvas');
+const ctx = canvas.getContext('2d');
+let t = 0;
+
+function resize() {
+  const box = canvas.parentElement;
+  canvas.width  = box.offsetWidth;
+  canvas.height = box.offsetHeight;
+}
+
+// Wait for layout
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+  });
+});
+
+const noiseOff = document.createElement('canvas');
+noiseOff.width = 64; noiseOff.height = 64;
+const nCtx = noiseOff.getContext('2d');
+
+function makeNoise() {
+  const id = nCtx.createImageData(64, 64);
+  for (let i = 0; i < id.data.length; i += 4) {
+    const v = Math.random() > 0.5 ? 180 : 0;
+    id.data[i] = 0; id.data[i+1] = v * 0.6; id.data[i+2] = 0;
+    id.data[i+3] = Math.random() * 55;
+  }
+  nCtx.putImageData(id, 0, 0);
+}
+
+function draw() {
+  t += 0.022;
+  const W = canvas.width, H = canvas.height;
+  if (!W || !H) { requestAnimationFrame(draw); return; }
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000800';
+  ctx.fillRect(0, 0, W, H);
+
+  // Background glow
+  const grd = ctx.createRadialGradient(W/2, H*0.42, 0, W/2, H*0.42, W*0.55);
+  grd.addColorStop(0, 'rgba(0,255,65,0.09)');
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  const sc = W / 155;
+  const cx = W / 2;
+
+  // Glitch offset
+  const gx = Math.sin(t * 31) > 0.92 ? (Math.random()-0.5)*5 : 0;
+  const gy = Math.sin(t * 17) > 0.94 ? (Math.random()-0.5)*3 : 0;
+
+  ctx.save();
+  ctx.translate(gx, gy);
+  ctx.shadowBlur = 14;
+  ctx.shadowColor = '#00ff41';
+
+  // HEAD
+  const headR = 21 * sc;
+  const headY = H * 0.27;
+
+  ctx.beginPath();
+  ctx.arc(cx, headY, headR, 0, Math.PI*2);
+  ctx.strokeStyle = `rgba(0,255,65,${0.55 + 0.3*Math.sin(t*2.1)})`;
+  ctx.lineWidth = 1.5 * sc;
+  ctx.stroke();
+
+  // Face scanlines
+  for (let sy = headY - headR + 3; sy < headY + headR; sy += 4*sc) {
+    const hw = Math.sqrt(Math.max(0, headR*headR - (sy-headY)*(sy-headY)));
+    ctx.beginPath();
+    ctx.moveTo(cx - hw, sy); ctx.lineTo(cx + hw, sy);
+    ctx.strokeStyle = `rgba(0,255,65,${0.06 + 0.03*Math.sin(t+sy*0.1)})`;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+  }
+
+  // EYES
+  const eyeY   = headY - 3*sc;
+  const eyeOff = 8*sc;
+  const eyeR   = 3*sc;
+  const blink  = Math.sin(t*1.3) > 0.92;
+  ctx.shadowBlur = 10; ctx.shadowColor = '#00ff41';
+  [cx - eyeOff, cx + eyeOff].forEach(ex => {
+    ctx.beginPath();
+    if (blink) {
+      ctx.moveTo(ex - eyeR, eyeY); ctx.lineTo(ex + eyeR, eyeY);
+      ctx.strokeStyle = '#00ff41'; ctx.lineWidth = 1.5; ctx.stroke();
+    } else {
+      ctx.arc(ex, eyeY, eyeR, 0, Math.PI*2);
+      ctx.fillStyle = '#00ff41'; ctx.fill();
+    }
+  });
+
+  // MOUTH
+  const mY = headY + 9*sc, mW = 10*sc;
+  ctx.beginPath();
+  ctx.moveTo(cx - mW/2, mY);
+  if (Math.sin(t*0.8) > 0.7) {
+    ctx.quadraticCurveTo(cx, mY + 3*sc, cx + mW/2, mY);
+  } else {
+    ctx.lineTo(cx + mW/2, mY);
+  }
+  ctx.strokeStyle = 'rgba(0,255,65,0.7)';
+  ctx.lineWidth = 1.2*sc; ctx.stroke();
+
+  // NECK
+  const neckTop = headY + headR, neckBot = neckTop + 10*sc, neckW = 8*sc;
+  ctx.beginPath();
+  ctx.moveTo(cx - neckW/2, neckTop); ctx.lineTo(cx - neckW/2, neckBot);
+  ctx.moveTo(cx + neckW/2, neckTop); ctx.lineTo(cx + neckW/2, neckBot);
+  ctx.strokeStyle = 'rgba(0,255,65,0.45)'; ctx.lineWidth = sc; ctx.stroke();
+
+  // TORSO
+  const shY = neckBot, shW = 48*sc, torsoBot = shY + 52*sc, waistW = 28*sc;
+  ctx.beginPath();
+  ctx.moveTo(cx - neckW/2, shY);
+  ctx.lineTo(cx - shW/2,   shY + 8*sc);
+  ctx.lineTo(cx - waistW/2, torsoBot);
+  ctx.lineTo(cx + waistW/2, torsoBot);
+  ctx.lineTo(cx + shW/2,   shY + 8*sc);
+  ctx.lineTo(cx + neckW/2, shY);
+  ctx.strokeStyle = `rgba(0,255,65,${0.45 + 0.15*Math.sin(t*1.7)})`;
+  ctx.lineWidth = 1.5*sc; ctx.stroke();
+
+  // Torso scanlines + moving highlight
+  const scanPos = (t * 18) % (52*sc);
+  for (let sy = shY; sy < torsoBot; sy += 5*sc) {
+    const p  = (sy - shY) / (torsoBot - shY);
+    const hw = neckW/2 + (waistW/2 - neckW/2 + (shW/2 - waistW/2)*(1-p)) * p;
+    const hi = Math.abs(sy - (shY + scanPos)) < 3;
+    ctx.beginPath();
+    ctx.moveTo(cx - hw, sy); ctx.lineTo(cx + hw, sy);
+    ctx.strokeStyle = hi ? 'rgba(0,238,255,0.22)' : 'rgba(0,255,65,0.05)';
+    ctx.lineWidth = hi ? 1.5 : 0.6;
+    ctx.stroke();
+  }
+
+  // Data streams
+  [-1,1].forEach(side => {
+    const sx = cx + side*(shW/2 + 4*sc);
+    for (let i = 0; i < 5; i++) {
+      const off = ((t*40 + i*12) % (30*sc));
+      ctx.beginPath();
+      ctx.moveTo(sx, shY + off); ctx.lineTo(sx, shY + off + 6*sc);
+      ctx.strokeStyle = `rgba(0,255,65,${0.4 - i*0.06})`;
+      ctx.lineWidth = 0.8; ctx.stroke();
+    }
+  });
+
+  ctx.restore();
+
+  // Noise
+  if (Math.floor(t*10) % 3 === 0) makeNoise();
+  ctx.save();
+  ctx.globalAlpha = 0.16;
+  ctx.drawImage(noiseOff, 0, 0, W, H);
+  ctx.restore();
+
+  // Glitch bar
+  if (Math.sin(t*23) > 0.93) {
+    ctx.save();
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = Math.random() > 0.5 ? '#00ff41' : '#00eeff';
+    ctx.fillRect(0, Math.random()*H, W, 2 + Math.random()*3);
+    ctx.restore();
+  }
+
+  // Corner brackets
+  const bL = 10*sc;
+  ctx.strokeStyle = 'rgba(0,255,65,0.4)'; ctx.lineWidth = 1;
+  [[0,0,1,1],[W,0,-1,1],[0,H,1,-1],[W,H,-1,-1]].forEach(([x,y,dx,dy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + dx*bL, y); ctx.lineTo(x, y); ctx.lineTo(x, y + dy*bL);
+    ctx.stroke();
+  });
+
+  requestAnimationFrame(draw);
+}
+</script>
+</body>
+</html>
