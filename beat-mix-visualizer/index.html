@@ -626,6 +626,13 @@ let bpmEstimate = 0;
 let lastEnergyL = 0;
 let beatCount = 0;
 let snapshotData = null;
+let tapTimes = [];
+
+// Rolling averager — collects samples continuously
+const ROLLING_WINDOW = 300;
+let rollingBass = [], rollingMid = [], rollingHigh = [];
+let rollingPeakL = [], rollingPeakR = [], rollingRms = [];
+let fullSongAnalysis = null;
 
 // Spectrogram scroll
 let spectImageData = null;
@@ -664,14 +671,134 @@ loadZone.addEventListener('drop', async e => {
 async function loadAudioFile(file) {
   await initAudio();
   stopAll();
-  const arrBuf = await file.arrayBuffer();
-  currentBuffer = await audioCtx.decodeAudioData(arrBuf);
+  let arrBuf, currentBuffer_temp;
+  try {
+    arrBuf = await file.arrayBuffer();
+    currentBuffer_temp = await audioCtx.decodeAudioData(arrBuf);
+  } catch(e) {
+    loadZone.querySelector('h2').textContent = '⚠ UNSUPPORTED FORMAT';
+    loadZone.querySelector('p').textContent = 'Try MP3, AAC, M4A, or WAV — iOS supports these natively.';
+    return;
+  }
+  currentBuffer = currentBuffer_temp;
   loadZone.querySelector('h2').textContent = '✓ ' + file.name.slice(0, 30);
   loadZone.querySelector('p').textContent = `${(file.size/1024/1024).toFixed(1)} MB · ${currentBuffer.duration.toFixed(1)}s · ${currentBuffer.sampleRate} Hz`;
   document.getElementById('playBtn').disabled = false;
   document.getElementById('stopBtn').disabled = false;
   setStatus(true);
+  rollingBass=[]; rollingMid=[]; rollingHigh=[];
+  rollingPeakL=[]; rollingPeakR=[]; rollingRms=[];
+  fullSongAnalysis = null;
+  await analyzeFullSong(currentBuffer);
   playAudio();
+}
+
+// ========== FULL-SONG OFFLINE ANALYSIS ==========
+async function analyzeFullSong(buffer) {
+  const btn = document.querySelector('.snapshot-btn');
+  btn.textContent = '⏳ SCANNING FULL SONG...';
+  btn.disabled = true;
+
+  const chL = buffer.getChannelData(0);
+  const chR = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : chL;
+  const hopSize = Math.floor(buffer.sampleRate * 0.1);
+  const totalHops = Math.floor(buffer.length / hopSize);
+
+  let peakMaxL = 0, peakMaxR = 0;
+  let rmsSum = 0, rmsCount = 0;
+  let bassSum = 0, midSum = 0, highSum = 0;
+  let clippingFrames = 0;
+  let beats = 0;
+  let lastBassEnergy = 0;
+  const bpmIntervals = [];
+  let lastBeatHop = -1;
+
+  for (let hop = 0; hop < totalHops; hop++) {
+    const start = hop * hopSize;
+    const end = Math.min(start + hopSize, buffer.length);
+    const count = end - start;
+    let rmsL = 0, rmsR = 0, peakL = 0, peakR = 0;
+    let third = Math.floor(count / 3);
+    let lowE = 0, midE = 0, highE = 0;
+
+    for (let i = start; i < end; i++) {
+      const l = Math.abs(chL[i]), r = Math.abs(chR[i]);
+      rmsL += l*l; rmsR += r*r;
+      if (l > peakL) peakL = l;
+      if (r > peakR) peakR = r;
+      if (l > 0.99 || r > 0.99) clippingFrames++;
+      const rel = i - start;
+      if (rel < third) lowE += l;
+      else if (rel < third*2) midE += l;
+      else highE += l;
+    }
+
+    rmsL = Math.sqrt(rmsL/count); rmsR = Math.sqrt(rmsR/count);
+    const frameRms = (rmsL+rmsR)/2;
+    const bassE = lowE/third, midEn = midE/third, highEn = highE/(count-third*2||1);
+
+    if (peakL > peakMaxL) peakMaxL = peakL;
+    if (peakR > peakMaxR) peakMaxR = peakR;
+    rmsSum += frameRms; rmsCount++;
+    bassSum += bassE; midSum += midEn; highSum += highEn;
+
+    if (bassE > lastBassEnergy*1.5 && bassE > 0.02 && (hop-lastBeatHop) > 4) {
+      if (lastBeatHop > 0) {
+        const ms = (hop-lastBeatHop)*hopSize/buffer.sampleRate*1000;
+        if (ms > 200 && ms < 2000) bpmIntervals.push(ms);
+      }
+      lastBeatHop = hop; beats++;
+    }
+    lastBassEnergy = bassE;
+  }
+
+  const avgRms = rmsCount > 0 ? rmsSum/rmsCount : 0;
+  const avgBass = bassSum/totalHops;
+  const avgMid = midSum/totalHops;
+  const avgHigh = highSum/totalHops;
+  const total = avgBass+avgMid+avgHigh || 1;
+  const clippingPct = (clippingFrames/buffer.length*100).toFixed(3);
+
+  let songBpm = 0;
+  if (bpmIntervals.length > 3) {
+    const avgInt = bpmIntervals.reduce((a,b)=>a+b,0)/bpmIntervals.length;
+    songBpm = Math.round(60000/avgInt);
+    if (songBpm > 200) songBpm = Math.round(songBpm/2);
+    if (songBpm < 60) songBpm = songBpm*2;
+  }
+
+  const drDb = peakMaxL > 0 && avgRms > 0
+    ? (20*Math.log10(peakMaxL) - 20*Math.log10(avgRms)).toFixed(1)
+    : '—';
+
+  fullSongAnalysis = {
+    peakL: peakMaxL, peakR: peakMaxR, rms: avgRms, lufs: avgRms*0.85,
+    bass: avgBass/total, mid: avgMid/total, high: avgHigh/total,
+    bpm: songBpm, beats, clippingPct, dynamicRange: drDb,
+    duration: buffer.duration.toFixed(1), sampleRate: buffer.sampleRate
+  };
+
+  btn.textContent = '📋 CAPTURE FULL-SONG ANALYSIS';
+  btn.disabled = false;
+}
+
+// ========== TAP BPM ==========
+function tapBpm() {
+  const now = performance.now();
+  tapTimes.push(now);
+  if (tapTimes.length > 8) tapTimes.shift();
+  if (tapTimes.length >= 2) {
+    const intervals = [];
+    for (let i = 1; i < tapTimes.length; i++) intervals.push(tapTimes[i]-tapTimes[i-1]);
+    const avg = intervals.reduce((a,b)=>a+b,0)/intervals.length;
+    bpmEstimate = Math.round(60000/avg);
+    document.getElementById('bpmDisplay').textContent = bpmEstimate;
+    document.getElementById('gradeDisplay').textContent = 'TAP';
+    document.getElementById('gradeDisplay').style.color = 'var(--accent3)';
+  }
+  hapticPulse();
+  clearTimeout(window._tapReset);
+  window._tapReset = setTimeout(() => { tapTimes = []; }, 3000);
 }
 
 function playAudio() {
@@ -948,6 +1075,13 @@ function updateMeters() {
   document.getElementById('peakL').style.background = peakLPct > 90 ? 'linear-gradient(90deg,#00f5c4,#ff4d6d)' : 'linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac)';
   document.getElementById('peakR').style.background = peakRPct > 90 ? 'linear-gradient(90deg,#00f5c4,#ff4d6d)' : 'linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac)';
 
+  // Store for rolling average
+  rollingBass.push(bandEnergy(dataMerged,0,10));
+  rollingMid.push(bandEnergy(dataMerged,20,120));
+  rollingHigh.push(bandEnergy(dataMerged,120,400));
+  rollingPeakL.push(peakLVal); rollingPeakR.push(peakRVal); rollingRms.push(rmsVal);
+  if (rollingBass.length > ROLLING_WINDOW) { rollingBass.shift(); rollingMid.shift(); rollingHigh.shift(); rollingPeakL.shift(); rollingPeakR.shift(); rollingRms.shift(); }
+
   // Store for snapshot
   snapshotData = { peakL: peakLVal, peakR: peakRVal, rms: rmsVal, lufs: lufsApprox,
     bass: bandEnergy(dataMerged,0,10), mid: bandEnergy(dataMerged,20,120), high: bandEnergy(dataMerged,120,400),
@@ -1111,65 +1245,95 @@ function drawStereo(ctx, W, H) {
 
 // ========== SNAPSHOT ==========
 function captureSnapshot() {
-  if (!analyserMerged) {
-    document.getElementById('reportText').textContent = '// ERROR: No audio loaded. Load a file or enable mic first.';
+  if (!analyserMerged && !fullSongAnalysis) {
+    document.getElementById('reportText').textContent = '// ERROR: No audio loaded.';
     return;
   }
   const now = new Date().toLocaleTimeString();
-  const d = snapshotData || {};
 
-  const peakLdB = d.peakL > 0 ? (20*Math.log10(d.peakL)).toFixed(1) : '—';
-  const peakRdB = d.peakR > 0 ? (20*Math.log10(d.peakR)).toFixed(1) : '—';
-  const rmsdB = d.rms > 0 ? (20*Math.log10(d.rms)).toFixed(1) : '—';
-  const lufsDt = d.lufs > 0 ? (20*Math.log10(d.lufs)).toFixed(1) : '—';
-  const bassP = ((d.bass||0)*100).toFixed(1);
-  const midP = ((d.mid||0)*100).toFixed(1);
-  const highP = ((d.high||0)*100).toFixed(1);
-  const bpm = d.bpm || '—';
-  const groove = d.groove || '—';
+  // Prefer full-song analysis; fall back to rolling average, then instant
+  const avg = (arr) => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+  const d = fullSongAnalysis || {
+    peakL: avg(rollingPeakL), peakR: avg(rollingPeakR),
+    rms: avg(rollingRms), lufs: avg(rollingRms)*0.85,
+    bass: avg(rollingBass), mid: avg(rollingMid), high: avg(rollingHigh),
+    bpm: bpmEstimate,
+    beats: beatCount, clippingPct: '—', dynamicRange: '—', duration: '—', sampleRate: '—'
+  };
+  const source = fullSongAnalysis ? 'FULL SONG SCAN' : (rollingBass.length > 10 ? `${(rollingBass.length/60).toFixed(0)}s ROLLING AVG` : 'INSTANT SNAPSHOT');
 
-  // Diagnostics
+  const peakLdB = d.peakL > 0 ? (20*Math.log10(d.peakL)).toFixed(2) : '—';
+  const peakRdB = d.peakR > 0 ? (20*Math.log10(d.peakR)).toFixed(2) : '—';
+  const rmsdB   = d.rms > 0   ? (20*Math.log10(d.rms)).toFixed(2)   : '—';
+  const lufsdB  = d.lufs > 0  ? (20*Math.log10(d.lufs)).toFixed(2)  : '—';
+  const bassP   = ((d.bass||0)*100).toFixed(1);
+  const midP    = ((d.mid||0)*100).toFixed(1);
+  const highP   = ((d.high||0)*100).toFixed(1);
+  const bpm     = d.bpm || (bpmEstimate || '—');
+  const groove  = document.getElementById('gradeDisplay').textContent || '—';
+
+  // Balance ratio flags
+  const bassRatio = d.bass||0, midRatio = d.mid||0, highRatio = d.high||0;
+
   const diag = [];
-  if (d.peakL > 0.98 || d.peakR > 0.98) diag.push('⚠ CLIPPING DETECTED — peaks above 0 dBFS. Reduce gain.');
-  if (d.rms > 0.7) diag.push('⚠ HOT MIX — RMS very high, may be over-compressed.');
-  if (d.rms < 0.1) diag.push('ℹ LOW RMS — mix is quiet or well-preserved dynamic range.');
-  if ((d.bass||0) > 0.5) diag.push('⚠ BASS HEAVY — bass may be masking mids. Check low cut on non-bass elements.');
-  if ((d.high||0) < 0.1) diag.push('ℹ LOW HIGH-FREQ — mix sounds dull or muffled. Check hi-shelf EQ or air band.');
-  if ((d.mid||0) < 0.15) diag.push('ℹ MIDRANGE HOLLOW — may lack presence/warmth. Check 1kHz–4kHz range.');
-  if (Math.abs((d.peakL||0) - (d.peakR||0)) > 0.1) diag.push('⚠ STEREO IMBALANCE — L and R peaks differ significantly.');
-  if (d.bpm && (d.bpm < 60 || d.bpm > 200)) diag.push('ℹ BPM outside typical range — may be half/double time or complex meter.');
-  if (diag.length === 0) diag.push('✓ No major issues detected. Mix looks balanced.');
+  if (d.peakL > 0.99 || d.peakR > 0.99) diag.push('🔴 CLIPPING — peaks hit 0 dBFS. Must reduce gain before mastering.');
+  else if (d.peakL > 0.95 || d.peakR > 0.95) diag.push('🟡 NEAR-CLIP — peaks above -0.4 dBFS. Leave 0.5–1 dB headroom.');
+  if (d.rms > 0.5) diag.push('🔴 OVER-COMPRESSED — RMS too hot, dynamic range crushed. Back off limiter.');
+  if (d.dynamicRange !== '—' && parseFloat(d.dynamicRange) < 6) diag.push('🔴 BRICK-WALLED — dynamic range under 6 dB. Mix sounds fatiguing.');
+  if (d.dynamicRange !== '—' && parseFloat(d.dynamicRange) > 20) diag.push('ℹ WIDE DYNAMICS — DR ' + d.dynamicRange + ' dB. May need gentle limiting for streaming.');
+  if (bassRatio > 0.55) diag.push('🟡 BASS HEAVY (' + bassP + '%) — low end dominating. High-pass non-bass elements, check 150–300Hz mud zone.');
+  if (bassRatio < 0.2) diag.push('ℹ THIN BASS — low end weak. Check sub/bass levels or low-shelf boost.');
+  if (midRatio < 0.25) diag.push('🟡 MID SCOOP — midrange hollow. Vocals/instruments may lack presence. Check 1–4kHz.');
+  if (highRatio < 0.15) diag.push('🟡 DULL HIGH END — lacks air/brightness. Try +1–2dB hi-shelf at 10–16kHz.');
+  if (highRatio > 0.5) diag.push('🟡 HARSH HIGHS — too much high freq. Can cause ear fatigue. Check 5–8kHz.');
+  if (Math.abs(d.peakL - d.peakR) > 0.05) diag.push('🟡 STEREO IMBALANCE — L/R peak differ by ' + (Math.abs(d.peakL-d.peakR)*100).toFixed(1) + '%. Check panning.');
+  const lufsNum = parseFloat(lufsdB);
+  if (!isNaN(lufsNum)) {
+    if (lufsNum > -8) diag.push('🔴 TOO LOUD FOR STREAMING — Spotify/Apple target -14 LUFS. Will be turned down.');
+    else if (lufsNum > -11) diag.push('🟡 SLIGHTLY HOT — streaming platforms may reduce playback level.');
+    else if (lufsNum < -18) diag.push('ℹ QUIET MIX — LUFS ' + lufsdB + ' dB. Consider gentle makeup gain for streaming.');
+    else diag.push('✅ LOUDNESS OK — LUFS in good streaming range.');
+  }
+  if (diag.length === 0) diag.push('✅ No major issues detected. Mix looks balanced.');
 
   const report = `╔══════════════════════════════════════╗
-║  BEATVISION // ANALYSIS SNAPSHOT     ║
+║  BEATVISION // ANALYSIS REPORT       ║
 ║  ${now.padEnd(37)}║
+║  SOURCE: ${source.padEnd(30)}║
 ╚══════════════════════════════════════╝
+
+── SONG INFO ──────────────────────────
+  DURATION       : ${String(d.duration).padStart(6)}s
+  SAMPLE RATE    : ${String(d.sampleRate).padStart(6)} Hz
+  CLIPPING       : ${String(d.clippingPct).padStart(6)}% of samples
+  DYNAMIC RANGE  : ${String(d.dynamicRange).padStart(6)} dB
 
 ── TIMING + RHYTHM ────────────────────
   DETECTED BPM   : ${String(bpm).padStart(6)}
   GROOVE RATING  : ${groove}
-  BEAT COUNT     : ${beatCount}
+  BEAT COUNT     : ${d.beats||beatCount}
 
 ── FREQUENCY BALANCE ──────────────────
-  BASS (20–250Hz): ${bassP}%
-  MID  (250Hz–4k): ${midP}%
-  HIGH (4k–20kHz): ${highP}%
+  BASS (sub/low) : ${bassP}%
+  MID  (body)    : ${midP}%
+  HIGH (air/top) : ${highP}%
 
 ── DYNAMICS + LOUDNESS ────────────────
   PEAK L         : ${peakLdB} dBFS
   PEAK R         : ${peakRdB} dBFS
-  RMS            : ${rmsdB} dB
-  EST. LUFS      : ${lufsDt} dB
+  AVG RMS        : ${rmsdB} dB
+  EST. LUFS      : ${lufsdB} dB
 
 ── DIAGNOSTICS ────────────────────────
-${diag.map(d => '  ' + d).join('\n')}
+${diag.map(x => '  ' + x).join('\n')}
 
-── NOTES FOR AI ───────────────────────
-  // Paste this report into Claude or another
-  // AI and ask: "Based on these readings,
-  // what mixing adjustments should I make?"
+── PROMPT FOR AI ──────────────────────
+  Based on this BeatVision analysis report,
+  what specific mixing and mastering adjustments
+  should I make to improve this track for
+  streaming (Spotify/Apple Music)?
+  My DAW is [YOUR DAW]. Genre: [YOUR GENRE].
 `;
-
   document.getElementById('reportText').textContent = report;
 }
 
