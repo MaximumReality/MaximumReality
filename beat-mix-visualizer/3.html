@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BEATVISION v3 // MR Audio Lab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
+:root{--bg:#060810;--panel:#0c1018;--b2:#0f1520;--bdr:#1a2535;--a1:#00f5c4;--a2:#ff3cac;--a3:#f7c59f;--a4:#7b5ea7;--bass:#ff4d6d;--mid:#00f5c4;--hi:#ffe066;--kick:#ff6b35;--snare:#c77dff;--txt:#c8d6e5;--dim:#4a5568;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--txt);font-family:'Rajdhani',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:100px;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9999;}
+
+/* UNLOCK SCREEN */
+#unlockScreen{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px;}
+#unlockScreen h1{font-family:'Bebas Neue';font-size:32px;letter-spacing:4px;color:var(--a1);text-shadow:0 0 20px var(--a1);}
+#unlockScreen p{font-family:'Share Tech Mono';font-size:11px;color:var(--dim);text-align:center;line-height:1.8;letter-spacing:1px;}
+#unlockBtn{padding:18px 40px;background:linear-gradient(135deg,#00f5c430,#00f5c410);border:2px solid var(--a1);border-radius:12px;color:var(--a1);font-family:'Bebas Neue';font-size:24px;letter-spacing:4px;cursor:pointer;text-shadow:0 0 10px var(--a1);box-shadow:0 0 30px #00f5c420;}
+
+header{padding:13px 15px 9px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(180deg,#0a0f1a,var(--bg));position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue';font-size:19px;letter-spacing:3px;color:var(--a1);text-shadow:0 0 14px var(--a1);}
+.logo span{color:var(--a2);}.logo sub{font-size:10px;color:var(--dim);}
+.hdr-r{display:flex;align-items:center;gap:7px;font-family:'Share Tech Mono';font-size:10px;color:var(--dim);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dim);transition:all .3s;}
+.dot.on{background:var(--a1);box-shadow:0 0 8px var(--a1);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+.tabs{display:flex;border-bottom:1px solid var(--bdr);background:var(--panel);}
+.tab{flex:1;padding:10px 4px;text-align:center;font-family:'Bebas Neue';font-size:13px;letter-spacing:2px;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.active{color:var(--a1);border-bottom-color:var(--a1);}
+.pane{display:none;}.pane.active{display:block;}
+
+.load-zone{margin:13px;border:2px dashed var(--bdr);border-radius:10px;padding:18px 13px;text-align:center;background:var(--panel);position:relative;overflow:hidden;transition:border-color .3s;}
+.load-zone h2{font-family:'Bebas Neue';font-size:17px;letter-spacing:2px;color:var(--a1);margin-bottom:3px;}
+.load-zone p{font-size:12px;color:var(--dim);}
+#fileInput{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;}
+
+.ctrl-row{display:flex;gap:7px;margin:0 13px 13px;flex-wrap:wrap;}
+.btn{flex:1;min-width:75px;padding:8px 9px;border:1px solid var(--bdr);border-radius:7px;background:var(--panel);color:var(--txt);font-family:'Rajdhani';font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;text-transform:uppercase;}
+.btn:hover{border-color:var(--a1);color:var(--a1);}
+.btn.on{background:var(--a1);color:#000;border-color:var(--a1);}
+.btn.red{border-color:var(--a2);color:var(--a2);}
+.btn.gold{border-color:var(--a3);color:var(--a3);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ERROR TOAST */
+#toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%);background:#ff4d6d;color:#fff;font-family:'Share Tech Mono';font-size:11px;padding:10px 18px;border-radius:8px;z-index:9000;display:none;max-width:80%;text-align:center;letter-spacing:1px;}
+#toast.show{display:block;}
+
+.panel{margin:0 13px 13px;background:var(--panel);border:1px solid var(--bdr);border-radius:9px;padding:12px;position:relative;overflow:hidden;}
+.panel::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:1px;background:linear-gradient(90deg,transparent,var(--a1),transparent);animation:scan 4s linear infinite;}
+@keyframes scan{to{left:150%;}}
+.sl{font-family:'Share Tech Mono';font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
+
+.beat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px;}
+.btype{border-radius:6px;padding:7px 5px;text-align:center;border:1px solid var(--bdr);background:#080c14;transition:all .06s;}
+.btype.k{border-color:#ff6b3530;}.btype.k.hit{background:#ff6b3518;box-shadow:0 0 16px #ff6b3560;border-color:var(--kick);}
+.btype.s{border-color:#c77dff30;}.btype.s.hit{background:#c77dff18;box-shadow:0 0 16px #c77dff60;border-color:var(--snare);}
+.btype.h{border-color:#ffe06630;}.btype.h.hit{background:#ffe06618;box-shadow:0 0 16px #ffe06660;border-color:var(--hi);}
+.bn{font-family:'Bebas Neue';font-size:13px;letter-spacing:2px;}
+.btype.k .bn{color:var(--kick);}.btype.s .bn{color:var(--snare);}.btype.h .bn{color:var(--hi);}
+.bp{font-family:'Share Tech Mono';font-size:9px;color:var(--dim);}
+.bpm-row{display:flex;align-items:center;justify-content:space-between;}
+.bpm-num{font-family:'Bebas Neue';font-size:46px;line-height:1;color:var(--a1);text-shadow:0 0 22px var(--a1);}
+.bpm-lbl{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);letter-spacing:2px;}
+.gv{font-family:'Bebas Neue';font-size:28px;letter-spacing:2px;}
+.gl{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);}
+
+.cPanel{margin:0 13px 13px;background:var(--panel);border:1px solid var(--bdr);border-radius:9px;overflow:hidden;position:relative;}
+.cPanel canvas{display:block;width:100%;}
+.clabel{position:absolute;top:7px;left:9px;font-family:'Share Tech Mono';font-size:8px;letter-spacing:2px;color:var(--dim);z-index:2;}
+.idle{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#080c14cc;font-family:'Share Tech Mono';font-size:9px;color:var(--dim);letter-spacing:2px;}
+
+.freq-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:0 13px 13px;}
+.fwrap{background:var(--panel);border:1px solid var(--bdr);border-radius:8px;padding:9px 7px 6px;text-align:center;}
+.ft{font-family:'Bebas Neue';font-size:12px;letter-spacing:2px;margin-bottom:6px;}
+.ft.bass{color:var(--bass);}.ft.mid{color:var(--mid);}.ft.hi{color:var(--hi);}
+.vbar{width:100%;height:85px;background:#080c14;border-radius:3px;overflow:hidden;display:flex;flex-direction:column-reverse;}
+.vf{width:100%;height:0%;transition:height .05s;border-radius:2px;}
+.vf.bass{background:linear-gradient(0deg,#ff4d6d,#ff9a3c);}
+.vf.mid{background:linear-gradient(0deg,#00f5c4,#00b4d8);}
+.vf.hi{background:linear-gradient(0deg,#ffe066,#ffd166);}
+.fdb{font-family:'Share Tech Mono';font-size:9px;color:var(--dim);margin-top:4px;}
+
+.mi{display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+.mi:last-child{margin-bottom:0;}
+.mn{font-family:'Share Tech Mono';font-size:8px;letter-spacing:1px;color:var(--dim);width:36px;flex-shrink:0;}
+.mtr{flex:1;height:11px;background:#080c14;border-radius:2px;overflow:hidden;position:relative;}
+.mtr::after{content:'';position:absolute;right:0;top:0;width:8%;height:100%;background:#ff4d6d18;border-left:1px solid #ff4d6d30;}
+.mf{height:100%;border-radius:2px;transition:width .04s;}
+.mf.peak{background:linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac);}
+.mf.rms{background:linear-gradient(90deg,#00f5c4,#00b4d8);}
+.mf.lufs{background:linear-gradient(90deg,#7b5ea7,#c77dff);}
+.mv{font-family:'Share Tech Mono';font-size:9px;width:44px;text-align:right;flex-shrink:0;}
+.mv.clip{color:#ff4d6d;}.mv.ok{color:var(--a1);}
+
+.haptic{position:fixed;bottom:86px;right:14px;width:52px;height:52px;border-radius:50%;background:var(--panel);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;z-index:200;transition:all .08s;box-shadow:0 4px 18px #00000080;}
+.haptic.beat{transform:scale(1.35);border-color:var(--a1);box-shadow:0 0 26px var(--a1);}
+
+/* MASTER TAB */
+.ms{margin:0 13px 13px;}
+.mt2{font-family:'Bebas Neue';font-size:15px;letter-spacing:3px;color:var(--a1);margin:13px 0 9px;padding-bottom:5px;border-bottom:1px solid var(--bdr);}
+.pre-row{display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap;}
+.pre-btn{padding:6px 9px;border:1px solid var(--bdr);border-radius:5px;background:var(--b2);color:var(--dim);font-family:'Share Tech Mono';font-size:8px;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.pre-btn:hover,.pre-btn.sel{border-color:var(--a1);color:var(--a1);background:#00f5c410;}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px;}
+.kc{background:var(--panel);border:1px solid var(--bdr);border-radius:8px;padding:10px 9px;}
+.kct{font-family:'Share Tech Mono';font-size:8px;letter-spacing:2px;color:var(--dim);margin-bottom:7px;}
+.kr{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.kr:last-child{margin-bottom:0;}
+.kl{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);width:34px;flex-shrink:0;}
+.ks{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--bdr);outline:none;}
+.ks::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--a1);cursor:pointer;box-shadow:0 0 5px var(--a1);}
+.kv{font-family:'Share Tech Mono';font-size:8px;color:var(--a1);width:34px;text-align:right;flex-shrink:0;}
+
+.mm-wrap{background:var(--panel);border:1px solid var(--bdr);border-radius:8px;padding:10px;margin-bottom:9px;}
+.mm-i{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.mm-i:last-child{margin-bottom:0;}
+.mm-l{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);width:40px;}
+.mm-t{flex:1;height:12px;background:#080c14;border-radius:2px;overflow:hidden;position:relative;}
+.mm-t::after{content:'';position:absolute;right:0;top:0;width:8%;height:100%;background:#ff4d6d20;border-left:1px solid #ff4d6d50;}
+.mm-f{height:100%;border-radius:2px;transition:width .04s;}
+.mm-f.mp{background:linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac);}
+.mm-f.mr{background:linear-gradient(90deg,#00f5c4,#00b4d8);}
+.mm-f.ml{background:linear-gradient(90deg,#7b5ea7,#c77dff);}
+.mm-v{font-family:'Share Tech Mono';font-size:9px;width:48px;text-align:right;}
+.mm-v.clip{color:#ff4d6d;}.mm-v.ok{color:var(--a1);}
+
+.proc-btn{width:100%;padding:14px;background:linear-gradient(135deg,#00f5c420,#00f5c408);border:1px solid var(--a1);border-radius:8px;color:var(--a1);font-family:'Bebas Neue';font-size:19px;letter-spacing:4px;cursor:pointer;transition:all .2s;margin-bottom:7px;}
+.proc-btn:hover{background:var(--a1);color:#000;}
+.proc-btn:disabled{opacity:.35;cursor:not-allowed;background:var(--panel);}
+.dl-btn{width:100%;padding:11px;background:linear-gradient(135deg,#ff3cac20,#ff3cac08);border:1px solid var(--a2);border-radius:8px;color:var(--a2);font-family:'Bebas Neue';font-size:17px;letter-spacing:3px;cursor:pointer;transition:all .2s;display:none;}
+.dl-btn:hover{background:var(--a2);color:#000;}
+.dl-btn.show{display:block;}
+.prog{width:100%;height:5px;background:#080c14;border-radius:3px;overflow:hidden;margin-bottom:7px;display:none;}
+.prog.show{display:block;}
+.prog-f{height:100%;width:0%;background:linear-gradient(90deg,var(--a1),var(--a4));border-radius:3px;transition:width .15s;}
+.smsg{font-family:'Share Tech Mono';font-size:9px;color:var(--dim);text-align:center;margin-bottom:7px;min-height:14px;letter-spacing:1px;}
+
+.report-text{font-family:'Share Tech Mono';font-size:10px;line-height:1.8;color:var(--txt);white-space:pre-wrap;max-height:260px;overflow-y:auto;background:#080c14;border-radius:5px;padding:10px;border:1px solid var(--bdr);}
+.report-text:empty::before{content:'// Load audio then press CAPTURE ANALYSIS';color:var(--dim);}
+.copy-btn{width:100%;margin-top:6px;padding:8px;background:transparent;border:1px solid var(--bdr);border-radius:6px;color:var(--dim);font-family:'Rajdhani';font-size:11px;font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.copy-btn:hover{border-color:var(--a3);color:var(--a3);}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- iOS REQUIRES USER GESTURE TO UNLOCK AUDIO -->
+<div id="unlockScreen">
+  <h1>BEAT<span style="color:var(--a2)">VISION</span> <span style="font-size:14px;color:var(--dim)">v3</span></h1>
+  <p>TAP TO INITIALIZE AUDIO ENGINE<br>Required by iOS Safari</p>
+  <button id="unlockBtn" onclick="unlock()">⚡ INITIALIZE</button>
+  <p style="font-size:10px;color:#2a3545;">MR Audio Lab // Maximum Reality</p>
+</div>
+
+<header>
+  <div class="logo">BEAT<span>VISION</span> <sub>v3</sub></div>
+  <div class="hdr-r"><div class="dot" id="dot"></div><span id="stxt">OFFLINE</span></div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('analyze')">ANALYZE</div>
+  <div class="tab" onclick="showTab('master')">MASTER</div>
+  <div class="tab" onclick="showTab('report')">REPORT</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ANALYZE -->
+<div class="pane active" id="pane-analyze">
+  <div class="load-zone" id="loadZone">
+    <h2>⬆ TAP TO LOAD AUDIO</h2>
+    <p>MP3 · WAV · AAC · M4A · FLAC</p>
+    <input type="file" id="fileInput">
+  </div>
+  <div class="ctrl-row">
+    <button class="btn red" id="micBtn" onclick="toggleMic()">🎙 MIC</button>
+    <button class="btn" id="playBtn" onclick="togglePlay()" disabled>▶ PLAY</button>
+    <button class="btn" id="stopBtn" onclick="stopAudio()" disabled>■ STOP</button>
+    <button class="btn gold" onclick="tapBpm()">👆 TAP</button>
+  </div>
+  <div class="panel">
+    <div class="sl">// BEAT DETECTION</div>
+    <div class="beat-grid">
+      <div class="btype k" id="kZ"><div class="bn">KICK</div><div class="bp" id="kP">—</div></div>
+      <div class="btype s" id="sZ"><div class="bn">SNARE</div><div class="bp" id="sP">—</div></div>
+      <div class="btype h" id="hZ"><div class="bn">HI-HAT</div><div class="bp" id="hP">—</div></div>
+    </div>
+    <div class="bpm-row">
+      <div><div class="bpm-lbl">DETECTED BPM</div><div class="bpm-num" id="bpmN">—</div></div>
+      <div style="text-align:right"><div class="gl">GROOVE</div><div class="gv" id="gV" style="color:var(--dim)">—</div></div>
+    </div>
+  </div>
+  <div class="cPanel" style="height:185px;"><div class="clabel">// GEOMETRIC PULSE</div><canvas id="geoC" height="185"></canvas><div class="idle" id="geoI">LOAD AUDIO</div></div>
+  <div class="cPanel" style="height:72px;"><div class="clabel">// OSCILLOSCOPE</div><canvas id="waveC" height="72"></canvas><div class="idle" id="waveI">—</div></div>
+  <div class="cPanel" style="height:105px;"><div class="clabel">// SPECTROGRAM (FFT)</div><canvas id="spectC" height="105"></canvas><div class="idle" id="spectI">—</div></div>
+  <div class="freq-row">
+    <div class="fwrap"><div class="ft bass">BASS</div><div class="vbar"><div class="vf bass" id="bBar"></div></div><div class="fdb" id="bDb">—</div></div>
+    <div class="fwrap"><div class="ft mid">MID</div><div class="vbar"><div class="vf mid" id="mBar"></div></div><div class="fdb" id="mDb">—</div></div>
+    <div class="fwrap"><div class="ft hi">HIGH</div><div class="vbar"><div class="vf hi" id="hBar"></div></div><div class="fdb" id="hDb">—</div></div>
+  </div>
+  <div class="panel">
+    <div class="sl">// LIVE METERS</div>
+    <div class="mi"><div class="mn">PEAK L</div><div class="mtr"><div class="mf peak" id="mPL" style="width:0%"></div></div><div class="mv" id="mPLv">—</div></div>
+    <div class="mi"><div class="mn">PEAK R</div><div class="mtr"><div class="mf peak" id="mPR" style="width:0%"></div></div><div class="mv" id="mPRv">—</div></div>
+    <div class="mi"><div class="mn">RMS</div><div class="mtr"><div class="mf rms" id="mRMS" style="width:0%"></div></div><div class="mv" id="mRMSv">—</div></div>
+    <div class="mi"><div class="mn">LUFS</div><div class="mtr"><div class="mf lufs" id="mLUFS" style="width:0%"></div></div><div class="mv" id="mLUFSv">—</div></div>
+  </div>
+  <div class="panel">
+    <div class="sl">// STEREO FIELD</div>
+    <canvas id="stereoC" width="300" height="125" style="width:100%;display:block;"></canvas>
+  </div>
+</div>
+
+<!-- MASTER -->
+<div class="pane" id="pane-master">
+<div class="ms">
+  <div class="mt2">// PRESETS</div>
+  <div class="pre-row">
+    <div class="pre-btn" onclick="applyPreset('flat',this)">FLAT</div>
+    <div class="pre-btn" onclick="applyPreset('warm',this)">WARM</div>
+    <div class="pre-btn" onclick="applyPreset('bright',this)">BRIGHT</div>
+    <div class="pre-btn" onclick="applyPreset('punchy',this)">PUNCHY</div>
+    <div class="pre-btn" onclick="applyPreset('cinematic',this)">CINEMATIC</div>
+    <div class="pre-btn" onclick="applyPreset('streaming',this)">STREAMING</div>
+    <div class="pre-btn" onclick="applyPreset('hifi',this)">HI-FI</div>
+  </div>
+  <div class="mt2">// MULTIBAND EQ</div>
+  <div class="kg">
+    <div class="kc"><div class="kct">LOW SHELF</div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="eqSG" min="-12" max="12" value="0" step="0.5" oninput="ul(this,'eSGv','dB')"><div class="kv" id="eSGv">0 dB</div></div>
+      <div class="kr"><div class="kl">FREQ</div><input type="range" class="ks" id="eqSF" min="40" max="200" value="80" step="5" oninput="ul(this,'eSFv','Hz')"><div class="kv" id="eSFv">80 Hz</div></div>
+    </div>
+    <div class="kc"><div class="kct">LOW MID</div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="eqLG" min="-12" max="12" value="0" step="0.5" oninput="ul(this,'eLGv','dB')"><div class="kv" id="eLGv">0 dB</div></div>
+      <div class="kr"><div class="kl">FREQ</div><input type="range" class="ks" id="eqLF" min="200" max="800" value="350" step="10" oninput="ul(this,'eLFv','Hz')"><div class="kv" id="eLFv">350 Hz</div></div>
+    </div>
+    <div class="kc"><div class="kct">HIGH MID</div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="eqHG" min="-12" max="12" value="0" step="0.5" oninput="ul(this,'eHGv','dB')"><div class="kv" id="eHGv">0 dB</div></div>
+      <div class="kr"><div class="kl">FREQ</div><input type="range" class="ks" id="eqHF" min="800" max="6000" value="2500" step="100" oninput="ul(this,'eHFv','Hz')"><div class="kv" id="eHFv">2500 Hz</div></div>
+    </div>
+    <div class="kc"><div class="kct">HIGH SHELF</div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="eqAG" min="-12" max="12" value="0" step="0.5" oninput="ul(this,'eAGv','dB')"><div class="kv" id="eAGv">0 dB</div></div>
+      <div class="kr"><div class="kl">FREQ</div><input type="range" class="ks" id="eqAF" min="6000" max="16000" value="10000" step="500" oninput="ul(this,'eAFv','Hz')"><div class="kv" id="eAFv">10k Hz</div></div>
+    </div>
+  </div>
+  <div class="mt2">// MULTIBAND COMPRESSION</div>
+  <div class="kg">
+    <div class="kc"><div class="kct">BASS (20–250Hz)</div>
+      <div class="kr"><div class="kl">THRESH</div><input type="range" class="ks" id="cBT" min="-40" max="0" value="-18" step="1" oninput="ul(this,'cBTv','dB')"><div class="kv" id="cBTv">-18 dB</div></div>
+      <div class="kr"><div class="kl">RATIO</div><input type="range" class="ks" id="cBR" min="1" max="8" value="3" step="0.5" oninput="ul(this,'cBRv',':1')"><div class="kv" id="cBRv">3:1</div></div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="cBG" min="-6" max="12" value="0" step="0.5" oninput="ul(this,'cBGv','dB')"><div class="kv" id="cBGv">0 dB</div></div>
+    </div>
+    <div class="kc"><div class="kct">MID (250–4kHz)</div>
+      <div class="kr"><div class="kl">THRESH</div><input type="range" class="ks" id="cMT" min="-40" max="0" value="-20" step="1" oninput="ul(this,'cMTv','dB')"><div class="kv" id="cMTv">-20 dB</div></div>
+      <div class="kr"><div class="kl">RATIO</div><input type="range" class="ks" id="cMR" min="1" max="8" value="2" step="0.5" oninput="ul(this,'cMRv',':1')"><div class="kv" id="cMRv">2:1</div></div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="cMG" min="-6" max="12" value="0" step="0.5" oninput="ul(this,'cMGv','dB')"><div class="kv" id="cMGv">0 dB</div></div>
+    </div>
+    <div class="kc"><div class="kct">HIGH (4k–20kHz)</div>
+      <div class="kr"><div class="kl">THRESH</div><input type="range" class="ks" id="cHT" min="-40" max="0" value="-24" step="1" oninput="ul(this,'cHTv','dB')"><div class="kv" id="cHTv">-24 dB</div></div>
+      <div class="kr"><div class="kl">RATIO</div><input type="range" class="ks" id="cHR" min="1" max="8" value="2" step="0.5" oninput="ul(this,'cHRv',':1')"><div class="kv" id="cHRv">2:1</div></div>
+      <div class="kr"><div class="kl">GAIN</div><input type="range" class="ks" id="cHG" min="-6" max="12" value="0" step="0.5" oninput="ul(this,'cHGv','dB')"><div class="kv" id="cHGv">0 dB</div></div>
+    </div>
+    <div class="kc"><div class="kct">FULL BAND GLUE</div>
+      <div class="kr"><div class="kl">THRESH</div><input type="range" class="ks" id="cFT" min="-40" max="0" value="-12" step="1" oninput="ul(this,'cFTv','dB')"><div class="kv" id="cFTv">-12 dB</div></div>
+      <div class="kr"><div class="kl">RATIO</div><input type="range" class="ks" id="cFR" min="1" max="20" value="4" step="0.5" oninput="ul(this,'cFRv',':1')"><div class="kv" id="cFRv">4:1</div></div>
+      <div class="kr"><div class="kl">MAKEUP</div><input type="range" class="ks" id="cFG" min="-6" max="12" value="2" step="0.5" oninput="ul(this,'cFGv','dB')"><div class="kv" id="cFGv">2 dB</div></div>
+    </div>
+  </div>
+  <div class="mt2">// STEREO · REVERB · ENHANCER · LIMITER</div>
+  <div class="kg">
+    <div class="kc"><div class="kct">STEREO IMAGING</div>
+      <div class="kr"><div class="kl">WIDTH</div><input type="range" class="ks" id="stW" min="0" max="200" value="100" step="5" oninput="ul(this,'stWv','%')"><div class="kv" id="stWv">100%</div></div>
+      <div class="kr"><div class="kl">BASS M</div><input type="range" class="ks" id="stM" min="0" max="100" value="0" step="5" oninput="ul(this,'stMv','%')"><div class="kv" id="stMv">0%</div></div>
+    </div>
+    <div class="kc"><div class="kct">REVERB GLUE</div>
+      <div class="kr"><div class="kl">MIX</div><input type="range" class="ks" id="rvM" min="0" max="30" value="0" step="1" oninput="ul(this,'rvMv','%')"><div class="kv" id="rvMv">0%</div></div>
+      <div class="kr"><div class="kl">DECAY</div><input type="range" class="ks" id="rvD" min="0.1" max="4" value="1.2" step="0.1" oninput="ul(this,'rvDv','s')"><div class="kv" id="rvDv">1.2s</div></div>
+    </div>
+    <div class="kc"><div class="kct">HARMONIC ENHANCER</div>
+      <div class="kr"><div class="kl">DRIVE</div><input type="range" class="ks" id="satD" min="0" max="20" value="0" step="1" oninput="ul(this,'satDv','%')"><div class="kv" id="satDv">0%</div></div>
+      <div class="kr"><div class="kl">MIX</div><input type="range" class="ks" id="satM" min="0" max="100" value="0" step="5" oninput="ul(this,'satMv','%')"><div class="kv" id="satMv">0%</div></div>
+    </div>
+    <div class="kc"><div class="kct">LIMITER / MAXIMIZER</div>
+      <div class="kr"><div class="kl">CEILING</div><input type="range" class="ks" id="limC" min="-6" max="0" value="-0.3" step="0.1" oninput="ul(this,'limCv','dB')"><div class="kv" id="limCv">-0.3dB</div></div>
+      <div class="kr"><div class="kl">DRIVE</div><input type="range" class="ks" id="limD" min="0" max="12" value="0" step="0.5" oninput="ul(this,'limDv','dB')"><div class="kv" id="limDv">0 dB</div></div>
+    </div>
+  </div>
+  <div class="mt2">// OUTPUT METERS</div>
+  <div class="mm-wrap">
+    <div class="mm-i"><div class="mm-l">PEAK L</div><div class="mm-t"><div class="mm-f mp" id="mmPL" style="width:0%"></div></div><div class="mm-v" id="mmPLv">—</div></div>
+    <div class="mm-i"><div class="mm-l">PEAK R</div><div class="mm-t"><div class="mm-f mp" id="mmPR" style="width:0%"></div></div><div class="mm-v" id="mmPRv">—</div></div>
+    <div class="mm-i"><div class="mm-l">RMS OUT</div><div class="mm-t"><div class="mm-f mr" id="mmRMS" style="width:0%"></div></div><div class="mm-v" id="mmRMSv">—</div></div>
+    <div class="mm-i"><div class="mm-l">EST LUFS</div><div class="mm-t"><div class="mm-f ml" id="mmLUFS" style="width:0%"></div></div><div class="mm-v" id="mmLUFSv">—</div></div>
+  </div>
+  <div class="smsg" id="masterMsg">Initialize audio, then load a file on the Analyze tab.</div>
+  <div class="prog" id="prog"><div class="prog-f" id="progF"></div></div>
+  <button class="proc-btn" id="procBtn" onclick="runMaster()" disabled>⚡ REMASTER + RENDER</button>
+  <button class="dl-btn" id="dlBtn" onclick="downloadMaster()">⬇ DOWNLOAD REMASTERED WAV</button>
+</div>
+</div>
+
+<!-- REPORT -->
+<div class="pane" id="pane-report">
+<div class="panel" style="margin-top:13px;">
+  <div class="sl">// FULL-SONG ANALYSIS REPORT</div>
+  <button class="btn" style="width:100%;margin-bottom:9px;" onclick="captureReport()">📋 CAPTURE ANALYSIS</button>
+  <div class="report-text" id="reportTxt"></div>
+  <button class="copy-btn" onclick="copyReport()">COPY REPORT → PASTE TO AI</button>
+</div>
+</div>
+
+<div class="haptic" id="hapRing">🫀</div>
+
+<script>
+'use strict';
+// ===== STATE =====
+let actx = null;
+let anL, anR, anM, srcNode, gainNode, splitter;
+let isPlaying = false, isMic = false;
+let curBuf = null, startT = 0, pauseOff = 0, animF, micStream;
+let masterBlob = null, masterFN = 'remastered.wav';
+const FFT = 2048;
+const dL = new Uint8Array(FFT), dR = new Uint8Array(FFT), dM = new Uint8Array(FFT), tD = new Uint8Array(FFT);
+let beatHist = [], lastBeatT = 0, bpmEst = 0, lastBassE = 0, beatCnt = 0, tapT = [];
+let rBass = [], rMid = [], rHigh = [], rPL = [], rPR = [], rRms = [];
+const ROLL = 300;
+let fullSong = null, spectImg = null;
+
+// ===== UNLOCK (iOS requires user gesture) =====
+async function unlock() {
+  try {
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    // Play a silent buffer to fully unlock
+    const buf = actx.createBuffer(1, 1, 22050);
+    const src = actx.createBufferSource();
+    src.buffer = buf; src.connect(actx.destination); src.start(0);
+    await actx.resume();
+    document.getElementById('unlockScreen').style.display = 'none';
+  } catch(e) {
+    showToast('Audio init failed: ' + e.message);
+  }
+}
+
+// ===== TOAST =====
+function showToast(msg, duration = 4000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ===== TABS =====
+function showTab(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['analyze','master','report'][i] === n));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-' + n).classList.add('active');
+}
+
+// ===== FILE LOAD =====
+document.getElementById('fileInput').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (f) await loadFile(f);
+});
+const lz = document.getElementById('loadZone');
+lz.addEventListener('dragover', e => { e.preventDefault(); lz.style.borderColor = 'var(--a1)'; });
+lz.addEventListener('dragleave', () => lz.style.borderColor = '');
+lz.addEventListener('drop', async e => { e.preventDefault(); lz.style.borderColor = ''; const f = e.dataTransfer.files[0]; if (f) await loadFile(f); });
+
+async function loadFile(file) {
+  if (!actx) { showToast('Tap INITIALIZE first!'); return; }
+  stopAll();
+  lz.querySelector('h2').textContent = '⏳ LOADING...';
+  lz.querySelector('p').textContent = file.name.slice(0, 32);
+
+  try {
+    // Resume context — critical on iOS
+    if (actx.state === 'suspended') await actx.resume();
+
+    const ab = await file.arrayBuffer();
+
+    // Decode with promise + callback fallback for older iOS
+    let buf;
+    try {
+      buf = await actx.decodeAudioData(ab);
+    } catch(e1) {
+      // Try again with a fresh copy of the buffer (iOS sometimes needs this)
+      try {
+        const ab2 = await file.arrayBuffer();
+        buf = await new Promise((resolve, reject) => {
+          actx.decodeAudioData(ab2, resolve, reject);
+        });
+      } catch(e2) {
+        throw new Error('Decode failed: ' + (e2.message || e2));
+      }
+    }
+
+    curBuf = buf;
+    masterFN = file.name.replace(/\.[^.]+$/, '') + '_remastered.wav';
+    lz.querySelector('h2').textContent = '✓ ' + file.name.slice(0, 26);
+    lz.querySelector('p').textContent = `${(file.size/1048576).toFixed(1)}MB · ${buf.duration.toFixed(1)}s · ${buf.sampleRate}Hz`;
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = false;
+    document.getElementById('procBtn').disabled = false;
+    document.getElementById('masterMsg').textContent = 'Ready. Choose preset then REMASTER.';
+    masterBlob = null; document.getElementById('dlBtn').classList.remove('show');
+    rBass=[]; rMid=[]; rHigh=[]; rPL=[]; rPR=[]; rRms=[]; fullSong = null;
+    // Scan in background, play immediately
+    playAudio();
+    analyzeFullSong(buf); // non-blocking
+  } catch(e) {
+    lz.querySelector('h2').textContent = '⚠ LOAD FAILED';
+    lz.querySelector('p').textContent = 'Try MP3, AAC, M4A, or WAV';
+    showToast('Could not load: ' + (e.message || 'Unsupported format'));
+    console.error('loadFile error:', e);
+  }
+}
+
+// ===== ANALYSERS =====
+function mkAn() {
+  anL = actx.createAnalyser(); anL.fftSize = FFT;
+  anR = actx.createAnalyser(); anR.fftSize = FFT;
+  anM = actx.createAnalyser(); anM.fftSize = FFT;
+  gainNode = actx.createGain();
+  splitter = actx.createChannelSplitter(2);
+}
+function connectG(src) {
+  src.connect(splitter);
+  splitter.connect(anL, 0); splitter.connect(anR, 1);
+  src.connect(anM); src.connect(gainNode); gainNode.connect(actx.destination);
+}
+
+// ===== PLAYBACK =====
+function playAudio() {
+  if (!curBuf || !actx) return;
+  stopSrc(); mkAn();
+  srcNode = actx.createBufferSource(); srcNode.buffer = curBuf;
+  connectG(srcNode); srcNode.start(0, pauseOff);
+  startT = actx.currentTime - pauseOff; isPlaying = true;
+  document.getElementById('playBtn').textContent = '⏸ PAUSE';
+  hideIdle(); startViz();
+}
+function togglePlay() {
+  if (!curBuf) return;
+  if (isPlaying) { pauseOff = actx.currentTime - startT; stopSrc(); isPlaying = false; document.getElementById('playBtn').textContent = '▶ PLAY'; }
+  else playAudio();
+}
+function stopAudio() { stopAll(); pauseOff = 0; document.getElementById('playBtn').textContent = '▶ PLAY'; }
+function stopSrc() { if (srcNode) { try { srcNode.stop(); } catch(e){} srcNode = null; } }
+function stopAll() {
+  stopSrc();
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  isPlaying = false; isMic = false; cancelAnimationFrame(animF);
+  document.getElementById('micBtn').classList.remove('on'); setStatus(false);
+}
+async function toggleMic() {
+  if (!actx) { showToast('Tap INITIALIZE first!'); return; }
+  if (isMic) { stopAll(); document.getElementById('micBtn').textContent = '🎙 MIC'; return; }
+  stopAll();
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    mkAn();
+    const ms = actx.createMediaStreamSource(micStream);
+    ms.connect(anM); ms.connect(splitter); splitter.connect(anL, 0); splitter.connect(anR, 1);
+    isMic = true; document.getElementById('micBtn').classList.add('on');
+    document.getElementById('micBtn').textContent = '🔴 STOP';
+    setStatus(true); hideIdle(); startViz();
+  } catch(e) { showToast('Mic access denied.'); }
+}
+function tapBpm() {
+  const now = performance.now(); tapT.push(now); if (tapT.length > 8) tapT.shift();
+  if (tapT.length >= 2) {
+    const iv = []; for (let i = 1; i < tapT.length; i++) iv.push(tapT[i] - tapT[i-1]);
+    bpmEst = Math.round(60000 / (iv.reduce((a,b) => a+b, 0) / iv.length));
+    document.getElementById('bpmN').textContent = bpmEst;
+    document.getElementById('gV').textContent = 'TAP';
+    document.getElementById('gV').style.color = 'var(--a3)';
+  }
+  hapticPulse(); clearTimeout(window._tr); window._tr = setTimeout(() => tapT = [], 3000);
+}
+function setStatus(on) { document.getElementById('dot').className = 'dot' + (on ? ' on' : ''); document.getElementById('stxt').textContent = on ? 'ACTIVE' : 'OFFLINE'; }
+function hideIdle() { ['geoI','waveI','spectI'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; }); }
+
+// ===== FULL-SONG ANALYSIS =====
+async function analyzeFullSong(buf) {
+  try {
+    const sr = buf.sampleRate, hop = Math.floor(sr * 0.05), nHops = Math.floor(buf.length / hop);
+    const chL = buf.getChannelData(0);
+    const chR = buf.numberOfChannels > 1 ? buf.getChannelData(1) : chL;
+    let peakL=0,peakR=0,rmsSum=0,rmsN=0,bassSum=0,midSum=0,highSum=0,clipFrames=0;
+    let lastBE=0,bpmInts=[],lastBHop=-1,beats=0;
+    for (let hi = 0; hi < nHops; hi++) {
+      const s = hi * hop, e = Math.min(s + hop, buf.length), len = e - s;
+      let rL=0,rR=0,pL=0,pR=0,bE=0,mE=0,hE=0,prev=chL[s];
+      for (let i = s; i < e; i++) {
+        const al = Math.abs(chL[i]), ar = Math.abs(chR[i]);
+        rL += chL[i]*chL[i]; rR += chR[i]*chR[i];
+        if (al > pL) pL = al; if (ar > pR) pR = ar;
+        if (al > 0.99 || ar > 0.99) clipFrames++;
+        const diff = Math.abs(chL[i] - prev);
+        bE += al * (1 - Math.min(diff * 8, 1));
+        hE += diff; mE += al * Math.min(diff * 4, 1);
+        prev = chL[i];
+      }
+      rL = Math.sqrt(rL/len); rR = Math.sqrt(rR/len);
+      bE = Math.max(0, bE/len); mE = Math.max(0, mE/len); hE = Math.max(0, hE/len);
+      if (pL > peakL) peakL = pL; if (pR > peakR) peakR = pR;
+      rmsSum += (rL+rR)*0.5; rmsN++;
+      bassSum += bE; midSum += mE; highSum += hE;
+      if (bE > lastBE*1.45 && bE > 0.01 && (hi - lastBHop) > 4) {
+        if (lastBHop > 0) { const ms = (hi-lastBHop)*hop/sr*1000; if (ms>200&&ms<2000) bpmInts.push(ms); }
+        lastBHop = hi; beats++;
+      }
+      lastBE = bE;
+    }
+    const avgRms = rmsN ? rmsSum/rmsN : 0;
+    const tot = (bassSum+midSum+highSum)/nHops || 1;
+    const dr = peakL>0&&avgRms>0 ? (20*Math.log10(peakL)-20*Math.log10(avgRms)).toFixed(1) : '—';
+    let bpm = 0;
+    if (bpmInts.length > 3) {
+      const ai = bpmInts.reduce((a,b)=>a+b,0)/bpmInts.length;
+      bpm = Math.round(60000/ai); if (bpm>200) bpm=Math.round(bpm/2); if (bpm<60) bpm*=2;
+    }
+    fullSong = { peakL, peakR, rms:avgRms, lufs:avgRms*0.85,
+      bass:(bassSum/nHops)/tot, mid:(midSum/nHops)/tot, high:(highSum/nHops)/tot,
+      bpm, beats, clip:(clipFrames/buf.length*100).toFixed(3), dr,
+      duration:buf.duration.toFixed(1), sr:buf.sampleRate };
+    if (bpm > 0) { document.getElementById('bpmN').textContent = bpm; bpmEst = bpm; }
+  } catch(e) { console.error('analyzeFullSong error:', e); }
+}
+
+// ===== VISUALIZATION =====
+function setupC(id) { const c = document.getElementById(id); c.width = c.parentElement.clientWidth; return c; }
+function startViz() {
+  const gC=setupC('geoC'),gX=gC.getContext('2d');
+  const wC=setupC('waveC'),wX=wC.getContext('2d');
+  const sC=setupC('spectC'),sX=sC.getContext('2d');
+  const stC=document.getElementById('stereoC'); stC.width=stC.parentElement.clientWidth; const stX=stC.getContext('2d');
+  spectImg=null; let ph=0;
+  function loop() {
+    animF = requestAnimationFrame(loop); if (!anM) return;
+    anM.getByteFrequencyData(dM); anM.getByteTimeDomainData(tD);
+    if (anL) anL.getByteFrequencyData(dL); if (anR) anR.getByteFrequencyData(dR);
+    ph += 0.02;
+    const sr = actx.sampleRate, bHz = sr/FFT;
+    const bHi=Math.floor(250/bHz), mHi=Math.floor(4000/bHz), hHi=Math.min(Math.floor(20000/bHz),FFT/2-1);
+    const bE=bEn(dM,Math.max(1,Math.floor(20/bHz)),bHi);
+    const mE=bEn(dM,bHi,mHi), hE=bEn(dM,mHi,hHi);
+    const kE=bEn(dM,Math.floor(60/bHz),Math.floor(120/bHz));
+    const snE=bEn(dM,Math.floor(150/bHz),Math.floor(500/bHz));
+    const htE=bEn(dM,Math.floor(6000/bHz),hHi);
+    detectBeat(bE,kE,snE,htE);
+    updateFreqBars(bE,mE,hE); updateMeters();
+    drawGeo(gX,gC.width,gC.height,bE,mE,hE,bEn(dM,0,hHi),ph);
+    drawWave(wX,wC.width,wC.height); drawSpect(sX,sC.width,sC.height); drawStereo(stX,stC.width,stC.height);
+  }
+  loop();
+}
+function bEn(d,lo,hi){if(lo>=hi||lo<0)return 0;let s=0;for(let i=lo;i<Math.min(hi,d.length);i++)s+=d[i];return s/((hi-lo)*255);}
+function detectBeat(bass,kick,snare,hat){
+  const now=performance.now();
+  document.getElementById('kZ').classList.toggle('hit',kick>0.22&&kick>lastBassE*1.3);
+  document.getElementById('sZ').classList.toggle('hit',snare>0.2);
+  document.getElementById('hZ').classList.toggle('hit',hat>0.12);
+  document.getElementById('kP').textContent=(kick*100).toFixed(0)+'%';
+  document.getElementById('sP').textContent=(snare*100).toFixed(0)+'%';
+  document.getElementById('hP').textContent=(hat*100).toFixed(0)+'%';
+  if(kick>0.22&&kick>lastBassE*1.3&&now-lastBeatT>200){
+    const iv=now-lastBeatT;
+    if(iv>200&&iv<2000){beatHist.push(iv);if(beatHist.length>12)beatHist.shift();
+      const avg=beatHist.reduce((a,b)=>a+b,0)/beatHist.length;
+      bpmEst=Math.round(60000/avg);if(bpmEst>200)bpmEst=Math.round(bpmEst/2);if(bpmEst<60)bpmEst*=2;}
+    lastBeatT=now;beatCnt++;hapticPulse();
+  }
+  lastBassE=kick;
+  if(bpmEst>0){document.getElementById('bpmN').textContent=bpmEst;
+    if(beatHist.length>=4){
+      const m=beatHist.reduce((a,b)=>a+b,0)/beatHist.length;
+      const sd=Math.sqrt(beatHist.map(x=>(x-m)**2).reduce((a,b)=>a+b,0)/beatHist.length);
+      let g,c;
+      if(sd<5){g='LOCKED';c='var(--a1)';}else if(sd<15){g='TIGHT';c='var(--mid)';}
+      else if(sd<30){g='GROOVE';c='var(--a3)';}else{g='LOOSE';c='var(--a2)';}
+      document.getElementById('gV').textContent=g;document.getElementById('gV').style.color=c;
+    }
+  }
+}
+function updateFreqBars(b,m,h){
+  document.getElementById('bBar').style.height=Math.min(b*250,100)+'%';
+  document.getElementById('mBar').style.height=Math.min(m*150,100)+'%';
+  document.getElementById('hBar').style.height=Math.min(h*300,100)+'%';
+  document.getElementById('bDb').textContent=tDb(b);
+  document.getElementById('mDb').textContent=tDb(m);
+  document.getElementById('hDb').textContent=tDb(h);
+}
+function tDb(v){return v>0?(20*Math.log10(v)).toFixed(1)+' dB':'—';}
+function updateMeters(){
+  const pkL=Math.max(...Array.from(dL))/255,pkR=Math.max(...Array.from(dR))/255;
+  const rms=Math.sqrt(Array.from(tD).reduce((s,v)=>s+((v-128)/128)**2,0)/tD.length);
+  const lufs=rms*0.85;
+  sm('mPL','mPLv',pkL*100,pkL,'mv');sm('mPR','mPRv',pkR*100,pkR,'mv');
+  sm('mRMS','mRMSv',rms*250,rms,'mv');sm('mLUFS','mLUFSv',lufs*300,lufs,'mv');
+  sm('mmPL','mmPLv',pkL*100,pkL,'mm-v');sm('mmPR','mmPRv',pkR*100,pkR,'mm-v');
+  sm('mmRMS','mmRMSv',rms*250,rms,'mm-v');sm('mmLUFS','mmLUFSv',lufs*300,lufs,'mm-v');
+  rBass.push(bEn(dM,0,20));rMid.push(bEn(dM,20,120));rHigh.push(bEn(dM,120,400));
+  rPL.push(pkL);rPR.push(pkR);rRms.push(rms);
+  if(rBass.length>ROLL){rBass.shift();rMid.shift();rHigh.shift();rPL.shift();rPR.shift();rRms.shift();}
+}
+function sm(bId,vId,pct,val,cls){
+  const b=document.getElementById(bId),v=document.getElementById(vId);
+  if(b)b.style.width=Math.min(pct,100)+'%';
+  if(v){v.textContent=val>0?(20*Math.log10(val)).toFixed(1)+' dB':'—';v.className=cls+(pct>92?' clip':' ok');}
+}
+function drawGeo(ctx,W,H,bass,mid,high,tot,ph){
+  ctx.fillStyle='rgba(6,8,16,0.3)';ctx.fillRect(0,0,W,H);
+  const cx=W/2,cy=H/2,base=Math.min(W,H)*0.23;
+  ctx.beginPath();
+  for(let i=0;i<dM.length/4;i++){const a=(i/(dM.length/4))*Math.PI*2-Math.PI/2;const r=(base*1.5+high*base*0.85)+(dM[i*4]/255)*base*0.5;i===0?ctx.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}
+  ctx.closePath();ctx.strokeStyle=`hsla(${160+high*60},100%,70%,${0.2+high*0.5})`;ctx.lineWidth=1+high*2;ctx.stroke();
+  ctx.beginPath();
+  for(let i=0;i<=6;i++){const a=(i/6)*Math.PI*2+ph*0.5,r=base*(0.72+mid*0.55)*(1+Math.sin(ph*3+i)*mid*0.3);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);}
+  ctx.closePath();ctx.strokeStyle=`rgba(0,245,196,${0.3+mid*0.5})`;ctx.lineWidth=1+mid*3;ctx.stroke();
+  const bR=base*(0.22+bass*1.05),g=ctx.createRadialGradient(cx,cy,0,cx,cy,bR);
+  g.addColorStop(0,`rgba(255,77,109,${bass*0.8})`);g.addColorStop(0.6,`rgba(255,107,53,${bass*0.3})`);g.addColorStop(1,'transparent');
+  ctx.beginPath();ctx.arc(cx,cy,bR,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+  ctx.strokeStyle=`rgba(255,77,109,${0.45+bass*0.5})`;ctx.lineWidth=2+bass*4;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,3+tot*7,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+function drawWave(ctx,W,H){
+  ctx.fillStyle='#080c14';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#00f5c4';ctx.lineWidth=1.5;ctx.beginPath();
+  for(let i=0;i<tD.length;i++){const x=i/tD.length*W,y=((tD[i]-128)/128)*(H/2)+H/2;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();ctx.strokeStyle='#1a2535';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+}
+function drawSpect(ctx,W,H){
+  if(!spectImg||spectImg.width!==W)spectImg=ctx.createImageData(W,H);
+  const d=spectImg.data;
+  for(let y=0;y<H;y++)for(let x=0;x<W-1;x++){const i=(y*W+x)*4,j=i+4;d[i]=d[j];d[i+1]=d[j+1];d[i+2]=d[j+2];d[i+3]=d[j+3];}
+  for(let y=0;y<H;y++){
+    const v=dM[Math.floor((1-y/H)*dM.length*0.5)]/255;
+    const i=(y*W+W-1)*4;
+    if(v<0.25){d[i]=0;d[i+1]=0;d[i+2]=Math.floor(v*4*200);d[i+3]=255;}
+    else if(v<0.5){const t=(v-.25)*4;d[i]=0;d[i+1]=Math.floor(t*245);d[i+2]=Math.floor(200-t*80);d[i+3]=255;}
+    else if(v<0.75){const t=(v-.5)*4;d[i]=Math.floor(t*255);d[i+1]=Math.floor(245-t*80);d[i+2]=0;d[i+3]=255;}
+    else{const t=(v-.75)*4;d[i]=255;d[i+1]=Math.floor(165-t*165);d[i+2]=0;d[i+3]=255;}
+  }
+  ctx.putImageData(spectImg,0,0);
+}
+function drawStereo(ctx,W,H){
+  ctx.fillStyle='#080c14';ctx.fillRect(0,0,W,H);
+  const cx=W/2,cy=H/2;
+  ctx.strokeStyle='#1a2535';ctx.lineWidth=1;
+  [[0,H,W,0],[0,0,W,H],[cx,0,cx,H],[0,cy,W,cy]].forEach(([x1,y1,x2,y2])=>{ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();});
+  ctx.fillStyle='#4a5568';ctx.font='8px Share Tech Mono';ctx.fillText('L',4,cy-2);ctx.fillText('R',W-13,cy-2);ctx.fillText('MID',cx-11,10);
+  for(let i=0;i<Math.min(dL.length,dR.length,200);i+=6){
+    const l=(dL[i]-128)/128,r=(dR[i]-128)/128;
+    ctx.beginPath();ctx.arc(cx+(l-r)*0.5*cx*0.8,cy-(l+r)*0.5*cy*0.8,2,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${160+i/1.5},100%,65%,${Math.sqrt(l*l+r*r)*.7+.1})`;ctx.fill();
+  }
+}
+function hapticPulse(){
+  const r=document.getElementById('hapRing');r.classList.add('beat');
+  if(navigator.vibrate)navigator.vibrate(25);setTimeout(()=>r.classList.remove('beat'),90);
+}
+
+// ===== MASTERING =====
+function ul(el,id,unit){document.getElementById(id).textContent=parseFloat(el.value)+(unit===':1'?unit:' '+unit);}
+function gv(id){return parseFloat(document.getElementById(id).value);}
+function d2l(db){return Math.pow(10,db/20);}
+
+const PRESETS={
+  flat:{eqSG:0,eqSF:80,eqLG:0,eqLF:350,eqHG:0,eqHF:2500,eqAG:0,eqAF:10000,cBT:-18,cBR:3,cBG:0,cMT:-20,cMR:2,cMG:0,cHT:-24,cHR:2,cHG:0,cFT:-12,cFR:4,cFG:2,stW:100,stM:0,rvM:0,rvD:1.2,satD:0,satM:0,limC:-0.3,limD:0},
+  warm:{eqSG:2,eqSF:100,eqLG:1.5,eqLF:300,eqHG:-1,eqHF:3000,eqAG:-0.5,eqAF:12000,cBT:-16,cBR:4,cBG:2,cMT:-18,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:3,cFG:2,stW:90,stM:20,rvM:6,rvD:1.5,satD:8,satM:30,limC:-0.3,limD:2},
+  bright:{eqSG:-1,eqSF:80,eqLG:-1,eqLF:350,eqHG:2,eqHF:2500,eqAG:3,eqAF:10000,cBT:-20,cBR:3,cBG:0,cMT:-18,cMR:2,cMG:1,cHT:-20,cHR:1.5,cHG:2,cFT:-12,cFR:3,cFG:2,stW:120,stM:0,rvM:4,rvD:1,satD:4,satM:20,limC:-0.3,limD:2},
+  punchy:{eqSG:3,eqSF:60,eqLG:-2,eqLF:350,eqHG:2,eqHF:3000,eqAG:1,eqAF:12000,cBT:-12,cBR:6,cBG:4,cMT:-18,cMR:3,cMG:2,cHT:-22,cHR:2,cHG:1,cFT:-8,cFR:6,cFG:4,stW:110,stM:30,rvM:2,rvD:0.8,satD:10,satM:40,limC:-0.2,limD:4},
+  cinematic:{eqSG:2,eqSF:60,eqLG:1,eqLF:250,eqHG:1,eqHF:2000,eqAG:2,eqAF:14000,cBT:-18,cBR:3,cBG:2,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:3,cFG:2,stW:140,stM:10,rvM:15,rvD:2.5,satD:6,satM:25,limC:-0.5,limD:1},
+  streaming:{eqSG:0,eqSF:80,eqLG:-1,eqLF:300,eqHG:1,eqHF:2500,eqAG:1,eqAF:10000,cBT:-18,cBR:3,cBG:1,cMT:-20,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:4,cFG:2,stW:105,stM:15,rvM:3,rvD:1.2,satD:5,satM:20,limC:-1,limD:2},
+  hifi:{eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1}
+};
+const UNITS={eqSG:'dB',eqSF:'Hz',eqLG:'dB',eqLF:'Hz',eqHG:'dB',eqHF:'Hz',eqAG:'dB',eqAF:'Hz',cBT:'dB',cBR:':1',cBG:'dB',cMT:'dB',cMR:':1',cMG:'dB',cHT:'dB',cHR:':1',cHG:'dB',cFT:'dB',cFR:':1',cFG:'dB',stW:'%',stM:'%',rvM:'%',rvD:'s',satD:'%',satM:'%',limC:'dB',limD:'dB'};
+function applyPreset(name,el){
+  document.querySelectorAll('.pre-btn').forEach(b=>b.classList.remove('sel'));
+  if(el)el.classList.add('sel');
+  const p=PRESETS[name]; if(!p) return;
+  Object.entries(p).forEach(([k,v])=>{
+    const inp=document.getElementById(k); if(!inp) return; inp.value=v;
+    const lbl=document.getElementById(k+'v'); if(lbl) lbl.textContent=v+(UNITS[k]===':1'?':1':' '+UNITS[k]);
+  });
+}
+
+async function runMaster(){
+  if(!curBuf){showToast('Load a file first.');return;}
+  const btn=document.getElementById('procBtn'),prog=document.getElementById('prog'),fill=document.getElementById('progF'),msg=document.getElementById('masterMsg');
+  btn.disabled=true;prog.classList.add('show');fill.style.width='0%';
+  document.getElementById('dlBtn').classList.remove('show');
+  const sr=curBuf.sampleRate,len=curBuf.length;
+  const step=async(pct,txt)=>{msg.textContent=txt;fill.style.width=pct+'%';await new Promise(r=>setTimeout(r,20));};
+
+  try {
+    await step(8,'Building mastering chain...');
+    const oCtx=new OfflineAudioContext(2,len,sr);
+    const src=oCtx.createBufferSource();src.buffer=curBuf;
+
+    // EQ
+    const eq1=oCtx.createBiquadFilter();eq1.type='lowshelf';eq1.frequency.value=gv('eqSF');eq1.gain.value=gv('eqSG');
+    const eq2=oCtx.createBiquadFilter();eq2.type='peaking';eq2.frequency.value=gv('eqLF');eq2.gain.value=gv('eqLG');eq2.Q.value=1.0;
+    const eq3=oCtx.createBiquadFilter();eq3.type='peaking';eq3.frequency.value=gv('eqHF');eq3.gain.value=gv('eqHG');eq3.Q.value=0.8;
+    const eq4=oCtx.createBiquadFilter();eq4.type='highshelf';eq4.frequency.value=gv('eqAF');eq4.gain.value=gv('eqAG');
+    await step(18,'Multiband compression...');
+
+    // Crossovers
+    const mk=(type,freq)=>{const f=oCtx.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=0.707;return f;};
+    const bLP1=mk('lowpass',250),bLP2=mk('lowpass',250);
+    const mHP=mk('highpass',250),mLP=mk('lowpass',4000);
+    const hHP1=mk('highpass',4000),hHP2=mk('highpass',4000);
+    const mkC=(t,r,k,at,rel)=>{const c=oCtx.createDynamicsCompressor();c.threshold.value=t;c.ratio.value=r;c.knee.value=k;c.attack.value=at;c.release.value=rel;return c;};
+    const cB=mkC(gv('cBT'),gv('cBR'),6,0.01,0.15),gB=oCtx.createGain();gB.gain.value=d2l(gv('cBG'));
+    const cM=mkC(gv('cMT'),gv('cMR'),5,0.005,0.1),gM=oCtx.createGain();gM.gain.value=d2l(gv('cMG'));
+    const cH=mkC(gv('cHT'),gv('cHR'),4,0.003,0.08),gH=oCtx.createGain();gH.gain.value=d2l(gv('cHG'));
+    const cF=mkC(gv('cFT'),gv('cFR'),8,0.015,0.2),gF=oCtx.createGain();gF.gain.value=d2l(gv('cFG'));
+    await step(32,'Saturation + reverb...');
+
+    // Saturation
+    const sDrv=gv('satD')/100*5,sMx=gv('satM')/100;
+    const sat=oCtx.createWaveShaper();
+    const curve=new Float32Array(256);
+    for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=sDrv>0?(3+sDrv)*x/(1+sDrv*Math.abs(x))/(1+2*sDrv/3):x;}
+    sat.curve=curve;sat.oversample='4x';
+    const satW=oCtx.createGain();satW.gain.value=sMx;
+    const satDr=oCtx.createGain();satDr.gain.value=1-sMx;
+    const satO=oCtx.createGain();
+
+    // Reverb IR
+    const rvMx=gv('rvM')/100,rvDc=gv('rvD');
+    const conv=oCtx.createConvolver();
+    const irLen=Math.floor(sr*rvDc);
+    const ir=oCtx.createBuffer(2,irLen,sr);
+    for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<irLen;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/irLen,1.5);}
+    conv.buffer=ir;
+    const rvW=oCtx.createGain();rvW.gain.value=rvMx;
+    const rvDr=oCtx.createGain();rvDr.gain.value=1-rvMx*0.5;
+
+    // Limiter
+    const lim=mkC(gv('limC'),20,0,0.001,0.05);
+    const limDrv=oCtx.createGain();limDrv.gain.value=d2l(gv('limD'));
+
+    await step(45,'Wiring graph...');
+
+    // Wire
+    src.connect(eq1);eq1.connect(eq2);eq2.connect(eq3);eq3.connect(eq4);
+    eq4.connect(bLP1);bLP1.connect(bLP2);bLP2.connect(cB);cB.connect(gB);
+    eq4.connect(mHP);mHP.connect(mLP);mLP.connect(cM);cM.connect(gM);
+    eq4.connect(hHP1);hHP1.connect(hHP2);hHP2.connect(cH);cH.connect(gH);
+    const merge=oCtx.createGain();
+    gB.connect(merge);gM.connect(merge);gH.connect(merge);
+    merge.connect(cF);cF.connect(gF);
+    gF.connect(satDr);gF.connect(sat);sat.connect(satW);satDr.connect(satO);satW.connect(satO);
+    satO.connect(rvDr);satO.connect(conv);conv.connect(rvW);
+    rvDr.connect(limDrv);rvW.connect(limDrv);
+    limDrv.connect(lim);lim.connect(oCtx.destination);
+
+    await step(55,'Rendering (may take a moment)...');
+    src.start(0);
+    const rendered=await oCtx.startRendering();
+
+    await step(82,'M/S stereo width + WAV encode...');
+    const wPct=gv('stW')/100;
+    const chL=rendered.getChannelData(0),chR=rendered.getChannelData(1);
+    const nL=new Float32Array(len),nR=new Float32Array(len);
+    for(let i=0;i<len;i++){
+      const mid=(chL[i]+chR[i])*0.5,side=(chL[i]-chR[i])*0.5*wPct;
+      nL[i]=mid+side;nR[i]=mid-side;
+    }
+    const fb={sampleRate:sr,length:len,numberOfChannels:2,getChannelData:c=>c===0?nL:nR};
+    masterBlob=encodeWAV(fb);
+    fill.style.width='100%';msg.textContent='✅ Remaster complete!';
+    btn.disabled=false;document.getElementById('dlBtn').classList.add('show');
+  } catch(e) {
+    msg.textContent='❌ Error: '+e.message;btn.disabled=false;
+    showToast('Render failed: '+e.message);console.error(e);
+  }
+}
+
+function encodeWAV(buf){
+  const sr=buf.sampleRate,nCh=buf.numberOfChannels,len=buf.length;
+  const bps=16,bySamp=2,blk=nCh*bySamp,byRate=sr*blk,dsz=len*blk;
+  const ab=new ArrayBuffer(44+dsz),v=new DataView(ab);
+  const ws=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+  ws(0,'RIFF');v.setUint32(4,36+dsz,true);ws(8,'WAVE');ws(12,'fmt ');
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nCh,true);
+  v.setUint32(24,sr,true);v.setUint32(28,byRate,true);v.setUint16(32,blk,true);v.setUint16(34,bps,true);
+  ws(36,'data');v.setUint32(40,dsz,true);
+  let off=44;
+  for(let i=0;i<len;i++)for(let c=0;c<nCh;c++){const s=Math.max(-1,Math.min(1,buf.getChannelData(c)[i]));v.setInt16(off,s<0?s*0x8000:s*0x7FFF,true);off+=2;}
+  return new Blob([ab],{type:'audio/wav'});
+}
+function downloadMaster(){
+  if(!masterBlob)return;
+  const url=URL.createObjectURL(masterBlob),a=document.createElement('a');
+  a.href=url;a.download=masterFN;document.body.appendChild(a);a.click();
+  document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+// ===== REPORT =====
+function captureReport(){
+  const now=new Date().toLocaleTimeString();
+  const avg=arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
+  const fd=fullSong||{peakL:avg(rPL),peakR:avg(rPR),rms:avg(rRms),lufs:avg(rRms)*0.85,bass:avg(rBass),mid:avg(rMid),high:avg(rHigh),bpm:bpmEst,beats:beatCnt,clip:'—',dr:'—',duration:'—',sr:'—'};
+  const src=fullSong?'FULL SONG SCAN':`${(rBass.length/60).toFixed(0)}s ROLLING AVG`;
+  const dB=v=>v>0?(20*Math.log10(v)).toFixed(2)+' dB':'—';
+  const pct=v=>((v||0)*100).toFixed(1)+'%';
+  const diag=[];
+  if(fd.peakL>0.99||fd.peakR>0.99)diag.push('🔴 CLIPPING — reduce gain before mastering.');
+  else if(fd.peakL>0.95)diag.push('🟡 NEAR-CLIP — leave 0.5–1 dB headroom.');
+  if(fd.dr!=='—'&&parseFloat(fd.dr)<6)diag.push('🔴 BRICK-WALLED — DR under 6 dB.');
+  if(fd.dr!=='—'&&parseFloat(fd.dr)>20)diag.push('ℹ WIDE DYNAMICS — consider gentle limiting.');
+  if((fd.bass||0)>0.5)diag.push('🟡 BASS HEAVY — high-pass non-bass elements.');
+  if((fd.bass||0)<0.2)diag.push('ℹ THIN BASS — check sub/bass levels.');
+  if((fd.mid||0)<0.25)diag.push('🟡 MID SCOOP — check 1–4kHz presence.');
+  if((fd.high||0)<0.15)diag.push('🟡 DULL HIGH END — try hi-shelf at 10–16kHz.');
+  if((fd.high||0)>0.5)diag.push('🟡 HARSH HIGHS — may cause ear fatigue.');
+  if(Math.abs((fd.peakL||0)-(fd.peakR||0))>0.05)diag.push('🟡 STEREO IMBALANCE — L/R peaks differ.');
+  const ln=fd.lufs>0?parseFloat((20*Math.log10(fd.lufs)).toFixed(2)):null;
+  if(ln!==null){
+    if(ln>-8)diag.push('🔴 TOO LOUD — streaming will attenuate.');
+    else if(ln>-11)diag.push('🟡 SLIGHTLY HOT — may get turned down.');
+    else if(ln<-18)diag.push('ℹ QUIET — consider makeup gain.');
+    else diag.push('✅ LOUDNESS OK — good streaming range.');
+  }
+  if(!diag.length)diag.push('✅ No major issues detected.');
+  const report=`╔══════════════════════════════════════╗
+║  BEATVISION v3 // ANALYSIS REPORT    ║
+║  ${now.padEnd(37)}║
+║  SOURCE: ${src.padEnd(30)}║
+╚══════════════════════════════════════╝
+
+── SONG INFO ──────────────────────────
+  DURATION       : ${String(fd.duration).padStart(6)}s
+  SAMPLE RATE    : ${String(fd.sr).padStart(6)} Hz
+  CLIPPING       : ${String(fd.clip).padStart(6)}% of samples
+  DYNAMIC RANGE  : ${String(fd.dr).padStart(6)} dB
+
+── TIMING + RHYTHM ────────────────────
+  DETECTED BPM   : ${String(fd.bpm||bpmEst||'—').padStart(6)}
+  GROOVE RATING  : ${document.getElementById('gV').textContent}
+  BEAT COUNT     : ${fd.beats||beatCnt}
+
+── FREQUENCY BALANCE ──────────────────
+  BASS (20–250Hz): ${pct(fd.bass)}
+  MID (250–4kHz) : ${pct(fd.mid)}
+  HIGH (4k–20kHz): ${pct(fd.high)}
+
+── DYNAMICS + LOUDNESS ────────────────
+  PEAK L         : ${dB(fd.peakL)}FS
+  PEAK R         : ${dB(fd.peakR)}FS
+  AVG RMS        : ${dB(fd.rms)}
+  EST. LUFS      : ${dB(fd.lufs)}
+
+── DIAGNOSTICS ────────────────────────
+${diag.map(x=>'  '+x).join('\n')}
+
+── PROMPT FOR AI ──────────────────────
+  Based on this BeatVision v3 analysis,
+  what mixing/mastering adjustments do
+  I need? Genre: [GENRE]. DAW: [DAW].
+  Hearing impaired — data/visual focus.
+`;
+  document.getElementById('reportTxt').textContent=report;showTab('report');
+}
+async function copyReport(){
+  const t=document.getElementById('reportTxt').textContent;
+  if(!t){showToast('Capture a report first!');return;}
+  try{await navigator.clipboard.writeText(t);}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);}
+  const b=document.querySelector('.copy-btn');b.textContent='✓ COPIED!';setTimeout(()=>b.textContent='COPY REPORT → PASTE TO AI',2000);
+}
+window.addEventListener('resize',()=>{if(anM){setupC('geoC');setupC('waveC');setupC('spectC');const s=document.getElementById('stereoC');s.width=s.parentElement.clientWidth;}});
+</script>
+</body>
+</html>
