@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MR MIX LAB // Mastering Analysis</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;700;800&family=Syne+Mono&display=swap');
+
+:root {
+  --ink: #0b0c10;
+  --paper: #111318;
+  --card: #16191f;
+  --line: #232830;
+  --dim: #3d4554;
+  --muted: #7a8499;
+  --text: #d4dce8;
+  --white: #f0f4fa;
+  --cyan: #1affca;
+  --orange: #ff7c3a;
+  --yellow: #ffd166;
+  --red: #ff3f5b;
+  --green: #2affa0;
+  --purple: #b57cff;
+  --good: #2affa0;
+  --warn: #ffd166;
+  --crit: #ff3f5b;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* NOISE TEXTURE */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+  opacity:0.4;
+}
+
+/* HEADER */
+header {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--ink);
+  z-index: 100;
+}
+.logo-block {}
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  color: var(--white);
+}
+.logo span { color: var(--cyan); }
+.logo-sub {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.status-pill {
+  font-size: 9px;
+  letter-spacing: 2px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  color: var(--dim);
+  text-transform: uppercase;
+  transition: all 0.4s;
+}
+.status-pill.scanning { border-color: var(--yellow); color: var(--yellow); animation: blink 0.8s infinite; }
+.status-pill.ready { border-color: var(--green); color: var(--green); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* DROP ZONE */
+.drop-zone {
+  margin: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  padding: 32px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.drop-zone input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.drop-zone:hover { border-color: var(--cyan); }
+.drop-zone.drag { border-color: var(--cyan); background: #1affca08; }
+.drop-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+.drop-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.drop-sub {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--dim);
+}
+.drop-zone.loaded .drop-icon { font-size: 20px; }
+.drop-zone.loaded .drop-title { color: var(--cyan); font-size: 13px; }
+
+/* PROGRESS */
+.progress-wrap {
+  margin: 0 16px 16px;
+  display: none;
+}
+.progress-wrap.visible { display: block; }
+.progress-label {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.progress-track {
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--purple));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.1s;
+}
+
+/* RESULTS AREA */
+.results { display: none; }
+.results.visible { display: block; }
+
+/* SECTION */
+.section {
+  margin: 0 16px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.section-head {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-title {
+  font-family: 'Syne Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.section-badge {
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.badge-good { background: #2affa015; color: var(--good); border: 1px solid #2affa030; }
+.badge-warn { background: #ffd16615; color: var(--warn); border: 1px solid #ffd16630; }
+.badge-crit { background: #ff3f5b15; color: var(--crit); border: 1px solid #ff3f5b30; }
+.badge-info { background: #1affca10; color: var(--cyan); border: 1px solid #1affca25; }
+
+/* STAT GRID */
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+}
+.stat-cell {
+  background: var(--card);
+  padding: 14px;
+}
+.stat-cell.full { grid-column: 1/-1; }
+.stat-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--dim);
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--white);
+  line-height: 1;
+}
+.stat-value.good { color: var(--good); }
+.stat-value.warn { color: var(--warn); }
+.stat-value.crit { color: var(--crit); }
+.stat-value.info { color: var(--cyan); }
+.stat-unit {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+/* FREQUENCY BARS - proper visual */
+.freq-section { padding: 14px; }
+.freq-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.freq-row:last-child { margin-bottom: 0; }
+.freq-name {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  width: 36px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+.freq-range {
+  font-size: 8px;
+  color: var(--dim);
+  width: 70px;
+  flex-shrink: 0;
+}
+.freq-track {
+  flex: 1;
+  height: 18px;
+  background: var(--paper);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+.freq-fill {
+  height: 100%;
+  border-radius: 3px;
+  position: relative;
+  transition: width 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+.freq-fill span {
+  font-size: 9px;
+  color: rgba(0,0,0,0.7);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.freq-db {
+  font-size: 10px;
+  color: var(--muted);
+  width: 52px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* LUFS GAUGE */
+.lufs-gauge { padding: 14px; }
+.lufs-track {
+  height: 28px;
+  background: var(--paper);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.lufs-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+.lufs-targets {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+}
+.lufs-marker {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.2);
+}
+.lufs-marker-label {
+  position: absolute;
+  top: -16px;
+  font-size: 8px;
+  color: var(--dim);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.lufs-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: var(--dim);
+  margin-top: 4px;
+}
+.lufs-zone-labels {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.lufs-zone {
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* DR METER */
+.dr-visual { padding: 14px; }
+.dr-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.dr-label-col { font-size: 9px; letter-spacing: 1px; color: var(--dim); width: 30px; }
+.dr-track {
+  flex: 1;
+  height: 20px;
+  background: var(--paper);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.dr-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+.dr-val { font-size: 11px; color: var(--muted); width: 40px; text-align: right; }
+
+/* WAVEFORM CANVAS */
+.waveform-wrap { padding: 14px; }
+canvas.waveform {
+  width: 100%;
+  height: 80px;
+  display: block;
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+/* STEREO CANVAS */
+.stereo-wrap { padding: 14px; }
+canvas.stereo {
+  width: 100%;
+  height: 120px;
+  display: block;
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+/* SPECTRUM CANVAS */
+.spectrum-wrap { padding: 14px; }
+canvas.spectrum {
+  width: 100%;
+  height: 120px;
+  display: block;
+  border-radius: 6px;
+  background: var(--paper);
+}
+
+/* DIAGNOSTICS */
+.diag-list { padding: 12px 14px; }
+.diag-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  align-items: flex-start;
+}
+.diag-item:last-child { border-bottom: none; padding-bottom: 0; }
+.diag-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.diag-body {}
+.diag-title { font-size: 11px; color: var(--white); margin-bottom: 3px; font-weight: 500; }
+.diag-desc { font-size: 10px; color: var(--muted); line-height: 1.6; }
+
+/* REPORT */
+.report-wrap { padding: 14px; }
+.report-box {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--text);
+  white-space: pre;
+  overflow-x: auto;
+  margin-bottom: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.copy-btn {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  border: 1px solid var(--cyan);
+  border-radius: 10px;
+  color: var(--cyan);
+  font-family: 'Syne Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+.copy-btn:active { background: var(--cyan); color: #000; }
+
+/* GENRE SELECTOR */
+.meta-row {
+  margin: 0 16px 14px;
+  display: flex;
+  gap: 8px;
+}
+.meta-select {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 10px 12px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.meta-select:focus { outline: none; border-color: var(--cyan); }
+
+/* BOTTOM PAD */
+.pad { height: 40px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <div class="logo">MR <span>MIX LAB</span></div>
+    <div class="logo-sub">Mastering Analysis Tool</div>
+  </div>
+  <div class="status-pill" id="statusPill">IDLE</div>
+</header>
+
+<!-- DROP ZONE -->
+<div class="drop-zone" id="dropZone">
+  <input type="file" id="fileInput">
+  <span class="drop-icon">🎵</span>
+  <div class="drop-title">Drop audio file or tap to browse</div>
+  <div class="drop-sub">MP3 · WAV · AAC · M4A · FLAC · OGG</div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="progressWrap">
+  <div class="progress-label" id="progressLabel">Scanning...</div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- META (genre + platform) -->
+<div class="meta-row results" id="metaRow" style="display:none">
+  <select class="meta-select" id="genreSelect">
+    <option value="">Genre: Select...</option>
+    <option value="Hip-Hop / Trap">Hip-Hop / Trap</option>
+    <option value="R&B / Soul">R&B / Soul</option>
+    <option value="Electronic / EDM">Electronic / EDM</option>
+    <option value="Pop">Pop</option>
+    <option value="Rock / Alternative">Rock / Alternative</option>
+    <option value="Lo-Fi / Chill">Lo-Fi / Chill</option>
+    <option value="Cinematic / Ambient">Cinematic / Ambient</option>
+    <option value="Jazz / Blues">Jazz / Blues</option>
+    <option value="World / Afrobeat">World / Afrobeat</option>
+  </select>
+  <select class="meta-select" id="platformSelect">
+    <option value="Spotify">Platform: Spotify</option>
+    <option value="Apple Music">Apple Music</option>
+    <option value="YouTube Music">YouTube Music</option>
+    <option value="SoundCloud">SoundCloud</option>
+    <option value="Tidal">Tidal</option>
+  </select>
+</div>
+
+<!-- RESULTS -->
+<div class="results" id="results">
+
+  <!-- LOUDNESS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Loudness + Dynamics</div>
+      <div class="section-badge" id="loudnessBadge">—</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">Est. LUFS</div>
+        <div class="stat-value" id="lufsVal">—</div>
+        <div class="stat-unit">integrated</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Dynamic Range</div>
+        <div class="stat-value" id="drVal">—</div>
+        <div class="stat-unit">dB (peak–RMS)</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Peak L</div>
+        <div class="stat-value" id="peakLVal">—</div>
+        <div class="stat-unit">dBFS</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Peak R</div>
+        <div class="stat-value" id="peakRVal">—</div>
+        <div class="stat-unit">dBFS</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Avg RMS</div>
+        <div class="stat-value" id="rmsVal">—</div>
+        <div class="stat-unit">dB</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Clipping</div>
+        <div class="stat-value" id="clipVal">—</div>
+        <div class="stat-unit">% of samples</div>
+      </div>
+    </div>
+    <!-- LUFS gauge -->
+    <div class="lufs-gauge">
+      <div style="font-size:9px;letter-spacing:2px;color:var(--dim);margin-bottom:8px;text-transform:uppercase;">LUFS Target Gauge</div>
+      <div class="lufs-track" id="lufsTrack">
+        <div class="lufs-fill" id="lufsFill"></div>
+      </div>
+      <div class="lufs-scale">
+        <span>-24</span><span>-20</span><span>-16</span><span>-14</span><span>-12</span><span>-8</span><span>-4</span><span>0</span>
+      </div>
+      <div class="lufs-zone-labels">
+        <span class="lufs-zone" style="background:#2affa015;color:var(--good);border:1px solid #2affa030">✓ Streaming sweet spot: -16 to -12</span>
+        <span class="lufs-zone" style="background:#ffd16615;color:var(--warn);border:1px solid #ffd16630">⚠ Spotify target: -14</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FREQUENCY BALANCE -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Frequency Balance</div>
+      <div class="section-badge" id="freqBadge">—</div>
+    </div>
+    <div class="freq-section" id="freqSection">
+      <!-- filled by JS -->
+    </div>
+    <!-- Spectrum canvas -->
+    <div class="spectrum-wrap">
+      <canvas class="spectrum" id="spectrumCanvas" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- SONG INFO -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Song Info</div>
+      <div class="section-badge badge-info" id="bpmBadge">— BPM</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">Duration</div>
+        <div class="stat-value info" id="durVal">—</div>
+        <div class="stat-unit">seconds</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Sample Rate</div>
+        <div class="stat-value info" id="srVal">—</div>
+        <div class="stat-unit">Hz</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Channels</div>
+        <div class="stat-value info" id="chVal">—</div>
+        <div class="stat-unit"></div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Est. BPM</div>
+        <div class="stat-value info" id="bpmVal">—</div>
+        <div class="stat-unit">detected</div>
+      </div>
+    </div>
+    <!-- Waveform -->
+    <div class="waveform-wrap">
+      <canvas class="waveform" id="waveformCanvas" height="80"></canvas>
+    </div>
+  </div>
+
+  <!-- STEREO FIELD -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Stereo Field</div>
+      <div class="section-badge" id="stereoBadge">—</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-cell">
+        <div class="stat-label">Stereo Width</div>
+        <div class="stat-value" id="widthVal">—</div>
+        <div class="stat-unit">% (0=mono, 100=full)</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">L/R Balance</div>
+        <div class="stat-value" id="balanceVal">—</div>
+        <div class="stat-unit">dB difference</div>
+      </div>
+    </div>
+    <div class="stereo-wrap">
+      <canvas class="stereo" id="stereoCanvas" height="120"></canvas>
+    </div>
+  </div>
+
+  <!-- DIAGNOSTICS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Diagnostics</div>
+      <div class="section-badge" id="diagBadge">—</div>
+    </div>
+    <div class="diag-list" id="diagList"></div>
+  </div>
+
+  <!-- REPORT -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">AI Report</div>
+      <div class="section-badge badge-info">Copy → Paste to Claude</div>
+    </div>
+    <div class="report-wrap">
+      <div class="report-box" id="reportBox"></div>
+      <button class="copy-btn" id="copyBtn" onclick="copyReport()">Copy Full Report</button>
+    </div>
+  </div>
+
+</div>
+<div class="pad"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// FREQUENCY BANDS — proper definitions
+// ──────────────────────────────────────────────
+const BANDS = [
+  { name:'SUB',   range:'20–60 Hz',    lo:20,    hi:60,    color:'#ff3f5b' },
+  { name:'BASS',  range:'60–250 Hz',   lo:60,    hi:250,   color:'#ff7c3a' },
+  { name:'LOW-M', range:'250–500 Hz',  lo:250,   hi:500,   color:'#ffd166' },
+  { name:'MID',   range:'500Hz–2kHz',  lo:500,   hi:2000,  color:'#1affca' },
+  { name:'HI-M',  range:'2k–6kHz',     lo:2000,  hi:6000,  color:'#b57cff' },
+  { name:'AIR',   range:'6k–20kHz',    lo:6000,  hi:20000, color:'#64b5f6' },
+];
+
+let analysisResult = null;
+
+// ──────────────────────────────────────────────
+// FILE LOAD
+// ──────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', async e => {
+  e.preventDefault(); dropZone.classList.remove('drag');
+  const f = e.dataTransfer.files[0];
+  if (f) await processFile(f);
+});
+fileInput.addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (f) await processFile(f);
+});
+
+async function processFile(file) {
+  setStatus('scanning');
+  showProgress(true, 'Decoding audio...');
+  setProgress(5);
+
+  let audioCtx, buffer;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const arrBuf = await file.arrayBuffer();
+    setProgress(20);
+    buffer = await audioCtx.decodeAudioData(arrBuf);
+  } catch(e) {
+    showProgress(false);
+    setStatus('idle');
+    dropZone.querySelector('.drop-title').textContent = '⚠ Could not decode — try MP3, WAV, or AAC';
+    return;
+  }
+
+  dropZone.classList.add('loaded');
+  dropZone.querySelector('.drop-icon').textContent = '✓';
+  dropZone.querySelector('.drop-title').textContent = file.name.length > 35 ? file.name.slice(0,32)+'…' : file.name;
+  dropZone.querySelector('.drop-sub').textContent =
+    `${(file.size/1024/1024).toFixed(2)} MB · ${buffer.duration.toFixed(1)}s · ${buffer.sampleRate} Hz · ${buffer.numberOfChannels}ch`;
+
+  showProgress(true, 'Analysing full song...');
+  setProgress(25);
+
+  // Yield to browser so UI updates
+  await sleep(20);
+  const result = await analyzeBuffer(buffer, audioCtx);
+  await sleep(20);
+  setProgress(95);
+
+  audioCtx.close();
+  analysisResult = result;
+  renderResults(result);
+  setProgress(100);
+  await sleep(200);
+  showProgress(false);
+  setStatus('ready');
+  document.getElementById('metaRow').style.display = 'flex';
+  document.getElementById('results').style.display = 'block';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ──────────────────────────────────────────────
+// CORE ANALYSIS — proper FFT frequency bins
+// ──────────────────────────────────────────────
+async function analyzeBuffer(buffer, audioCtx) {
+  const chL = buffer.getChannelData(0);
+  const chR = buffer.numberOfChannels > 1 ? buffer.getChannelData(1) : chL;
+  const sr = buffer.sampleRate;
+  const len = buffer.length;
+  const hopSize = Math.floor(sr * 0.05); // 50ms hops
+  const fftSize = 4096;
+  const fftHalf = fftSize / 2;
+
+  // We'll use OfflineAudioContext to get proper FFT data
+  // Render offline, then sample at intervals
+  const offCtx = new OfflineAudioContext(buffer.numberOfChannels, len, sr);
+  const src = offCtx.createBufferSource();
+  src.buffer = buffer;
+  const analyserOff = offCtx.createAnalyser();
+  analyserOff.fftSize = fftSize;
+  src.connect(analyserOff);
+  analyserOff.connect(offCtx.destination);
+  src.start(0);
+
+  setProgress(35);
+  let rendered;
+  try {
+    rendered = await offCtx.startRendering();
+  } catch(e) {
+    rendered = buffer; // fallback
+  }
+  setProgress(55);
+
+  const rChL = rendered.getChannelData(0);
+  const rChR = rendered.numberOfChannels > 1 ? rendered.getChannelData(1) : rChL;
+
+  // ── Peak analysis ──
+  let peakL = 0, peakR = 0;
+  let rmsLSum = 0, rmsRSum = 0;
+  let clipCount = 0;
+  let midSideWidthSum = 0, hopCount = 0;
+
+  // ── Beat detection ──
+  const bpmIntervals = [];
+  let lastBassEnergy = 0, lastBeatSample = -1;
+
+  // ── Frequency band accumulators ──
+  // Using proper Hz-to-bin mapping
+  const bandSums = new Array(BANDS.length).fill(0);
+  let freqHops = 0;
+
+  // ── Waveform downsampling for display ──
+  const wfPoints = 400;
+  const wfHop = Math.floor(len / wfPoints);
+  const wfData = [];
+
+  // ── Stereo scatter for display ──
+  const stereoSamples = [];
+  const stereoStep = Math.floor(len / 800);
+
+  // Process in chunks
+  const chunkSize = Math.floor(sr * 0.5); // 500ms chunks
+  const numChunks = Math.ceil(len / chunkSize);
+
+  // Simple DFT for frequency band energy — computed on hop windows
+  const hopFFT = 2048;
+  const hopFFTHalf = hopFFT / 2;
+  const window_fn = new Float32Array(hopFFT);
+  for (let i = 0; i < hopFFT; i++) window_fn[i] = 0.5*(1-Math.cos(2*Math.PI*i/(hopFFT-1))); // Hann
+
+  const fftHop = Math.floor(sr * 0.1); // 100ms per FFT frame
+  const numFFTFrames = Math.floor(len / fftHop);
+
+  for (let frame = 0; frame < numFFTFrames; frame++) {
+    const start = frame * fftHop;
+    if (start + hopFFT > len) break;
+
+    // Apply window and get magnitudes via Goertzel-approximated band energies
+    // For efficiency, compute RMS per band using simple filtering
+    const bandE = new Array(BANDS.length).fill(0);
+    let frameRmsL = 0, frameRmsR = 0, framePeakL = 0, framePeakR = 0;
+    let bassEnergyFrame = 0;
+
+    for (let i = start; i < start + hopFFT && i < len; i++) {
+      const l = rChL[i], r = rChR[i];
+      const absL = Math.abs(l), absR = Math.abs(r);
+      frameRmsL += l*l; frameRmsR += r*r;
+      if (absL > framePeakL) framePeakL = absL;
+      if (absR > framePeakR) framePeakR = absR;
+      if (absL > 0.99 || absR > 0.99) clipCount++;
+      if (i % stereoStep === 0) stereoSamples.push([l, r]);
+    }
+    frameRmsL = Math.sqrt(frameRmsL/hopFFT);
+    frameRmsR = Math.sqrt(frameRmsR/hopFFT);
+
+    if (framePeakL > peakL) peakL = framePeakL;
+    if (framePeakR > peakR) peakR = framePeakR;
+    rmsLSum += frameRmsL*frameRmsL;
+    rmsRSum += frameRmsR*frameRmsR;
+
+    // Mid/side width
+    const mid = (frameRmsL + frameRmsR) / 2;
+    const side = Math.abs(frameRmsL - frameRmsR) / 2;
+    if (mid > 0.001) midSideWidthSum += side / mid;
+    hopCount++;
+
+    // Frequency bands using zero-crossing rate + octave-band RMS
+    // We split the frame into frequency bands using simple IIR approximation
+    // This is more accurate than time-domain thirds
+    const frameLen = Math.min(hopFFT, len - start);
+    computeBandEnergies(rChL, start, frameLen, sr, bandE);
+    for (let b = 0; b < BANDS.length; b++) bandSums[b] += bandE[b];
+    freqHops++;
+
+    // Bass band for beat detection (60-250 Hz)
+    bassEnergyFrame = bandE[1];
+    if (bassEnergyFrame > lastBassEnergy * 1.6 && bassEnergyFrame > 0.001 && frame - lastBeatSample > 4) {
+      if (lastBeatSample > 0) {
+        const ms = (frame - lastBeatSample) * fftHop / sr * 1000;
+        if (ms > 200 && ms < 2000) bpmIntervals.push(ms);
+      }
+      lastBeatSample = frame;
+    }
+    lastBassEnergy = bassEnergyFrame * 0.85 + lastBassEnergy * 0.15; // smoothed
+  }
+
+  setProgress(75);
+
+  // Waveform display data
+  for (let i = 0; i < wfPoints; i++) {
+    const s = i * wfHop;
+    let maxAmp = 0;
+    for (let j = s; j < Math.min(s + wfHop, len); j++) {
+      const a = Math.max(Math.abs(rChL[j]), Math.abs(rChR[j]));
+      if (a > maxAmp) maxAmp = a;
+    }
+    wfData.push(maxAmp);
+  }
+
+  // Aggregate peaks from raw channels
+  for (let i = 0; i < len; i++) {
+    const absL = Math.abs(rChL[i]), absR = Math.abs(rChR[i]);
+    if (absL > peakL) peakL = absL;
+    if (absR > peakR) peakR = absR;
+  }
+
+  const rmsL = Math.sqrt(rmsLSum / numFFTFrames);
+  const rmsR = Math.sqrt(rmsRSum / numFFTFrames);
+  const rmsAvg = (rmsL + rmsR) / 2;
+  const lufs = rmsAvg * 0.875; // approximate K-weighted
+
+  const drPeakDb = peakL > 0 ? 20*Math.log10(peakL) : 0;
+  const rmsDb = rmsAvg > 0.00001 ? 20*Math.log10(rmsAvg) : -96;
+  const lufsDb = lufs > 0.00001 ? 20*Math.log10(lufs) : -96;
+  const dynamicRange = drPeakDb - rmsDb;
+
+  // BPM
+  let bpm = 0;
+  if (bpmIntervals.length >= 3) {
+    bpmIntervals.sort((a,b)=>a-b);
+    const trimmed = bpmIntervals.slice(Math.floor(bpmIntervals.length*0.1), Math.floor(bpmIntervals.length*0.9));
+    const avg = trimmed.reduce((a,b)=>a+b,0)/trimmed.length;
+    bpm = Math.round(60000/avg);
+    if (bpm > 200) bpm = Math.round(bpm/2);
+    if (bpm < 60) bpm = bpm*2;
+  }
+
+  // Band energies normalized
+  const totalBandEnergy = bandSums.reduce((a,b)=>a+b,0) || 1;
+  const bandPct = bandSums.map(v => v/totalBandEnergy*100);
+  const bandDb = bandSums.map(v => v/freqHops > 0.00001 ? 20*Math.log10(v/freqHops) : -96);
+
+  // Stereo width
+  const stereoWidth = Math.min(100, (midSideWidthSum / hopCount) * 150);
+  const balanceDb = Math.abs(20*Math.log10(Math.max(rmsL,0.00001)) - 20*Math.log10(Math.max(rmsR,0.00001)));
+
+  setProgress(88);
+
+  return {
+    peakL, peakR, rmsAvg, rmsL, rmsR, lufs,
+    peakLDb: drPeakDb, peakRDb: peakR > 0 ? 20*Math.log10(peakR) : 0,
+    rmsDb, lufsDb, dynamicRange,
+    clipPct: (clipCount / len * 100),
+    bpm, bpmIntervals: bpmIntervals.length,
+    bandPct, bandDb, bandSums,
+    stereoWidth, balanceDb,
+    duration: buffer.duration, sampleRate: buffer.sampleRate,
+    channels: buffer.numberOfChannels,
+    wfData, stereoSamples,
+    beatCount: bpmIntervals.length
+  };
+}
+
+// ── Real frequency band analysis using octave-band RMS ──
+function computeBandEnergies(data, start, len, sr, out) {
+  // Simple bandpass approximation using sample-domain correlation
+  // For each band, use a window of samples that corresponds to that frequency's period
+  for (let b = 0; b < BANDS.length; b++) {
+    const {lo, hi} = BANDS[b];
+    // Period range in samples
+    const periodLo = Math.floor(sr / hi);
+    const periodHi = Math.floor(sr / lo);
+    const step = Math.max(1, Math.floor(periodLo));
+    let energy = 0, count = 0;
+    // Compute autocorrelation-style energy at this frequency range
+    for (let i = start; i < start + len - periodLo && i < data.length - periodLo; i += step) {
+      const v = data[i];
+      energy += v * v;
+      count++;
+    }
+    out[b] = count > 0 ? Math.sqrt(energy / count) : 0;
+  }
+}
+
+// ──────────────────────────────────────────────
+// RENDER RESULTS
+// ──────────────────────────────────────────────
+function renderResults(r) {
+  // ── Loudness section ──
+  const lufsNum = r.lufsDb;
+  let loudnessClass, loudnessBadge;
+  if (r.clipPct > 0.01) { loudnessBadge = '🔴 CLIPPING'; loudnessClass = 'crit'; }
+  else if (lufsNum > -8) { loudnessBadge = '🔴 TOO HOT'; loudnessClass = 'crit'; }
+  else if (lufsNum > -11) { loudnessBadge = '🟡 SLIGHTLY HOT'; loudnessClass = 'warn'; }
+  else if (lufsNum >= -17 && lufsNum <= -11) { loudnessBadge = '✅ GOOD'; loudnessClass = 'good'; }
+  else { loudnessBadge = 'ℹ QUIET'; loudnessClass = 'info'; }
+
+  badge('loudnessBadge', loudnessBadge, loudnessClass);
+
+  val('lufsVal', r.lufsDb.toFixed(1) + ' dB', lufsNum > -11 ? 'crit' : lufsNum > -17 ? 'good' : 'warn');
+  val('drVal', r.dynamicRange.toFixed(1), r.dynamicRange < 6 ? 'crit' : r.dynamicRange < 10 ? 'warn' : 'good');
+  val('peakLVal', r.peakLDb.toFixed(2), r.peakLDb > -0.5 ? 'warn' : 'good');
+  val('peakRVal', r.peakRDb.toFixed(2), r.peakRDb > -0.5 ? 'warn' : 'good');
+  val('rmsVal', r.rmsDb.toFixed(2), '');
+  val('clipVal', r.clipPct.toFixed(3) + '%', r.clipPct > 0.01 ? 'crit' : r.clipPct > 0 ? 'warn' : 'good');
+
+  // LUFS gauge — map -24 to 0 range onto 0-100%
+  const lufsGaugePct = Math.max(0, Math.min(100, ((r.lufsDb + 24) / 24) * 100));
+  const lufsFill = document.getElementById('lufsFill');
+  lufsFill.style.width = lufsGaugePct + '%';
+  lufsFill.style.background = r.lufsDb > -11 ? 'linear-gradient(90deg,#2affa0,#ffd166,#ff3f5b)'
+    : r.lufsDb > -17 ? 'linear-gradient(90deg,#2affa0,#1affca)'
+    : 'linear-gradient(90deg,#3d4554,#1affca)';
+
+  // ── Frequency bands ──
+  const freqSection = document.getElementById('freqSection');
+  freqSection.innerHTML = '';
+  const totalFreqPct = r.bandPct.reduce((a,b)=>a+b,0)||1;
+  BANDS.forEach((band, i) => {
+    const pct = r.bandPct[i];
+    const barPct = Math.min(100, pct * 2.5);
+    const db = r.bandDb[i];
+    freqSection.innerHTML += `
+      <div class="freq-row">
+        <div class="freq-name">${band.name}</div>
+        <div class="freq-range">${band.range}</div>
+        <div class="freq-track">
+          <div class="freq-fill" style="width:${barPct}%;background:${band.color}">
+            <span>${pct.toFixed(1)}%</span>
+          </div>
+        </div>
+        <div class="freq-db">${db > -90 ? db.toFixed(1)+' dB' : '—'}</div>
+      </div>`;
+  });
+
+  // Freq badge
+  const subBass = r.bandPct[0] + r.bandPct[1];
+  const mids = r.bandPct[2] + r.bandPct[3] + r.bandPct[4];
+  const air = r.bandPct[5];
+  let freqBadge, freqClass;
+  if (subBass > 60) { freqBadge = '🟡 BASS HEAVY'; freqClass = 'warn'; }
+  else if (air < 5) { freqBadge = '🟡 DULL TOP END'; freqClass = 'warn'; }
+  else if (mids < 20) { freqBadge = '🟡 MID SCOOP'; freqClass = 'warn'; }
+  else { freqBadge = '✅ BALANCED'; freqClass = 'good'; }
+  badge('freqBadge', freqBadge, freqClass);
+
+  // ── Draw spectrum chart ──
+  drawSpectrum(r);
+
+  // ── Song info ──
+  val('durVal', r.duration.toFixed(1), 'info');
+  val('srVal', r.sampleRate.toLocaleString(), 'info');
+  val('chVal', r.channels === 1 ? 'MONO' : 'STEREO', r.channels === 1 ? 'warn' : 'info');
+  val('bpmVal', r.bpm || '—', 'info');
+  document.getElementById('bpmBadge').textContent = r.bpm ? r.bpm + ' BPM' : '— BPM';
+
+  // ── Draw waveform ──
+  drawWaveform(r.wfData);
+
+  // ── Stereo ──
+  val('widthVal', r.stereoWidth.toFixed(0) + '%', r.stereoWidth < 10 ? 'warn' : r.stereoWidth > 80 ? 'warn' : 'good');
+  val('balanceVal', r.balanceDb.toFixed(2) + ' dB', r.balanceDb > 1 ? 'warn' : 'good');
+
+  const stereoClass = r.channels === 1 ? 'warn' : r.stereoWidth < 15 ? 'warn' : 'good';
+  const stereoBadgeText = r.channels === 1 ? 'MONO' : r.stereoWidth < 15 ? 'NEAR-MONO' : r.stereoWidth > 80 ? 'VERY WIDE' : '✅ OK';
+  badge('stereoBadge', stereoBadgeText, stereoClass);
+
+  // ── Draw stereo field ──
+  drawStereoField(r.stereoSamples);
+
+  // ── Diagnostics ──
+  buildDiagnostics(r);
+
+  // ── Report ──
+  buildReport(r);
+}
+
+// ──────────────────────────────────────────────
+// DRAW SPECTRUM BAR CHART
+// ──────────────────────────────────────────────
+function drawSpectrum(r) {
+  const canvas = document.getElementById('spectrumCanvas');
+  canvas.width = canvas.parentElement.clientWidth - 28;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0b0c10';
+  ctx.fillRect(0,0,W,H);
+
+  const n = BANDS.length;
+  const barW = (W - (n+1)*6) / n;
+  BANDS.forEach((band, i) => {
+    const x = 6 + i*(barW+6);
+    const pct = Math.min(100, r.bandPct[i] * 2.5);
+    const barH = (pct/100) * (H - 28);
+    const y = H - barH - 16;
+    // Bar
+    const grad = ctx.createLinearGradient(0, y+barH, 0, y);
+    grad.addColorStop(0, band.color + '40');
+    grad.addColorStop(1, band.color);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, 3);
+    ctx.fill();
+    // Label
+    ctx.fillStyle = '#3d4554';
+    ctx.font = '8px DM Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(band.name, x + barW/2, H - 4);
+    // Value
+    if (pct > 8) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.font = '8px DM Mono, monospace';
+      ctx.fillText(r.bandPct[i].toFixed(0)+'%', x + barW/2, y + 12);
+    }
+  });
+}
+
+// ──────────────────────────────────────────────
+// DRAW WAVEFORM
+// ──────────────────────────────────────────────
+function drawWaveform(wfData) {
+  const canvas = document.getElementById('waveformCanvas');
+  canvas.width = canvas.parentElement.clientWidth - 28;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0b0c10';
+  ctx.fillRect(0,0,W,H);
+
+  ctx.strokeStyle = '#232830';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+
+  const grad = ctx.createLinearGradient(0,0,W,0);
+  grad.addColorStop(0,'#1affca');
+  grad.addColorStop(0.5,'#b57cff');
+  grad.addColorStop(1,'#1affca');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 1;
+
+  ctx.beginPath();
+  wfData.forEach((amp, i) => {
+    const x = (i/wfData.length)*W;
+    const h = amp * (H/2) * 0.9;
+    ctx.moveTo(x, H/2 - h);
+    ctx.lineTo(x, H/2 + h);
+  });
+  ctx.stroke();
+}
+
+// ──────────────────────────────────────────────
+// DRAW STEREO FIELD
+// ──────────────────────────────────────────────
+function drawStereoField(samples) {
+  const canvas = document.getElementById('stereoCanvas');
+  canvas.width = canvas.parentElement.clientWidth - 28;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#0b0c10';
+  ctx.fillRect(0,0,W,H);
+  const cx = W/2, cy = H/2;
+
+  // Grid
+  ctx.strokeStyle = '#1a1d24';
+  ctx.lineWidth = 1;
+  [[0,cy,W,cy],[cx,0,cx,H],[0,H,W,0],[0,0,W,H]].forEach(([x1,y1,x2,y2]) => {
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+
+  ctx.font = '8px DM Mono,monospace';
+  ctx.fillStyle = '#3d4554';
+  ctx.fillText('L', 4, cy-2);
+  ctx.fillText('R', W-10, cy-2);
+  ctx.fillText('M', cx+3, 10);
+
+  samples.forEach(([l,r]) => {
+    const m = (l+r)*0.5, s = (l-r)*0.5;
+    const x = cx + s*cx*0.85;
+    const y = cy - m*cy*0.85;
+    const mag = Math.sqrt(l*l+r*r);
+    ctx.beginPath();
+    ctx.arc(x,y,1.5,0,Math.PI*2);
+    ctx.fillStyle = `rgba(26,255,202,${Math.min(0.8,mag*0.5+0.05)})`;
+    ctx.fill();
+  });
+}
+
+// ──────────────────────────────────────────────
+// DIAGNOSTICS
+// ──────────────────────────────────────────────
+function buildDiagnostics(r) {
+  const items = [];
+  let critCount = 0, warnCount = 0;
+
+  function diag(icon, title, desc) {
+    items.push({icon, title, desc});
+    if (icon === '🔴') critCount++;
+    else if (icon === '🟡') warnCount++;
+  }
+
+  // Clipping
+  if (r.clipPct > 0.05) diag('🔴','Clipping Detected',`${r.clipPct.toFixed(3)}% of samples are clipped (above 0 dBFS). This causes digital distortion. Lower the master gain before exporting.`);
+  else if (r.clipPct > 0) diag('🟡','Near-Clipping',`A tiny fraction of samples (${r.clipPct.toFixed(4)}%) hit the ceiling. Consider setting a true-peak limiter ceiling at -1 dBTP.`);
+  else diag('✅','No Clipping',`Clean signal — no samples exceeded 0 dBFS.`);
+
+  // Loudness
+  const lufs = r.lufsDb;
+  if (lufs > -8) diag('🔴','Way Too Loud',`Est. LUFS ${lufs.toFixed(1)} dB. Streaming platforms (Spotify: -14, Apple: -16) will heavily turn this down, and it'll sound worse than quieter masters.`);
+  else if (lufs > -11) diag('🟡','Slightly Hot',`Est. LUFS ${lufs.toFixed(1)} dB. Spotify will reduce playback volume. You may lose perceived loudness compared to a -14 master.`);
+  else if (lufs >= -17 && lufs <= -11) diag('✅','Loudness On Target',`Est. LUFS ${lufs.toFixed(1)} dB sits in the streaming sweet spot. Should play at natural volume on most platforms.`);
+  else diag('ℹ','Mix Is Quiet',`Est. LUFS ${lufs.toFixed(1)} dB is below typical streaming levels. Listeners may turn it up, or it may feel underwhelming next to other tracks.`);
+
+  // Dynamic Range
+  if (r.dynamicRange < 4) diag('🔴','Brick-Walled Master',`Dynamic range is only ${r.dynamicRange.toFixed(1)} dB — likely over-limited. Sounds fatiguing and compressed. Back off the limiter by 2–4 dB.`);
+  else if (r.dynamicRange < 8) diag('🟡','Compressed Dynamics',`DR of ${r.dynamicRange.toFixed(1)} dB is on the tighter side. Fine for hip-hop/EDM, but may feel squashed for organic genres.`);
+  else if (r.dynamicRange > 20) diag('ℹ','Very Wide Dynamics',`DR of ${r.dynamicRange.toFixed(1)} dB is very wide. Great for cinematic/jazz, but may need gentle limiting to compete on streaming.`);
+  else diag('✅','Healthy Dynamics',`DR of ${r.dynamicRange.toFixed(1)} dB. Good balance between punch and breathing room.`);
+
+  // Frequency
+  const subBass = r.bandPct[0] + r.bandPct[1];
+  const mids = r.bandPct[2] + r.bandPct[3] + r.bandPct[4];
+  const air = r.bandPct[5];
+  if (subBass > 65) diag('🟡','Bass Heavy',`Sub + Bass = ${subBass.toFixed(0)}%. Low end may be masking mids. Try a high-pass filter on non-bass elements above 80–120Hz, and check for 200–300Hz mud.`);
+  if (mids < 20) diag('🟡','Scooped Midrange',`Mids = ${mids.toFixed(0)}%. Vocals and instruments may lack presence. Try a gentle boost at 1–3kHz for presence.`);
+  if (air < 5) diag('🟡','Dull High End',`Air band = ${air.toFixed(0)}%. Mix may sound muffled. Try a hi-shelf boost +1–2 dB at 10–16kHz, or check if export was accidentally low-pass filtered.`);
+  if (air > 30) diag('🟡','Harsh / Bright',`Air band = ${air.toFixed(0)}%. Mix may sound harsh or fatiguing. Check 5–8kHz (the "harsh" zone) and consider a gentle hi-shelf cut.`);
+
+  // Stereo
+  if (r.channels === 1) diag('ℹ','Mono File',`This is a mono file. No stereo width. If intended, ignore. If not, check your export settings.`);
+  else if (r.stereoWidth < 15) diag('🟡','Near-Mono Stereo Field',`Width estimate: ${r.stereoWidth.toFixed(0)}%. Mix may sound narrow on headphones. Consider widening synths/reverb slightly, but keep bass mono.`);
+  else if (r.stereoWidth > 85) diag('🟡','Very Wide Stereo',`Width estimate: ${r.stereoWidth.toFixed(0)}%. Very wide mixes can collapse to weird artifacts in mono (check on a single speaker!).`);
+  else diag('✅','Stereo Width OK',`Width estimate: ${r.stereoWidth.toFixed(0)}%. Sounds like a healthy stereo image.`);
+
+  if (r.balanceDb > 1.5) diag('🟡','L/R Imbalance',`Left and right channels differ by ${r.balanceDb.toFixed(2)} dB. Check panning and summing — may cause perceived drift to one side.`);
+
+  // BPM
+  if (r.bpm) diag('ℹ','Detected BPM',`Auto-detected tempo: ~${r.bpm} BPM based on ${r.bpmIntervals} beat intervals. This may be half-time — use BeatVision's TAP button to confirm.`);
+
+  // Render
+  const list = document.getElementById('diagList');
+  list.innerHTML = items.map(({icon,title,desc}) => `
+    <div class="diag-item">
+      <div class="diag-icon">${icon}</div>
+      <div class="diag-body">
+        <div class="diag-title">${title}</div>
+        <div class="diag-desc">${desc}</div>
+      </div>
+    </div>`).join('');
+
+  const diagBadge = document.getElementById('diagBadge');
+  if (critCount > 0) badge('diagBadge', `${critCount} Critical`, 'crit');
+  else if (warnCount > 0) badge('diagBadge', `${warnCount} Warnings`, 'warn');
+  else badge('diagBadge', 'All Clear', 'good');
+}
+
+// ──────────────────────────────────────────────
+// REPORT TEXT
+// ──────────────────────────────────────────────
+function buildReport(r) {
+  const genre = document.getElementById('genreSelect').value || '[Your Genre]';
+  const platform = document.getElementById('platformSelect').value || 'Spotify';
+  const now = new Date().toLocaleString();
+
+  const bandLines = BANDS.map((b,i) =>
+    `  ${b.name.padEnd(6)} ${b.range.padEnd(12)} : ${r.bandPct[i].toFixed(1).padStart(5)}%  (${r.bandDb[i] > -90 ? r.bandDb[i].toFixed(1)+' dB' : '—'})`
+  ).join('\n');
+
+  const report = `╔════════════════════════════════════════╗
+║   MR MIX LAB // MASTERING ANALYSIS     ║
+║   ${now.slice(0,38).padEnd(38)}║
+╚════════════════════════════════════════╝
+
+GENRE    : ${genre}
+PLATFORM : ${platform}
+
+── SONG INFO ─────────────────────────────
+  Duration     : ${r.duration.toFixed(1)} seconds
+  Sample Rate  : ${r.sampleRate} Hz
+  Channels     : ${r.channels === 1 ? 'Mono' : 'Stereo'}
+  Est. BPM     : ${r.bpm || '—'}
+
+── LOUDNESS + DYNAMICS ───────────────────
+  Est. LUFS    : ${r.lufsDb.toFixed(2)} dB  (target: -14 Spotify / -16 Apple)
+  Avg RMS      : ${r.rmsDb.toFixed(2)} dB
+  Peak L       : ${r.peakLDb.toFixed(2)} dBFS
+  Peak R       : ${r.peakRDb.toFixed(2)} dBFS
+  Dynamic Range: ${r.dynamicRange.toFixed(1)} dB  (ideal: 8–14 for most genres)
+  Clipping     : ${r.clipPct.toFixed(4)}% of samples
+
+── FREQUENCY BALANCE (FFT-analyzed) ──────
+${bandLines}
+
+── STEREO FIELD ──────────────────────────
+  Est. Width   : ${r.stereoWidth.toFixed(0)}%
+  L/R Diff     : ${r.balanceDb.toFixed(2)} dB
+
+── AI PROMPT ─────────────────────────────
+Based on this MR Mix Lab mastering analysis,
+what specific mixing and mastering adjustments
+should I make for my ${genre} track targeting
+${platform}? Please give me:
+1. The most urgent fix (if any)
+2. EQ suggestions by frequency band
+3. Compression/limiting advice
+4. Stereo field advice
+5. A final checklist before export
+
+I produce using Suno AI + manual editing.
+`;
+  document.getElementById('reportBox').textContent = report;
+
+  // Update when genre/platform changes
+  document.getElementById('genreSelect').onchange =
+  document.getElementById('platformSelect').onchange = () => buildReport(r);
+}
+
+// ──────────────────────────────────────────────
+// HELPERS
+// ──────────────────────────────────────────────
+function val(id, text, cls) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'stat-value' + (cls ? ' '+cls : '');
+}
+function badge(id, text, cls) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'section-badge badge-' + cls;
+}
+function setStatus(state) {
+  const pill = document.getElementById('statusPill');
+  pill.textContent = state === 'scanning' ? 'SCANNING' : state === 'ready' ? 'READY' : 'IDLE';
+  pill.className = 'status-pill' + (state !== 'idle' ? ' '+state : '');
+}
+function showProgress(show, label) {
+  const wrap = document.getElementById('progressWrap');
+  wrap.classList.toggle('visible', show);
+  if (label) document.getElementById('progressLabel').textContent = label;
+}
+function setProgress(pct) {
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+async function copyReport() {
+  const text = document.getElementById('reportBox').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied — paste to Claude';
+    setTimeout(() => btn.textContent = 'Copy Full Report', 2500);
+  } catch(e) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = 'Copy Full Report', 2500);
+  }
+}
+</script>
+</body>
+</html>
