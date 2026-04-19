@@ -108,7 +108,7 @@
   .load-zone.drag-over { border-color: var(--accent2); transform: scale(1.01); }
   .load-zone h2 { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; color: var(--accent1); margin-bottom: 6px; }
   .load-zone p { font-size: 13px; color: var(--dim); }
-  #fileInput { display: none; }
+  #fileInput { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
 
   /* MIC BUTTON */
   .controls-row {
@@ -473,10 +473,10 @@
 </header>
 
 <!-- LOAD ZONE -->
-<div class="load-zone" id="loadZone" onclick="document.getElementById('fileInput').click()">
+<div class="load-zone" id="loadZone">
   <h2>⬆ DROP AUDIO FILE</h2>
   <p>MP3 · WAV · OGG · FLAC · tap to browse</p>
-  <input type="file" id="fileInput" accept="audio/*">
+  <input type="file" id="fileInput">
 </div>
 
 <div class="controls-row">
