@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BEAT VISION // MR Audio Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+  :root {
+    --bg: #060810;
+    --panel: #0c1018;
+    --border: #1a2535;
+    --accent1: #00f5c4;
+    --accent2: #ff3cac;
+    --accent3: #f7c59f;
+    --accent4: #7b5ea7;
+    --bass: #ff4d6d;
+    --mid: #00f5c4;
+    --high: #ffe066;
+    --kick: #ff6b35;
+    --snare: #c77dff;
+    --text: #c8d6e5;
+    --dim: #4a5568;
+    --glow1: 0 0 20px #00f5c440;
+    --glow2: 0 0 20px #ff3cac40;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* HEADER */
+  header {
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, #0a0f1a 0%, var(--bg) 100%);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--accent1);
+    text-shadow: 0 0 15px var(--accent1);
+  }
+  .logo span { color: var(--accent2); }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--dim);
+    box-shadow: none;
+    transition: all 0.3s;
+  }
+  .status-dot.active {
+    background: var(--accent1);
+    box-shadow: 0 0 10px var(--accent1);
+    animation: pulse-dot 1s infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .header-right { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--dim); font-family: 'Share Tech Mono', monospace; }
+
+  /* LOAD AREA */
+  .load-zone {
+    margin: 16px;
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    transition: all 0.3s;
+    background: var(--panel);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .load-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #00f5c408, #ff3cac08);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .load-zone:hover::before, .load-zone.drag-over::before { opacity: 1; }
+  .load-zone:hover { border-color: var(--accent1); }
+  .load-zone.drag-over { border-color: var(--accent2); transform: scale(1.01); }
+  .load-zone h2 { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 2px; color: var(--accent1); margin-bottom: 6px; }
+  .load-zone p { font-size: 13px; color: var(--dim); }
+  #fileInput { display: none; }
+
+  /* MIC BUTTON */
+  .controls-row {
+    display: flex;
+    gap: 10px;
+    margin: 0 16px 16px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .ctrl-btn:hover { border-color: var(--accent1); color: var(--accent1); }
+  .ctrl-btn.active { background: var(--accent1); color: #000; border-color: var(--accent1); }
+  .ctrl-btn.danger { border-color: var(--accent2); color: var(--accent2); }
+  .ctrl-btn.danger:hover { background: var(--accent2); color: #000; }
+
+  /* BEAT METER - big visual */
+  .beat-meter {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .beat-meter::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent1), transparent);
+    animation: scan 3s linear infinite;
+  }
+  @keyframes scan { to { left: 150%; } }
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .beat-flash {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .beat-type {
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+    transition: all 0.05s;
+    background: #0a0f18;
+  }
+  .beat-type.kick-zone { border-color: #ff6b3540; }
+  .beat-type.snare-zone { border-color: #c77dff40; }
+  .beat-type.hat-zone { border-color: #ffe06640; }
+  .beat-type.kick-zone.hit { background: #ff6b3520; box-shadow: 0 0 20px #ff6b3580; border-color: var(--kick); }
+  .beat-type.snare-zone.hit { background: #c77dff20; box-shadow: 0 0 20px #c77dff80; border-color: var(--snare); }
+  .beat-type.hat-zone.hit { background: #ffe06620; box-shadow: 0 0 20px #ffe06680; border-color: var(--high); }
+  .beat-type-name { font-family: 'Bebas Neue'; font-size: 16px; letter-spacing: 2px; }
+  .kick-zone .beat-type-name { color: var(--kick); }
+  .snare-zone .beat-type-name { color: var(--snare); }
+  .hat-zone .beat-type-name { color: var(--high); }
+  .beat-type-db { font-family: 'Share Tech Mono'; font-size: 12px; color: var(--dim); }
+
+  /* BPM display */
+  .bpm-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .bpm-number {
+    font-family: 'Bebas Neue';
+    font-size: 52px;
+    line-height: 1;
+    color: var(--accent1);
+    text-shadow: 0 0 30px var(--accent1);
+    letter-spacing: 2px;
+  }
+  .bpm-label { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--dim); letter-spacing: 2px; }
+  .timing-grade {
+    flex: 1;
+    text-align: right;
+  }
+  .grade-value {
+    font-family: 'Bebas Neue';
+    font-size: 36px;
+    letter-spacing: 2px;
+  }
+  .grade-label { font-family: 'Share Tech Mono'; font-size: 10px; color: var(--dim); letter-spacing: 1px; }
+
+  /* CANVASES */
+  .canvas-panel {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .canvas-panel canvas {
+    display: block;
+    width: 100%;
+  }
+  .canvas-label {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--dim);
+    text-transform: uppercase;
+    z-index: 2;
+  }
+
+  /* FREQUENCY BARS */
+  .freq-bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 0 16px 16px;
+  }
+  .freq-bar-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px 8px;
+    text-align: center;
+  }
+  .freq-bar-title { font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 2px; margin-bottom: 8px; }
+  .freq-bar-title.bass { color: var(--bass); }
+  .freq-bar-title.mid { color: var(--mid); }
+  .freq-bar-title.high { color: var(--high); }
+  .vertical-bar {
+    width: 100%;
+    height: 100px;
+    background: #080c14;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .vertical-bar-fill {
+    width: 100%;
+    height: 0%;
+    transition: height 0.05s;
+    border-radius: 3px;
+  }
+  .bass .vertical-bar-fill { background: linear-gradient(0deg, #ff4d6d, #ff9a3c); }
+  .mid .vertical-bar-fill { background: linear-gradient(0deg, #00f5c4, #00b4d8); }
+  .high .vertical-bar-fill { background: linear-gradient(0deg, #ffe066, #ffd166); }
+  .freq-db { font-family: 'Share Tech Mono'; font-size: 11px; color: var(--dim); margin-top: 6px; }
+
+  /* METERS ROW */
+  .meters-row {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .meter-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .meter-item:last-child { margin-bottom: 0; }
+  .meter-name {
+    font-family: 'Share Tech Mono';
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--dim);
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .meter-track {
+    flex: 1;
+    height: 14px;
+    background: #080c14;
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+  }
+  .meter-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.05s;
+    position: relative;
+  }
+  .meter-fill.peak { background: linear-gradient(90deg, #00f5c4, #ffe066, #ff3cac); }
+  .meter-fill.rms { background: linear-gradient(90deg, #00f5c4, #00b4d8); }
+  /* danger zone */
+  .meter-track::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 10%;
+    height: 100%;
+    background: #ff4d6d18;
+    border-left: 1px solid #ff4d6d40;
+  }
+  .meter-val {
+    font-family: 'Share Tech Mono';
+    font-size: 11px;
+    width: 48px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* STEREO FIELD */
+  .stereo-panel {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  /* GEOMETRIC PULSE */
+  .geo-panel {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* ANALYSIS REPORT */
+  .report-panel {
+    margin: 0 16px 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .report-panel h3 {
+    font-family: 'Bebas Neue';
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--accent1);
+    margin-bottom: 12px;
+  }
+  .snapshot-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00f5c420, #00f5c408);
+    border: 1px solid var(--accent1);
+    border-radius: 8px;
+    color: var(--accent1);
+    font-family: 'Bebas Neue';
+    font-size: 18px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .snapshot-btn:hover { background: var(--accent1); color: #000; }
+  .report-text {
+    font-family: 'Share Tech Mono';
+    font-size: 11px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    max-height: 280px;
+    overflow-y: auto;
+    background: #080c14;
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+  .report-text:empty::before { content: '// No snapshot taken yet. Load audio and press CAPTURE ANALYSIS.'; color: var(--dim); }
+  .copy-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--dim);
+    font-family: 'Rajdhani';
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+
+  /* LOADING */
+  .idle-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #080c14cc;
+    font-family: 'Share Tech Mono';
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* HAPTIC RING */
+  .haptic-ring {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 200;
+    transition: all 0.1s;
+    box-shadow: 0 4px 20px #00000080;
+  }
+  .haptic-ring.beat { transform: scale(1.3); border-color: var(--accent1); box-shadow: 0 0 30px var(--accent1); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">BEAT<span>VISION</span></div>
+  <div class="header-right">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">OFFLINE</span>
+  </div>
+</header>
+
+<!-- LOAD ZONE -->
+<div class="load-zone" id="loadZone" onclick="document.getElementById('fileInput').click()">
+  <h2>⬆ DROP AUDIO FILE</h2>
+  <p>MP3 · WAV · OGG · FLAC · tap to browse</p>
+  <input type="file" id="fileInput" accept="audio/*">
+</div>
+
+<div class="controls-row">
+  <button class="ctrl-btn danger" id="micBtn" onclick="toggleMic()">🎙 LIVE MIC</button>
+  <button class="ctrl-btn" id="playBtn" onclick="togglePlay()" disabled>▶ PLAY</button>
+  <button class="ctrl-btn" id="stopBtn" onclick="stopAudio()" disabled>■ STOP</button>
+</div>
+
+<!-- BPM + BEAT FLASH -->
+<div class="beat-meter">
+  <div class="section-label">// BEAT DETECTION + BPM</div>
+  <div class="beat-flash">
+    <div class="beat-type kick-zone" id="kickZone">
+      <div class="beat-type-name">KICK</div>
+      <div class="beat-type-db" id="kickDb">—</div>
+    </div>
+    <div class="beat-type snare-zone" id="snareZone">
+      <div class="beat-type-name">SNARE</div>
+      <div class="beat-type-db" id="snareDb">—</div>
+    </div>
+    <div class="beat-type hat-zone" id="hatZone">
+      <div class="beat-type-name">HI-HAT</div>
+      <div class="beat-type-db" id="hatDb">—</div>
+    </div>
+  </div>
+  <div class="bpm-display">
+    <div>
+      <div class="bpm-label">DETECTED BPM</div>
+      <div class="bpm-number" id="bpmDisplay">—</div>
+    </div>
+    <div class="timing-grade">
+      <div class="grade-label">GROOVE RATING</div>
+      <div class="grade-value" id="gradeDisplay" style="color:var(--dim)">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- GEOMETRIC PULSE VISUALIZER -->
+<div class="geo-panel canvas-panel" style="height:200px;">
+  <div class="canvas-label">// GEOMETRIC PULSE</div>
+  <canvas id="geoCanvas" height="200"></canvas>
+  <div class="idle-overlay" id="geoIdle">LOAD AUDIO TO VISUALIZE</div>
+</div>
+
+<!-- WAVEFORM -->
+<div class="canvas-panel" style="height:80px;">
+  <div class="canvas-label">// OSCILLOSCOPE</div>
+  <canvas id="waveCanvas" height="80"></canvas>
+  <div class="idle-overlay" id="waveIdle">—</div>
+</div>
+
+<!-- SPECTROGRAM -->
+<div class="canvas-panel" style="height:120px;">
+  <div class="canvas-label">// SPECTROGRAM</div>
+  <canvas id="spectCanvas" height="120"></canvas>
+  <div class="idle-overlay" id="spectIdle">—</div>
+</div>
+
+<!-- FREQUENCY BARS -->
+<div class="freq-bars">
+  <div class="freq-bar-wrap">
+    <div class="freq-bar-title bass">BASS</div>
+    <div class="vertical-bar">
+      <div class="vertical-bar-fill bass" id="bassBar"></div>
+    </div>
+    <div class="freq-db" id="bassDb">— dB</div>
+  </div>
+  <div class="freq-bar-wrap">
+    <div class="freq-bar-title mid">MID</div>
+    <div class="vertical-bar">
+      <div class="vertical-bar-fill mid" id="midBar"></div>
+    </div>
+    <div class="freq-db" id="midDb">— dB</div>
+  </div>
+  <div class="freq-bar-wrap">
+    <div class="freq-bar-title high">HIGH</div>
+    <div class="vertical-bar">
+      <div class="vertical-bar-fill high" id="highBar"></div>
+    </div>
+    <div class="freq-db" id="highDb">— dB</div>
+  </div>
+</div>
+
+<!-- PEAK / RMS METERS -->
+<div class="meters-row">
+  <div class="section-label">// PEAK + RMS METERS</div>
+  <div class="meter-item">
+    <div class="meter-name">PEAK L</div>
+    <div class="meter-track"><div class="meter-fill peak" id="peakL" style="width:0%"></div></div>
+    <div class="meter-val" id="peakLVal">— dB</div>
+  </div>
+  <div class="meter-item">
+    <div class="meter-name">PEAK R</div>
+    <div class="meter-track"><div class="meter-fill peak" id="peakR" style="width:0%"></div></div>
+    <div class="meter-val" id="peakRVal">— dB</div>
+  </div>
+  <div class="meter-item">
+    <div class="meter-name">RMS</div>
+    <div class="meter-track"><div class="meter-fill rms" id="rmsBar" style="width:0%"></div></div>
+    <div class="meter-val" id="rmsVal">— dB</div>
+  </div>
+  <div class="meter-item">
+    <div class="meter-name">LUFS</div>
+    <div class="meter-track"><div class="meter-fill rms" id="lufsBar" style="width:0%;background:linear-gradient(90deg,#7b5ea7,#c77dff)"></div></div>
+    <div class="meter-val" id="lufsVal">— dB</div>
+  </div>
+</div>
+
+<!-- STEREO FIELD -->
+<div class="stereo-panel">
+  <div class="section-label">// STEREO FIELD VISUALIZER</div>
+  <canvas id="stereoCanvas" width="300" height="150" style="width:100%;display:block;"></canvas>
+</div>
+
+<!-- ANALYSIS REPORT -->
+<div class="report-panel">
+  <h3>// ANALYSIS SNAPSHOT</h3>
+  <button class="snapshot-btn" onclick="captureSnapshot()">📋 CAPTURE ANALYSIS</button>
+  <div class="report-text" id="reportText"></div>
+  <button class="copy-btn" onclick="copyReport()">COPY REPORT TO CLIPBOARD (paste to AI)</button>
+</div>
+
+<!-- HAPTIC BEAT RING -->
+<div class="haptic-ring" id="hapticRing" title="Beat pulses here">🫀</div>
+
+<script>
+// ========== AUDIO ENGINE ==========
+let audioCtx, analyserL, analyserR, analyserMerged;
+let sourceNode, gainNode, splitter;
+let isPlaying = false;
+let isMicActive = false;
+let currentBuffer = null;
+let startTime = 0, pauseOffset = 0;
+let animFrame;
+let micStream;
+
+const FFT = 2048;
+const dataL = new Uint8Array(FFT);
+const dataR = new Uint8Array(FFT);
+const dataMerged = new Uint8Array(FFT);
+const timeDomain = new Uint8Array(FFT);
+
+// BPM detection state
+let beatHistory = [];
+let lastBeatTime = 0;
+let bpmEstimate = 0;
+let lastEnergyL = 0;
+let beatCount = 0;
+let snapshotData = null;
+
+// Spectrogram scroll
+let spectImageData = null;
+
+async function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+}
+
+function createAnalysers() {
+  analyserL = audioCtx.createAnalyser(); analyserL.fftSize = FFT;
+  analyserR = audioCtx.createAnalyser(); analyserR.fftSize = FFT;
+  analyserMerged = audioCtx.createAnalyser(); analyserMerged.fftSize = FFT;
+  gainNode = audioCtx.createGain();
+  splitter = audioCtx.createChannelSplitter(2);
+}
+
+// ========== FILE LOAD ==========
+document.getElementById('fileInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  await loadAudioFile(file);
+});
+
+const loadZone = document.getElementById('loadZone');
+loadZone.addEventListener('dragover', e => { e.preventDefault(); loadZone.classList.add('drag-over'); });
+loadZone.addEventListener('dragleave', () => loadZone.classList.remove('drag-over'));
+loadZone.addEventListener('drop', async e => {
+  e.preventDefault(); loadZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) await loadAudioFile(file);
+});
+
+async function loadAudioFile(file) {
+  await initAudio();
+  stopAll();
+  const arrBuf = await file.arrayBuffer();
+  currentBuffer = await audioCtx.decodeAudioData(arrBuf);
+  loadZone.querySelector('h2').textContent = '✓ ' + file.name.slice(0, 30);
+  loadZone.querySelector('p').textContent = `${(file.size/1024/1024).toFixed(1)} MB · ${currentBuffer.duration.toFixed(1)}s · ${currentBuffer.sampleRate} Hz`;
+  document.getElementById('playBtn').disabled = false;
+  document.getElementById('stopBtn').disabled = false;
+  setStatus(true);
+  playAudio();
+}
+
+function playAudio() {
+  if (!currentBuffer) return;
+  stopSource();
+  createAnalysers();
+  sourceNode = audioCtx.createBufferSource();
+  sourceNode.buffer = currentBuffer;
+  connectGraph(sourceNode);
+  sourceNode.start(0, pauseOffset);
+  startTime = audioCtx.currentTime - pauseOffset;
+  isPlaying = true;
+  document.getElementById('playBtn').textContent = '⏸ PAUSE';
+  hideIdleOverlays();
+  startVisualize();
+}
+
+function connectGraph(src) {
+  src.connect(splitter);
+  splitter.connect(analyserL, 0);
+  splitter.connect(analyserR, 1);
+  src.connect(analyserMerged);
+  src.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+}
+
+function togglePlay() {
+  if (!currentBuffer) return;
+  if (isPlaying) {
+    pauseOffset = audioCtx.currentTime - startTime;
+    stopSource();
+    isPlaying = false;
+    document.getElementById('playBtn').textContent = '▶ PLAY';
+  } else {
+    playAudio();
+  }
+}
+
+function stopAudio() {
+  stopAll();
+  pauseOffset = 0;
+  document.getElementById('playBtn').textContent = '▶ PLAY';
+}
+
+function stopSource() {
+  if (sourceNode) { try { sourceNode.stop(); } catch(e){} sourceNode = null; }
+}
+
+function stopAll() {
+  stopSource();
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  isPlaying = false; isMicActive = false;
+  cancelAnimationFrame(animFrame);
+  document.getElementById('micBtn').classList.remove('active');
+  setStatus(false);
+}
+
+// ========== MIC ==========
+async function toggleMic() {
+  await initAudio();
+  if (isMicActive) {
+    stopAll();
+    return;
+  }
+  stopAll();
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    createAnalysers();
+    const micSource = audioCtx.createMediaStreamSource(micStream);
+    micSource.connect(analyserMerged);
+    micSource.connect(splitter);
+    splitter.connect(analyserL, 0);
+    splitter.connect(analyserR, 1);
+    isMicActive = true;
+    document.getElementById('micBtn').classList.add('active');
+    document.getElementById('micBtn').textContent = '🔴 STOP MIC';
+    setStatus(true);
+    hideIdleOverlays();
+    startVisualize();
+  } catch(e) {
+    alert('Microphone access denied.');
+  }
+}
+
+// ========== STATUS ==========
+function setStatus(on) {
+  document.getElementById('statusDot').className = 'status-dot' + (on ? ' active' : '');
+  document.getElementById('statusText').textContent = on ? 'ACTIVE' : 'OFFLINE';
+}
+
+function hideIdleOverlays() {
+  ['geoIdle','waveIdle','spectIdle'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+}
+
+// ========== CANVAS SETUP ==========
+function setupCanvas(id) {
+  const c = document.getElementById(id);
+  const parent = c.parentElement;
+  c.width = parent.clientWidth;
+  return c;
+}
+
+// ========== VISUALIZATION LOOP ==========
+function startVisualize() {
+  const geoC = setupCanvas('geoCanvas');
+  const geoCtx = geoC.getContext('2d');
+  const waveC = setupCanvas('waveCanvas');
+  const waveCtx = waveC.getContext('2d');
+  const spectC = setupCanvas('spectCanvas');
+  const spectCtx = spectC.getContext('2d');
+  const stereoC = document.getElementById('stereoCanvas');
+  stereoC.width = stereoC.parentElement.clientWidth;
+  const stereoCtx = stereoC.getContext('2d');
+
+  spectImageData = null; // reset
+
+  let phase = 0;
+
+  function loop() {
+    animFrame = requestAnimationFrame(loop);
+    if (!analyserMerged) return;
+
+    analyserMerged.getByteFrequencyData(dataMerged);
+    analyserMerged.getByteTimeDomainData(timeDomain);
+    if (analyserL) analyserL.getByteFrequencyData(dataL);
+    if (analyserR) analyserR.getByteFrequencyData(dataR);
+
+    phase += 0.02;
+
+    // Frequency band analysis
+    const bassEnergy = bandEnergy(dataMerged, 0, 10);
+    const kickEnergy = bandEnergy(dataMerged, 0, 5);
+    const snareEnergy = bandEnergy(dataMerged, 10, 60);
+    const hatEnergy = bandEnergy(dataMerged, 150, 300);
+    const midEnergy = bandEnergy(dataMerged, 20, 120);
+    const highEnergy = bandEnergy(dataMerged, 120, 400);
+    const totalEnergy = bandEnergy(dataMerged, 0, FFT/2);
+
+    // Beat detection
+    detectBeat(bassEnergy, kickEnergy, snareEnergy, hatEnergy);
+
+    // Freq bars
+    updateFreqBars(bassEnergy, midEnergy, highEnergy);
+
+    // Meters
+    updateMeters();
+
+    // Drawings
+    drawGeo(geoCtx, geoC.width, geoC.height, bassEnergy, midEnergy, highEnergy, totalEnergy, phase);
+    drawWave(waveCtx, waveC.width, waveC.height);
+    drawSpectrogram(spectCtx, spectC.width, spectC.height);
+    drawStereo(stereoCtx, stereoC.width, stereoC.height);
+  }
+  loop();
+}
+
+function bandEnergy(data, lo, hi) {
+  let sum = 0;
+  const len = Math.min(hi, data.length) - lo;
+  for (let i = lo; i < Math.min(hi, data.length); i++) sum += data[i];
+  return sum / (len * 255);
+}
+
+// ========== BEAT DETECTION ==========
+function detectBeat(bass, kick, snare, hat) {
+  const now = performance.now();
+  const threshold = 0.35;
+
+  // Kick detection (sudden bass energy spike)
+  const kickHit = kick > threshold && kick > lastEnergyL * 1.4;
+  const snareHit = snare > 0.25 && snare > 0.4;
+  const hatHit = hat > 0.2;
+
+  // Visual hit
+  document.getElementById('kickZone').classList.toggle('hit', kickHit);
+  document.getElementById('snareZone').classList.toggle('hit', snareHit);
+  document.getElementById('hatZone').classList.toggle('hit', hatHit);
+  document.getElementById('kickDb').textContent = (kick * 100).toFixed(0) + '%';
+  document.getElementById('snareDb').textContent = (snare * 100).toFixed(0) + '%';
+  document.getElementById('hatDb').textContent = (hat * 100).toFixed(0) + '%';
+
+  if (kickHit && now - lastBeatTime > 200) {
+    const interval = now - lastBeatTime;
+    if (interval < 2000 && interval > 200) {
+      beatHistory.push(interval);
+      if (beatHistory.length > 12) beatHistory.shift();
+      const avgInterval = beatHistory.reduce((a,b) => a+b, 0) / beatHistory.length;
+      bpmEstimate = Math.round(60000 / avgInterval);
+      if (bpmEstimate > 200) bpmEstimate = Math.round(bpmEstimate / 2);
+      if (bpmEstimate < 60) bpmEstimate = bpmEstimate * 2;
+    }
+    lastBeatTime = now;
+    beatCount++;
+    hapticPulse();
+  }
+
+  lastEnergyL = kick;
+
+  // BPM display
+  if (bpmEstimate > 0) {
+    document.getElementById('bpmDisplay').textContent = bpmEstimate;
+    // Groove rating
+    if (beatHistory.length >= 4) {
+      const variance = stdDev(beatHistory);
+      let grade, color;
+      if (variance < 5) { grade = 'LOCKED'; color = 'var(--accent1)'; }
+      else if (variance < 15) { grade = 'TIGHT'; color = 'var(--mid)'; }
+      else if (variance < 30) { grade = 'GROOVE'; color = 'var(--accent3)'; }
+      else { grade = 'LOOSE'; color = 'var(--accent2)'; }
+      document.getElementById('gradeDisplay').textContent = grade;
+      document.getElementById('gradeDisplay').style.color = color;
+    }
+  }
+}
+
+function stdDev(arr) {
+  const m = arr.reduce((a,b) => a+b, 0) / arr.length;
+  return Math.sqrt(arr.map(x => (x-m)**2).reduce((a,b)=>a+b,0) / arr.length);
+}
+
+// ========== HAPTIC ==========
+function hapticPulse() {
+  const ring = document.getElementById('hapticRing');
+  ring.classList.add('beat');
+  if (navigator.vibrate) navigator.vibrate(30);
+  setTimeout(() => ring.classList.remove('beat'), 100);
+}
+
+// ========== FREQ BARS ==========
+function updateFreqBars(bass, mid, high) {
+  const bp = Math.min(bass * 160, 100);
+  const mp = Math.min(mid * 160, 100);
+  const hp = Math.min(high * 300, 100);
+  document.getElementById('bassBar').style.height = bp + '%';
+  document.getElementById('midBar').style.height = mp + '%';
+  document.getElementById('highBar').style.height = hp + '%';
+  document.getElementById('bassDb').textContent = toDb(bass);
+  document.getElementById('midDb').textContent = toDb(mid);
+  document.getElementById('highDb').textContent = toDb(high);
+}
+
+function toDb(linear) {
+  if (linear <= 0) return '—';
+  return (20 * Math.log10(linear)).toFixed(1) + ' dB';
+}
+
+// ========== METERS ==========
+function updateMeters() {
+  // Peak L/R from frequency data
+  const peakLVal = Math.max(...Array.from(dataL)) / 255;
+  const peakRVal = Math.max(...Array.from(dataR)) / 255;
+  const rmsVal = Math.sqrt(Array.from(timeDomain).reduce((s,v) => s + ((v-128)/128)**2, 0) / timeDomain.length);
+  const lufsApprox = rmsVal * 0.85;
+
+  const peakLPct = peakLVal * 100;
+  const peakRPct = peakRVal * 100;
+  const rmsPct = rmsVal * 200;
+  const lufsPct = lufsApprox * 200;
+
+  document.getElementById('peakL').style.width = Math.min(peakLPct, 100) + '%';
+  document.getElementById('peakR').style.width = Math.min(peakRPct, 100) + '%';
+  document.getElementById('rmsBar').style.width = Math.min(rmsPct, 100) + '%';
+  document.getElementById('lufsBar').style.width = Math.min(lufsPct, 100) + '%';
+
+  document.getElementById('peakLVal').textContent = peakLVal > 0 ? (20*Math.log10(peakLVal)).toFixed(1)+' dB' : '—';
+  document.getElementById('peakRVal').textContent = peakRVal > 0 ? (20*Math.log10(peakRVal)).toFixed(1)+' dB' : '—';
+  document.getElementById('rmsVal').textContent = rmsVal > 0 ? (20*Math.log10(rmsVal)).toFixed(1)+' dB' : '—';
+  document.getElementById('lufsVal').textContent = lufsApprox > 0 ? (20*Math.log10(lufsApprox)).toFixed(1)+' dB' : '—';
+
+  // Color danger
+  document.getElementById('peakL').style.background = peakLPct > 90 ? 'linear-gradient(90deg,#00f5c4,#ff4d6d)' : 'linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac)';
+  document.getElementById('peakR').style.background = peakRPct > 90 ? 'linear-gradient(90deg,#00f5c4,#ff4d6d)' : 'linear-gradient(90deg,#00f5c4,#ffe066,#ff3cac)';
+
+  // Store for snapshot
+  snapshotData = { peakL: peakLVal, peakR: peakRVal, rms: rmsVal, lufs: lufsApprox,
+    bass: bandEnergy(dataMerged,0,10), mid: bandEnergy(dataMerged,20,120), high: bandEnergy(dataMerged,120,400),
+    bpm: bpmEstimate, groove: document.getElementById('gradeDisplay').textContent };
+}
+
+// ========== GEO PULSE ==========
+function drawGeo(ctx, W, H, bass, mid, high, total, phase) {
+  ctx.fillStyle = 'rgba(6,8,16,0.3)';
+  ctx.fillRect(0, 0, W, H);
+
+  const cx = W/2, cy = H/2;
+  const baseR = Math.min(W,H) * 0.25;
+
+  // Outer ring (high freq)
+  const highR = baseR * 1.5 + high * baseR * 0.8;
+  ctx.beginPath();
+  for (let i = 0; i < dataMerged.length/4; i++) {
+    const angle = (i / (dataMerged.length/4)) * Math.PI * 2 - Math.PI/2;
+    const amp = (dataMerged[i * 4] / 255) * baseR * 0.6;
+    const r = highR + amp;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = `hsla(${160 + high*60},100%,70%,${0.3 + high*0.5})`;
+  ctx.lineWidth = 1 + high * 2;
+  ctx.stroke();
+
+  // Mid polygon
+  const sides = 6;
+  const midR = baseR * (0.8 + mid * 0.6);
+  ctx.beginPath();
+  for (let i = 0; i <= sides; i++) {
+    const angle = (i/sides) * Math.PI*2 + phase * 0.5;
+    const wobble = 1 + Math.sin(phase * 3 + i) * mid * 0.3;
+    const x = cx + Math.cos(angle) * midR * wobble;
+    const y = cy + Math.sin(angle) * midR * wobble;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle = `rgba(0,245,196,${0.4 + mid*0.5})`;
+  ctx.lineWidth = 1 + mid * 3;
+  ctx.stroke();
+
+  // Bass core circle
+  const bassR = baseR * (0.3 + bass * 1.2);
+  const gradient = ctx.createRadialGradient(cx,cy,0,cx,cy,bassR);
+  gradient.addColorStop(0, `rgba(255,77,109,${bass * 0.8})`);
+  gradient.addColorStop(0.5, `rgba(255,107,53,${bass * 0.5})`);
+  gradient.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.arc(cx, cy, bassR, 0, Math.PI*2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.strokeStyle = `rgba(255,77,109,${0.6 + bass*0.4})`;
+  ctx.lineWidth = 2 + bass * 4;
+  ctx.stroke();
+
+  // Center dot
+  ctx.beginPath();
+  ctx.arc(cx, cy, 4 + total*10, 0, Math.PI*2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+}
+
+// ========== WAVEFORM ==========
+function drawWave(ctx, W, H) {
+  ctx.fillStyle = '#080c14';
+  ctx.fillRect(0,0,W,H);
+  ctx.beginPath();
+  ctx.strokeStyle = '#00f5c4';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < timeDomain.length; i++) {
+    const x = (i / timeDomain.length) * W;
+    const y = ((timeDomain[i]-128)/128) * (H/2) + H/2;
+    if (i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  // center line
+  ctx.strokeStyle = '#1a2535';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+}
+
+// ========== SPECTROGRAM ==========
+function drawSpectrogram(ctx, W, H) {
+  if (!spectImageData || spectImageData.width !== W) {
+    spectImageData = ctx.createImageData(W, H);
+  }
+  // Shift left
+  const data = spectImageData.data;
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W-1; x++) {
+      const i = (y*W + x) * 4;
+      const j = (y*W + x+1) * 4;
+      data[i] = data[j]; data[i+1] = data[j+1]; data[i+2] = data[j+2]; data[i+3] = data[j+3];
+    }
+  }
+  // New column
+  const freqData = dataMerged;
+  for (let y = 0; y < H; y++) {
+    const freqIdx = Math.floor((1 - y/H) * freqData.length * 0.5);
+    const val = freqData[freqIdx] / 255;
+    const i = (y*W + W-1) * 4;
+    // Color: black -> blue -> cyan -> green -> yellow -> red
+    if (val < 0.25) {
+      data[i]=0; data[i+1]=0; data[i+2]=Math.floor(val*4*200); data[i+3]=255;
+    } else if (val < 0.5) {
+      const t=(val-0.25)*4;
+      data[i]=0; data[i+1]=Math.floor(t*245); data[i+2]=Math.floor(200-t*80); data[i+3]=255;
+    } else if (val < 0.75) {
+      const t=(val-0.5)*4;
+      data[i]=Math.floor(t*255); data[i+1]=Math.floor(245-t*80); data[i+2]=0; data[i+3]=255;
+    } else {
+      const t=(val-0.75)*4;
+      data[i]=255; data[i+1]=Math.floor(165-t*165); data[i+2]=0; data[i+3]=255;
+    }
+  }
+  ctx.putImageData(spectImageData, 0, 0);
+}
+
+// ========== STEREO FIELD ==========
+function drawStereo(ctx, W, H) {
+  ctx.fillStyle = '#080c14';
+  ctx.fillRect(0,0,W,H);
+
+  const cx = W/2, cy = H/2;
+
+  // Grid
+  ctx.strokeStyle = '#1a2535';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(cx,0); ctx.lineTo(cx,H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,cy); ctx.lineTo(W,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(W,0); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(W,H); ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = '#4a5568';
+  ctx.font = '9px Share Tech Mono';
+  ctx.fillText('L', 6, cy-4);
+  ctx.fillText('R', W-14, cy-4);
+  ctx.fillText('MID', cx-12, 12);
+
+  // Plot stereo dots
+  const step = 8;
+  for (let i = 0; i < Math.min(dataL.length, dataR.length, 300); i += step) {
+    const l = (dataL[i]-128)/128;
+    const r = (dataR[i]-128)/128;
+    const m = (l+r)*0.5;
+    const s = (l-r)*0.5;
+    const x = cx + s*cx*0.8;
+    const y = cy - m*cy*0.8;
+    const mag = Math.sqrt(l*l+r*r);
+    ctx.beginPath();
+    ctx.arc(x, y, 2, 0, Math.PI*2);
+    ctx.fillStyle = `hsla(${160+i/2},100%,65%,${mag*0.6+0.1})`;
+    ctx.fill();
+  }
+}
+
+// ========== SNAPSHOT ==========
+function captureSnapshot() {
+  if (!analyserMerged) {
+    document.getElementById('reportText').textContent = '// ERROR: No audio loaded. Load a file or enable mic first.';
+    return;
+  }
+  const now = new Date().toLocaleTimeString();
+  const d = snapshotData || {};
+
+  const peakLdB = d.peakL > 0 ? (20*Math.log10(d.peakL)).toFixed(1) : '—';
+  const peakRdB = d.peakR > 0 ? (20*Math.log10(d.peakR)).toFixed(1) : '—';
+  const rmsdB = d.rms > 0 ? (20*Math.log10(d.rms)).toFixed(1) : '—';
+  const lufsDt = d.lufs > 0 ? (20*Math.log10(d.lufs)).toFixed(1) : '—';
+  const bassP = ((d.bass||0)*100).toFixed(1);
+  const midP = ((d.mid||0)*100).toFixed(1);
+  const highP = ((d.high||0)*100).toFixed(1);
+  const bpm = d.bpm || '—';
+  const groove = d.groove || '—';
+
+  // Diagnostics
+  const diag = [];
+  if (d.peakL > 0.98 || d.peakR > 0.98) diag.push('⚠ CLIPPING DETECTED — peaks above 0 dBFS. Reduce gain.');
+  if (d.rms > 0.7) diag.push('⚠ HOT MIX — RMS very high, may be over-compressed.');
+  if (d.rms < 0.1) diag.push('ℹ LOW RMS — mix is quiet or well-preserved dynamic range.');
+  if ((d.bass||0) > 0.5) diag.push('⚠ BASS HEAVY — bass may be masking mids. Check low cut on non-bass elements.');
+  if ((d.high||0) < 0.1) diag.push('ℹ LOW HIGH-FREQ — mix sounds dull or muffled. Check hi-shelf EQ or air band.');
+  if ((d.mid||0) < 0.15) diag.push('ℹ MIDRANGE HOLLOW — may lack presence/warmth. Check 1kHz–4kHz range.');
+  if (Math.abs((d.peakL||0) - (d.peakR||0)) > 0.1) diag.push('⚠ STEREO IMBALANCE — L and R peaks differ significantly.');
+  if (d.bpm && (d.bpm < 60 || d.bpm > 200)) diag.push('ℹ BPM outside typical range — may be half/double time or complex meter.');
+  if (diag.length === 0) diag.push('✓ No major issues detected. Mix looks balanced.');
+
+  const report = `╔══════════════════════════════════════╗
+║  BEATVISION // ANALYSIS SNAPSHOT     ║
+║  ${now.padEnd(37)}║
+╚══════════════════════════════════════╝
+
+── TIMING + RHYTHM ────────────────────
+  DETECTED BPM   : ${String(bpm).padStart(6)}
+  GROOVE RATING  : ${groove}
+  BEAT COUNT     : ${beatCount}
+
+── FREQUENCY BALANCE ──────────────────
+  BASS (20–250Hz): ${bassP}%
+  MID  (250Hz–4k): ${midP}%
+  HIGH (4k–20kHz): ${highP}%
+
+── DYNAMICS + LOUDNESS ────────────────
+  PEAK L         : ${peakLdB} dBFS
+  PEAK R         : ${peakRdB} dBFS
+  RMS            : ${rmsdB} dB
+  EST. LUFS      : ${lufsDt} dB
+
+── DIAGNOSTICS ────────────────────────
+${diag.map(d => '  ' + d).join('\n')}
+
+── NOTES FOR AI ───────────────────────
+  // Paste this report into Claude or another
+  // AI and ask: "Based on these readings,
+  // what mixing adjustments should I make?"
+`;
+
+  document.getElementById('reportText').textContent = report;
+}
+
+async function copyReport() {
+  const text = document.getElementById('reportText').textContent;
+  if (!text) { alert('Take a snapshot first!'); return; }
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ COPIED!';
+    setTimeout(() => btn.textContent = 'COPY REPORT TO CLIPBOARD (paste to AI)', 2000);
+  } catch(e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ COPIED!';
+    setTimeout(() => btn.textContent = 'COPY REPORT TO CLIPBOARD (paste to AI)', 2000);
+  }
+}
+
+// Window resize
+window.addEventListener('resize', () => {
+  if (analyserMerged) {
+    setupCanvas('geoCanvas');
+    setupCanvas('waveCanvas');
+    setupCanvas('spectCanvas');
+    document.getElementById('stereoCanvas').width = document.getElementById('stereoCanvas').parentElement.clientWidth;
+  }
+});
+</script>
+</body>
+</html>
