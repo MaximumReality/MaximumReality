@@ -2,9 +2,7 @@
 // BEATVISION v4 — UI (bv-ui.js)
 // Canvas rendering, DOM updates, meters, spatial preview
 // ============================================================
-
 const BV_UI = window.BV_UI = {
-
   spectImg: null,
   lastFrameTime: performance.now(),
   masterFinalBuf: null,
@@ -46,7 +44,7 @@ const BV_UI = window.BV_UI = {
     const btn = document.getElementById('micBtn');
     if (!btn) return;
     btn.classList.toggle('on', on);
-    btn.textContent = on ? '🔴 STOP' : '🎙 MIC';
+    btn.textContent = on ? '⏹ STOP' : '🎙 MIC';
   },
 
   onFileLoaded() {
@@ -55,15 +53,38 @@ const BV_UI = window.BV_UI = {
     });
     const dlBtn = document.getElementById('dlArea');
     if (dlBtn) dlBtn.style.display = 'none';
+    // Reset A/B buttons — B is disabled until master exists
+    const abB = document.getElementById('abB');
+    if (abB) abB.disabled = true;
+    const abA = document.getElementById('abA');
+    if (abA) { abA.classList.add('on'); }
+    const abBBtn = document.getElementById('abB');
+    if (abBBtn) abBBtn.classList.remove('on');
     this.setStatus(true);
   },
 
+  // ---- Called after render completes ----
+  // finalBuf is the export-pipeline buffer object (not a real AudioBuffer)
   onMasterComplete(finalBuf) {
     this.masterFinalBuf = finalBuf;
+    // Show export area
     const dlArea = document.getElementById('dlArea');
     if (dlArea) dlArea.style.display = 'block';
-    // Switch to export tab
-    this.showTab('export');
+    const noMasterMsg = document.getElementById('noMasterMsg');
+    if (noMasterMsg) noMasterMsg.style.display = 'none';
+    // Enable B button and switch UI to B
+    const abB = document.getElementById('abB');
+    if (abB) {
+      abB.disabled = false;
+      abB.classList.add('on');
+    }
+    const abA = document.getElementById('abA');
+    if (abA) abA.classList.remove('on');
+    // Auto-capture report and switch to report tab
+    setTimeout(() => {
+      this.captureReport();
+      this.showTab('report');
+    }, 400);
   },
 
   setBpm(bpm, groove, color) {
@@ -115,9 +136,9 @@ const BV_UI = window.BV_UI = {
 
   // ---- Main Viz Loop ----
   startViz() {
-    const gC = this.setupC('geoC'), gX = gC ? gC.getContext('2d') : null;
+    const gC = this.setupC('geoC'),  gX = gC ? gC.getContext('2d') : null;
     const wC = this.setupC('waveC'), wX = wC ? wC.getContext('2d') : null;
-    const sC = this.setupC('spectC'), sX = sC ? sC.getContext('2d') : null;
+    const sC = this.setupC('spectC'),sX = sC ? sC.getContext('2d') : null;
     const stC = document.getElementById('stereoC');
     if (stC) { stC.width = stC.parentElement.clientWidth; }
     const stX = stC ? stC.getContext('2d') : null;
@@ -127,7 +148,6 @@ const BV_UI = window.BV_UI = {
     const loop = () => {
       BV.animF = requestAnimationFrame(loop);
       if (!BV.anM) return;
-
       const now = performance.now();
       const dt = (now - this.lastFrameTime) / 1000;
       this.lastFrameTime = now;
@@ -140,14 +160,9 @@ const BV_UI = window.BV_UI = {
       ph += 0.02;
       const bins = BV.getBinRanges();
 
-      // Apply solo/mute to data
-      const bassData = this.applyBandMask(BV.dM, bins.bassLo, bins.bassHi, 'bass');
-      const midData  = this.applyBandMask(BV.dM, bins.bassHi, bins.midHi,  'mid');
-      const highData = this.applyBandMask(BV.dM, bins.midHi,  bins.highHi, 'high');
-
       const bE = BV.binEnergy(BV.dM, bins.bassLo, bins.bassHi);
       const mE = BV.binEnergy(BV.dM, bins.bassHi, bins.midHi);
-      const hE = BV.binEnergy(BV.dM, bins.midHi,  bins.highHi);
+      const hE = BV.binEnergy(BV.dM, bins.midHi, bins.highHi);
       const kE = BV.binEnergy(BV.dM, Math.floor(60/(BV.actx.sampleRate/BV.FFT)), Math.floor(120/(BV.actx.sampleRate/BV.FFT)));
       const snE = BV.binEnergy(BV.dM, Math.floor(150/(BV.actx.sampleRate/BV.FFT)), Math.floor(500/(BV.actx.sampleRate/BV.FFT)));
       const htE = BV.binEnergy(BV.dM, bins.midHi, bins.highHi);
@@ -169,7 +184,6 @@ const BV_UI = window.BV_UI = {
   },
 
   applyBandMask(data, lo, hi, band) {
-    // For solo: if any band is soloed, only that band shows
     const anySolo = BV.bassSolo || BV.midSolo || BV.highSolo;
     const masked = new Uint8Array(data.length);
     let active = true;
@@ -203,32 +217,23 @@ const BV_UI = window.BV_UI = {
     const pkR = Math.max(...Array.from(BV.dR))/255;
     const rms = Math.sqrt(Array.from(BV.tD).reduce((s,v)=>s+((v-128)/128)**2,0)/BV.tD.length);
     const lufs = rms * 0.85;
-
-    // Peak hold
     if (pkL > BV.peakHoldL) BV.peakHoldL = pkL;
     if (pkR > BV.peakHoldR) BV.peakHoldR = pkR;
     if (pkL >= 0.99) BV.peakClipL = true;
     if (pkR >= 0.99) BV.peakClipR = true;
-
     this.setMeterBar('mPL','mPLv', pkL*100, pkL, BV.peakClipL);
     this.setMeterBar('mPR','mPRv', pkR*100, pkR, BV.peakClipR);
     this.setMeterBar('mRMS','mRMSv', rms*250, rms, false);
     this.setMeterBar('mLUFS','mLUFSv', lufs*300, lufs, false);
-
-    // Master tab mirrors
     this.setMeterBar('mmPL','mmPLv', pkL*100, pkL, BV.peakClipL);
     this.setMeterBar('mmPR','mmPRv', pkR*100, pkR, BV.peakClipR);
     this.setMeterBar('mmRMS','mmRMSv', rms*250, rms, false);
     this.setMeterBar('mmLUFS','mmLUFSv', lufs*300, lufs, false);
-
-    // Peak clip indicators
     const showClip = (id, clipped) => {
       const el = document.getElementById(id); if(!el) return;
       el.style.color = clipped ? '#ff4d6d' : 'var(--a1)';
     };
     showClip('mPLv', BV.peakClipL); showClip('mPRv', BV.peakClipR);
-
-    // Rolling
     BV.rPL.push(pkL); BV.rPR.push(pkR); BV.rRms.push(rms);
     if (BV.rPL.length > BV.ROLL) { BV.rPL.shift(); BV.rPR.shift(); BV.rRms.shift(); }
   },
@@ -260,10 +265,10 @@ const BV_UI = window.BV_UI = {
     if (bar) { bar.style.left = ((corr+1)/2*100)+'%'; }
     const msg = document.getElementById('corrMsg');
     if (msg) {
-      if (corr < -0.2) msg.textContent = '⚠ PHASE CANCEL';
+      if (corr < -0.2)     msg.textContent = '⚠ PHASE CANCEL';
       else if (corr < 0.2) msg.textContent = 'WIDE STEREO';
       else if (corr > 0.9) msg.textContent = 'NEAR MONO';
-      else msg.textContent = 'BALANCED';
+      else                 msg.textContent = 'BALANCED';
     }
   },
 
@@ -274,28 +279,23 @@ const BV_UI = window.BV_UI = {
     const W = canvas.width, H = canvas.height;
     const cx = W/2, cy = H/2, r = Math.min(W,H)*0.4;
     ctx.fillStyle = '#080c14'; ctx.fillRect(0,0,W,H);
-    // Draw circle
     ctx.strokeStyle = '#1a2535'; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx,cy-r); ctx.lineTo(cx,cy+r); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx-r,cy); ctx.lineTo(cx+r,cy); ctx.stroke();
-    // Label
     ctx.fillStyle='#4a5568'; ctx.font='8px Share Tech Mono';
     ctx.fillText('FRONT',cx-14,cy-r-4); ctx.fillText('L',cx-r-10,cy+3); ctx.fillText('R',cx+r+4,cy+3);
-    // Source position
     const radAz = (az * Math.PI / 180);
     const x = cx + Math.sin(radAz) * r * 0.85;
     const y = cy - Math.cos(radAz) * r * 0.85;
     ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
     ctx.fillStyle='var(--a1)'; ctx.shadowColor='var(--a1)'; ctx.shadowBlur=12; ctx.fill();
     ctx.shadowBlur=0;
-    // Elevation indicator
     ctx.fillStyle='var(--a3)'; ctx.font='8px Share Tech Mono';
     ctx.fillText(`AZ:${Math.round(az)}° EL:${Math.round(el_deg)}°`,4,H-4);
   },
 
   updateReportFromFullSong() {
-    // Auto-populate report when scan completes
     const status = document.getElementById('reportAutoStatus');
     if (status) status.textContent = 'Full song scan ready — press CAPTURE to generate report.';
   },
@@ -304,7 +304,6 @@ const BV_UI = window.BV_UI = {
   drawGeo(ctx, W, H, bass, mid, high, tot, ph) {
     ctx.fillStyle = 'rgba(6,8,16,0.3)'; ctx.fillRect(0,0,W,H);
     const cx=W/2, cy=H/2, base=Math.min(W,H)*0.23;
-    // Outer ring
     ctx.beginPath();
     for (let i=0; i<BV.dM.length/4; i++) {
       const a=(i/(BV.dM.length/4))*Math.PI*2-Math.PI/2;
@@ -313,11 +312,9 @@ const BV_UI = window.BV_UI = {
       i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
     }
     ctx.closePath(); ctx.strokeStyle=`hsla(${160+high*60},100%,70%,${0.2+high*0.5})`; ctx.lineWidth=1+high*2; ctx.stroke();
-    // Mid hexagon
     ctx.beginPath();
     for (let i=0;i<=6;i++) { const a=(i/6)*Math.PI*2+ph*0.5, w=1+Math.sin(ph*3+i)*mid*0.3, r=base*(0.72+mid*0.55)*w; ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r); }
     ctx.closePath(); ctx.strokeStyle=`rgba(0,245,196,${0.3+mid*0.5})`; ctx.lineWidth=1+mid*3; ctx.stroke();
-    // Bass core
     const bR=base*(0.22+bass*1.05), g=ctx.createRadialGradient(cx,cy,0,cx,cy,bR);
     g.addColorStop(0,`rgba(255,77,109,${bass*0.8})`); g.addColorStop(0.5,`rgba(255,107,53,${bass*0.35})`); g.addColorStop(1,'transparent');
     ctx.beginPath(); ctx.arc(cx,cy,bR,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
@@ -337,7 +334,6 @@ const BV_UI = window.BV_UI = {
     if (!this.spectImg || this.spectImg.width !== W) this.spectImg = ctx.createImageData(W,H);
     const d = this.spectImg.data;
     for (let y=0;y<H;y++) for (let x=0;x<W-1;x++) { const i=(y*W+x)*4,j=i+4; d[i]=d[j];d[i+1]=d[j+1];d[i+2]=d[j+2];d[i+3]=d[j+3]; }
-    // Use smoothed FFT
     const fftData = BV.getSmoothedFFT();
     for (let y=0;y<H;y++) {
       const fi=Math.floor((1-y/H)*fftData.length*0.5);
@@ -373,6 +369,7 @@ const BV_UI = window.BV_UI = {
     const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
     const fd = d || { peakL:avg(BV.rPL), peakR:avg(BV.rPR), rms:avg(BV.rRms), lufs:avg(BV.rRms)*0.85, bass:avg(BV.rBass), mid:avg(BV.rMid), high:avg(BV.rHigh), bpm:BV.bpmEst, beats:BV.beatCnt, clip:'—', dr:'—', duration:'—', sr:'—' };
     const src = d ? 'FULL SONG SCAN' : `${(BV.rBass.length/60).toFixed(0)}s ROLLING AVG`;
+    const abLabel = BV.abMode === 'B' ? ' [B — MASTER]' : ' [A — ORIGINAL]';
     const dB = v => v > 0 ? (20*Math.log10(v)).toFixed(2)+' dB' : '—';
     const pct = v => ((v||0)*100).toFixed(1)+'%';
     const diag=[];
@@ -388,6 +385,7 @@ const BV_UI = window.BV_UI = {
     if(Math.abs((fd.peakL||0)-(fd.peakR||0))>0.05) diag.push('🟡 STEREO IMBALANCE — L/R peaks differ.');
     const corr = BV.corrValue;
     if(corr < -0.2) diag.push('🔴 PHASE CANCELLATION — correlation '+corr.toFixed(2)+'. Check mono compatibility.');
+    else if(corr > 0.85) diag.push('🟡 NEAR MONO — stereo field collapsed. Check compression/limiting.');
     const ln = fd.lufs>0 ? parseFloat((20*Math.log10(fd.lufs)).toFixed(2)) : null;
     if(ln!==null) {
       if(ln>-8) diag.push('🔴 TOO LOUD — streaming will attenuate.');
@@ -401,7 +399,7 @@ const BV_UI = window.BV_UI = {
 `╔══════════════════════════════════════════╗
 ║  BEATVISION v4 // ANALYSIS REPORT        ║
 ║  ${now.padEnd(41)}║
-║  SOURCE: ${src.padEnd(33)}║
+║  SOURCE: ${(src+abLabel).padEnd(33)}║
 ╚══════════════════════════════════════════╝
 
 ── SONG INFO ────────────────────────────────
@@ -438,7 +436,6 @@ ${diag.map(x=>'  '+x).join('\n')}
   I use BeatVision's mastering chain for finishing.
 `;
     document.getElementById('reportTxt').textContent = report;
-    this.showTab('report');
   },
 
   async copyReport() {
@@ -456,5 +453,4 @@ ${diag.map(x=>'  '+x).join('\n')}
     const lbl = document.getElementById(id);
     if (lbl) lbl.textContent = v + (unit===':1' ? ':1' : ' '+unit);
   },
-
 };
