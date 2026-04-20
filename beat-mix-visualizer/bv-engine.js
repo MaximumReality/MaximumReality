@@ -654,6 +654,49 @@ const BV = window.BV = {
     streaming: {eqSG:0,eqSF:80,eqLG:-1,eqLF:300,eqHG:1,eqHF:2500,eqAG:1,eqAF:10000,cBT:-18,cBR:3,cBG:1,cMT:-20,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:4,cFG:2,inputTrim:0,stW:105,stM:15,rvM:3,rvD:1.2,satD:5,satM:20,limC:-1,limD:2,outputTrim:0},
     hifi:      {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
     hearing:   {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
+   sunoRepair: {
+  eqSG: -3,      // Low shelf gain (reduce bass)
+  eqSF: 90,      // Low shelf frequency
+  eqLG: -2.5,    // Additional low cut
+  eqLF: 150,     // High-pass non-bass elements
+  eqHG: 3,       // High shelf boost (sparkle)
+  eqHF: 12000,   // High shelf frequency
+  eqAG: 4.5,     // Mid presence boost
+  eqAF: 1500,    // Mid presence frequency
+
+  cBT: -18,      // Bass compressor threshold
+  cBR: 3,        // Bass compressor ratio
+  cBG: 0,        // Bass makeup gain
+
+  cMT: -18,      // Mid compressor threshold
+  cMR: 2.5,      // Mid compressor ratio
+  cMG: 1,        // Mid makeup gain
+
+  cHT: -20,      // High compressor threshold
+  cHR: 2,        // High compressor ratio
+  cHG: 2,        // High makeup gain
+
+  cFT: -10,      // Full-band compressor threshold
+  cFR: 3,        // Full-band compressor ratio
+  cFG: 2,        // Full-band makeup gain
+
+  inputTrim: 0,  // No pre-gain needed
+
+  stW: 120,      // Wider highs/mids
+  stM: 10,       // Slight stereo widening
+
+  rvM: 3,        // Light reverb
+  rvD: 1.2,      // Reverb decay
+
+  satD: 5,       // Gentle saturation
+  satM: 20,      // Saturation mix
+
+  limC: -1.0,    // Limiter ceiling
+  limD: 2,       // Limiter drive
+
+  outputTrim: 2  // Bring LUFS from -17 → -15
+},
+
   },
 
   applyPreset(name) {
