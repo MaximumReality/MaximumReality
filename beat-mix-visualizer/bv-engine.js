@@ -2,9 +2,7 @@
 // BEATVISION v4 — ENGINE (bv-engine.js)
 // Audio context, analysis, mastering chain, export
 // ============================================================
-
 const BV = window.BV = {
-
   // ---- State ----
   actx: null, curBuf: null, srcNode: null, gainNode: null, splitter: null,
   anL: null, anR: null, anM: null,
@@ -13,40 +11,30 @@ const BV = window.BV = {
   masterBlob: null, masterFN: 'remastered',
   FFT: 2048,
   dL: null, dR: null, dM: null, tD: null,
-
   // Beat detection
   beatHist: [], lastBeatT: 0, bpmEst: 0, lastBassE: 0, beatCnt: 0, tapT: [],
-
   // Rolling buffers
   rBass: [], rMid: [], rHigh: [], rPL: [], rPR: [], rRms: [], rLufsShort: [],
   ROLL: 300,
-
   // Analysis results
   fullSong: null,
-
-  // A/B state
-  abMode: 'A', origBuf: null,
-
+  // A/B state — true dual-buffer
+  abMode: 'A', origBuf: null, _masterAudioBuf: null,
   // Peak hold
   peakHoldL: 0, peakHoldR: 0, peakClipL: false, peakClipR: false,
-
   // Correlation
   corrValue: 0,
-
   // FFT smoothing
   smoothing: 0.8,
   smoothedFFT: null,
-
   // Band solo/mute
   bassActive: true, midActive: true, highActive: true,
   bassSolo: false, midSolo: false, highSolo: false,
-
   // Binaural state
   binauralOn: false, binAzimuth: 0, binElevation: 0, binDistance: 1,
   binMotion: 'none', binSpeed: 1, binDepth: 100, binWidth: 100,
   binMotionPhase: 0,
   binPannerL: null, binPannerR: null,
-
   // True peak
   truePeakOn: false,
 
@@ -97,6 +85,7 @@ const BV = window.BV = {
     }
     this.curBuf = buf;
     this.origBuf = buf;
+    this._masterAudioBuf = null; // clear any previous master
     this.masterFN = file.name.replace(/\.[^.]+$/, '');
     this.masterBlob = null;
     this.peakHoldL = 0; this.peakHoldR = 0;
@@ -104,6 +93,7 @@ const BV = window.BV = {
     this.rBass=[]; this.rMid=[]; this.rHigh=[];
     this.rPL=[]; this.rPR=[]; this.rRms=[]; this.rLufsShort=[];
     this.fullSong = null;
+    this.abMode = 'A';
     BV_UI.setLoadStatus('✓ ' + file.name.slice(0, 28),
       `${(file.size/1048576).toFixed(1)}MB · ${buf.duration.toFixed(1)}s · ${buf.sampleRate}Hz`);
     BV_UI.onFileLoaded();
@@ -120,17 +110,14 @@ const BV = window.BV = {
     const nHops = Math.floor(buf.length / hop);
     const chL = buf.getChannelData(0);
     const chR = buf.numberOfChannels > 1 ? buf.getChannelData(1) : chL;
-
     let peakL=0, peakR=0, rmsSum=0, rmsN=0;
     let bassSum=0, midSum=0, highSum=0;
     let clipFrames=0, lastBE=0, bpmInts=[], lastBHop=-1, beats=0;
-
     for (let h = 0; h < nHops; h++) {
       const s = h * hop, e = Math.min(s + hop, buf.length);
       const len = e - s;
       let rL=0, rR=0, pL=0, pR=0, prev=chL[s];
       let bE=0, mE=0, hE=0;
-
       for (let i = s; i < e; i++) {
         const al = Math.abs(chL[i]), ar = Math.abs(chR[i]);
         rL += chL[i]*chL[i]; rR += chR[i]*chR[i];
@@ -144,9 +131,8 @@ const BV = window.BV = {
       if (pL > peakL) peakL = pL; if (pR > peakR) peakR = pR;
       rmsSum += (rL+rR)*0.5; rmsN++;
       bassSum += Math.max(0, bE/len);
-      midSum  += Math.max(0, mE/len);
+      midSum += Math.max(0, mE/len);
       highSum += Math.max(0, hE/len);
-
       if (bE/len > lastBE*1.45 && bE/len > 0.01 && (h-lastBHop) > 4) {
         if (lastBHop > 0) {
           const ms = (h-lastBHop)*hop/sr*1000;
@@ -156,7 +142,6 @@ const BV = window.BV = {
       }
       lastBE = bE/len;
     }
-
     const avgRms = rmsN ? rmsSum/rmsN : 0;
     const t = bassSum/nHops + midSum/nHops + highSum/nHops || 1;
     const clip = (clipFrames/buf.length*100).toFixed(3);
@@ -262,7 +247,7 @@ const BV = window.BV = {
     return {
       bassLo: Math.max(1, Math.floor(20/bHz)),
       bassHi: Math.floor(250/bHz),
-      midHi:  Math.floor(4000/bHz),
+      midHi: Math.floor(4000/bHz),
       highHi: Math.min(Math.floor(20000/bHz), this.FFT/2-1)
     };
   },
@@ -291,10 +276,10 @@ const BV = window.BV = {
       let groove = '—', grooveColor = 'var(--dim)';
       if (this.beatHist.length >= 4) {
         const sd = this.stdDev(this.beatHist);
-        if (sd < 5)  { groove='LOCKED'; grooveColor='var(--a1)'; }
-        else if (sd < 15) { groove='TIGHT';  grooveColor='var(--mid)'; }
+        if (sd < 5) { groove='LOCKED'; grooveColor='var(--a1)'; }
+        else if (sd < 15) { groove='TIGHT'; grooveColor='var(--mid)'; }
         else if (sd < 30) { groove='GROOVE'; grooveColor='var(--a3)'; }
-        else              { groove='LOOSE';  grooveColor='var(--a2)'; }
+        else { groove='LOOSE'; grooveColor='var(--a2)'; }
       }
       BV_UI.setBpm(this.bpmEst, groove, grooveColor);
     }
@@ -320,16 +305,15 @@ const BV = window.BV = {
   // ---- LUFS Short-Term (3s rolling) ----
   updateLufsShort(rms) {
     this.rLufsShort.push(rms);
-    const maxLen = Math.floor(3 * 60); // ~3 seconds at 60fps
+    const maxLen = Math.floor(3 * 60);
     if (this.rLufsShort.length > maxLen) this.rLufsShort.shift();
     const avg = this.rLufsShort.reduce((a,b)=>a+b,0) / this.rLufsShort.length;
-    return avg * 0.85; // approximate LUFS
+    return avg * 0.85;
   },
 
   // ---- Smoothed FFT ----
   getSmoothedFFT() {
     if (!this.anM) return this.smoothedFFT;
-    const raw = new Uint8Array(this.FFT/2);
     this.anM.getByteFrequencyData(this.dM);
     for (let i=0; i<this.FFT/2; i++) {
       this.smoothedFFT[i] = this.smoothedFFT[i] * this.smoothing + this.dM[i] * (1 - this.smoothing);
@@ -337,16 +321,33 @@ const BV = window.BV = {
     return this.smoothedFFT;
   },
 
-  // ---- A/B Compare ----
+  // ---- A/B Compare — TRUE dual-buffer switch ----
   setAB(mode) {
     this.abMode = mode;
     if (mode === 'A') {
       this.curBuf = this.origBuf;
     } else {
-      // B uses masterBlob-decoded buffer if available
-      if (this._masterBuf) this.curBuf = this._masterBuf;
+      // Only switch if master buffer actually exists
+      if (this._masterAudioBuf) {
+        this.curBuf = this._masterAudioBuf;
+      } else {
+        BV_UI.setMasterProgress(0, '⚠ Remaster first before switching to B.');
+        return;
+      }
     }
-    if (this.isPlaying) { const off = this.pauseOff; this.stopSrc(); this.pauseOff = off; this.playAudio(); }
+    // Reset analysis state for new buffer
+    this.fullSong = null;
+    this.rBass=[]; this.rMid=[]; this.rHigh=[];
+    this.rPL=[]; this.rPR=[]; this.rRms=[]; this.rLufsShort=[];
+    this.peakHoldL = 0; this.peakHoldR = 0;
+    this.peakClipL = false; this.peakClipR = false;
+    // Restart playback with new buffer, preserving position
+    if (this.isPlaying) {
+      const off = this.actx.currentTime - this.startT;
+      this.stopSrc();
+      this.pauseOff = Math.min(off, this.curBuf.duration - 0.1);
+      this.playAudio();
+    }
   },
 
   // ---- Reset Peaks ----
@@ -363,12 +364,12 @@ const BV = window.BV = {
     const d = this.binDepth / 100;
     let az = 0, el = 0;
     switch(this.binMotion) {
-      case 'circle':   az = Math.sin(p)*180*d; el = Math.cos(p)*30*d; break;
-      case 'figure8':  az = Math.sin(p)*180*d; el = Math.sin(p*2)*30*d; break;
-      case 'spiral':   az = Math.sin(p)*180*d*(p%6.28/6.28); el = Math.cos(p)*40*d; break;
-      case 'lr':       az = Math.sin(p)*180*d; el = 0; break;
-      case 'fb':       az = 0; el = Math.sin(p)*40*d; break;
-      default: az = this.binAzimuth; el = this.binElevation;
+      case 'circle':  az = Math.sin(p)*180*d; el = Math.cos(p)*30*d; break;
+      case 'figure8': az = Math.sin(p)*180*d; el = Math.sin(p*2)*30*d; break;
+      case 'spiral':  az = Math.sin(p)*180*d*(p%6.28/6.28); el = Math.cos(p)*40*d; break;
+      case 'lr':      az = Math.sin(p)*180*d; el = 0; break;
+      case 'fb':      az = 0; el = Math.sin(p)*40*d; break;
+      default:        az = this.binAzimuth; el = this.binElevation;
     }
     BV_UI.updateSpatialPreview(az, el);
   },
@@ -376,7 +377,6 @@ const BV = window.BV = {
   // ============================
   // MASTERING ENGINE
   // ============================
-
   g(id) { const el = document.getElementById(id); return el ? parseFloat(el.value) : 0; },
   d2l(db) { return Math.pow(10, db/20); },
 
@@ -402,16 +402,18 @@ const BV = window.BV = {
 
     // ---- Multiband Crossovers ----
     const bassLP  = oCtx.createBiquadFilter(); bassLP.type='lowpass';  bassLP.frequency.value=250;  bassLP.Q.value=0.707;
-    const bassLP2 = oCtx.createBiquadFilter(); bassLP2.type='lowpass'; bassLP2.frequency.value=250;  bassLP2.Q.value=0.707;
+    const bassLP2 = oCtx.createBiquadFilter(); bassLP2.type='lowpass'; bassLP2.frequency.value=250; bassLP2.Q.value=0.707;
     const midHP   = oCtx.createBiquadFilter(); midHP.type='highpass';  midHP.frequency.value=250;   midHP.Q.value=0.707;
     const midLP   = oCtx.createBiquadFilter(); midLP.type='lowpass';   midLP.frequency.value=4000;  midLP.Q.value=0.707;
     const hiHP    = oCtx.createBiquadFilter(); hiHP.type='highpass';   hiHP.frequency.value=4000;   hiHP.Q.value=0.707;
     const hiHP2   = oCtx.createBiquadFilter(); hiHP2.type='highpass';  hiHP2.frequency.value=4000;  hiHP2.Q.value=0.707;
 
-    const cB = oCtx.createDynamicsCompressor(); cB.threshold.value=this.g('cBT'); cB.ratio.value=this.g('cBR'); cB.knee.value=6; cB.attack.value=0.01;  cB.release.value=0.15;
+    const cB = oCtx.createDynamicsCompressor(); cB.threshold.value=this.g('cBT'); cB.ratio.value=this.g('cBR'); cB.knee.value=6; cB.attack.value=0.01; cB.release.value=0.15;
     const gB = oCtx.createGain(); gB.gain.value = this.d2l(this.g('cBG'));
+
     const cM = oCtx.createDynamicsCompressor(); cM.threshold.value=this.g('cMT'); cM.ratio.value=this.g('cMR'); cM.knee.value=5; cM.attack.value=0.005; cM.release.value=0.10;
     const gM = oCtx.createGain(); gM.gain.value = this.d2l(this.g('cMG'));
+
     const cH = oCtx.createDynamicsCompressor(); cH.threshold.value=this.g('cHT'); cH.ratio.value=this.g('cHR'); cH.knee.value=4; cH.attack.value=0.003; cH.release.value=0.08;
     const gH = oCtx.createGain(); gH.gain.value = this.d2l(this.g('cHG'));
 
@@ -454,7 +456,7 @@ const BV = window.BV = {
     // ---- Limiter Drive ----
     const limDrvGain = oCtx.createGain(); limDrvGain.gain.value = this.d2l(this.g('limD'));
 
-    // ---- Limiter (True Peak aware ceiling) ----
+    // ---- Limiter ----
     const lim = oCtx.createDynamicsCompressor();
     lim.threshold.value = this.g('limC');
     lim.ratio.value = 20; lim.knee.value = 0; lim.attack.value = 0.001; lim.release.value = 0.05;
@@ -504,42 +506,54 @@ const BV = window.BV = {
     const wPct = this.g('stW') / 100;
     const chL = rendered.getChannelData(0), chR = rendered.getChannelData(1);
     const nL = new Float32Array(len), nR = new Float32Array(len);
-
-    // True peak limiting pass (oversample simulation via simple clip)
     const ceiling = this.d2l(this.g('limC'));
+
     for (let i = 0; i < len; i++) {
       const mid  = (chL[i]+chR[i])*0.5;
       const side = (chL[i]-chR[i])*0.5 * wPct;
       let l = mid+side, r = mid-side;
-      if (this.truePeakOn) { // Hard clip at ceiling
+      if (this.truePeakOn) {
         l = Math.max(-ceiling, Math.min(ceiling, l));
         r = Math.max(-ceiling, Math.min(ceiling, r));
       }
-      // TPDF dither (16-bit) — 2 triangular PDF random values
+      // TPDF dither (16-bit)
       const d1 = (Math.random() - Math.random()) / 32768;
       nL[i] = l + d1;
       nR[i] = r + (Math.random() - Math.random()) / 32768;
     }
 
-    // Store master buffer for A/B
-    const finalBuf = { sampleRate: sr, length: len, numberOfChannels: 2, getChannelData: c => c===0 ? nL : nR };
-    this._masterBuf = finalBuf;
+    // ---- Build a real AudioBuffer for playback (true A/B) ----
+    const masterPlayBuf = this.actx.createBuffer(2, len, sr);
+    masterPlayBuf.getChannelData(0).set(nL);
+    masterPlayBuf.getChannelData(1).set(nR);
+    this._masterAudioBuf = masterPlayBuf;
 
-    BV_UI.setMasterProgress(92, 'Ready to export...');
+    // Keep fake buffer object for export pipeline
+    const finalBuf = {
+      sampleRate: sr,
+      length: len,
+      numberOfChannels: 2,
+      getChannelData: c => c===0 ? nL : nR
+    };
+
+    BV_UI.setMasterProgress(92, 'Auto-scanning master...');
     await this.sleep(20);
-    BV_UI.setMasterProgress(100, '✅ Remaster complete! Choose export format below.');
+
+    // Auto-switch to B and scan master
+    this.setAB('B');
+    await this.analyzeFullSong(masterPlayBuf);
+
+    BV_UI.setMasterProgress(100, '✅ Remaster complete! Switched to B — now playing master.');
     BV_UI.onMasterComplete(finalBuf);
   },
 
   // ============================
   // EXPORT ENGINE
   // ============================
-
   async exportAs(format, buf) {
     BV_UI.setExportStatus('⏳ Preparing export...');
     await this.sleep(30);
     const targetSR = 44100;
-    // Resample if needed
     let finalBuf = buf;
     if (buf.sampleRate !== targetSR) {
       BV_UI.setExportStatus('🔄 Resampling to 44.1kHz...');
@@ -548,12 +562,11 @@ const BV = window.BV = {
     }
     BV_UI.setExportStatus('🔧 Encoding ' + format + '...');
     await this.sleep(30);
-
     let blob, ext;
     switch(format) {
-      case 'wav16':   blob = this.encodeWAV(finalBuf, 16);  ext = 'wav';  break;
-      case 'flac':    blob = this.encodeFLAC(finalBuf);      ext = 'flac'; break;
-      case 'mp3_320': blob = this.encodeMP3(finalBuf);       ext = 'mp3';  break;
+      case 'wav16':   blob = this.encodeWAV(finalBuf, 16);  ext = 'wav'; break;
+      case 'flac':    blob = this.encodeFLAC(finalBuf);     ext = 'flac'; break;
+      case 'mp3_320': blob = this.encodeMP3(finalBuf);      ext = 'mp3'; break;
       default:        blob = this.encodeWAV(finalBuf, 16);  ext = 'wav';
     }
     const fn = this.masterFN + '_master_44k.' + ext;
@@ -566,7 +579,6 @@ const BV = window.BV = {
     const newLen = Math.floor(buf.length * ratio);
     const oCtx = new OfflineAudioContext(2, newLen, targetSR);
     const src = oCtx.createBufferSource();
-    // Create AudioBuffer from our fake buffer-like object
     let srcBuf;
     if (buf.constructor && buf.constructor.name === 'AudioBuffer') {
       srcBuf = buf;
@@ -600,12 +612,11 @@ const BV = window.BV = {
     for (let i = 0; i < len; i++) {
       for (let c = 0; c < nCh; c++) {
         let s = buf.getChannelData(c)[i];
-        // TPDF dither
         s += (Math.random() - Math.random()) / maxVal;
         s = Math.max(-1, Math.min(1, s));
         const int = Math.round(s * maxVal);
         if (bits === 16) { v.setInt16(off, int, true); off += 2; }
-        else { // 24-bit
+        else {
           v.setUint8(off,   (int & 0xff));
           v.setUint8(off+1, (int >> 8 & 0xff));
           v.setUint8(off+2, (int >> 16 & 0xff));
@@ -616,20 +627,12 @@ const BV = window.BV = {
     return new Blob([ab], {type:'audio/wav'});
   },
 
-  // FLAC: encode as WAV with FLAC mime type (true FLAC requires libflac.js)
-  // For RouteNote delivery we encode as 16-bit WAV and mark as FLAC
-  // Note: real FLAC would need libflac — this is the best we can do in pure JS
   encodeFLAC(buf) {
-    // Proper FLAC requires a WebAssembly encoder; we emit 16-bit WAV
-    // with a note in filename. User can convert with RouteNote's own ingest.
     const wav = this.encodeWAV(buf, 16);
     return new Blob([wav], {type:'audio/flac'});
   },
 
-  // MP3: use native MediaRecorder if available, else WAV fallback
   encodeMP3(buf) {
-    // Pure-JS MP3 encoding requires lamejs; we output WAV for now
-    // RouteNote accepts WAV 44.1/16 for all formats
     const wav = this.encodeWAV(buf, 16);
     return new Blob([wav], {type:'audio/mpeg'});
   },
@@ -646,64 +649,16 @@ const BV = window.BV = {
 
   // ---- Presets ----
   PRESETS: {
-    flat:      {eqSG:0,eqSF:80,eqLG:0,eqLF:350,eqHG:0,eqHF:2500,eqAG:0,eqAF:10000,cBT:-18,cBR:3,cBG:0,cMT:-20,cMR:2,cMG:0,cHT:-24,cHR:2,cHG:0,cFT:-12,cFR:4,cFG:2,inputTrim:0,stW:100,stM:0,rvM:0,rvD:1.2,satD:0,satM:0,limC:-0.3,limD:0,outputTrim:0},
-    warm:      {eqSG:2,eqSF:100,eqLG:1.5,eqLF:300,eqHG:-1,eqHF:3000,eqAG:-0.5,eqAF:12000,cBT:-16,cBR:4,cBG:2,cMT:-18,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:3,cFG:2,inputTrim:0,stW:90,stM:20,rvM:6,rvD:1.5,satD:8,satM:30,limC:-0.3,limD:2,outputTrim:0},
-    bright:    {eqSG:-1,eqSF:80,eqLG:-1,eqLF:350,eqHG:2,eqHF:2500,eqAG:3,eqAF:10000,cBT:-20,cBR:3,cBG:0,cMT:-18,cMR:2,cMG:1,cHT:-20,cHR:1.5,cHG:2,cFT:-12,cFR:3,cFG:2,inputTrim:0,stW:120,stM:0,rvM:4,rvD:1,satD:4,satM:20,limC:-0.3,limD:2,outputTrim:0},
-    punchy:    {eqSG:3,eqSF:60,eqLG:-2,eqLF:350,eqHG:2,eqHF:3000,eqAG:1,eqAF:12000,cBT:-12,cBR:6,cBG:4,cMT:-18,cMR:3,cMG:2,cHT:-22,cHR:2,cHG:1,cFT:-8,cFR:6,cFG:4,inputTrim:-1,stW:110,stM:30,rvM:2,rvD:0.8,satD:10,satM:40,limC:-0.2,limD:4,outputTrim:0},
+    flat: {eqSG:0,eqSF:80,eqLG:0,eqLF:350,eqHG:0,eqHF:2500,eqAG:0,eqAF:10000,cBT:-18,cBR:3,cBG:0,cMT:-20,cMR:2,cMG:0,cHT:-24,cHR:2,cHG:0,cFT:-12,cFR:4,cFG:2,inputTrim:0,stW:100,stM:0,rvM:0,rvD:1.2,satD:0,satM:0,limC:-0.3,limD:0,outputTrim:0},
+    warm: {eqSG:2,eqSF:100,eqLG:1.5,eqLF:300,eqHG:-1,eqHF:3000,eqAG:-0.5,eqAF:12000,cBT:-16,cBR:4,cBG:2,cMT:-18,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:3,cFG:2,inputTrim:0,stW:90,stM:20,rvM:6,rvD:1.5,satD:8,satM:30,limC:-0.3,limD:2,outputTrim:0},
+    bright: {eqSG:-1,eqSF:80,eqLG:-1,eqLF:350,eqHG:2,eqHF:2500,eqAG:3,eqAF:10000,cBT:-20,cBR:3,cBG:0,cMT:-18,cMR:2,cMG:1,cHT:-20,cHR:1.5,cHG:2,cFT:-12,cFR:3,cFG:2,inputTrim:0,stW:120,stM:0,rvM:4,rvD:1,satD:4,satM:20,limC:-0.3,limD:2,outputTrim:0},
+    punchy: {eqSG:3,eqSF:60,eqLG:-2,eqLF:350,eqHG:2,eqHF:3000,eqAG:1,eqAF:12000,cBT:-12,cBR:6,cBG:4,cMT:-18,cMR:3,cMG:2,cHT:-22,cHR:2,cHG:1,cFT:-8,cFR:6,cFG:4,inputTrim:-1,stW:110,stM:30,rvM:2,rvD:0.8,satD:10,satM:40,limC:-0.2,limD:4,outputTrim:0},
     cinematic: {eqSG:2,eqSF:60,eqLG:1,eqLF:250,eqHG:1,eqHF:2000,eqAG:2,eqAF:14000,cBT:-18,cBR:3,cBG:2,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:3,cFG:2,inputTrim:0,stW:140,stM:10,rvM:15,rvD:2.5,satD:6,satM:25,limC:-0.5,limD:1,outputTrim:0},
     streaming: {eqSG:0,eqSF:80,eqLG:-1,eqLF:300,eqHG:1,eqHF:2500,eqAG:1,eqAF:10000,cBT:-18,cBR:3,cBG:1,cMT:-20,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:4,cFG:2,inputTrim:0,stW:105,stM:15,rvM:3,rvD:1.2,satD:5,satM:20,limC:-1,limD:2,outputTrim:0},
-    hifi:      {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
-    hearing:   {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
-   sunoRepair_v14: {
-  // EQ - same as v1.3, working well
-  eqSG: -2.5,     // low shelf cut
-  eqSF: 120,      // low shelf freq
-  eqLG: -2.0,     // low mid cut
-  eqLF: 180,      // low mid freq
-  eqHG: 1.5,      // high mid boost
-  eqHF: 10000,
-  eqAG: 4.0,      // presence boost
-  eqAF: 1500,
-
-  // COMPRESSION - reduced to preserve side info
-  cBT: -18,
-  cBR: 2.0,       // reduced from 3.0
-  cBG: 0,
-
-  cMT: -22,       // lower threshold = gentler
-  cMR: 1.5,       // reduced from 2.0
-  cMG: 0.5,       // reduced makeup
-
-  cHT: -24,
-  cHR: 1.5,       // reduced from 2.0
-  cHG: 0.5,
-
-  cFT: -22,       // gentler full-band
-  cFR: 1.2,       // very low ratio — glue only
-  cFG: 0.0,       // no makeup gain
-
-  inputTrim: -2,
-
-  // STEREO - maximum preservation
-  stW: 200,       // maximum width
-  stM: 45,        // strong mid widening
-
-  // REVERB - keep light
-  rvM: 2,
-  rvD: 1.0,
-
-  // SATURATION - minimal, was collapsing side info
-  satD: 1,        // near zero
-  satM: 5,        // near zero
-
-  // LIMITER - gentle, preserve transients
-  limC: -3.0,
-  limD: 0,        // zero drive — critical change
-  
-  outputTrim: -4
-   }
-},
-
+    hifi: {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
+    hearing: {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
+    sunoRepair_v14: {eqSG:-2.5,eqSF:120,eqLG:-2.0,eqLF:180,eqHG:1.5,eqHF:10000,eqAG:4.0,eqAF:1500,cBT:-18,cBR:2.0,cBG:0,cMT:-22,cMR:1.5,cMG:0.5,cHT:-24,cHR:1.5,cHG:0.5,cFT:-22,cFR:1.2,cFG:0.0,inputTrim:-2,stW:200,stM:45,rvM:2,rvD:1.0,satD:1,satM:5,limC:-3.0,limD:0,outputTrim:-4},
+  },
 
   applyPreset(name) {
     const p = this.PRESETS[name]; if (!p) return;
@@ -714,5 +669,4 @@ const BV = window.BV = {
       lbl.textContent=v+(units[k]===':1'?':1':' '+units[k]);
     });
   },
-
 };
