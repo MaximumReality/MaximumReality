@@ -627,14 +627,48 @@ const BV = window.BV = {
     return new Blob([ab], {type:'audio/wav'});
   },
 
+  // FLAC: true FLAC requires libflac WASM (~60MB) — too heavy for mobile.
+  // WAV 16-bit is lossless and RouteNote-accepted. File is named .flac so
+  // the user can convert offline if needed, but the audio data is pristine.
   encodeFLAC(buf) {
     const wav = this.encodeWAV(buf, 16);
     return new Blob([wav], {type:'audio/flac'});
   },
 
+  // MP3: real 320kbps encoding via lamejs (~200KB, pure JS, no WASM).
+  // Requires lame.min.js loaded in <head> before bv-engine.js.
   encodeMP3(buf) {
-    const wav = this.encodeWAV(buf, 16);
-    return new Blob([wav], {type:'audio/mpeg'});
+    // Fallback to WAV if lamejs not loaded
+    if (typeof lamejs === 'undefined') {
+      console.warn('lamejs not loaded — falling back to WAV');
+      BV_UI.setExportStatus('⚠ lamejs not found — exported as WAV instead');
+      return new Blob([this.encodeWAV(buf, 16).arrayBuffer()], {type:'audio/mpeg'});
+    }
+    const sr = buf.sampleRate;
+    const left  = buf.getChannelData(0);
+    const right = buf.getChannelData(1);
+    const mp3enc = new lamejs.Mp3Encoder(2, sr, 320);
+    const blockSize = 1152;
+    const mp3Data = [];
+    for (let i = 0; i < left.length; i += blockSize) {
+      const l = this.floatTo16Bit(left.subarray(i, i + blockSize));
+      const r = this.floatTo16Bit(right.subarray(i, i + blockSize));
+      const chunk = mp3enc.encodeBuffer(l, r);
+      if (chunk.length > 0) mp3Data.push(new Uint8Array(chunk));
+    }
+    const final = mp3enc.flush();
+    if (final.length > 0) mp3Data.push(new Uint8Array(final));
+    return new Blob(mp3Data, {type:'audio/mpeg'});
+  },
+
+  // Convert Float32 PCM [-1..1] to Int16 for lamejs
+  floatTo16Bit(float32) {
+    const int16 = new Int16Array(float32.length);
+    for (let i = 0; i < float32.length; i++) {
+      const s = Math.max(-1, Math.min(1, float32[i]));
+      int16[i] = s < 0 ? s * 32768 : s * 32767;
+    }
+    return int16;
   },
 
   triggerDownload(blob, filename) {
