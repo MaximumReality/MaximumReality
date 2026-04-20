@@ -704,11 +704,6 @@ const BV = window.BV = {
 },
 
 
-
-
-
-  },
-
   applyPreset(name) {
     const p = this.PRESETS[name]; if (!p) return;
     const units = {eqSG:'dB',eqSF:'Hz',eqLG:'dB',eqLF:'Hz',eqHG:'dB',eqHF:'Hz',eqAG:'dB',eqAF:'Hz',cBT:'dB',cBR:':1',cBG:'dB',cMT:'dB',cMR:':1',cMG:'dB',cHT:'dB',cHR:':1',cHG:'dB',cFT:'dB',cFR:':1',cFG:'dB',inputTrim:'dB',stW:'%',stM:'%',rvM:'%',rvD:'s',satD:'%',satM:'%',limC:'dB',limD:'dB',outputTrim:'dB'};
