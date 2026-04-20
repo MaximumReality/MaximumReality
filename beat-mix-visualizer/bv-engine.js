@@ -655,47 +655,50 @@ const BV = window.BV = {
     hifi:      {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
     hearing:   {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
    sunoRepair: {
-  eqSG: -3,      // Low shelf gain (reduce bass)
-  eqSF: 90,      // Low shelf frequency
-  eqLG: -2.5,    // Additional low cut
-  eqLF: 150,     // High-pass non-bass elements
-  eqHG: 3,       // High shelf boost (sparkle)
-  eqHF: 12000,   // High shelf frequency
-  eqAG: 4.5,     // Mid presence boost
-  eqAF: 1500,    // Mid presence frequency
+  eqSG: -1.5,     // gentler low shelf cut
+  eqSF: 120,      // slightly higher shelf freq
+  eqLG: -1,       // mild low cut
+  eqLF: 180,      // high-pass non-bass elements
 
-  cBT: -18,      // Bass compressor threshold
-  cBR: 3,        // Bass compressor ratio
-  cBG: 0,        // Bass makeup gain
+  eqHG: 1.5,      // gentle high shelf boost
+  eqHF: 10000,    // sparkle but not harsh
 
-  cMT: -18,      // Mid compressor threshold
-  cMR: 2.5,      // Mid compressor ratio
-  cMG: 1,        // Mid makeup gain
+  eqAG: 2.0,      // moderate mid boost
+  eqAF: 1500,     // mid presence frequency
 
-  cHT: -20,      // High compressor threshold
-  cHR: 2,        // High compressor ratio
-  cHG: 2,        // High makeup gain
+  cBT: -18,
+  cBR: 3,
+  cBG: 0,
 
-  cFT: -10,      // Full-band compressor threshold
-  cFR: 3,        // Full-band compressor ratio
-  cFG: 2,        // Full-band makeup gain
+  cMT: -20,
+  cMR: 2,
+  cMG: 0.5,       // tiny mid makeup
 
-  inputTrim: 0,  // No pre-gain needed
+  cHT: -22,
+  cHR: 2,
+  cHG: 1,         // gentle high makeup
 
-  stW: 120,      // Wider highs/mids
-  stM: 10,       // Slight stereo widening
+  cFT: -14,       // safer full-band compression
+  cFR: 2.5,
+  cFG: 1,
 
-  rvM: 3,        // Light reverb
-  rvD: 1.2,      // Reverb decay
+  inputTrim: -2,  // prevent clipping BEFORE chain
 
-  satD: 5,       // Gentle saturation
-  satM: 20,      // Saturation mix
+  stW: 110,       // mild widening
+  stM: 5,         // avoid collapse
 
-  limC: -1.0,    // Limiter ceiling
-  limD: 2,       // Limiter drive
+  rvM: 2,
+  rvD: 1.0,
 
-  outputTrim: 2  // Bring LUFS from -17 → -15
+  satD: 3,
+  satM: 15,
+
+  limC: -2.0,     // stronger limiter ceiling
+  limD: 4,        // more limiter drive
+
+  outputTrim: -1  // bring LUFS down to safe range
 },
+
 
   },
 
