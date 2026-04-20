@@ -654,50 +654,55 @@ const BV = window.BV = {
     streaming: {eqSG:0,eqSF:80,eqLG:-1,eqLF:300,eqHG:1,eqHF:2500,eqAG:1,eqAF:10000,cBT:-18,cBR:3,cBG:1,cMT:-20,cMR:2.5,cMG:1,cHT:-24,cHR:2,cHG:0,cFT:-10,cFR:4,cFG:2,inputTrim:0,stW:105,stM:15,rvM:3,rvD:1.2,satD:5,satM:20,limC:-1,limD:2,outputTrim:0},
     hifi:      {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
     hearing:   {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
-   sunoRepair: {
-  eqSG: -2.5,     // slightly stronger low shelf cut
-  eqSF: 120,      // low shelf frequency
-  eqLG: -2.0,     // stronger low cut
-  eqLF: 180,      // high-pass non-bass elements
-
-  eqHG: 1.5,      // highs were perfect in v1.2
+   sunoRepair_v14: {
+  // EQ - same as v1.3, working well
+  eqSG: -2.5,     // low shelf cut
+  eqSF: 120,      // low shelf freq
+  eqLG: -2.0,     // low mid cut
+  eqLF: 180,      // low mid freq
+  eqHG: 1.5,      // high mid boost
   eqHF: 10000,
-
-  eqAG: 4.0,      // stronger mid boost
+  eqAG: 4.0,      // presence boost
   eqAF: 1500,
 
+  // COMPRESSION - reduced to preserve side info
   cBT: -18,
-  cBR: 3,
+  cBR: 2.0,       // reduced from 3.0
   cBG: 0,
 
-  cMT: -20,
-  cMR: 2,
-  cMG: 1.0,       // more mid makeup gain
+  cMT: -22,       // lower threshold = gentler
+  cMR: 1.5,       // reduced from 2.0
+  cMG: 0.5,       // reduced makeup
 
-  cHT: -22,
-  cHR: 2,
-  cHG: 1,
+  cHT: -24,
+  cHR: 1.5,       // reduced from 2.0
+  cHG: 0.5,
 
-  cFT: -20,       // gentler full-band compression
-  cFR: 1.8,       // lower ratio for more dynamic range
+  cFT: -22,       // gentler full-band
+  cFR: 1.2,       // very low ratio — glue only
   cFG: 0.0,       // no makeup gain
 
-  inputTrim: -2,  // prevent clipping before chain
+  inputTrim: -2,
 
-  stW: 180,       // aggressive widening to fight mono collapse
-  stM: 25,        // mid widening
+  // STEREO - maximum preservation
+  stW: 200,       // maximum width
+  stM: 45,        // strong mid widening
 
+  // REVERB - keep light
   rvM: 2,
   rvD: 1.0,
 
-  satD: 3,
-  satM: 15,
+  // SATURATION - minimal, was collapsing side info
+  satD: 1,        // near zero
+  satM: 5,        // near zero
 
-  limC: -3.0,     // limiter ceiling stays strong
-  limD: 2,        // limiter drive stays gentle
-
-  outputTrim: -4  // LUFS was perfect — keep it
+  // LIMITER - gentle, preserve transients
+  limC: -3.0,
+  limD: 0,        // zero drive — critical change
+  
+  outputTrim: -4
 },
+
 
 
 
