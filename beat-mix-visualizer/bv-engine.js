@@ -655,15 +655,15 @@ const BV = window.BV = {
     hifi:      {eqSG:1,eqSF:70,eqLG:0.5,eqLF:300,eqHG:1,eqHF:3000,eqAG:2,eqAF:12000,cBT:-20,cBR:2.5,cBG:1,cMT:-22,cMR:2,cMG:1,cHT:-26,cHR:1.5,cHG:1,cFT:-14,cFR:2,cFG:2,inputTrim:0,stW:115,stM:5,rvM:5,rvD:1.8,satD:3,satM:15,limC:-0.3,limD:1,outputTrim:0},
     hearing:   {eqSG:0,eqSF:80,eqLG:2,eqLF:1000,eqHG:3,eqHF:3500,eqAG:1.5,eqAF:8000,cBT:-16,cBR:3,cBG:1,cMT:-16,cMR:2,cMG:2,cHT:-20,cHR:2,cHG:2,cFT:-10,cFR:3,cFG:2,inputTrim:-1,stW:120,stM:10,rvM:4,rvD:1.5,satD:4,satM:20,limC:-1,limD:0,outputTrim:0},
    sunoRepair: {
-  eqSG: -1.5,     // gentler low shelf cut
-  eqSF: 120,      // slightly higher shelf freq
-  eqLG: -1,       // mild low cut
+  eqSG: -2.0,     // slightly stronger low shelf cut
+  eqSF: 120,      // low shelf frequency
+  eqLG: -1.5,     // mild low cut
   eqLF: 180,      // high-pass non-bass elements
 
-  eqHG: 1.5,      // gentle high shelf boost
-  eqHF: 10000,    // sparkle but not harsh
+  eqHG: 1.5,      // gentle high shelf boost (kept stable)
+  eqHF: 10000,    // sparkle frequency
 
-  eqAG: 2.0,      // moderate mid boost
+  eqAG: 3.0,      // stronger mid boost (v1.1 was too low)
   eqAF: 1500,     // mid presence frequency
 
   cBT: -18,
@@ -672,20 +672,20 @@ const BV = window.BV = {
 
   cMT: -20,
   cMR: 2,
-  cMG: 0.5,       // tiny mid makeup
+  cMG: 0.5,
 
   cHT: -22,
   cHR: 2,
-  cHG: 1,         // gentle high makeup
+  cHG: 1,
 
-  cFT: -14,       // safer full-band compression
-  cFR: 2.5,
-  cFG: 1,
+  cFT: -18,       // gentler full-band compression
+  cFR: 2.0,       // lower ratio for more dynamic range
+  cFG: 0.5,       // less makeup gain
 
-  inputTrim: -2,  // prevent clipping BEFORE chain
+  inputTrim: -2,  // prevent clipping before chain
 
-  stW: 110,       // mild widening
-  stM: 5,         // avoid collapse
+  stW: 140,       // stronger widening to fix mono collapse
+  stM: 15,        // mid widening
 
   rvM: 2,
   rvD: 1.0,
@@ -693,11 +693,12 @@ const BV = window.BV = {
   satD: 3,
   satM: 15,
 
-  limC: -2.0,     // stronger limiter ceiling
-  limD: 4,        // more limiter drive
+  limC: -3.0,     // stronger limiter ceiling
+  limD: 2,        // gentler limiter drive
 
-  outputTrim: -1  // bring LUFS down to safe range
+  outputTrim: -4  // bring LUFS down to safe range (-14 to -16)
 },
+
 
 
   },
