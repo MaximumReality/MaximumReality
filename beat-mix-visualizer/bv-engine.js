@@ -701,6 +701,7 @@ const BV = window.BV = {
   limD: 0,        // zero drive — critical change
   
   outputTrim: -4
+   }
 },
 
 
