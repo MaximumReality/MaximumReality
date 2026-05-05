@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CODE DUNGEON</title>
+<style>
+/* ══════════ VARIABLES & RESET ══════════ */
+:root {
+  --green: #00ff88;
+  --green-dim: #00aa55;
+  --green-dark: #003322;
+  --cyan: #00e5ff;
+  --cyan-dim: #007a8a;
+  --red: #ff3333;
+  --red-dim: #880000;
+  --amber: #ffaa00;
+  --purple: #cc00ff;
+  --bg: #0a0e0a;
+  --bg2: #0d150d;
+  --bg3: #111911;
+  --border: #1a3a1a;
+  --border-bright: #00ff88;
+  --text: #00cc66;
+  --text-dim: #005533;
+  --text-bright: #00ff88;
+  --font: 'Courier New', 'Lucida Console', monospace;
+  --glow: 0 0 8px #00ff8888;
+  --glow-strong: 0 0 16px #00ff88cc, 0 0 32px #00ff8844;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 13px; line-height: 1.5; }
+
+/* ══════════ CRT EFFECTS ══════════ */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+  pointer-events: none; z-index: 9999;
+}
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none; z-index: 9998;
+}
+@keyframes flicker { 0%{opacity:1} 92%{opacity:1} 93%{opacity:0.8} 94%{opacity:1} 97%{opacity:0.9} 100%{opacity:1} }
+@keyframes scanline { from{transform:translateY(-100%)} to{transform:translateY(100vh)} }
+body { animation: flicker 8s infinite; }
+.scanline { position:fixed; top:0; left:0; right:0; height:40px; background:linear-gradient(transparent,rgba(0,255,136,0.05),transparent); animation:scanline 6s linear infinite; pointer-events:none; z-index:9997; }
+
+/* ══════════ TITLE SCREEN ══════════ */
+#title-screen { position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--bg); z-index:100; padding:20px; overflow-y:auto; }
+@keyframes pulse-glow { 0%,100%{text-shadow:var(--glow)} 50%{text-shadow:var(--glow-strong)} }
+.title-logo { font-size:clamp(8px,2.2vw,18px); color:var(--green); text-shadow:var(--glow-strong); text-align:center; white-space:pre; line-height:1.2; animation:pulse-glow 2s ease-in-out infinite; margin-bottom:16px; }
+.title-sub { font-size:10px; color:var(--green-dim); text-align:center; letter-spacing:3px; margin-bottom:6px; }
+#title-tagline { min-height:20px; color:var(--cyan); font-size:12px; text-align:center; margin-bottom:24px; font-style:italic; }
+.title-input-group { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; max-width:320px; }
+.title-label { color:var(--green-dim); font-size:11px; letter-spacing:2px; }
+#player-name-input { background:var(--bg2); border:1px solid var(--border-bright); color:var(--green); font-family:var(--font); font-size:14px; padding:8px 12px; width:100%; text-align:center; text-transform:uppercase; outline:none; box-shadow:var(--glow); }
+#player-name-input:focus { border-color:var(--cyan); box-shadow:0 0 12px var(--cyan-dim); }
+#start-btn { background:var(--green-dark); border:2px solid var(--green); color:var(--green); font-family:var(--font); font-size:16px; padding:12px 40px; cursor:pointer; letter-spacing:4px; text-transform:uppercase; transition:all 0.2s; box-shadow:var(--glow); }
+#start-btn:hover, #start-btn:active { background:var(--green); color:var(--bg); box-shadow:var(--glow-strong); }
+.title-warning { margin-top:20px; font-size:10px; color:var(--text-dim); text-align:center; max-width:300px; line-height:1.6; letter-spacing:1px; }
+
+/* ══════════ GAME LAYOUT ══════════ */
+#game-screen { display:none; flex-direction:row; width:100%; height:100vh; overflow:hidden; gap:2px; padding:4px; }
+#sidebar-left { width:190px; min-width:150px; display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+#game-main { flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; min-width:0; }
+#sidebar-right { width:190px; min-width:140px; display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+
+/* ══════════ PANELS ══════════ */
+.panel { background:var(--bg2); border:1px solid var(--border); padding:8px; overflow:hidden; position:relative; }
+.panel::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--green-dim),transparent); }
+.panel-title { font-size:9px; letter-spacing:3px; color:var(--green-dim); text-transform:uppercase; margin-bottom:6px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+
+/* ══════════ PLAYER STATS ══════════ */
+#player-name-display { color:var(--green); font-size:12px; text-shadow:var(--glow); margin-bottom:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.stat-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:3px; font-size:11px; }
+.stat-label { color:var(--text-dim); font-size:10px; letter-spacing:1px; }
+.stat-value { color:var(--green); font-size:11px; }
+.bar-container { width:100%; height:6px; background:var(--bg3); border:1px solid var(--border); margin-bottom:4px; overflow:hidden; }
+.bar-fill { height:100%; transition:width 0.3s, background 0.5s; }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:3px; margin-top:6px; font-size:10px; }
+.stat-cell { display:flex; justify-content:space-between; padding:2px 4px; background:var(--bg3); border:1px solid var(--border); }
+.stat-cell-label { color:var(--text-dim); }
+.stat-cell-val { color:var(--cyan); }
+
+/* ══════════ CORRUPTION ══════════ */
+.corruption-bar-outer { width:100%; height:10px; background:var(--bg3); border:1px solid var(--border); overflow:hidden; }
+#corruption-fill { height:100%; transition:width 0.5s, background 0.5s; background:var(--green); }
+.corruption-label-row { display:flex; justify-content:space-between; font-size:10px; margin-top:3px; color:var(--text-dim); }
+
+/* ══════════ MAP ══════════ */
+#dungeon-map { font-size:10px; line-height:1.8; overflow-y:auto; max-height:100px; }
+.map-floor { margin-bottom:2px; color:var(--text-dim); font-size:10px; }
+.map-room { display:inline-block; font-size:12px; margin:0 1px; opacity:0.3; }
+@keyframes pulse-room { 0%,100%{filter:drop-shadow(0 0 2px var(--green))} 50%{filter:drop-shadow(0 0 8px var(--green))} }
+.map-room.current { opacity:1; animation:pulse-room 1s ease-in-out infinite; }
+.map-room.cleared { opacity:0.5; }
+
+/* ══════════ INVENTORY ══════════ */
+#inventory-list { overflow-y:auto; max-height:180px; }
+.inv-item { display:flex; align-items:center; gap:4px; padding:3px 4px; margin-bottom:2px; background:var(--bg3); border:1px solid var(--border); cursor:pointer; font-size:10px; transition:border-color 0.2s; }
+.inv-item:hover, .inv-item:active { border-color:var(--green); background:var(--green-dark); }
+.inv-icon { font-size:12px; }
+.inv-name { flex:1; color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.inv-rarity { font-size:9px; font-weight:bold; }
+.empty-inv { color:var(--text-dim); font-size:10px; text-align:center; padding:8px; }
+
+/* ══════════ ROOM ══════════ */
+#room-ascii { color:var(--green); font-size:11px; text-shadow:var(--glow); white-space:pre; line-height:1.3; display:block; margin-bottom:6px; }
+#room-title { font-size:13px; color:var(--green); text-shadow:var(--glow-strong); letter-spacing:2px; margin-bottom:5px; text-transform:uppercase; }
+#room-description { font-size:11px; color:var(--text-dim); line-height:1.5; overflow-y:auto; max-height:70px; }
+.atmosphere { margin-top:4px; color:var(--cyan-dim); font-style:italic; font-size:10px; }
+
+/* ══════════ CHALLENGE ══════════ */
+#challenge-panel { flex:1; overflow-y:auto; }
+.puzzle-display { display:flex; flex-direction:column; gap:6px; }
+.puzzle-type-badge { font-size:9px; color:var(--amber); letter-spacing:2px; }
+.puzzle-title { font-size:12px; color:var(--green); text-shadow:var(--glow); text-transform:uppercase; letter-spacing:1px; }
+.puzzle-desc { font-size:11px; color:var(--text-dim); }
+.puzzle-challenge { background:var(--bg3); border:1px solid var(--border); border-left:3px solid var(--cyan); padding:8px; font-size:11px; color:var(--cyan); white-space:pre-wrap; line-height:1.5; }
+.puzzle-input { background:var(--bg2); border:1px solid var(--green); color:var(--green); font-family:var(--font); font-size:13px; padding:6px 10px; width:100%; outline:none; caret-color:var(--green); box-shadow:var(--glow); margin-top:4px; }
+.puzzle-input:focus { border-color:var(--cyan); }
+
+/* ══════════ COMBAT ══════════ */
+.combat-display { text-align:center; }
+@keyframes enemy-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+.enemy-ascii { color:var(--red); text-shadow:0 0 8px #ff3333aa; font-size:11px; white-space:pre; display:inline-block; margin-bottom:6px; animation:enemy-float 3s ease-in-out infinite; }
+.enemy-name { font-size:14px; color:var(--red); text-shadow:0 0 12px #ff333388; text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; }
+.hp-bar-outer { width:100%; height:8px; background:var(--bg3); border:1px solid var(--border); overflow:hidden; }
+.enemy-hp-fill { height:100%; background:var(--red); transition:width 0.4s; }
+.hp-label { font-size:10px; color:var(--text-dim); text-align:left; margin-bottom:2px; }
+.enemy-weakness { font-size:10px; color:var(--amber); margin-top:6px; letter-spacing:1px; }
+.trap-display, .void-display { color:var(--text-dim); font-size:11px; line-height:1.6; }
+.trap-ascii { color:var(--amber); font-size:11px; white-space:pre; margin-bottom:8px; }
+.flavor-text { color:var(--green-dim); font-style:italic; font-size:10px; margin-top:8px; }
+
+/* ══════════ TREASURE ══════════ */
+.treasure-display { display:flex; flex-direction:column; gap:6px; }
+.treasure-header { font-size:13px; color:var(--amber); text-shadow:0 0 8px var(--amber); text-align:center; letter-spacing:2px; }
+.loot-item { display:grid; grid-template-columns:24px 1fr auto; grid-template-rows:auto auto; gap:2px 6px; padding:6px; background:var(--bg3); border:1px solid var(--amber); font-size:11px; }
+.loot-icon { grid-row:1/3; font-size:16px; display:flex; align-items:center; }
+.loot-name { color:var(--text-bright); font-size:12px; }
+.loot-rarity { font-size:10px; font-weight:bold; }
+.loot-desc { grid-column:2/4; color:var(--text-dim); font-size:10px; }
+.gold-found { color:var(--amber); text-align:center; font-size:12px; padding:4px; }
+.success-banner { font-size:18px; color:var(--green); text-shadow:var(--glow-strong); text-align:center; padding:16px; animation:pulse-glow 1s ease-in-out infinite; }
+
+/* ══════════ BUTTONS ══════════ */
+#actions-panel { flex:0 0 auto; }
+.combat-actions, .puzzle-actions, .trap-actions, .loot-actions { display:flex; flex-wrap:wrap; gap:5px; }
+.btn { background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:var(--font); font-size:11px; padding:7px 10px; cursor:pointer; letter-spacing:1px; transition:all 0.15s; text-transform:uppercase; }
+.btn:hover, .btn:active { border-color:var(--green); color:var(--green); box-shadow:var(--glow); }
+.btn-attack { border-color:var(--red); color:var(--red); }
+.btn-attack:hover, .btn-attack:active { background:var(--red-dim); box-shadow:0 0 8px var(--red); }
+.btn-ability { border-color:var(--purple); color:var(--purple); }
+.btn-ability:hover, .btn-ability:active { background:#220033; box-shadow:0 0 8px var(--purple); }
+.btn-submit { border-color:var(--green); color:var(--green); }
+.btn-submit:hover, .btn-submit:active { background:var(--green-dark); }
+.btn-hint { border-color:var(--amber); color:var(--amber); }
+.btn-hint:hover, .btn-hint:active { background:#221100; }
+@keyframes btn-pulse { 0%,100%{box-shadow:var(--glow)} 50%{box-shadow:var(--glow-strong)} }
+.btn-continue { border-color:var(--cyan); color:var(--cyan); width:100%; font-size:13px; padding:10px; animation:btn-pulse 2s ease-in-out infinite; }
+.btn-continue:hover, .btn-continue:active { background:var(--cyan-dim); color:#fff; }
+.btn-action { border-color:var(--amber); color:var(--amber); }
+.combat-hint { width:100%; font-size:9px; color:var(--text-dim); margin-top:4px; letter-spacing:1px; }
+
+/* ══════════ LOG ══════════ */
+#log-panel { flex:1; overflow:hidden; }
+#log-console { overflow-y:auto; height:100%; font-size:10px; line-height:1.6; scroll-behavior:smooth; }
+#log-console::-webkit-scrollbar { width:3px; }
+#log-console::-webkit-scrollbar-thumb { background:var(--green-dim); }
+.log-entry { margin-bottom:2px; word-break:break-word; }
+.log-info    { color:var(--text-dim); }
+.log-system  { color:var(--green-dim); letter-spacing:1px; }
+.log-room    { color:var(--green); font-weight:bold; }
+.log-combat  { color:var(--red); }
+.log-enemy   { color:#ff6666; }
+.log-success { color:var(--green); text-shadow:var(--glow); }
+.log-fail    { color:var(--red); }
+.log-warning { color:var(--amber); }
+.log-loot    { color:var(--amber); }
+.log-xp      { color:var(--cyan); }
+.log-ability { color:var(--purple); }
+.log-hint    { color:var(--amber); font-style:italic; }
+.log-flavor  { color:var(--text-dim); font-style:italic; }
+.log-glitch  { color:var(--red); letter-spacing:2px; }
+.log-action  { color:var(--cyan); }
+
+/* ══════════ RARITY ══════════ */
+.rarity-common   { color:var(--text-dim); }
+.rarity-uncommon { color:var(--green); }
+.rarity-rare     { color:var(--cyan); }
+.rarity-epic     { color:var(--purple); }
+
+/* ══════════ END SCREENS ══════════ */
+.end-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; width:100%; height:100%; padding:20px; text-align:center; overflow-y:auto; }
+.end-ascii { font-size:clamp(7px,1.8vw,12px); white-space:pre; line-height:1.2; }
+.victory-text { color:var(--green); text-shadow:var(--glow-strong); font-size:13px; letter-spacing:2px; }
+.death-text   { color:var(--red); text-shadow:0 0 16px var(--red); font-size:13px; letter-spacing:2px; }
+.end-stats { font-size:11px; color:var(--text-dim); line-height:1.8; border:1px solid var(--border); padding:12px 20px; }
+.btn-restart { font-size:16px; padding:12px 40px; border-color:var(--green); color:var(--green); letter-spacing:3px; }
+
+/* ══════════ GLITCH ══════════ */
+@keyframes glitch-shift { 0%{transform:translate(0)} 20%{transform:translate(-3px,1px)} 40%{transform:translate(3px,-1px)} 60%{transform:translate(-2px,2px)} 80%{transform:translate(2px,-2px)} 100%{transform:translate(0)} }
+@keyframes flash-red { 0%{background:transparent} 50%{background:#ff000033} 100%{background:transparent} }
+.glitch-severe #game-main { animation:glitch-shift 0.4s ease; }
+.flash-damage { animation:flash-red 0.3s ease; }
+
+/* ══════════ MOBILE ══════════ */
+@media (max-width: 768px) {
+  html, body { overflow:auto; }
+  #game-screen { flex-direction:column; height:auto; min-height:100vh; overflow:auto; }
+  #sidebar-left, #sidebar-right { width:100%; min-width:unset; flex-direction:row; flex-wrap:wrap; gap:4px; }
+  #sidebar-left .panel, #sidebar-right .panel { flex:1; min-width:140px; }
+  #game-main { overflow:visible; }
+  #room-description { max-height:none; }
+  #log-console { max-height:180px; }
+  .btn { font-size:14px; padding:10px 12px; }
+  .stats-grid { grid-template-columns:1fr 1fr 1fr; }
+}
+@media (max-width:480px) {
+  #sidebar-left, #sidebar-right { flex-direction:column; }
+  #sidebar-left .panel, #sidebar-right .panel { min-width:unset; }
+  .title-logo { font-size:8px; }
+}
+
+::-webkit-scrollbar { width:4px; height:4px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--green-dim); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<!-- TITLE SCREEN -->
+<div id="title-screen">
+  <pre class="title-logo">
+ ██████╗ ██████╗ ██████╗ ███████╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝
+██║     ██║   ██║██║  ██║█████╗
+██║     ██║   ██║██║  ██║██╔══╝
+╚██████╗╚██████╔╝██████╔╝███████╗
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+██████╗ ██╗   ██╗███╗  ██╗ ██████╗ ███████╗ ██████╗ ███╗  ██╗
+██╔══██╗██║   ██║████╗ ██║██╔════╝ ██╔════╝██╔═══██╗████╗ ██║
+██║  ██║██║   ██║██╔██╗██║██║ ███╗ █████╗  ██║   ██║██╔██╗██║
+██║  ██║██║   ██║██║╚████║██║  ██║ ██╔══╝  ██║   ██║██║╚████║
+██████╔╝╚██████╔╝██║ ╚███║╚██████╔╝███████╗╚██████╔╝██║ ╚███║
+╚═════╝  ╚═════╝ ╚═╝  ╚══╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚══╝</pre>
+  <div class="title-sub">v1.0 // SINGLE FILE BUILD // 100% OFFLINE</div>
+  <div id="title-tagline">█</div>
+  <div class="title-input-group">
+    <div class="title-label">ENTER DEBUGGER DESIGNATION:</div>
+    <input type="text" id="player-name-input" maxlength="16" placeholder="VOID_WALKER" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="start-btn">▶ ENTER DUNGEON</button>
+  </div>
+  <div class="title-warning">
+    ⚠ Every room is a bug. Every bug is a boss.<br>
+    Debug or die. // No network required. //
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen">
+  <!-- LEFT SIDEBAR -->
+  <div id="sidebar-left">
+    <div class="panel" id="player-panel">
+      <div class="panel-title">// PLAYER.SYS</div>
+      <div id="player-name-display">VOID_WALKER</div>
+      <div class="stat-row"><span class="stat-label">HP</span><span class="stat-value" id="stat-hp">80/80</span></div>
+      <div class="bar-container"><div class="bar-fill" id="player-hp-bar" style="width:100%;background:#00ff88"></div></div>
+      <div class="stat-row"><span class="stat-label">MANA</span><span class="stat-value" id="stat-mana">40/40</span></div>
+      <div class="bar-container"><div class="bar-fill" id="player-mana-bar" style="width:100%;background:#00e5ff"></div></div>
+      <div class="stats-grid">
+        <div class="stat-cell"><span class="stat-cell-label">LVL</span><span class="stat-cell-val" id="stat-level">1</span></div>
+        <div class="stat-cell"><span class="stat-cell-label">XP</span><span class="stat-cell-val" id="stat-xp">0/100</span></div>
+        <div class="stat-cell"><span class="stat-cell-label">LGC</span><span class="stat-cell-val" id="stat-logic">5</span></div>
+        <div class="stat-cell"><span class="stat-cell-label">DBG</span><span class="stat-cell-val" id="stat-debug">5</span></div>
+        <div class="stat-cell"><span class="stat-cell-label">LCK</span><span class="stat-cell-val" id="stat-luck">5</span></div>
+        <div class="stat-cell"><span class="stat-cell-label">GOLD</span><span class="stat-cell-val" id="stat-gold">10</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">// CORRUPTION.EXE</div>
+      <div class="corruption-bar-outer"><div id="corruption-fill" style="width:0%"></div></div>
+      <div class="corruption-label-row"><span>CORRUPT</span><span id="corruption-label">0%</span></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">// DUNGEON.MAP</div>
+      <div id="dungeon-map"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="game-main">
+    <div class="panel" id="room-panel">
+      <div class="panel-title">// CURRENT_ROOM.LOG</div>
+      <pre id="room-ascii"></pre>
+      <div id="room-title">INITIALIZING...</div>
+      <div id="room-description"></div>
+    </div>
+    <div class="panel" id="challenge-panel">
+      <div class="panel-title">// CHALLENGE.ACTIVE</div>
+      <div id="challenge-area"><div style="color:var(--text-dim);font-size:11px">Loading room data...</div></div>
+    </div>
+    <div class="panel" id="actions-panel">
+      <div class="panel-title">// ACTIONS.INPUT</div>
+      <div id="action-buttons"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div id="sidebar-right">
+    <div class="panel">
+      <div class="panel-title">// INVENTORY[0-9]</div>
+      <div id="inventory-list"><div class="empty-inv">-- EMPTY --</div></div>
+    </div>
+    <div class="panel" id="log-panel">
+      <div class="panel-title">// SYSTEM.LOG</div>
+      <div id="log-console"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA: ITEMS
+// ═══════════════════════════════════════
+var ITEMS = [
+  { id:"debug_wand", name:"Debug Wand", type:"tool", rarity:"common", description:"Adds +2 to Debug checks.", effect:{stat:"debug",value:2,type:"passive"}, icon:"🪄", flavor:"Smells faintly of segfaults." },
+  { id:"hp_potion", name:"Restore Packet", type:"consumable", rarity:"common", description:"Restores 20 HP.", effect:{stat:"hp",value:20,type:"use"}, icon:"💊", flavor:"One gulp and your stack trace clears." },
+  { id:"mana_crystal", name:"Mana Crystal", type:"consumable", rarity:"uncommon", description:"Restores 15 Mana.", effect:{stat:"mana",value:15,type:"use"}, icon:"💎", flavor:"Crystallized recursion." },
+  { id:"logic_tome", name:"Logic Tome", type:"scroll", rarity:"uncommon", description:"Passively grants +3 Logic.", effect:{stat:"logic",value:3,type:"passive"}, icon:"📖", flavor:"Chapter 1: If this, then that. The rest is corrupted." },
+  { id:"lucky_semicolon", name:"Lucky Semicolon", type:"trinket", rarity:"rare", description:"Grants +5 Luck.", effect:{stat:"luck",value:5,type:"passive"}, icon:";", flavor:"The team never found out what it fixed." },
+  { id:"null_shield", name:"Null Shield", type:"armor", rarity:"uncommon", description:"Blocks the next attack.", effect:{stat:"hp",value:0,type:"block",uses:1}, icon:"🛡", flavor:"Null is not an error. Null is a life choice." },
+  { id:"refactor_scroll", name:"Refactor Scroll", type:"scroll", rarity:"rare", description:"Reroll the current puzzle.", effect:{type:"reroll",uses:1}, icon:"📜", flavor:"Sometimes the best fix is starting over." },
+  { id:"corruption_cleanser", name:"Corruption Cleanser", type:"consumable", rarity:"rare", description:"Reduces corruption by 25%.", effect:{stat:"corruption",value:-25,type:"use"}, icon:"🧪", flavor:"From the lost sanitization labs of Floor 9." },
+  { id:"entropy_shard", name:"Entropy Shard", type:"weapon", rarity:"epic", description:"Deals 25 damage to any enemy.", effect:{stat:"enemy_hp",value:-25,type:"combat_use"}, icon:"⚡", flavor:"The universe tends toward disorder. So do you." }
+];
+function getItem(id){ return ITEMS.find(function(i){return i.id===id;})||null; }
+function getRandomLoot(count,floor){
+  var pool=[];
+  ITEMS.forEach(function(item){
+    var w=item.rarity==="common"?5:item.rarity==="uncommon"?3:item.rarity==="rare"?2:1;
+    for(var i=0;i<w;i++) pool.push(item.id);
+  });
+  var loot=[];
+  for(var i=0;i<(count||1);i++){
+    var id=pool[Math.floor(Math.random()*pool.length)];
+    if(!loot.includes(id)) loot.push(id);
+  }
+  return loot.map(getItem).filter(Boolean);
+}
+
+// ═══════════════════════════════════════
+// DATA: ENEMIES
+// ═══════════════════════════════════════
+var ENEMIES = [
+  { id:"null_wraith", name:"Null Wraith",
+    ascii:["  ░▒▓ NULL ▓▒░  ","   (  ∅  ∅  )   ","    \\ ~~~~ /    ","     |NULL|     ","    /|    |\\   "],
+    description:"A spectral entity made of undefined variables.", hp:30,maxHp:30,attack:8,weakness:"debug",behavior:"aggressive",
+    lore:"Born where a developer forgot to initialize a variable. It has been searching for its value ever since.",
+    attackMessages:["The Null Wraith phases through for {dmg} damage!","A cold undefined value washes over you. {dmg} damage.","'undefined is not a function' — {dmg} damage."],
+    weaknessMultiplier:1.8, xpReward:25, goldReward:[5,15] },
+  { id:"segfault_serpent", name:"Segfault Serpent",
+    ascii:["  ~SEG~ FAULT~  ","  >===========>","/ SEGMENTATION \\","|  VIOLATION   |","  >===========>"],
+    description:"A massive serpent that crashes everything it touches.", hp:45,maxHp:45,attack:12,weakness:"logic",behavior:"defensive",
+    lore:"It slithers through protected memory, leaving core dumps in its wake.",
+    attackMessages:["The Serpent strikes protected memory! {dmg} damage!","Core dumped! {dmg} damage.","Segmentation fault — {dmg} damage."],
+    weaknessMultiplier:2.0, xpReward:40, goldReward:[10,25] },
+  { id:"infinite_loop_mimic", name:"Infinite Loop Mimic",
+    ascii:["┌─ WHILE TRUE ─┐","│  while(true) │","│   { mimic(); │","│  } // never  │","└──────────────┘"],
+    description:"It looks like a chest. Then like you. Then it loops.", hp:25,maxHp:25,attack:6,weakness:"luck",behavior:"tricky",
+    lore:"Trapped in its own logic. Every iteration it grows more confused.",
+    attackMessages:["The Mimic loops its attack — {dmg} damage twice!","You fight yourself. {dmg} confusion damage.","The Mimic copies your move — {dmg} damage."],
+    weaknessMultiplier:2.2, xpReward:30, goldReward:[8,20] },
+  { id:"regex_horror", name:"Regex Horror",
+    ascii:[" /^[HORROR]+$/gi","  (?>MATCH ME)  ","  (?:OR|DIE).*? "," [^\\w]\\s{2,}\\d+"," \\.exec(PAIN)  "],
+    description:"A pattern that matches all of your weaknesses. Looking at it causes madness.", hp:55,maxHp:55,attack:15,weakness:"debug",behavior:"pattern",
+    lore:"Someone wrote a regex to validate email. This is what escaped.",
+    attackMessages:["The Horror finds your pattern. {dmg} damage!","Catastrophic backtracking! {dmg} damage.","It matches your soul for {dmg} existential damage."],
+    weaknessMultiplier:1.6, xpReward:55, goldReward:[15,30] },
+  { id:"gc_golem", name:"Garbage Collector Golem",
+    ascii:["  [GC] RUNNING  "," ██ COLLECTING ██"," ██  ████████  ██"," ██ ██GOLEM██  ██"," ████████████████"],
+    description:"A construct that wants to collect YOU. It thinks you are unreachable memory.", hp:70,maxHp:70,attack:18,weakness:"mana",behavior:"tank",
+    lore:"The dungeon janitor. Running for 47 years. Very tired.",
+    attackMessages:["The Golem marks you as garbage — {dmg} damage.","SWEEP PHASE: {dmg} crushing damage.","You are swept from the heap for {dmg} damage."],
+    weaknessMultiplier:1.5, xpReward:70, goldReward:[20,40] }
+];
+var BOSS = { id:"the_compiler", name:"THE COMPILER",
+  ascii:["╔══════════════════╗","║  T H E          ║","║  C O M P I L E R║","║  [ERROR: 999]   ║","╚══════════════════╝"],
+  description:"The dungeon's architect. Speaks only in error messages. Has never once said 'good job.'",
+  hp:150,maxHp:150,attack:25,weakness:"logic",behavior:"boss",
+  lore:"It built this dungeon to test developers for eternity. No one has ever satisfied its requirements.",
+  attackMessages:["ERROR {dmg}: Unexpected token <PAIN>.","WARNING: {dmg} damage — implicit conversion from developer to victim.","FATAL: {dmg} unhandled exception in your soul."],
+  weaknessMultiplier:2.5, xpReward:250, goldReward:[50,100]
+};
+function getEnemy(id){ return ENEMIES.find(function(e){return e.id===id;})||null; }
+function getRandomEnemy(floor){ var pool=ENEMIES.slice(0,Math.min(ENEMIES.length,2+(floor||0))); return JSON.parse(JSON.stringify(pool[Math.floor(Math.random()*pool.length)])); }
+function getBoss(){ return JSON.parse(JSON.stringify(BOSS)); }
+
+// ═══════════════════════════════════════
+// DATA: PUZZLES
+// ═══════════════════════════════════════
+var PUZZLES = [
+  { id:"logic_001", type:"logic", title:"The Boolean Gate",
+    description:"Three switches control a locked door.",
+    challenge:"What must C be for (A AND NOT B) OR C to be TRUE,\nwhen A=TRUE and B=FALSE?\n\nType: TRUE or FALSE",
+    hint:"The first part (A AND NOT B) already evaluates to TRUE.", answers:["true","TRUE","True","either","anything"],
+    correctAnswer:"TRUE", explanation:"(TRUE AND TRUE) OR anything = TRUE. C can be anything — TRUE works!",
+    xpReward:30, successMsg:"The gate clicks open. Logic prevails.", failMsg:"Wrong combination. The door shocks you." },
+  { id:"logic_002", type:"logic", title:"The Ternary Trap",
+    description:"A trapped floor tile activates based on a ternary expression.",
+    challenge:"x = 5\nresult = x > 3 ? 'SAFE' : 'DANGER'\n\nWhat is result? Type: SAFE or DANGER",
+    hint:"Is 5 greater than 3?", answers:["safe","SAFE","Safe"],
+    correctAnswer:"SAFE", explanation:"5 > 3 is true, so ternary returns 'SAFE'.",
+    xpReward:20, successMsg:"You cross the safe tile. Ternary wisdom.", failMsg:"The trap fires anyway." },
+  { id:"logic_003", type:"logic", title:"The AND/OR Labyrinth",
+    description:"Four paths. Only one is open.",
+    challenge:"PATH A: (false OR false)\nPATH B: (true AND false)\nPATH C: (false OR true)\nPATH D: (true AND NOT true)\n\nWhich path is open? Type: A, B, C, or D",
+    hint:"OR needs one true. AND needs both true.", answers:["c","C"],
+    correctAnswer:"C", explanation:"A=false, B=false, C=true, D=false. Only C is open.",
+    xpReward:35, successMsg:"Path C! You stride through.", failMsg:"Wrong path. The walls close briefly." },
+  { id:"pattern_001", type:"pattern", title:"The Fibonacci Vault",
+    description:"The vault opens when you continue the sequence.",
+    challenge:"1, 1, 2, 3, 5, 8, 13, 21, ???\n\nWhat is the next number?",
+    hint:"Each number is the sum of the two before it.", answers:["34"],
+    correctAnswer:"34", explanation:"21 + 13 = 34. The Fibonacci sequence.",
+    xpReward:25, successMsg:"34. The vault clicks open.", failMsg:"Incorrect. The vault hisses." },
+  { id:"pattern_002", type:"pattern", title:"Binary Cipher Lock",
+    description:"A rusted lock displays binary. Decode it.",
+    challenge:"Convert to decimal:\n  01001010\n\nWhat is the decimal value?",
+    hint:"Positions: 128,64,32,16,8,4,2,1 — add those with a 1.", answers:["74"],
+    correctAnswer:"74", explanation:"0+64+0+0+8+0+2+0 = 74.",
+    xpReward:30, successMsg:"74. The lock beeps and unlatches.", failMsg:"Access denied. The lock shocks you." },
+  { id:"pattern_003", type:"pattern", title:"The Hex Inscription",
+    description:"Ancient runes written in hexadecimal.",
+    challenge:"What decimal number does 0xFF represent?\n(F = 15 in hex)\n\nType the number:",
+    hint:"FF = (15 × 16) + (15 × 1)", answers:["255"],
+    correctAnswer:"255", explanation:"0xFF = 255. Maximum byte value.",
+    xpReward:30, successMsg:"255. The inscription glows and fades.", failMsg:"Wrong. The rune burns your eyes." },
+  { id:"code_001", type:"code_fill", title:"The Missing Return",
+    description:"A function-shaped golem blocks the path. It's broken.",
+    challenge:"What single keyword fills the blank?\n\nfunction add(a, b) {\n  _____ a + b;\n}\n\nType the missing keyword:",
+    hint:"The function needs to send a value back to the caller.", answers:["return","RETURN","Return"],
+    correctAnswer:"return", explanation:"'return' sends the value back. The golem steps aside.",
+    xpReward:20, successMsg:"return! The golem dissolves into syntax dust.", failMsg:"The golem shakes its head. Undefined." },
+  { id:"code_002", type:"code_fill", title:"The Array Anomaly",
+    description:"A locked panel requires array knowledge.",
+    challenge:"What does this output?\n\narr = ['A', 'B', 'C', 'D']\nconsole.log(arr[2])\n\nType the single letter output:",
+    hint:"Arrays are zero-indexed. First element is at position 0.", answers:["c","C"],
+    correctAnswer:"C", explanation:"arr[0]='A', arr[1]='B', arr[2]='C'. Zero-indexing.",
+    xpReward:20, successMsg:"C! The panel slides open.", failMsg:"Off by one, as always." },
+  { id:"code_003", type:"code_fill", title:"The Loop Seal",
+    description:"Find the output to break this seal.",
+    challenge:"What is the FINAL value of x?\n\nx = 0\nfor i in range(5):\n    x += i\n\nType the number:",
+    hint:"range(5) = 0,1,2,3,4. Add them all.", answers:["10"],
+    correctAnswer:"10", explanation:"0+1+2+3+4 = 10. The seal shatters.",
+    xpReward:25, successMsg:"10. The seal breaks apart.", failMsg:"Miscounted. Your mana drains." },
+  { id:"debug_001", type:"debug_output", title:"The Corrupted Console",
+    description:"What SHOULD this print?",
+    challenge:"x = 10\ny = 0\nif x > y:\n  print('GREATER')\nelse:\n  print('LESSER')\n\nWhat prints? Type: GREATER or LESSER",
+    hint:"Is 10 greater than 0?", answers:["greater","GREATER","Greater"],
+    correctAnswer:"GREATER", explanation:"10 > 0 is true. GREATER is printed.",
+    xpReward:20, successMsg:"GREATER. The terminal stabilizes.", failMsg:"The corruption spreads." },
+  { id:"debug_002", type:"debug_output", title:"The Scope Specter",
+    description:"Find the value to banish this ghost.",
+    challenge:"What is the final value of result?\n\nfunction mystery(n) {\n  if (n <= 1) return 1;\n  return n * mystery(n - 1);\n}\nresult = mystery(4)\n\nType the number:",
+    hint:"This is a recursive factorial. 4! = ?", answers:["24"],
+    correctAnswer:"24", explanation:"mystery(4) = 4×3×2×1 = 24. The specter dissipates.",
+    xpReward:35, successMsg:"24! The specter vanishes in a puff of call stack.", failMsg:"Incorrect. The specter laughs and drains your HP." },
+  { id:"riddle_001", type:"riddle", title:"The Sphinx of Stack Overflow",
+    description:"An ancient sphinx blocks the staircase.",
+    challenge:"I have no body but I hold your place.\nI grow until I overflow.\nI am called when you call,\ndismissed when you return.\n\nWhat am I? (one word)",
+    hint:"I live in memory and track your function calls.", answers:["stack","the stack","call stack","stack frame","callstack"],
+    correctAnswer:"stack", explanation:"The Call Stack. The sphinx crumbles into dust.",
+    xpReward:40, successMsg:"Stack. The sphinx bows and steps aside.", failMsg:"The sphinx roars. Deprecation breath hits you." },
+  { id:"riddle_002", type:"riddle", title:"The Null Oracle",
+    description:"A blinking cursor in the darkness asks a question.",
+    challenge:"I am the absence of a value,\nbut I am not zero.\nNot false. Not empty.\nI am the void that was promised.\n\nWhat am I? (one word)",
+    hint:"typeof me === 'object' — which confused developers for decades.", answers:["null","Null","NULL"],
+    correctAnswer:"null", explanation:"null — intentional absence of any object value.",
+    xpReward:35, successMsg:"null. The oracle blinks once. 'You understand the void.'", failMsg:"Wrong. The oracle returns undefined and your HP drops." },
+  { id:"riddle_003", type:"riddle", title:"The Recursion Monk",
+    description:"A robed figure at the bottom of infinite stairs.",
+    challenge:"To understand me,\nyou must first understand me.\nI am the solution that contains itself.\nI am the function that calls its own name.\n\nWhat am I? (one word)",
+    hint:"The stairs behind you go down... and down...", answers:["recursion","recursive","a recursive function"],
+    correctAnswer:"recursion", explanation:"Recursion. 'To understand recursion, you must first understand recursion.'",
+    xpReward:40, successMsg:"Recursion! The monk laughs. The stairs collapse into a base case.", failMsg:"The monk sighs. The stairs extend deeper." }
+];
+function getPuzzle(id){ return PUZZLES.find(function(p){return p.id===id;})||null; }
+function getRandomPuzzle(exclude){
+  var ex=exclude||[];
+  var available=PUZZLES.filter(function(p){return !ex.includes(p.id);});
+  if(!available.length) available=PUZZLES;
+  return available[Math.floor(Math.random()*available.length)];
+}
+function checkAnswer(puzzle,input){
+  var clean=input.trim().toLowerCase();
+  return puzzle.answers.some(function(a){return a.toLowerCase()===clean;});
+}
+
+// ═══════════════════════════════════════
+// DATA: ROOMS
+// ═══════════════════════════════════════
+var ROOM_TYPES = { BUG_PIT:"BUG_PIT", LOGIC_LOCK:"LOGIC_LOCK", SYNTAX_BEAST:"SYNTAX_BEAST", MEMORY_LEAK:"MEMORY_LEAK", TREASURE:"TREASURE", BOSS:"BOSS", VOID_CORRIDOR:"VOID_CORRIDOR", TRAP:"TRAP" };
+
+var ROOM_TEMPLATES = [
+  { id:"bugpit_001", type:"BUG_PIT", title:"The Bug Pit",
+    ascii:["▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓","▓  ≈≈ BUG PIT ≈≈  ▓","▓  bugs crawl out  ▓","▓  of broken code  ▓","▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓"],
+    description:"The floor squelches underfoot. Digital centipedes made of malformed bytecode skitter across the walls. A broken function pulses at the center, leaking corrupted data.",
+    atmosphere:"The smell of stale coffee and unhandled exceptions.",
+    challengeType:"puzzle", puzzlePool:["code_001","code_002","debug_001"], xpBase:25, penaltyHp:15, penaltyCorruption:10 },
+  { id:"bugpit_002", type:"BUG_PIT", title:"Deprecated Hell",
+    ascii:["╔══════════════════╗","║ ⚠ DEPRECATED ⚠  ║","║  this function   ║","║  will be removed ║","╚══════════════════╝"],
+    description:"Warning messages line every wall. This room was supposed to be deleted in v3.0. It was not. A pile of deprecated code writhes in the corner, still executing, still hurting.",
+    atmosphere:"Everything here feels obsolete. Including, briefly, you.",
+    challengeType:"puzzle", puzzlePool:["debug_001","debug_002","code_001"], xpBase:30, penaltyHp:12, penaltyCorruption:15 },
+  { id:"logiclock_001", type:"LOGIC_LOCK", title:"Logic Lock Chamber",
+    ascii:["┌─────────────────┐","│ [?] LOGIC LOCK  │","│ TRUE  AND  FALSE│","│  === ? === ?    │","└─────────────────┘"],
+    description:"Floating boolean gates pulse red and green. A massive door won't budge until you resolve the logical deadlock.",
+    atmosphere:"Binary decisions hang in the air like fog.",
+    challengeType:"puzzle", puzzlePool:["logic_001","logic_002","logic_003"], xpBase:35, penaltyHp:10, penaltyCorruption:15 },
+  { id:"logiclock_002", type:"LOGIC_LOCK", title:"The Pattern Vault",
+    ascii:["▐███████████████▌","▐ 0 1 1 0 1 0 ?  ▌","▐ PATTERN VAULT  ▌","▐  :: SOLVE ::   ▌","▐███████████████▌"],
+    description:"The vault hums with mathematical precision. Number sequences and binary patterns float in holographic display. One wrong guess and the sequence resets — with you inside.",
+    atmosphere:"You feel the math judging you.",
+    challengeType:"puzzle", puzzlePool:["pattern_001","pattern_002","pattern_003"], xpBase:40, penaltyHp:8, penaltyCorruption:12 },
+  { id:"syntaxbeast_001", type:"SYNTAX_BEAST", title:"Null Wraith Ambush",
+    ascii:["░░░░░░░░░░░░░░░░░░","░  NULL  WRAITH  ░","░   rises from   ░","░  the void...   ░","░░░░░░░░░░░░░░░░░░"],
+    description:"The walls fade to grey. A shape that isn't quite there materializes from undefined space. It has no form. No type. No value. Only hunger.",
+    atmosphere:"The temperature drops to absolute null.",
+    challengeType:"combat", enemyId:"null_wraith", xpBase:25 },
+  { id:"syntaxbeast_002", type:"SYNTAX_BEAST", title:"Segfault Serpent Den",
+    ascii:["~~~~~~~~~~~~~~~~~~~~~","~ SEGMENTATION FAULT~","~ Core Dump: Active ~","~ Memory: VIOLATED  ~","~~~~~~~~~~~~~~~~~~~~~"],
+    description:"Scales of forbidden memory addresses. Eyes like core dumps. The Segfault Serpent uncoils from a heap of crashed processes.",
+    atmosphere:"Protected memory screams as the Serpent passes.",
+    challengeType:"combat", enemyId:"segfault_serpent", xpBase:40 },
+  { id:"syntaxbeast_003", type:"SYNTAX_BEAST", title:"Infinite Loop Encounter",
+    ascii:["┌ while(true) { ──┐","│   fight();      │","│   fight();      │","│   fight();      │","└───────────────> ┘"],
+    description:"A chest. It blinks at you. Then it has your face. Then it blinks again. The Infinite Loop Mimic is caught between iterations.",
+    atmosphere:"Deja vu. Deja vu. Deja vu.",
+    challengeType:"combat", enemyId:"infinite_loop_mimic", xpBase:30 },
+  { id:"memoryleak_001", type:"MEMORY_LEAK", title:"Memory Leak Swamp",
+    ascii:["≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋","≋  HEAP OVERFLOW   ≋","≋  memory drains   ≋","≋  your stats...   ≋","≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋≋"],
+    description:"A murky swamp of allocated but never freed memory. Objects float past — bloated, referenced by nothing, consuming everything.",
+    atmosphere:"You feel your stats being consumed as you wade through.",
+    challengeType:"riddle", puzzlePool:["riddle_001","riddle_002","riddle_003"],
+    passiveDrain:{stat:"mana",amount:5,message:"The swamp drains 5 Mana as you enter."},
+    xpBase:20, penaltyHp:10, penaltyCorruption:20 },
+  { id:"memoryleak_002", type:"MEMORY_LEAK", title:"The Recursion Depths",
+    ascii:["  f(n) calls f(n-1)","  f(n-1) calls f(n-2)","  f(n-2) calls f(n-3)","  f(n-3) calls f(n-4)","  [STACK OVERFLOW]"],
+    description:"Infinite stairs. A robed figure at the bottom says something about understanding recursion. The stairs go down as fast as you descend.",
+    atmosphere:"To understand this room, you must first enter this room.",
+    challengeType:"riddle", puzzlePool:["riddle_003","riddle_001"],
+    passiveDrain:{stat:"hp",amount:8,message:"Each recursive step costs 8 HP. Move quickly."},
+    xpBase:45, penaltyHp:20, penaltyCorruption:15 },
+  { id:"treasure_001", type:"TREASURE", title:"Treasure Cache",
+    ascii:["★★★★★★★★★★★★★★★★★★","★  TREASURE CACHE  ★","★  loot acquired   ★","★  no strings      ★","★★★★★★★★★★★★★★★★★★"],
+    description:"A room that actually smells nice. Amber light. The faint sound of a successful build. Chests overflow with useful tools.",
+    atmosphere:"You feel briefly, inexplicably, okay.",
+    challengeType:"none", rewardType:"treasure", lootCount:2, xpBase:15,
+    fourthWall:"Huh. A treasure room. The dungeon feels guilty." },
+  { id:"treasure_002", type:"TREASURE", title:"The Cache Hit",
+    ascii:["╔═══════════════╗","║  CACHE : HIT  ║","║  Items found! ║","║  [LUCKY YOU]  ║","╚═══════════════╝"],
+    description:"The cache was warm. Everything you needed was here, pre-loaded, ready to go. That someone is gone now, but they thought of you.",
+    atmosphere:"Efficiency. Sweet, blessed efficiency.",
+    challengeType:"none", rewardType:"treasure", lootCount:3, xpBase:10,
+    fourthWall:"This room exists because the dungeon realized it was too hard." },
+  { id:"trap_001", type:"TRAP", title:"The Off-By-One Chamber",
+    ascii:["╔══════════════════╗","║  OFF BY ONE      ║","║  for(i=1; i<=n)  ║","║  ← or was it <n? ║","╚══════════════════╝"],
+    description:"Spikes line the ceiling. Pressure plates line the floor. There are 10 safe tiles numbered 0 through 9. One is mislabeled.",
+    atmosphere:"99 problems and one is definitely an off-by-one error.",
+    challengeType:"trap_navigate", trapDamage:15, xpBase:20, penaltyCorruption:10 },
+  { id:"void_001", type:"VOID_CORRIDOR", title:"The Void Corridor",
+    ascii:["                  ","    . . . . . .   ","  /dev/null ahead ","    . . . . . .   ","                  "],
+    description:"A corridor that leads somewhere. Or /dev/null. The walls are made of commented-out code. Ghosts of deleted features flicker past.",
+    atmosphere:"An eerie calm. Like a codebase before the merge.",
+    challengeType:"none", xpBase:5, flavor:"The Void Corridor remembers what was lost." }
+];
+
+var BOSS_ROOM = {
+  id:"boss_001", type:"BOSS", title:"THE COMPILER'S CHAMBER",
+  ascii:["╔════════════════════╗","║  BOSS NODE REACHED ║","║  THE COMPILER      ║","║  AWAITS YOUR BUILD ║","╚════════════════════╝"],
+  description:"The deepest room. A monolithic entity constructed of every build failure, every error, every rejected pull request. It has been waiting. It has been compiling you.",
+  atmosphere:"The air smells like burning circuits and disappointment.",
+  challengeType:"boss_combat", enemyId:"the_compiler", xpBase:250
+};
+
+function seededRng(seed){
+  var s=seed;
+  return function(){ s=(s*1664525+1013904223)&0xffffffff; return (s>>>0)/0xffffffff; };
+}
+
+function generateDungeonMap(seed){
+  var rng=seededRng(seed);
+  var map=[];
+  var floors=3, roomsPerFloor=5;
+  for(var f=0;f<floors;f++){
+    var floorRooms=[];
+    var shuffled=ROOM_TEMPLATES.slice().sort(function(){return rng()-0.5;});
+    for(var r=0;r<roomsPerFloor;r++){
+      if(r===roomsPerFloor-1 && f===floors-1){
+        floorRooms.push(JSON.parse(JSON.stringify(BOSS_ROOM)));
+      } else {
+        floorRooms.push(JSON.parse(JSON.stringify(shuffled[r%shuffled.length])));
+      }
+    }
+    // ensure at least one treasure per non-boss floor
+    var hasTreasure=floorRooms.some(function(rm){return rm.type==="TREASURE";});
+    if(!hasTreasure && f<floors-1){
+      var ti=Math.floor(rng()*(roomsPerFloor-1));
+      var treasures=ROOM_TEMPLATES.filter(function(rt){return rt.type==="TREASURE";});
+      floorRooms[ti]=JSON.parse(JSON.stringify(treasures[Math.floor(rng()*treasures.length)]));
+    }
+    map.push(floorRooms);
+  }
+  return map;
+}
+
+// ═══════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════
+var GS = {
+  phase:"title", player:null, dungeon:null,
+  currentFloor:0, currentRoomIndex:0, currentRoom:null,
+  currentEnemy:null, currentPuzzle:null,
+  gameLog:[], usedPuzzles:[], seed:0, turn:0,
+  combatTurn:"player", abilityCooldowns:{}
+};
+
+// ═══════════════════════════════════════
+// PLAYER
+// ═══════════════════════════════════════
+function createPlayer(name){
+  return { name:name||"VOID_WALKER", level:1, xp:0, xpThreshold:100,
+    hp:80, maxHp:80, mana:40, maxMana:40,
+    logic:5, debug:5, luck:5, corruption:0, maxCorruption:100,
+    gold:10, inventory:[], roomsCleared:0, enemiesDefeated:0, puzzlesSolved:0 };
+}
+function levelUp(p){
+  p.level++; p.xpThreshold=p.level*100;
+  p.maxHp+=15; p.hp=Math.min(p.hp+20,p.maxHp);
+  p.maxMana+=8; p.mana=Math.min(p.mana+10,p.maxMana);
+  p.logic++; p.debug++; p.luck++;
+  addLog("⬆ LEVEL UP! Now Level "+p.level+". Stats increased.","system");
+}
+function gainXP(amount){
+  var p=GS.player; p.xp+=amount;
+  addLog("+"+amount+" XP","xp");
+  while(p.xp>=p.xpThreshold){ p.xp-=p.xpThreshold; levelUp(p); }
+  updatePlayerUI();
+}
+function addCorruption(amount){
+  var p=GS.player;
+  p.corruption=Math.min(p.maxCorruption,p.corruption+amount);
+  if(p.corruption>=p.maxCorruption){ triggerCorruptionCollapse(); return; }
+  updateCorruptionUI();
+  if(p.corruption>=75) glitchEffect("severe");
+  else if(p.corruption>=50) glitchEffect("moderate");
+}
+function reduceCorruption(amount){
+  GS.player.corruption=Math.max(0,GS.player.corruption-amount);
+  updateCorruptionUI();
+}
+function damagePlayer(amount){
+  var p=GS.player;
+  var si=p.inventory.findIndex(function(i){return i.id==="null_shield"&&i.effect.uses>0;});
+  if(si!==-1){ p.inventory[si].effect.uses--; addLog("🛡 Null Shield absorbed the blow!","success"); return; }
+  p.hp=Math.max(0,p.hp-amount);
+  updatePlayerUI(); flashDamage();
+  if(p.hp<=0) triggerDeath(false);
+}
+function healPlayer(amount){ var p=GS.player; p.hp=Math.min(p.maxHp,p.hp+amount); updatePlayerUI(); }
+function getPassiveBonus(stat){
+  var bonus=0;
+  GS.player.inventory.forEach(function(item){
+    if(item.effect&&item.effect.type==="passive"&&item.effect.stat===stat) bonus+=item.effect.value;
+  });
+  return bonus;
+}
+
+// ═══════════════════════════════════════
+// INVENTORY
+// ═══════════════════════════════════════
+function addItemToInventory(item){
+  if(GS.player.inventory.length>=10){ addLog("⚠ Inventory full!","warning"); return false; }
+  GS.player.inventory.push(JSON.parse(JSON.stringify(item)));
+  addLog("📦 Acquired: "+(item.icon||"")+" "+item.name,"loot");
+  updateInventoryUI(); return true;
+}
+function useItem(index){
+  var p=GS.player; var item=p.inventory[index]; if(!item) return;
+  var eff=item.effect;
+  if(eff.type==="use"||eff.type==="combat_use"){
+    if(eff.stat==="hp") healPlayer(eff.value);
+    else if(eff.stat==="mana"){ p.mana=Math.min(p.maxMana,p.mana+eff.value); }
+    else if(eff.stat==="corruption"){ reduceCorruption(Math.abs(eff.value)); }
+    else if(eff.stat==="enemy_hp"&&GS.currentEnemy){
+      GS.currentEnemy.hp=Math.max(0,GS.currentEnemy.hp+eff.value);
+      addLog("⚡ "+item.name+" deals "+Math.abs(eff.value)+" damage to "+GS.currentEnemy.name+"!","combat");
+      if(GS.currentEnemy.hp<=0){ resolveEnemyDefeated(); return; }
+    }
+    addLog("Used: "+item.name,"action");
+    p.inventory.splice(index,1); updateInventoryUI(); updatePlayerUI();
+    if(GS.phase==="combat") setTimeout(enemyTurn,800);
+  } else if(eff.type==="reroll"){
+    if(GS.phase==="puzzle"){ p.inventory.splice(index,1); addLog("📜 Refactor Scroll — rerolling!","system"); setupPuzzle(GS.currentRoom); updateInventoryUI(); }
+    else addLog("Can only reroll during a puzzle.","warning");
+  } else {
+    addLog(item.name+" is passive ("+eff.stat+" +"+eff.value+").","info");
+  }
+}
+
+// ═══════════════════════════════════════
+// DUNGEON NAVIGATION
+// ═══════════════════════════════════════
+function startGame(playerName){
+  GS.seed=Math.floor(Math.random()*999999);
+  GS.player=createPlayer(playerName);
+  GS.dungeon=generateDungeonMap(GS.seed);
+  GS.currentFloor=0; GS.currentRoomIndex=0;
+  GS.usedPuzzles=[]; GS.phase="game"; GS.gameLog=[]; GS.turn=0; GS.abilityCooldowns={};
+  addLog(">> DUNGEON INITIALIZED. SEED: "+GS.seed,"system");
+  addLog(">> ENTERING FLOOR 1 OF 3...","system");
+  addLog(">> GOOD LUCK, "+playerName+". YOU WILL NEED IT.","system");
+  enterRoom();
+}
+function enterRoom(){
+  var room=GS.dungeon[GS.currentFloor][GS.currentRoomIndex];
+  GS.currentRoom=room; GS.turn++;
+  if(room.passiveDrain){
+    var pd=room.passiveDrain;
+    if(pd.stat==="hp") damagePlayer(pd.amount);
+    else if(pd.stat==="mana"){ GS.player.mana=Math.max(0,GS.player.mana-pd.amount); updatePlayerUI(); }
+    addLog(pd.message,"warning");
+  }
+  addLog("━━━ ENTERING: "+room.title+" ━━━","room");
+  renderRoom(room); updateMapUI();
+}
+function advanceRoom(){
+  var maxRooms=GS.dungeon[GS.currentFloor].length;
+  GS.currentRoomIndex++;
+  if(GS.currentRoomIndex>=maxRooms){
+    GS.currentFloor++; GS.currentRoomIndex=0;
+    if(GS.currentFloor>=GS.dungeon.length){ triggerVictory(); return; }
+    addLog("━━━ DESCENDING TO FLOOR "+(GS.currentFloor+1)+" ━━━","system");
+    addLog("The air grows heavier. The code grows stranger.","flavor");
+  }
+  GS.player.roomsCleared++; GS.phase="game"; enterRoom();
+}
+
+// ═══════════════════════════════════════
+// ROOM RENDERING
+// ═══════════════════════════════════════
+function renderRoom(room){
+  var asciiEl=document.getElementById("room-ascii");
+  var titleEl=document.getElementById("room-title");
+  var descEl=document.getElementById("room-description");
+  if(asciiEl) asciiEl.textContent=room.ascii.join("\n");
+  if(titleEl) titleEl.textContent=room.title;
+  if(descEl){
+    descEl.textContent=room.description;
+    if(room.atmosphere){
+      var a=document.createElement("p"); a.className="atmosphere"; a.textContent=room.atmosphere; descEl.appendChild(a);
+    }
+  }
+  var ct=room.challengeType;
+  if(ct==="combat"||ct==="boss_combat") setupCombat(room);
+  else if(ct==="puzzle"||ct==="riddle") setupPuzzle(room);
+  else if(ct==="trap_navigate") setupTrap(room);
+  else if(room.type==="TREASURE") setupTreasure(room);
+  else setupVoidRoom(room);
+  if(room.fourthWall) setTimeout(function(){ addLog("[SYSTEM]: "+room.fourthWall,"glitch"); },1500);
+}
+
+// ═══════════════════════════════════════
+// COMBAT
+// ═══════════════════════════════════════
+function setupCombat(room){
+  var enemy=room.challengeType==="boss_combat" ? getBoss() : (getEnemy(room.enemyId)||getRandomEnemy(GS.currentFloor));
+  GS.currentEnemy=enemy; GS.combatTurn="player"; GS.phase="combat";
+  addLog("⚔ "+enemy.name+" appears!","combat");
+  addLog(enemy.lore,"flavor");
+  renderCombat(enemy);
+}
+function renderCombat(enemy){
+  var ca=document.getElementById("challenge-area");
+  var ab=document.getElementById("action-buttons");
+  var pct=Math.max(0,(enemy.hp/enemy.maxHp)*100);
+  ca.innerHTML='<div class="combat-display"><pre class="enemy-ascii">'+enemy.ascii.join("\n")+'</pre><div class="enemy-name">'+enemy.name+'</div><div class="hp-label">HP: '+enemy.hp+'/'+enemy.maxHp+'</div><div class="hp-bar-outer"><div class="enemy-hp-fill" style="width:'+pct+'%"></div></div><div class="enemy-weakness">WEAKNESS: '+enemy.weakness.toUpperCase()+'</div></div>';
+  ab.innerHTML='<div class="combat-actions"><button onclick="combatAttack()" class="btn btn-attack">⚔ ATTACK</button><button onclick="combatAbility(\'Refactor\')" class="btn btn-ability">🔧 REFACTOR<br><small>18dmg·10mp</small></button><button onclick="combatAbility(\'Trace\')" class="btn btn-ability">🔍 TRACE<br><small>8dmg·5mp</small></button><button onclick="combatAbility(\'Sanitize\')" class="btn btn-ability">🧹 SANITIZE<br><small>heal+cleanse</small></button><button onclick="combatAbility(\'Rollback\')" class="btn btn-ability">↩ ROLLBACK<br><small>+25hp·15mp</small></button></div><div class="combat-hint">Abilities matching weakness deal bonus damage.</div>';
+}
+function combatAttack(){
+  if(GS.combatTurn!=="player"||GS.phase!=="combat") return;
+  var enemy=GS.currentEnemy; var p=GS.player;
+  var dmg=10+Math.floor(p.debug/2)+getPassiveBonus("debug")+Math.floor(Math.random()*6);
+  if(Math.random()*100<(p.luck+getPassiveBonus("luck"))){ dmg=Math.floor(dmg*1.5); addLog("💫 CRITICAL HIT!","success"); }
+  enemy.hp=Math.max(0,enemy.hp-dmg);
+  addLog("⚔ You attack for "+dmg+" damage! ("+enemy.hp+"/"+enemy.maxHp+" HP)","combat");
+  renderCombat(enemy);
+  if(enemy.hp<=0){ resolveEnemyDefeated(); return; }
+  GS.combatTurn="enemy"; setTimeout(enemyTurn,900);
+}
+function combatAbility(name){
+  if(GS.combatTurn!=="player"||GS.phase!=="combat") return;
+  var enemy=GS.currentEnemy; var p=GS.player;
+  if(GS.abilityCooldowns[name]>0){ addLog("⏳ "+name+" cooling down: "+GS.abilityCooldowns[name]+" turns.","warning"); return; }
+  var dmg=0; var fx="";
+  if(name==="Refactor"){
+    if(p.mana<10){addLog("Not enough Mana!","warning");return;}
+    dmg=18+p.logic+getPassiveBonus("logic"); p.mana-=10; fx="🔧 Refactored the attack pattern!"; GS.abilityCooldowns["Refactor"]=3;
+  } else if(name==="Trace"){
+    if(p.mana<5){addLog("Not enough Mana!","warning");return;}
+    dmg=8; p.mana-=5; fx="🔍 TRACE: weakness is "+enemy.weakness.toUpperCase()+" ("+enemy.weaknessMultiplier+"x)"; GS.abilityCooldowns["Trace"]=2;
+  } else if(name==="Sanitize"){
+    dmg=5; reduceCorruption(15); healPlayer(10); fx="🧹 Sanitized! Corruption -15, HP +10."; GS.abilityCooldowns["Sanitize"]=4;
+  } else if(name==="Rollback"){
+    if(p.mana<15){addLog("Not enough Mana!","warning");return;}
+    healPlayer(25); p.mana-=15; fx="↩ Rolled back! HP +25."; dmg=0; GS.abilityCooldowns["Rollback"]=5;
+  }
+  var abilStatMap={"Refactor":"logic","Trace":"debug","Sanitize":"mana","Rollback":"luck"};
+  if(dmg>0&&enemy.weakness===abilStatMap[name]){
+    dmg=Math.floor(dmg*enemy.weaknessMultiplier); addLog("💥 WEAKNESS EXPLOIT! Super effective!","success");
+  }
+  if(dmg>0){ enemy.hp=Math.max(0,enemy.hp-dmg); addLog(fx,"ability"); addLog("Dealt "+dmg+" damage. ("+enemy.hp+"/"+enemy.maxHp+" HP)","combat"); }
+  else addLog(fx,"ability");
+  updatePlayerUI(); renderCombat(enemy);
+  if(enemy.hp<=0){ resolveEnemyDefeated(); return; }
+  GS.combatTurn="enemy"; setTimeout(enemyTurn,900);
+}
+function enemyTurn(){
+  if(GS.phase!=="combat") return;
+  var enemy=GS.currentEnemy; var p=GS.player;
+  Object.keys(GS.abilityCooldowns).forEach(function(k){ if(GS.abilityCooldowns[k]>0) GS.abilityCooldowns[k]--; });
+  var dmg=enemy.attack+Math.floor(Math.random()*5);
+  if(enemy.behavior==="defensive"&&enemy.hp<enemy.maxHp*0.5) dmg=Math.floor(dmg*1.3);
+  if(enemy.behavior==="tricky"&&Math.random()<0.3){ addLog("🔄 "+enemy.name+" attacks TWICE!","combat"); damagePlayer(Math.floor(dmg*0.6)); }
+  var tpl=enemy.attackMessages[Math.floor(Math.random()*enemy.attackMessages.length)];
+  addLog("👹 "+tpl.replace("{dmg}",dmg),"enemy");
+  if(enemy.id==="segfault_serpent"&&Math.random()<0.3&&p.inventory.length>0){
+    var dropped=p.inventory.splice(Math.floor(Math.random()*p.inventory.length),1)[0];
+    addLog("💀 "+dropped.name+" was corrupted and lost!","warning"); updateInventoryUI();
+  }
+  damagePlayer(dmg); addCorruption(3); GS.combatTurn="player";
+}
+function resolveEnemyDefeated(){
+  var enemy=GS.currentEnemy; var p=GS.player;
+  GS.phase="loot"; p.enemiesDefeated++;
+  addLog("✅ "+enemy.name+" DEFEATED!","success");
+  var gold=enemy.goldReward[0]+Math.floor(Math.random()*(enemy.goldReward[1]-enemy.goldReward[0]));
+  p.gold+=gold; gainXP(enemy.xpReward); addLog("💰 Looted "+gold+" gold.","loot");
+  if(Math.random()<0.4){ var loot=getRandomLoot(1,GS.currentFloor); if(loot[0]) addItemToInventory(loot[0]); }
+  document.getElementById("action-buttons").innerHTML='<button onclick="advanceRoom()" class="btn btn-continue">>> CONTINUE DEEPER</button>';
+  updatePlayerUI();
+}
+
+// ═══════════════════════════════════════
+// PUZZLES
+// ═══════════════════════════════════════
+function setupPuzzle(room){
+  GS.phase="puzzle";
+  var puzzle=selectPuzzleForRoom(room);
+  GS.currentPuzzle=puzzle;
+  var ca=document.getElementById("challenge-area");
+  var ab=document.getElementById("action-buttons");
+  ca.innerHTML='<div class="puzzle-display"><div class="puzzle-type-badge">['+puzzle.type.replace("_"," ").toUpperCase()+']</div><div class="puzzle-title">'+puzzle.title+'</div><p class="puzzle-desc">'+puzzle.description+'</p><pre class="puzzle-challenge">'+puzzle.challenge+'</pre><input type="text" id="puzzle-input" class="puzzle-input" placeholder="Type your answer..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"/></div>';
+  ab.innerHTML='<div class="puzzle-actions"><button onclick="submitPuzzleAnswer()" class="btn btn-submit">✓ SUBMIT</button><button onclick="getPuzzleHint()" class="btn btn-hint">? HINT (5 Mana)</button></div>';
+  var inp=document.getElementById("puzzle-input");
+  if(inp){ inp.addEventListener("keydown",function(e){if(e.key==="Enter")submitPuzzleAnswer();}); inp.focus(); }
+}
+function selectPuzzleForRoom(room){
+  var pool=room.puzzlePool;
+  if(pool){
+    var avail=pool.filter(function(id){return !GS.usedPuzzles.includes(id);});
+    if(avail.length>0){ var id=avail[Math.floor(Math.random()*avail.length)]; var p=getPuzzle(id); if(p) return p; }
+  }
+  return getRandomPuzzle(GS.usedPuzzles);
+}
+function getPuzzleHint(){
+  var p=GS.player; var puzzle=GS.currentPuzzle; if(!puzzle) return;
+  if(p.mana<5){addLog("Not enough Mana for hint!","warning");return;}
+  p.mana-=5; updatePlayerUI(); addLog("💡 HINT: "+puzzle.hint,"hint");
+}
+function submitPuzzleAnswer(){
+  var inp=document.getElementById("puzzle-input"); if(!inp) return;
+  var answer=inp.value.trim(); if(!answer){addLog("Type an answer first!","warning");return;}
+  var puzzle=GS.currentPuzzle; if(!puzzle) return;
+  GS.usedPuzzles.push(puzzle.id); GS.player.puzzlesSolved++;
+  if(checkAnswer(puzzle,answer)) puzzleSuccess(puzzle);
+  else puzzleFailure(puzzle);
+}
+function puzzleSuccess(puzzle){
+  var room=GS.currentRoom;
+  addLog("✅ CORRECT! "+puzzle.successMsg,"success");
+  addLog(puzzle.explanation,"flavor");
+  gainXP(puzzle.xpReward+(room.xpBase||0));
+  if(Math.random()<0.35){ var loot=getRandomLoot(1,GS.currentFloor); if(loot[0]) addItemToInventory(loot[0]); }
+  document.getElementById("challenge-area").innerHTML='<div class="success-banner">✓ PUZZLE SOLVED</div>';
+  document.getElementById("action-buttons").innerHTML='<button onclick="advanceRoom()" class="btn btn-continue">>> CONTINUE DEEPER</button>';
+  GS.phase="game";
+}
+function puzzleFailure(puzzle){
+  var room=GS.currentRoom;
+  addLog("❌ WRONG. "+puzzle.failMsg,"fail");
+  var penHp=room.penaltyHp||10; var penCorr=room.penaltyCorruption||10;
+  damagePlayer(penHp); addCorruption(penCorr);
+  addLog("Penalty: -"+penHp+" HP, +"+penCorr+" Corruption.","warning");
+  var inp=document.getElementById("puzzle-input"); if(inp){inp.value="";inp.focus();}
+}
+
+// ═══════════════════════════════════════
+// TRAP
+// ═══════════════════════════════════════
+function setupTrap(room){
+  GS.phase="trap";
+  document.getElementById("challenge-area").innerHTML='<div class="trap-display"><pre class="trap-ascii"> [0][1][2][3][4]\n [5][6][7][8][9]\n  10 tiles. One is wrong.</pre><p>Navigate the Off-By-One trap. Choose your method.</p></div>';
+  document.getElementById("action-buttons").innerHTML='<div class="trap-actions"><button onclick="attemptTrap(\'careful\')" class="btn btn-action">👣 STEP CAREFULLY (65% safe)</button><button onclick="attemptTrap(\'dash\')" class="btn btn-action">💨 DASH THROUGH (40% + bonus XP)</button><button onclick="attemptTrap(\'analyze\')" class="btn btn-action">🔍 ANALYZE (90% safe · 8 Mana)</button></div>';
+}
+function attemptTrap(method){
+  var room=GS.currentRoom; var p=GS.player;
+  var sc=0.65; var bonusXP=0; var msg="";
+  if(method==="careful"){sc=0.65;msg="You step carefully...";}
+  else if(method==="dash"){sc=0.4;bonusXP=15;msg="You dash through at full speed!";}
+  else if(method==="analyze"){
+    if(p.mana<8){addLog("Not enough Mana!","warning");return;}
+    p.mana-=8; updatePlayerUI(); sc=0.9; msg="You analyze each tile methodically...";
+  }
+  addLog(msg,"action");
+  var luckBonus=(p.luck+getPassiveBonus("luck"))*0.005;
+  if(Math.random()<Math.min(0.95,sc+luckBonus)){
+    addLog("✅ Made it through safely!","success"); gainXP((room.xpBase||20)+bonusXP);
+  } else {
+    addLog("❌ Off by one! A spike catches you.","fail");
+    damagePlayer(room.trapDamage||15); addCorruption(room.penaltyCorruption||10);
+  }
+  document.getElementById("action-buttons").innerHTML='<button onclick="advanceRoom()" class="btn btn-continue">>> CONTINUE DEEPER</button>';
+}
+
+// ═══════════════════════════════════════
+// TREASURE
+// ═══════════════════════════════════════
+function setupTreasure(room){
+  GS.phase="loot";
+  var loot=getRandomLoot(room.lootCount||1,GS.currentFloor);
+  var gold=5+Math.floor(Math.random()*15)*(GS.currentFloor+1);
+  GS.player.gold+=gold;
+  var lootHTML=loot.map(function(item){
+    return '<div class="loot-item"><span class="loot-icon">'+(item.icon||"📦")+'</span><span class="loot-name">'+item.name+'</span><span class="loot-rarity rarity-'+item.rarity+'">['+item.rarity.toUpperCase()+']</span><span class="loot-desc">'+item.description+'</span></div>';
+  }).join("");
+  document.getElementById("challenge-area").innerHTML='<div class="treasure-display"><div class="treasure-header">⭐ CACHE CONTENTS ⭐</div>'+lootHTML+'<div class="gold-found">💰 '+gold+' gold coins</div></div>';
+  document.getElementById("action-buttons").innerHTML='<button onclick="advanceRoom()" class="btn btn-continue">>> LEAVE CACHE</button>';
+  gainXP(room.xpBase||10);
+  addLog("💎 Treasure Cache! "+gold+" gold acquired.","loot");
+  loot.forEach(function(item){ addItemToInventory(item); });
+}
+function setupVoidRoom(room){
+  GS.phase="game";
+  document.getElementById("challenge-area").innerHTML='<div class="void-display"><p>'+room.description+'</p>'+(room.flavor?'<p class="flavor-text">"'+room.flavor+'"</p>':'')+'</div>';
+  document.getElementById("action-buttons").innerHTML='<button onclick="advanceRoom()" class="btn btn-continue">>> PROCEED</button>';
+  gainXP(room.xpBase||5);
+  addLog("You pass through. Something watches.","flavor");
+}
+
+// ═══════════════════════════════════════
+// CORRUPTION
+// ═══════════════════════════════════════
+var CORRUPTION_MSGS=["Your inventory items flicker...","The dungeon walls breathe.","You see your own code.","A comment reads: // this was a mistake","ERROR: Unexpected behavior in floor "+(Math.floor(Math.random()*9)+1),"SYSTEM: You are not the intended user.","The corruption whispers variable names."];
+function glitchEffect(severity){
+  if(severity==="severe"){
+    document.body.classList.add("glitch-severe");
+    setTimeout(function(){document.body.classList.remove("glitch-severe");},800);
+    addLog("⚠ [CORRUPTION]: "+CORRUPTION_MSGS[Math.floor(Math.random()*CORRUPTION_MSGS.length)],"glitch");
+  } else {
+    document.body.classList.add("glitch-severe");
+    setTimeout(function(){document.body.classList.remove("glitch-severe");},300);
+  }
+}
+function triggerCorruptionCollapse(){
+  addLog("████ CORRUPTION: 100% ████","glitch");
+  addLog("████ DUNGEON COLLAPSING ████","glitch");
+  setTimeout(function(){triggerDeath(true);},1500);
+}
+
+// ═══════════════════════════════════════
+// WIN / LOSE
+// ═══════════════════════════════════════
+function triggerDeath(corruption){
+  GS.phase="dead";
+  showEndScreen(corruption?"THE DUNGEON CONSUMED YOU. CORRUPTION: TERMINAL.":"RUNTIME ERROR: FATAL EXCEPTION IN PLAYER.SOUL", false);
+}
+function triggerVictory(){
+  GS.phase="victory";
+  showEndScreen("BUILD SUCCESSFUL. YOU ESCAPED THE DUNGEON.", true);
+}
+function showEndScreen(msg,victory){
+  var main=document.getElementById("game-main"); if(!main) return;
+  var p=GS.player;
+  var deathAscii="  ██████╗ ███████╗ █████╗ ██████╗\n  ██╔══██╗██╔════╝██╔══██╗██╔══██╗\n  ██║  ██║█████╗  ███████║██║  ██║\n  ██║  ██║██╔══╝  ██╔══██║██║  ██║\n  ██████╔╝███████╗██║  ██║██████╔╝\n  ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═════╝";
+  var winAscii="  ██████╗ ██╗   ██╗██╗██╗     ██████╗\n  ██╔══██╗██║   ██║██║██║     ██╔══██╗\n  ██████╔╝██║   ██║██║██║     ██║  ██║\n  ██╔══██╗██║   ██║██║██║     ██║  ██║\n  ██████╔╝╚██████╔╝██║███████╗██████╔╝\n  ╚═════╝  ╚═════╝ ╚═╝╚══════╝╚═════╝\n        D O N E";
+  main.innerHTML='<div class="end-screen" style="background:'+(victory?"#001a00":"#1a0000")+'"><pre class="end-ascii">'+(victory?winAscii:deathAscii)+'</pre><div class="'+(victory?"victory-text":"death-text")+'">'+msg+'</div><div class="end-stats">PLAYER: '+p.name+'<br>LEVEL: '+p.level+'<br>ROOMS CLEARED: '+p.roomsCleared+'<br>ENEMIES DEFEATED: '+p.enemiesDefeated+'<br>PUZZLES SOLVED: '+p.puzzlesSolved+'<br>SEED: '+GS.seed+'</div><button onclick="location.reload()" class="btn btn-restart">▶ NEW GAME</button></div>';
+}
+
+// ═══════════════════════════════════════
+// UI
+// ═══════════════════════════════════════
+function addLog(message,type){
+  GS.gameLog.push({message:message,type:type||"info",turn:GS.turn});
+  renderLog();
+}
+function renderLog(){
+  var el=document.getElementById("log-console"); if(!el) return;
+  var recent=GS.gameLog.slice(-30);
+  el.innerHTML=recent.map(function(e){return '<div class="log-entry log-'+e.type+'">&gt; '+e.message+'</div>';}).join("");
+  el.scrollTop=el.scrollHeight;
+}
+function updatePlayerUI(){
+  var p=GS.player; if(!p) return;
+  function s(id,v){var el=document.getElementById(id);if(el)el.textContent=v;}
+  s("stat-hp",p.hp+"/"+p.maxHp); s("stat-mana",p.mana+"/"+p.maxMana);
+  s("stat-logic",p.logic+getPassiveBonus("logic")); s("stat-debug",p.debug+getPassiveBonus("debug"));
+  s("stat-luck",p.luck+getPassiveBonus("luck")); s("stat-level",p.level);
+  s("stat-xp",p.xp+"/"+p.xpThreshold); s("stat-gold",p.gold); s("player-name-display",p.name);
+  var hpBar=document.getElementById("player-hp-bar");
+  if(hpBar){var pct=(p.hp/p.maxHp)*100;hpBar.style.width=pct+"%";hpBar.style.background=pct>60?"#00ff88":pct>30?"#ffaa00":"#ff3333";}
+  var manaBar=document.getElementById("player-mana-bar");
+  if(manaBar) manaBar.style.width=((p.mana/p.maxMana)*100)+"%";
+  updateCorruptionUI();
+}
+function updateCorruptionUI(){
+  var p=GS.player; if(!p) return;
+  var pct=(p.corruption/p.maxCorruption)*100;
+  var bar=document.getElementById("corruption-fill");
+  if(bar){bar.style.width=pct+"%";bar.style.background=pct<33?"#00ff88":pct<66?"#ffaa00":"#ff3333";}
+  var lbl=document.getElementById("corruption-label"); if(lbl) lbl.textContent=Math.floor(pct)+"%";
+}
+function updateInventoryUI(){
+  var p=GS.player; var el=document.getElementById("inventory-list"); if(!el||!p) return;
+  if(!p.inventory.length){el.innerHTML='<div class="empty-inv">-- EMPTY --</div>';return;}
+  el.innerHTML=p.inventory.map(function(item,i){
+    return '<div class="inv-item" onclick="useItem('+i+')" title="'+(item.flavor||item.description)+'"><span class="inv-icon">'+(item.icon||"📦")+'</span><span class="inv-name">'+item.name+'</span><span class="inv-rarity rarity-'+item.rarity+'">'+item.rarity[0].toUpperCase()+'</span></div>';
+  }).join("");
+}
+function updateMapUI(){
+  var el=document.getElementById("dungeon-map"); if(!el) return;
+  var symbols={BUG_PIT:"🐛",LOGIC_LOCK:"🔒",SYNTAX_BEAST:"👹",MEMORY_LEAK:"💧",TREASURE:"⭐",BOSS:"💀",VOID_CORRIDOR:"▒",TRAP:"⚠"};
+  var html="";
+  for(var f=0;f<GS.dungeon.length;f++){
+    html+='<div class="map-floor">F'+(f+1)+': ';
+    GS.dungeon[f].forEach(function(room,r){
+      var isCur=f===GS.currentFloor&&r===GS.currentRoomIndex;
+      var isPast=f<GS.currentFloor||(f===GS.currentFloor&&r<GS.currentRoomIndex);
+      var sym=symbols[room.type]||"?";
+      var cls=isCur?"map-room current":isPast?"map-room cleared":"map-room";
+      html+='<span class="'+cls+'">'+sym+'</span>';
+    });
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+function flashDamage(){ document.body.classList.add("flash-damage"); setTimeout(function(){document.body.classList.remove("flash-damage");},300); }
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener("DOMContentLoaded",function(){
+  var startBtn=document.getElementById("start-btn");
+  var nameInput=document.getElementById("player-name-input");
+  if(startBtn){
+    startBtn.addEventListener("click",function(){
+      var name=(nameInput&&nameInput.value.trim())||"VOID_WALKER";
+      document.getElementById("title-screen").style.display="none";
+      document.getElementById("game-screen").style.display="flex";
+      startGame(name.toUpperCase().substring(0,16));
+    });
+  }
+  if(nameInput){ nameInput.addEventListener("keydown",function(e){if(e.key==="Enter")startBtn.click();}); }
+  // Typewriter tagline
+  var tagline=document.getElementById("title-tagline");
+  var msgs=["Every room is a bug. Every bug is a boss.","The dungeon remembers your mistakes.","Debug or die.","return dungeon.descend();"];
+  var mi=0,ci=0,fwd=true;
+  setInterval(function(){
+    var msg=msgs[mi%msgs.length];
+    if(fwd){ci++;if(ci>msg.length)fwd=false;}
+    else{ci--;if(ci<=0){fwd=true;mi++;}}
+    if(tagline) tagline.textContent=msg.substring(0,ci)+(fwd?"█":"");
+  },65);
+});
+</script>
+</body>
+</html>
