@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CODE DUNGEON</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- CRT scanline -->
+<div class="scanline"></div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- TITLE SCREEN                                   -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="title-screen">
+  <pre class="title-logo">
+ ██████╗ ██████╗ ██████╗ ███████╗
+██╔════╝██╔═══██╗██╔══██╗██╔════╝
+██║     ██║   ██║██║  ██║█████╗  
+██║     ██║   ██║██║  ██║██╔══╝  
+╚██████╗╚██████╔╝██████╔╝███████╗
+ ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
+██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ███████╗ ██████╗ ███╗   ██╗
+██╔══██╗██║   ██║████╗  ██║██╔════╝ ██╔════╝██╔═══██╗████╗  ██║
+██║  ██║██║   ██║██╔██╗ ██║██║  ███╗█████╗  ██║   ██║██╔██╗ ██║
+██║  ██║██║   ██║██║╚██╗██║██║   ██║██╔══╝  ██║   ██║██║╚██╗██║
+██████╔╝╚██████╔╝██║ ╚████║╚██████╔╝███████╗╚██████╔╝██║ ╚████║
+╚═════╝  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝
+  </pre>
+
+  <div class="title-sub">v1.0.0 // PROTOTYPE BUILD // SEED RANDOMIZED</div>
+  <div id="title-tagline">█</div>
+
+  <div class="title-input-group">
+    <div class="title-label">ENTER DEBUGGER DESIGNATION:</div>
+    <input type="text"
+           id="player-name-input"
+           maxlength="16"
+           placeholder="VOID_WALKER"
+           autocomplete="off"
+           autocorrect="off"
+           spellcheck="false">
+    <button id="start-btn">▶ ENTER DUNGEON</button>
+  </div>
+
+  <div class="title-warning">
+    ⚠ WARNING: This dungeon is procedurally generated.<br>
+    Puzzles are solvable. Enemies are beatable.<br>
+    Your sanity is not guaranteed.<br>
+    // No external connections. 100% offline. //
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- GAME SCREEN                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="game-screen">
+
+  <!-- LEFT SIDEBAR -->
+  <div id="sidebar-left">
+
+    <!-- Player Stats -->
+    <div class="panel" id="player-panel">
+      <div class="panel-title">// PLAYER.SYS</div>
+      <div id="player-name-display">VOID_WALKER</div>
+
+      <div class="stat-row">
+        <span class="stat-label">HP</span>
+        <span class="stat-value" id="stat-hp">80/80</span>
+      </div>
+      <div class="bar-container">
+        <div class="bar-fill" id="player-hp-bar" style="width:100%"></div>
+      </div>
+
+      <div class="stat-row">
+        <span class="stat-label">MANA</span>
+        <span class="stat-value" id="stat-mana">40/40</span>
+      </div>
+      <div class="bar-container">
+        <div class="bar-fill" id="player-mana-bar" style="width:100%; background: #00e5ff"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-cell">
+          <span class="stat-cell-label">LVL</span>
+          <span class="stat-cell-val" id="stat-level">1</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-cell-label">XP</span>
+          <span class="stat-cell-val" id="stat-xp">0/100</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-cell-label">LGC</span>
+          <span class="stat-cell-val" id="stat-logic">5</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-cell-label">DBG</span>
+          <span class="stat-cell-val" id="stat-debug">5</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-cell-label">LCK</span>
+          <span class="stat-cell-val" id="stat-luck">5</span>
+        </div>
+        <div class="stat-cell">
+          <span class="stat-cell-label">GOLD</span>
+          <span class="stat-cell-val" id="stat-gold">10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Corruption Meter -->
+    <div class="panel" id="corruption-panel">
+      <div class="panel-title">// CORRUPTION.EXE</div>
+      <div class="corruption-bar-outer">
+        <div id="corruption-fill" style="width:0%"></div>
+      </div>
+      <div class="corruption-label-row">
+        <span>CORRUPTION</span>
+        <span id="corruption-label">0%</span>
+      </div>
+    </div>
+
+    <!-- Dungeon Map -->
+    <div class="panel" id="map-panel">
+      <div class="panel-title">// DUNGEON.MAP</div>
+      <div id="dungeon-map"></div>
+    </div>
+
+  </div>
+
+  <!-- MAIN AREA -->
+  <div id="game-main">
+
+    <!-- Room Header -->
+    <div class="panel" id="room-panel">
+      <div class="panel-title">// CURRENT_ROOM.LOG</div>
+      <pre id="room-ascii"></pre>
+      <div id="room-title">INITIALIZING...</div>
+      <div id="room-description"></div>
+    </div>
+
+    <!-- Challenge Area -->
+    <div class="panel" id="challenge-panel">
+      <div class="panel-title">// CHALLENGE.ACTIVE</div>
+      <div id="challenge-area">
+        <div style="color: var(--text-dim); font-size: 11px;">Awaiting room data...</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel" id="actions-panel">
+      <div class="panel-title">// ACTIONS.INPUT</div>
+      <div id="action-buttons">
+        <div style="color: var(--text-dim); font-size: 10px;">No actions available.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <div id="sidebar-right">
+
+    <!-- Inventory -->
+    <div class="panel" id="inventory-panel">
+      <div class="panel-title">// INVENTORY[0-9]</div>
+      <div id="inventory-list">
+        <div class="empty-inv">-- EMPTY --</div>
+      </div>
+    </div>
+
+    <!-- Log Console -->
+    <div class="panel" id="log-panel">
+      <div class="panel-title">// SYSTEM.LOG</div>
+      <div id="log-console"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- DATA MODULES (order matters)                   -->
+<!-- ══════════════════════════════════════════════ -->
+<script src="data/items.js"></script>
+<script src="data/enemies.js"></script>
+<script src="data/puzzles.js"></script>
+<script src="data/rooms.js"></script>
+
+<!-- GAME ENGINE -->
+<script src="game.js"></script>
+
+</body>
+</html>
