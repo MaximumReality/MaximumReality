@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>STARHAULER: INTERSTELLAR FREIGHT TYCOON</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+
+:root {
+  --bg: #050810;
+  --panel: #0a0f1e;
+  --panel2: #0d1428;
+  --border: #1a2a4a;
+  --border2: #223366;
+  --accent: #00d4ff;
+  --accent2: #ff6b00;
+  --accent3: #00ff88;
+  --accent4: #ff2266;
+  --warn: #ffcc00;
+  --text: #c8d8f0;
+  --text2: #6888aa;
+  --reefer: #00ccff;
+  --hazmat: #ff8800;
+  --hell: #ff2266;
+  --glow: 0 0 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Exo 2', sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(0,80,160,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,180,80,0.06) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* SCANLINES */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px);
+  pointer-events: none;
+  z-index: 999;
+}
+
+#app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 8px; }
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 8px;
+  box-shadow: 0 0 20px rgba(0,212,255,0.15);
+}
+
+.logo {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--accent);
+  text-shadow: var(--glow) var(--accent);
+  letter-spacing: 2px;
+}
+
+.logo span { color: var(--accent2); }
+
+.header-stats {
+  display: flex;
+  gap: 16px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+}
+
+.hstat { display: flex; flex-direction: column; align-items: center; }
+.hstat-label { color: var(--text2); font-size: 10px; }
+.hstat-val { color: var(--accent3); font-weight: bold; }
+.hstat-val.warn { color: var(--warn); }
+.hstat-val.danger { color: var(--accent4); animation: blink 1s infinite; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* GRID LAYOUT */
+.grid { display: grid; gap: 8px; }
+.grid-2 { grid-template-columns: 1fr 1fr; }
+.grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* PANELS */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 10px;
+  position: relative;
+}
+
+.panel.accent-border { border-color: var(--accent); box-shadow: 0 0 8px rgba(0,212,255,0.1); }
+.panel.reefer-border { border-color: var(--reefer); box-shadow: 0 0 8px rgba(0,204,255,0.1); }
+.panel.hazmat-border { border-color: var(--hazmat); box-shadow: 0 0 8px rgba(255,136,0,0.15); }
+.panel.hell-border { border-color: var(--hell); box-shadow: 0 0 8px rgba(255,34,102,0.15); }
+.panel.green-border { border-color: var(--accent3); box-shadow: 0 0 8px rgba(0,255,136,0.1); }
+
+.panel-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.panel-title.blue { color: var(--accent); }
+.panel-title.orange { color: var(--hazmat); }
+.panel-title.cyan { color: var(--reefer); }
+.panel-title.red { color: var(--hell); }
+.panel-title.green { color: var(--accent3); }
+
+/* METERS */
+.meter-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.meter-label { width: 90px; color: var(--text2); font-size: 11px; font-family: 'Share Tech Mono', monospace; flex-shrink: 0; }
+.meter-bar { flex: 1; height: 8px; background: #0a1020; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.meter-fill { height: 100%; transition: width 0.5s ease; position: relative; }
+.meter-fill::after { content:''; position:absolute; inset:0; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 100%); }
+.meter-fill.blue { background: linear-gradient(90deg, #004488, var(--accent)); }
+.meter-fill.green { background: linear-gradient(90deg, #004422, var(--accent3)); }
+.meter-fill.orange { background: linear-gradient(90deg, #442200, var(--hazmat)); }
+.meter-fill.red { background: linear-gradient(90deg, #440011, var(--hell)); }
+.meter-fill.yellow { background: linear-gradient(90deg, #443300, var(--warn)); }
+.meter-fill.cyan { background: linear-gradient(90deg, #003344, var(--reefer)); }
+.meter-val { width: 36px; text-align: right; font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--text); }
+
+/* SHIP STAT GRID */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.stat-item { display: flex; flex-direction: column; }
+.stat-name { font-size: 10px; color: var(--text2); font-family: 'Share Tech Mono', monospace; }
+.stat-value { font-size: 13px; font-weight: 600; color: var(--accent); }
+
+/* MAP */
+.galaxy-map {
+  background: #020408;
+  border: 1px solid var(--border);
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+}
+
+.star { position: absolute; border-radius: 50%; }
+
+.planet {
+  position: absolute;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  transition: transform 0.2s;
+  border: 1px solid transparent;
+}
+
+.planet:hover { transform: scale(1.3); }
+.planet.current { border-color: var(--accent3) !important; box-shadow: 0 0 10px var(--accent3); }
+.planet.destination { border-color: var(--warn) !important; box-shadow: 0 0 10px var(--warn); animation: pulse 1.5s infinite; }
+
+@keyframes pulse { 0%,100%{box-shadow:0 0 8px var(--warn)} 50%{box-shadow:0 0 18px var(--warn)} }
+
+.route-line {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent3), var(--warn));
+  opacity: 0.5;
+  transform-origin: left center;
+}
+
+/* CONTRACT CARDS */
+.contract-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.contract-card:hover { border-color: var(--accent); transform: translateX(2px); }
+.contract-card.selected { border-color: var(--accent3); background: #0a1f14; }
+.contract-card.reefer-card { border-left: 3px solid var(--reefer); }
+.contract-card.hazmat-card { border-left: 3px solid var(--hazmat); }
+.contract-card.cannery-card { border-left: 3px solid #4488ff; }
+
+.contract-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+.contract-name { font-weight: 600; font-size: 12px; color: var(--text); }
+.contract-pay { font-family: 'Orbitron', monospace; font-size: 13px; color: var(--accent3); font-weight: 700; }
+
+.contract-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  font-size: 9px;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 1px 5px;
+  border: 1px solid;
+  letter-spacing: 1px;
+}
+.tag.reefer { color: var(--reefer); border-color: var(--reefer); }
+.tag.hazmat { color: var(--hazmat); border-color: var(--hazmat); }
+.tag.risk-low { color: var(--accent3); border-color: var(--accent3); }
+.tag.risk-med { color: var(--warn); border-color: var(--warn); }
+.tag.risk-high { color: var(--hell); border-color: var(--hell); }
+.tag.time { color: var(--text2); border-color: var(--text2); }
+.tag.cannery { color: #4488ff; border-color: #4488ff; }
+
+/* BUTTONS */
+.btn {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 8px 14px;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+.btn-primary { color: var(--accent); border-color: var(--accent); }
+.btn-primary:hover:not(:disabled) { background: rgba(0,212,255,0.1); box-shadow: 0 0 12px rgba(0,212,255,0.3); }
+.btn-go { color: var(--accent3); border-color: var(--accent3); width: 100%; margin-top: 8px; padding: 10px; font-size: 11px; }
+.btn-go:hover:not(:disabled) { background: rgba(0,255,136,0.1); box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+.btn-warn { color: var(--warn); border-color: var(--warn); }
+.btn-warn:hover:not(:disabled) { background: rgba(255,204,0,0.1); }
+.btn-danger { color: var(--hell); border-color: var(--hell); }
+.btn-danger:hover:not(:disabled) { background: rgba(255,34,102,0.1); }
+.btn-sm { padding: 4px 10px; font-size: 9px; }
+.btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* EVENT LOG */
+.event-log {
+  height: 130px;
+  overflow-y: auto;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 4px;
+  background: #020408;
+  border: 1px solid var(--border);
+}
+
+.event-log::-webkit-scrollbar { width: 4px; }
+.event-log::-webkit-scrollbar-track { background: #0a0f1e; }
+.event-log::-webkit-scrollbar-thumb { background: var(--border2); }
+
+.log-line { margin-bottom: 2px; }
+.log-line.info { color: var(--text2); }
+.log-line.good { color: var(--accent3); }
+.log-line.warn { color: var(--warn); }
+.log-line.danger { color: var(--hell); }
+.log-line.accent { color: var(--accent); }
+.log-line.reefer { color: var(--reefer); }
+.log-line.hazmat { color: var(--hazmat); }
+.log-timestamp { color: #334455; margin-right: 6px; }
+
+/* DOT INSPECTION */
+.inspection-panel { display: none; }
+.inspection-panel.active { display: block; }
+
+.inspection-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+}
+
+.check-pass { color: var(--accent3); }
+.check-fail { color: var(--hell); }
+.check-warn { color: var(--warn); }
+
+/* REEFER TEMP */
+.temp-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 28px;
+  font-weight: 900;
+  text-align: center;
+  padding: 8px 0;
+  color: var(--reefer);
+  text-shadow: 0 0 20px var(--reefer);
+}
+
+.temp-target { text-align: center; font-size: 10px; color: var(--text2); margin-bottom: 6px; }
+
+/* HELL WEEK */
+.hell-week-banner {
+  background: linear-gradient(90deg, #1a0008, #0a0010, #1a0008);
+  border: 1px solid var(--hell);
+  border-top: 2px solid var(--hell);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 0 20px rgba(255,34,102,0.2);
+  display: none;
+}
+
+.hell-week-banner.active { display: flex; }
+
+.hell-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--hell);
+  text-shadow: 0 0 10px var(--hell);
+  letter-spacing: 2px;
+}
+
+.hell-day { font-family: 'Share Tech Mono', monospace; font-size: 11px; color: var(--warn); }
+
+/* CARGO BAY */
+.cargo-slot {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cargo-empty { color: var(--text2); font-style: italic; font-size: 11px; }
+
+/* MODAL/OVERLAY */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  border-top: 2px solid var(--accent);
+  max-width: 480px;
+  width: 100%;
+  padding: 16px;
+  box-shadow: 0 0 40px rgba(0,212,255,0.2);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal.hazmat-modal { border-top-color: var(--hazmat); box-shadow: 0 0 40px rgba(255,136,0,0.2); }
+.modal.dot-modal { border-top-color: var(--warn); box-shadow: 0 0 40px rgba(255,204,0,0.2); }
+.modal.hell-modal { border-top-color: var(--hell); box-shadow: 0 0 40px rgba(255,34,102,0.25); }
+
+.modal-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.modal-title.blue { color: var(--accent); }
+.modal-title.orange { color: var(--hazmat); }
+.modal-title.yellow { color: var(--warn); }
+.modal-title.red { color: var(--hell); }
+
+.modal-body { font-size: 12px; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
+.modal-choices { display: flex; flex-direction: column; gap: 6px; }
+
+/* UPGRADE SHOP */
+.upgrade-item {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.upgrade-name { font-size: 12px; font-weight: 600; }
+.upgrade-desc { font-size: 10px; color: var(--text2); }
+.upgrade-cost { font-family: 'Orbitron', monospace; font-size: 12px; color: var(--accent3); }
+.upgrade-owned { font-size: 10px; color: var(--accent3); }
+
+/* PHASE INDICATOR */
+.phase-indicator {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.phase-step {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  letter-spacing: 1px;
+}
+
+.phase-step.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+.phase-step.done { border-color: var(--accent3); color: var(--accent3); }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+
+/* TABS */
+.tabs { display: flex; gap: 2px; margin-bottom: 8px; }
+.tab {
+  font-family: 'Orbitron', monospace;
+  font-size: 9px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.tab.active { color: var(--accent); border-color: var(--accent); background: rgba(0,212,255,0.08); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* FACTION BADGE */
+.faction-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 1px 6px;
+  border: 1px solid;
+  margin-left: 6px;
+}
+
+/* SCROLL */
+.scrollable { overflow-y: auto; max-height: 200px; }
+.scrollable::-webkit-scrollbar { width: 3px; }
+.scrollable::-webkit-scrollbar-track { background: transparent; }
+.scrollable::-webkit-scrollbar-thumb { background: var(--border2); }
+
+/* NOTIFICATION TOAST */
+.toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 200;
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  padding: 10px 14px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  color: var(--accent);
+  box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  max-width: 260px;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* SECTION SPACER */
+.section { margin-bottom: 8px; }
+
+/* REPUTATION */
+.rep-bar { display: flex; align-items: center; gap: 8px; }
+.rep-stars { color: var(--warn); font-size: 14px; }
+
+/* ICONS */
+.ico { font-size: 14px; }
+
+/* Media query for very small screens */
+@media (max-width: 480px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .header { flex-direction: column; gap: 8px; }
+  .header-stats { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- MODALS -->
+<div id="modal-overlay" class="modal-overlay">
+  <div id="modal-box" class="modal">
+    <div id="modal-title" class="modal-title blue"></div>
+    <div id="modal-body" class="modal-body"></div>
+    <div id="modal-choices" class="modal-choices"></div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">STAR<span>HAULER</span></div>
+      <div style="font-size:9px;color:var(--text2);font-family:'Share Tech Mono',monospace;letter-spacing:1px;">INTERSTELLAR FREIGHT TYCOON</div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat">
+        <div class="hstat-label">CREDITS</div>
+        <div class="hstat-val" id="h-credits">500 Ȼ</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">REP</div>
+        <div class="hstat-val" id="h-rep">★★☆☆☆</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">DAY</div>
+        <div class="hstat-val" id="h-day">1</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">HAULS</div>
+        <div class="hstat-val" id="h-hauls">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELL WEEK BANNER -->
+  <div id="hell-week-banner" class="hell-week-banner">
+    <div>
+      <div class="hell-title">🔥 HELL WEEK ACTIVE</div>
+      <div style="font-size:10px;color:var(--text2);">Complete 14 loads in 7 days. No mercy.</div>
+    </div>
+    <div>
+      <div class="hell-day">DAY <span id="hw-day">1</span>/7</div>
+      <div class="hell-day">LOADS <span id="hw-loads">0</span>/14</div>
+    </div>
+  </div>
+
+  <!-- PHASE INDICATOR -->
+  <div class="phase-indicator">
+    <div class="phase-step done" id="phase-contracts">01 CONTRACT</div>
+    <div class="phase-step" id="phase-plan">02 ROUTE</div>
+    <div class="phase-step" id="phase-transit">03 TRANSIT</div>
+    <div class="phase-step" id="phase-deliver">04 DELIVER</div>
+    <div class="phase-step" id="phase-upgrade">05 UPGRADES</div>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('cockpit')">COCKPIT</button>
+    <button class="tab" onclick="switchTab('contracts')">CONTRACTS</button>
+    <button class="tab" onclick="switchTab('systems')">SYSTEMS</button>
+    <button class="tab" onclick="switchTab('upgrades')">UPGRADES</button>
+    <button class="tab" onclick="switchTab('log')">LOG</button>
+  </div>
+
+  <!-- TAB: COCKPIT -->
+  <div id="tab-cockpit" class="tab-content active">
+    <div class="grid grid-2 section">
+
+      <!-- SHIP PANEL -->
+      <div class="panel accent-border">
+        <div class="panel-title blue">■ VESSEL STATUS</div>
+        <div style="font-size:11px;color:var(--accent);font-family:'Orbitron',monospace;font-weight:700;margin-bottom:4px;">RUSTBUCKET MK-I</div>
+        <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">Class: Light Freighter · Registry: SH-0001</div>
+        <div class="meter-row"><div class="meter-label">HULL</div><div class="meter-bar"><div class="meter-fill green" id="m-hull" style="width:75%"></div></div><div class="meter-val" id="mv-hull">75%</div></div>
+        <div class="meter-row"><div class="meter-label">ENGINE</div><div class="meter-bar"><div class="meter-fill blue" id="m-engine" style="width:60%"></div></div><div class="meter-val" id="mv-engine">60%</div></div>
+        <div class="meter-row"><div class="meter-label">FUEL</div><div class="meter-bar"><div class="meter-fill yellow" id="m-fuel" style="width:80%"></div></div><div class="meter-val" id="mv-fuel">80%</div></div>
+        <div class="meter-row"><div class="meter-label">SHIELDS</div><div class="meter-bar"><div class="meter-fill cyan" id="m-shields" style="width:40%"></div></div><div class="meter-val" id="mv-shields">40%</div></div>
+        <div class="meter-row"><div class="meter-label">CARGO BAY</div><div class="meter-bar"><div class="meter-fill orange" id="m-cargo" style="width:0%"></div></div><div class="meter-val" id="mv-cargo">0/20</div></div>
+        <hr class="divider">
+        <div class="stat-grid">
+          <div class="stat-item"><div class="stat-name">CARGO CAP</div><div class="stat-value">20 units</div></div>
+          <div class="stat-item"><div class="stat-name">WARP SPEED</div><div class="stat-value">0.4c</div></div>
+          <div class="stat-item"><div class="stat-name">REEFER UNIT</div><div class="stat-value" id="stat-reefer" style="color:var(--text2)">NOT INSTALLED</div></div>
+          <div class="stat-item"><div class="stat-name">HAZMAT CERT</div><div class="stat-value" id="stat-hazmat" style="color:var(--text2)">NONE</div></div>
+        </div>
+      </div>
+
+      <!-- GALAXY MAP -->
+      <div class="panel">
+        <div class="panel-title blue">■ GALAXY MAP — SECTOR 7</div>
+        <div class="galaxy-map" id="galaxy-map">
+          <!-- Stars generated by JS -->
+        </div>
+        <div style="display:flex;gap:12px;margin-top:6px;font-size:10px;font-family:'Share Tech Mono',monospace;">
+          <span style="color:var(--accent3)">● CURRENT</span>
+          <span style="color:var(--warn)">● DESTINATION</span>
+          <span id="route-info" style="color:var(--text2)">Select contract</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIVE CONTRACT -->
+    <div class="panel section" id="active-contract-panel">
+      <div class="panel-title green">■ ACTIVE CONTRACT</div>
+      <div id="active-contract-display">
+        <div style="color:var(--text2);font-size:12px;font-style:italic;">No contract accepted. Go to CONTRACTS tab.</div>
+      </div>
+      <button class="btn btn-go" id="btn-launch" onclick="launchShip()" disabled>
+        ▶ ENGAGE WARP — BEGIN HAUL
+      </button>
+    </div>
+
+    <!-- CURRENT POSITION / STATUS -->
+    <div class="grid grid-2 section">
+      <div class="panel">
+        <div class="panel-title">■ CURRENT POSITION</div>
+        <div style="font-size:12px;margin-bottom:4px;">📍 <span id="current-location" style="color:var(--accent);font-family:'Orbitron',monospace;font-size:11px;font-weight:700;">TERRA NOVA STATION</span></div>
+        <div style="font-size:10px;color:var(--text2);">Sector 7 · Neutral Zone</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:4px;">Faction: <span style="color:#88aaff;">HAULERS UNION</span></div>
+        <hr class="divider">
+        <div style="font-size:10px;color:var(--text2);">Insurance: <span style="color:var(--accent3)">BASIC COVERAGE</span></div>
+        <div style="font-size:10px;color:var(--text2);">DOT Status: <span style="color:var(--accent3)">COMPLIANT ✓</span></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">■ RECENT EVENTS</div>
+        <div id="mini-log" style="font-family:'Share Tech Mono',monospace;font-size:10px;line-height:1.7;color:var(--text2);">
+          <div style="color:var(--accent3)">▶ System online. Ready for contracts.</div>
+          <div>▶ DOT cert current. All systems nominal.</div>
+          <div>▶ Reefer unit: NOT INSTALLED</div>
+          <div style="color:var(--warn)">▶ Low shield integrity detected.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: CONTRACTS -->
+  <div id="tab-contracts" class="tab-content">
+    <div class="panel section">
+      <div class="panel-title blue">■ AVAILABLE CONTRACTS — TERRA NOVA STATION</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">Select a contract to review details. <span style="color:var(--warn)">NOTE: Reefer/Hazmat require installed modules.</span></div>
+      <div id="contract-list" class="scrollable">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <div class="panel section" id="contract-detail" style="display:none;">
+      <div class="panel-title green">■ CONTRACT DETAILS</div>
+      <div id="contract-detail-body"></div>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-go" onclick="acceptContract()" id="btn-accept" style="width:auto;margin-top:0;">✓ ACCEPT CONTRACT</button>
+        <button class="btn btn-warn btn-sm" onclick="closeContractDetail()">✗ CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: SYSTEMS -->
+  <div id="tab-systems" class="tab-content">
+    <div class="grid grid-2 section">
+
+      <!-- REEFER SYSTEM -->
+      <div class="panel reefer-border">
+        <div class="panel-title cyan">❄ REEFER SYSTEM</div>
+        <div id="reefer-offline" style="font-size:11px;color:var(--text2);">
+          Unit not installed. Purchase in UPGRADES tab.
+          <div style="margin-top:8px;font-size:10px;color:var(--reefer)">Required for: Frozen/perishable cargo</div>
+        </div>
+        <div id="reefer-online" style="display:none;">
+          <div class="temp-display" id="reefer-temp">-18°C</div>
+          <div class="temp-target">TARGET: <span id="reefer-target">-18°C</span> | STATUS: <span id="reefer-status" style="color:var(--accent3)">NOMINAL</span></div>
+          <div class="meter-row"><div class="meter-label">POWER DRAW</div><div class="meter-bar"><div class="meter-fill cyan" id="m-reefer-power" style="width:30%"></div></div><div class="meter-val">30%</div></div>
+          <div class="meter-row"><div class="meter-label">COOLANT</div><div class="meter-bar"><div class="meter-fill cyan" id="m-coolant" style="width:95%"></div></div><div class="meter-val" id="mv-coolant">95%</div></div>
+          <div class="meter-row"><div class="meter-label">SPOILAGE RISK</div><div class="meter-bar"><div class="meter-fill red" id="m-spoilage" style="width:2%"></div></div><div class="meter-val" id="mv-spoilage">2%</div></div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="btn btn-primary btn-sm" onclick="reeferOverride()">EMERGENCY OVERRIDE</button>
+            <button class="btn btn-warn btn-sm" onclick="reeferAdjust()">ADJUST TEMP</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HAZMAT SYSTEM -->
+      <div class="panel hazmat-border">
+        <div class="panel-title orange">☢ HAZMAT CONTAINMENT</div>
+        <div id="hazmat-offline" style="font-size:11px;color:var(--text2);">
+          No hazmat certification or containment pods installed.
+          <div style="margin-top:8px;font-size:10px;color:var(--hazmat)">Required for: Class 1–9 hazardous materials</div>
+        </div>
+        <div id="hazmat-online" style="display:none;">
+          <div class="meter-row"><div class="meter-label">CONTAINMENT</div><div class="meter-bar"><div class="meter-fill orange" id="m-contain" style="width:100%"></div></div><div class="meter-val" id="mv-contain">100%</div></div>
+          <div class="meter-row"><div class="meter-label">PRESSURE</div><div class="meter-bar"><div class="meter-fill orange" id="m-pressure" style="width:85%"></div></div><div class="meter-val" id="mv-pressure">85 PSI</div></div>
+          <div class="meter-row"><div class="meter-label">RADIATION</div><div class="meter-bar"><div class="meter-fill red" id="m-radiation" style="width:5%"></div></div><div class="meter-val" id="mv-radiation">0.05 Sv</div></div>
+          <div style="font-size:10px;color:var(--text2);margin-top:6px;">Class: <span id="hazmat-class" style="color:var(--hazmat)">---</span> | Placards: <span id="hazmat-placards" style="color:var(--hazmat)">---</span></div>
+          <div class="btn-row" style="margin-top:8px;">
+            <button class="btn btn-danger btn-sm" onclick="hazmatVent()">EMERGENCY VENT</button>
+            <button class="btn btn-warn btn-sm" onclick="hazmatSeal()">RE-SEAL PODS</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOT INSPECTION PANEL -->
+    <div class="panel section">
+      <div class="panel-title" style="color:var(--warn);">🚨 DOT INSPECTION — SPACE EDITION</div>
+      <div id="dot-idle" style="font-size:11px;color:var(--text2);">
+        No active inspection. Inspections triggered at random checkpoints, faction-controlled space, or hazmat loads.
+        <div style="margin-top:8px;">
+          <span class="tag risk-low">LEVEL 1: FULL INSPECT</span>
+          <span class="tag risk-med" style="margin-left:4px;">LEVEL 2: WALK-AROUND</span>
+          <span class="tag time" style="margin-left:4px;">LEVEL 3: LOGBOOK</span>
+        </div>
+      </div>
+      <div id="dot-active" style="display:none;">
+        <div style="font-size:12px;color:var(--warn);font-family:'Orbitron',monospace;margin-bottom:8px;" id="dot-type-label">LEVEL 1 — FULL SHIP INSPECTION</div>
+        <div id="dot-checklist"></div>
+        <div style="margin-top:8px;font-size:12px;" id="dot-result"></div>
+        <button class="btn btn-primary btn-sm" onclick="closeDOT()" style="margin-top:8px;" id="btn-close-dot" disabled>ACKNOWLEDGE INSPECTION</button>
+      </div>
+    </div>
+
+    <!-- CARGO BAY -->
+    <div class="panel section">
+      <div class="panel-title">■ CARGO BAY</div>
+      <div id="cargo-manifest">
+        <div class="cargo-slot"><div class="cargo-empty">[ EMPTY — 20 units available ]</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: UPGRADES -->
+  <div id="tab-upgrades" class="tab-content">
+    <div class="panel section">
+      <div class="panel-title blue">■ UPGRADE SHOP — TERRA NOVA OUTFITTERS</div>
+      <div style="font-size:10px;color:var(--text2);margin-bottom:8px;">Invest in your ship to unlock better contracts and survive harder routes.</div>
+      <div id="upgrade-list"></div>
+    </div>
+  </div>
+
+  <!-- TAB: LOG -->
+  <div id="tab-log" class="tab-content">
+    <div class="panel section">
+      <div class="panel-title blue">■ MISSION LOG — FULL HISTORY</div>
+      <div class="event-log" id="full-log" style="height:350px;"></div>
+    </div>
+    <div class="panel section">
+      <div class="panel-title">■ SAVE STATE (COPY TO SAVE)</div>
+      <textarea id="save-state" style="width:100%;height:80px;background:#020408;border:1px solid var(--border);color:var(--text2);font-family:'Share Tech Mono',monospace;font-size:10px;padding:8px;resize:none;" readonly></textarea>
+      <div class="btn-row" style="margin-top:6px;">
+        <button class="btn btn-primary btn-sm" onclick="generateSave()">GENERATE SAVE</button>
+        <button class="btn btn-warn btn-sm" onclick="loadSave()">LOAD SAVE</button>
+        <button class="btn btn-danger btn-sm" onclick="startHellWeek()">🔥 ACTIVATE HELL WEEK</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// ============================================================
+// STARHAULER — GAME STATE
+// ============================================================
+const G = {
+  credits: 500,
+  day: 1,
+  hauls: 0,
+  rep: 2, // 0-5
+  location: "TERRA NOVA STATION",
+  ship: {
+    name: "Rustbucket Mk-I",
+    hull: 75, engine: 60, fuel: 80, shields: 40,
+    cargoUsed: 0, cargoMax: 20,
+    reefer: false, hazmat: false, hazmatLevel: 0,
+    warpSpeed: 0.4
+  },
+  reefer: { installed: false, temp: -18, target: -18, coolant: 95, spoilage: 2, active: false },
+  hazmat: { installed: false, containment: 100, pressure: 85, radiation: 5 },
+  activeContract: null,
+  selectedContract: null,
+  phase: "contracts",
+  hellWeek: { active: false, day: 0, loads: 0 },
+  upgrades: {
+    reefer_basic: false, reefer_adv: false,
+    hazmat_class3: false, hazmat_class7: false,
+    hull_plating: false, engine_boost: false,
+    fuel_efficient: false, shields_mk2: false,
+    cargo_expansion: false
+  },
+  logEntries: [],
+  day_contracts_taken: 0
+};
+
+// ============================================================
+// CONTRACTS DATABASE
+// ============================================================
+const ALL_CONTRACTS = [
+  {
+    id: "c001",
+    name: "Frozen Synth-Kelp — Terra Nova → Helios Prime",
+    type: "reefer",
+    cargo: "Frozen Synth-Kelp",
+    units: 8,
+    from: "TERRA NOVA STATION",
+    to: "HELIOS PRIME",
+    pay: 380,
+    bonus: 90,
+    risk: "low",
+    timeLimit: 2,
+    reeferRequired: true,
+    hazmatRequired: false,
+    tempTarget: -12,
+    desc: "Standard frozen produce run. Keep below -12°C. Bonus for on-time delivery. Watch for solar interference en route.",
+    faction: "Haulers Union",
+    tags: ["reefer","risk-low"]
+  },
+  {
+    id: "c002",
+    name: "Volatile Isotope Drums — Terra Nova → Cygnus Depot",
+    type: "hazmat",
+    cargo: "Class 7 Radioactive Isotopes",
+    units: 4,
+    from: "TERRA NOVA STATION",
+    to: "CYGNUS DEPOT",
+    pay: 820,
+    bonus: 200,
+    risk: "high",
+    timeLimit: 3,
+    reeferRequired: false,
+    hazmatRequired: true,
+    hazmatClass: 7,
+    desc: "High-value hazmat. Class 7 radioactive. Containment must stay above 85%. Mandatory Level 1 DOT inspection at Cygnus border. Hazmat Module required.",
+    faction: "Cygnus Corp",
+    tags: ["hazmat","risk-high"]
+  },
+  {
+    id: "c003",
+    name: "Machine Parts — Terra Nova → Port Halcyon",
+    type: "standard",
+    cargo: "Industrial Machine Parts",
+    units: 12,
+    from: "TERRA NOVA STATION",
+    to: "PORT HALCYON",
+    pay: 220,
+    bonus: 40,
+    risk: "low",
+    timeLimit: 3,
+    reeferRequired: false,
+    hazmatRequired: false,
+    desc: "Standard freight. No special handling. Good starter run — Port Halcyon has a repair bay if you need it.",
+    faction: "Independent",
+    tags: ["risk-low"]
+  },
+  {
+    id: "c004",
+    name: "🐟 AKUTAN-9 CANNERY PICKUP — Seasonal Rush",
+    type: "cannery",
+    cargo: "Frozen Alaskan Rockfish (Space Grade)",
+    units: 18,
+    from: "AKUTAN-9 PROCESSING",
+    to: "TERRA NOVA STATION",
+    pay: 660,
+    bonus: 180,
+    risk: "med",
+    timeLimit: 2,
+    reeferRequired: true,
+    hazmatRequired: false,
+    tempTarget: -22,
+    desc: "SEASONAL CONTRACT — Cannery is at FULL CHAOS. Docking delays guaranteed. Shift change drama. Strict -22°C required. Timer starts at pickup. High value but unforgiving.",
+    faction: "Akutan Cannery Co.",
+    tags: ["reefer","cannery","risk-med"]
+  },
+  {
+    id: "c005",
+    name: "MedSupply Canisters — Terra Nova → Helios Prime",
+    type: "standard",
+    cargo: "Medical Supplies (Pressurized)",
+    units: 6,
+    from: "TERRA NOVA STATION",
+    to: "HELIOS PRIME",
+    pay: 310,
+    bonus: 60,
+    risk: "low",
+    timeLimit: 4,
+    reeferRequired: false,
+    hazmatRequired: false,
+    desc: "Time-sensitive medical cargo. Handle with care. Reputation bonus if delivered in good condition. Faction: Helios Medical Authority.",
+    faction: "Helios Medical",
+    tags: ["risk-low"]
+  }
+];
+
+const UPGRADES_DEF = [
+  { id:"reefer_basic", name:"Reefer Unit Mk-I", desc:"Enables temperature-controlled cargo. Required for frozen/perishable loads.", cost:300, req:null, stat:"reefer" },
+  { id:"reefer_adv", name:"Reefer Unit Mk-II", desc:"Advanced cooling. Reduces spoilage risk by 50%. Required for -22°C contracts.", cost:450, req:"reefer_basic", stat:"reefer" },
+  { id:"hazmat_class3", name:"Hazmat Module — Class 1-3", desc:"Enables Class 1-3 hazardous cargo. Required certification + containment pods.", cost:500, req:null, stat:"hazmat" },
+  { id:"hazmat_class7", name:"Hazmat Module — Class 7", desc:"Unlocks radioactive/nuclear cargo. Highest pay in the sector.", cost:900, req:"hazmat_class3", stat:"hazmat" },
+  { id:"hull_plating", name:"Reinforced Hull Plating", desc:"Hull integrity +20. Reduces damage from pirate encounters and debris fields.", cost:250, req:null, stat:"hull" },
+  { id:"engine_boost", name:"Engine Overhaul", desc:"Engine rating +25. Faster travel, more fuel draw. Reduces arrival time.", cost:350, req:null, stat:"engine" },
+  { id:"fuel_efficient", name:"Fuel Efficiency Module", desc:"Reduce fuel consumption by 20% per jump.", cost:200, req:null, stat:"fuel" },
+  { id:"shields_mk2", name:"Shield Generator Mk-II", desc:"Shields +35. Critical for pirate-heavy routes.", cost:400, req:null, stat:"shields" },
+  { id:"cargo_expansion", name:"Cargo Bay Expansion", desc:"Cargo capacity: 20 → 30 units. Take bigger loads.", cost:550, req:null, stat:"cargo" }
+];
+
+const PLANETS = [
+  { id:"terra", name:"TERRA\nNOVA", x:15, y:40, r:18, color:"#4488ff", glow:"rgba(68,136,255,0.4)" },
+  { id:"helios", name:"HELIOS", x:70, y:20, r:14, color:"#ffaa00", glow:"rgba(255,170,0,0.4)" },
+  { id:"cygnus", name:"CYGNUS", x:82, y:70, r:12, color:"#ff4444", glow:"rgba(255,68,68,0.4)" },
+  { id:"halcyon", name:"HALCYON", x:55, y:75, r:10, color:"#44ffaa", glow:"rgba(68,255,170,0.4)" },
+  { id:"akutan", name:"AKUTAN-9", x:40, y:15, r:8, color:"#88aaff", glow:"rgba(136,170,255,0.4)" }
+];
+
+const DEST_MAP = {
+  "HELIOS PRIME": "helios",
+  "CYGNUS DEPOT": "cygnus",
+  "PORT HALCYON": "halcyon",
+  "AKUTAN-9 PROCESSING": "akutan",
+  "TERRA NOVA STATION": "terra"
+};
+
+const TRAVEL_EVENTS = [
+  { type:"pirate", title:"⚠ PIRATE INTERCEPT", class:"danger",
+    desc:"A Void Corsair vessel is blocking your route. They're demanding 80 credits or threatening hull damage.",
+    choices:[
+      { text:"Pay the toll (−80 Ȼ)", fn:"eventPayToll" },
+      { text:"Attempt evasion (50% chance of hull damage)", fn:"eventEvade" },
+      { text:"Hail for help (costs 1 hour — rep gain)", fn:"eventHail" }
+    ]},
+  { type:"solar", title:"☀ SOLAR FLARE WARNING", class:"warn",
+    desc:"A Class M solar flare is interfering with navigation. You can push through or plot a longer safe route.",
+    choices:[
+      { text:"Push through (engine stress, save time)", fn:"eventPushThrough" },
+      { text:"Safe route (+1 day transit, ship safe)", fn:"eventSafeRoute" }
+    ]},
+  { type:"debris", title:"🪨 DEBRIS FIELD", class:"warn",
+    desc:"Uncharted debris field detected. Navigation required — light hull damage possible.",
+    choices:[
+      { text:"Navigate carefully (minor hull wear)", fn:"eventNavigate" },
+      { text:"Full thruster burn (faster, more damage)", fn:"eventBurnThrough" }
+    ]},
+  { type:"dot", title:"🚨 DOT INSPECTION CHECKPOINT", class:"warn",
+    desc:"A Space DOT enforcement vessel is signaling you for inspection. Compliance required by law.",
+    choices:[
+      { text:"Comply — initiate inspection", fn:"eventDOTInspect" }
+    ]},
+  { type:"distress", title:"📡 DISTRESS SIGNAL DETECTED", class:"accent",
+    desc:"A Haulers Union freighter is broadcasting a distress signal. Helping will cost time but may earn rep.",
+    choices:[
+      { text:"Assist (−3hrs, +rep)", fn:"eventAssist" },
+      { text:"Ignore and continue", fn:"eventIgnore" }
+    ]},
+  { type:"reefer_fault", title:"❄ REEFER MALFUNCTION", class:"reefer",
+    desc:"WARNING: Reefer unit showing temperature variance. Coolant pressure dropping. Immediate attention required.",
+    choices:[
+      { text:"Emergency override (risky, fast)", fn:"eventReeferOverride" },
+      { text:"Manual recalibration (safe, costs time)", fn:"eventReeferRecal" }
+    ]},
+  { type:"smooth", title:"✓ SMOOTH TRANSIT", class:"good",
+    desc:"Route clear, systems nominal. Your haul is proceeding without incident.",
+    choices:[
+      { text:"Continue to destination", fn:"eventSmooth" }
+    ]}
+];
+
+// ============================================================
+// GAME LOGIC
+// ============================================================
+
+function addLog(msg, cls="info") {
+  const ts = `[DAY ${G.day.toString().padStart(2,"0")}]`;
+  G.logEntries.push({ ts, msg, cls });
+  const line = `<div class="log-line ${cls}"><span class="log-timestamp">${ts}</span>${msg}</div>`;
+  const fullLog = document.getElementById("full-log");
+  fullLog.innerHTML += line;
+  fullLog.scrollTop = fullLog.scrollHeight;
+}
+
+function toast(msg, duration=3000) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", duration);
+}
+
+function updateHUD() {
+  document.getElementById("h-credits").textContent = G.credits + " Ȼ";
+  document.getElementById("h-rep").textContent = "★".repeat(G.rep) + "☆".repeat(5-G.rep);
+  document.getElementById("h-day").textContent = G.day;
+  document.getElementById("h-hauls").textContent = G.hauls;
+  updateMeters();
+  updateUpgradeList();
+}
+
+function updateMeters() {
+  const s = G.ship;
+  setMeter("hull", s.hull, s.hull + "%");
+  setMeter("engine", s.engine, s.engine + "%");
+  setMeter("fuel", s.fuel, s.fuel + "%");
+  setMeter("shields", s.shields, s.shields + "%");
+  setMeter("cargo", (s.cargoUsed/s.cargoMax)*100, `${s.cargoUsed}/${s.cargoMax}`);
+}
+
+function setMeter(id, pct, label) {
+  const fill = document.getElementById("m-" + id);
+  const val = document.getElementById("mv-" + id);
+  if (fill) fill.style.width = Math.max(0, Math.min(100, pct)) + "%";
+  if (val) val.textContent = label;
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".tab-content").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  event.target.classList.add("active");
+}
+
+function setPhase(ph) {
+  G.phase = ph;
+  const phases = ["contracts","plan","transit","deliver","upgrade"];
+  phases.forEach((p, i) => {
+    const el = document.getElementById("phase-" + p);
+    const idx = phases.indexOf(ph);
+    if (i < idx) el.className = "phase-step done";
+    else if (i === idx) el.className = "phase-step active";
+    else el.className = "phase-step";
+  });
+}
+
+// ============================================================
+// MAP
+// ============================================================
+function buildMap() {
+  const map = document.getElementById("galaxy-map");
+  let html = "";
+  // Stars
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random()*100, y = Math.random()*100;
+    const s = Math.random()*2 + 0.5;
+    const op = Math.random()*0.6 + 0.2;
+    html += `<div class="star" style="left:${x}%;top:${y}%;width:${s}px;height:${s}px;background:white;opacity:${op}"></div>`;
+  }
+  // Planets
+  PLANETS.forEach(p => {
+    const isCurrent = (p.id === "terra" && G.location === "TERRA NOVA STATION") ||
+                      (p.id === "helios" && G.location === "HELIOS PRIME") ||
+                      (p.id === "cygnus" && G.location === "CYGNUS DEPOT") ||
+                      (p.id === "halcyon" && G.location === "PORT HALCYON") ||
+                      (p.id === "akutan" && (G.location === "AKUTAN-9 PROCESSING" || G.location === "AKUTAN-9"));
+    const destPlanetId = G.activeContract ? DEST_MAP[G.activeContract.to] : null;
+    const isDest = p.id === destPlanetId;
+    const cls = isCurrent ? "current" : isDest ? "destination" : "";
+    html += `<div class="planet ${cls}" style="left:${p.x}%;top:${p.y}%;width:${p.r}px;height:${p.r}px;background:radial-gradient(circle at 35% 35%,${p.color},#111);box-shadow:0 0 8px ${p.glow};transform:translate(-50%,-50%);" title="${p.name.replace('\n',' ')}"></div>`;
+    // Label
+    const label = p.name.replace("\n", " ");
+    html += `<div style="position:absolute;left:${p.x}%;top:calc(${p.y}% + ${p.r/2+2}px);transform:translateX(-50%);font-size:7px;font-family:'Share Tech Mono',monospace;color:#6688aa;white-space:nowrap;">${label}</div>`;
+  });
+  map.innerHTML = html;
+}
+
+// ============================================================
+// CONTRACTS
+// ============================================================
+function renderContracts() {
+  let html = "";
+  ALL_CONTRACTS.forEach(c => {
+    const canDo = checkCanDo(c);
+    const cls = c.type === "reefer" ? "reefer-card" : c.type === "hazmat" ? "hazmat-card" : c.type === "cannery" ? "cannery-card" : "";
+    const selected = G.selectedContract && G.selectedContract.id === c.id ? "selected" : "";
+    const lock = canDo === true ? "" : `<span style="color:var(--hell);font-size:10px;">🔒 ${canDo}</span>`;
+    html += `<div class="contract-card ${cls} ${selected}" onclick="selectContract('${c.id}')">
+      <div class="contract-header">
+        <div class="contract-name">${c.name}</div>
+        <div class="contract-pay">${c.pay}+${c.bonus}Ȼ</div>
+      </div>
+      <div class="contract-meta">
+        ${c.tags.map(t => `<span class="tag ${t}">${t.toUpperCase()}</span>`).join("")}
+        <span class="tag time">${c.timeLimit}D LIMIT</span>
+        <span class="tag time">${c.units}u CARGO</span>
+        ${lock}
+      </div>
+    </div>`;
+  });
+  document.getElementById("contract-list").innerHTML = html;
+}
+
+function checkCanDo(c) {
+  if (c.reeferRequired && !G.ship.reefer) return "REEFER UNIT NEEDED";
+  if (c.hazmatRequired && !G.ship.hazmat) return "HAZMAT MODULE NEEDED";
+  if (c.hazmatClass === 7 && !G.upgrades.hazmat_class7) return "CLASS 7 CERT NEEDED";
+  if (c.units > (G.ship.cargoMax - G.ship.cargoUsed)) return "INSUFFICIENT CARGO SPACE";
+  return true;
+}
+
+function selectContract(id) {
+  const c = ALL_CONTRACTS.find(x => x.id === id);
+  G.selectedContract = c;
+  renderContracts();
+
+  const detail = document.getElementById("contract-detail");
+  detail.style.display = "block";
+
+  const canDo = checkCanDo(c);
+  const alreadyActive = G.activeContract !== null;
+
+  document.getElementById("btn-accept").disabled = (canDo !== true || alreadyActive);
+
+  document.getElementById("contract-detail-body").innerHTML = `
+    <div style="font-size:14px;font-weight:600;color:var(--accent);margin-bottom:6px;">${c.name}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px;font-size:11px;">
+      <div><span style="color:var(--text2)">FROM:</span> ${c.from}</div>
+      <div><span style="color:var(--text2)">TO:</span> ${c.to}</div>
+      <div><span style="color:var(--text2)">CARGO:</span> ${c.cargo}</div>
+      <div><span style="color:var(--text2)">UNITS:</span> ${c.units}</div>
+      <div><span style="color:var(--text2)">BASE PAY:</span> <span style="color:var(--accent3)">${c.pay} Ȼ</span></div>
+      <div><span style="color:var(--text2)">ON-TIME BONUS:</span> <span style="color:var(--warn)">${c.bonus} Ȼ</span></div>
+      <div><span style="color:var(--text2)">TIME LIMIT:</span> ${c.timeLimit} days</div>
+      <div><span style="color:var(--text2)">FACTION:</span> ${c.faction}</div>
+    </div>
+    <div style="font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:8px;">${c.desc}</div>
+    ${canDo !== true ? `<div style="color:var(--hell);font-size:11px;padding:6px;border:1px solid var(--hell);background:rgba(255,34,102,0.05);">⛔ BLOCKED: ${canDo}</div>` : ""}
+    ${alreadyActive ? `<div style="color:var(--warn);font-size:11px;margin-top:4px;">⚠ Complete your active contract first.</div>` : ""}
+  `;
+}
+
+function closeContractDetail() {
+  document.getElementById("contract-detail").style.display = "none";
+  G.selectedContract = null;
+  renderContracts();
+}
+
+function acceptContract() {
+  if (!G.selectedContract) return;
+  G.activeContract = G.selectedContract;
+  G.ship.cargoUsed += G.activeContract.units;
+  updateActiveContractDisplay();
+  buildMap();
+  setPhase("plan");
+  addLog(`CONTRACT ACCEPTED: ${G.activeContract.name}`, "accent");
+  addLog(`Route: ${G.activeContract.from} → ${G.activeContract.to} | Pay: ${G.activeContract.pay}+${G.activeContract.bonus}Ȼ`, "info");
+  if (G.activeContract.type === "cannery") {
+    addLog("⚠ CANNERY PICKUP: Docking delays expected. Prepare for shift change chaos.", "warn");
+  }
+  if (G.activeContract.type === "hazmat") {
+    addLog("☢ HAZMAT ACTIVE: Containment monitoring engaged. Expect DOT inspection.", "hazmat");
+  }
+  if (G.activeContract.type === "reefer" || G.activeContract.type === "cannery") {
+    G.reefer.active = true;
+    G.reefer.target = G.activeContract.tempTarget || -18;
+    showReeferOnline();
+    addLog(`❄ REEFER ENGAGED — Target: ${G.reefer.target}°C`, "reefer");
+  }
+  updateCargoManifest();
+  updateMeters();
+  document.getElementById("btn-launch").disabled = false;
+  document.getElementById("btn-accept").disabled = true;
+  toast("✓ Contract accepted! Engage warp when ready.");
+  switchTab("cockpit");
+}
+
+function updateActiveContractDisplay() {
+  if (!G.activeContract) {
+    document.getElementById("active-contract-display").innerHTML = `<div style="color:var(--text2);font-size:12px;font-style:italic;">No contract accepted. Go to CONTRACTS tab.</div>`;
+    return;
+  }
+  const c = G.activeContract;
+  document.getElementById("active-contract-display").innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;">
+      <div><span style="color:var(--text2)">CARGO:</span> <span style="color:var(--text)">${c.cargo}</span></div>
+      <div><span style="color:var(--text2)">DESTINATION:</span> <span style="color:var(--accent);font-family:'Orbitron',monospace;font-size:10px;">${c.to}</span></div>
+      <div><span style="color:var(--text2)">PAY:</span> <span style="color:var(--accent3)">${c.pay}+${c.bonus}Ȼ</span></div>
+      <div><span style="color:var(--text2)">TIME LIMIT:</span> <span style="color:var(--warn)">${c.timeLimit} days</span></div>
+    </div>
+  `;
+}
+
+function updateCargoManifest() {
+  if (!G.activeContract) {
+    document.getElementById("cargo-manifest").innerHTML = `<div class="cargo-slot"><div class="cargo-empty">[ EMPTY — ${G.ship.cargoMax} units available ]</div></div>`;
+    return;
+  }
+  const c = G.activeContract;
+  const typeColor = c.type === "reefer" || c.type === "cannery" ? "var(--reefer)" : c.type === "hazmat" ? "var(--hazmat)" : "var(--accent)";
+  document.getElementById("cargo-manifest").innerHTML = `
+    <div class="cargo-slot">
+      <div>
+        <div style="font-size:12px;font-weight:600;color:${typeColor}">${c.cargo}</div>
+        <div style="font-size:10px;color:var(--text2)">${c.units} units · ${c.type.toUpperCase()} · To: ${c.to}</div>
+      </div>
+      <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--accent3)">${c.units}u</div>
+    </div>
+    <div class="cargo-slot"><div class="cargo-empty">${G.ship.cargoMax - c.units} units free</div></div>
+  `;
+}
+
+// ============================================================
+// UPGRADES
+// ============================================================
+function updateUpgradeList() {
+  let html = "";
+  UPGRADES_DEF.forEach(u => {
+    const owned = G.upgrades[u.id];
+    const reqMet = !u.req || G.upgrades[u.req];
+    const canBuy = !owned && reqMet && G.credits >= u.cost;
+    const cantAfford = !owned && reqMet && G.credits < u.cost;
+    html += `<div class="upgrade-item">
+      <div>
+        <div class="upgrade-name" style="color:${owned ? "var(--accent3)" : reqMet ? "var(--text)" : "var(--text2)"}">${owned ? "✓ " : ""}${u.name}</div>
+        <div class="upgrade-desc">${u.desc}${u.req && !G.upgrades[u.req] ? ` <span style="color:var(--hell)">· Requires: ${UPGRADES_DEF.find(x=>x.id===u.req)?.name}</span>` : ""}</div>
+      </div>
+      <div style="text-align:right;">
+        ${owned ? `<div class="upgrade-owned">INSTALLED</div>` :
+          `<div class="upgrade-cost">${u.cost}Ȼ</div>
+           <button class="btn btn-primary btn-sm" style="margin-top:4px;" onclick="buyUpgrade('${u.id}')" ${canBuy ? "" : "disabled"}>${cantAfford ? "NEED CREDITS" : !reqMet ? "LOCKED" : "BUY"}</button>`}
+      </div>
+    </div>`;
+  });
+  const el = document.getElementById("upgrade-list");
+  if (el) el.innerHTML = html;
+}
+
+function buyUpgrade(id) {
+  const u = UPGRADES_DEF.find(x => x.id === id);
+  if (!u || G.upgrades[id] || G.credits < u.cost) return;
+  G.credits -= u.cost;
+  G.upgrades[id] = true;
+  // Apply upgrade effects
+  if (id === "reefer_basic" || id === "reefer_adv") {
+    G.ship.reefer = true;
+    document.getElementById("stat-reefer").textContent = id === "reefer_adv" ? "MK-II ✓" : "MK-I ✓";
+    document.getElementById("stat-reefer").style.color = "var(--reefer)";
+  }
+  if (id === "hazmat_class3" || id === "hazmat_class7") {
+    G.ship.hazmat = true;
+    G.ship.hazmatLevel = id === "hazmat_class7" ? 7 : 3;
+    document.getElementById("stat-hazmat").textContent = `CLASS ${G.ship.hazmatLevel} ✓`;
+    document.getElementById("stat-hazmat").style.color = "var(--hazmat)";
+    showHazmatOnline();
+  }
+  if (id === "hull_plating") G.ship.hull = Math.min(100, G.ship.hull + 20);
+  if (id === "engine_boost") G.ship.engine = Math.min(100, G.ship.engine + 25);
+  if (id === "shields_mk2") G.ship.shields = Math.min(100, G.ship.shields + 35);
+  if (id === "cargo_expansion") G.ship.cargoMax = 30;
+  addLog(`UPGRADE PURCHASED: ${u.name} (−${u.cost}Ȼ)`, "good");
+  toast(`✓ Installed: ${u.name}`);
+  updateHUD();
+  renderContracts();
+}
+
+// ============================================================
+// REEFER / HAZMAT ONLINE
+// ============================================================
+function showReeferOnline() {
+  document.getElementById("reefer-offline").style.display = "none";
+  document.getElementById("reefer-online").style.display = "block";
+  document.getElementById("reefer-temp").textContent = G.reefer.target + "°C";
+  document.getElementById("reefer-target").textContent = G.reefer.target + "°C";
+}
+
+function showHazmatOnline() {
+  document.getElementById("hazmat-offline").style.display = "none";
+  document.getElementById("hazmat-online").style.display = "block";
+}
+
+function reeferOverride() {
+  addLog("❄ REEFER OVERRIDE ENGAGED — Power spike risk!", "warn");
+  G.reefer.coolant = Math.max(20, G.reefer.coolant - 10);
+  G.reefer.spoilage = Math.max(0, G.reefer.spoilage - 15);
+  updateHUD();
+  toast("⚡ Override engaged! Coolant -10%");
+}
+
+function reeferAdjust() {
+  const t = G.activeContract?.tempTarget || -18;
+  G.reefer.target = t;
+  document.getElementById("reefer-target").textContent = t + "°C";
+  addLog(`❄ Reefer recalibrated to ${t}°C`, "reefer");
+  toast("Reefer temp adjusted.");
+}
+
+function hazmatVent() {
+  if (!G.activeContract) return;
+  addLog("☢ EMERGENCY VENT — Pressure released. Radiation spike!", "danger");
+  G.ship.hull -= 5;
+  toast("⚠ Emergency vent! Hull -5");
+  updateHUD();
+}
+
+function hazmatSeal() {
+  G.hazmat.containment = Math.min(100, G.hazmat.containment + 10);
+  addLog("☢ Hazmat pods resealed. Containment +" + 10 + "%", "hazmat");
+  toast("Pods resealed.");
+  updateHUD();
+}
+
+// ============================================================
+// TRAVEL / EVENTS
+// ============================================================
+function launchShip() {
+  if (!G.activeContract) return;
+  setPhase("transit");
+  document.getElementById("btn-launch").disabled = true;
+  addLog(`⯈ WARP ENGAGED — ${G.activeContract.from} → ${G.activeContract.to}`, "accent");
+  addLog(`Estimated transit: ${G.activeContract.timeLimit} day(s). Stay frosty.`, "info");
+
+  // Special cannery delay
+  if (G.activeContract.type === "cannery") {
+    addLog("🐟 CANNERY: Approaching Akutan-9. Docking queue: 6 vessels ahead.", "warn");
+    addLog("🐟 CANNERY: Shift change in progress — expect 6hr delay at dock.", "warn");
+  }
+
+  // Always trigger at least 1 event
+  setTimeout(() => triggerTravelEvent(), 800);
+}
+
+function triggerTravelEvent() {
+  let eventPool = [...TRAVEL_EVENTS];
+
+  // Weight events based on cargo
+  if (G.activeContract?.type === "hazmat") {
+    // Force DOT inspection for hazmat
+    if (!G._dotTriggered) {
+      G._dotTriggered = true;
+      showEvent(TRAVEL_EVENTS.find(e => e.type === "dot"));
+      return;
+    }
+  }
+
+  if (G.activeContract?.type === "reefer" || G.activeContract?.type === "cannery") {
+    if (Math.random() < 0.4) {
+      showEvent(TRAVEL_EVENTS.find(e => e.type === "reefer_fault"));
+      return;
+    }
+  }
+
+  // Random event
+  const idx = Math.floor(Math.random() * eventPool.length);
+  showEvent(eventPool[idx]);
+}
+
+function showEvent(ev) {
+  const modal = document.getElementById("modal-box");
+  modal.className = "modal";
+  if (ev.class === "danger") modal.className += " hazmat-modal";
+  else if (ev.class === "warn") modal.className += " dot-modal";
+
+  document.getElementById("modal-title").textContent = ev.title;
+  document.getElementById("modal-title").className = "modal-title " + (ev.class === "danger" ? "red" : ev.class === "warn" ? "yellow" : ev.class === "reefer" ? "blue" : "blue");
+  document.getElementById("modal-body").textContent = ev.desc;
+
+  const choices = document.getElementById("modal-choices");
+  choices.innerHTML = "";
+  ev.choices.forEach(ch => {
+    const btn = document.createElement("button");
+    btn.className = "btn btn-primary";
+    btn.style.textAlign = "left";
+    btn.textContent = ch.text;
+    btn.onclick = () => { closeModal(); window[ch.fn](); };
+    choices.appendChild(btn);
+  });
+
+  document.getElementById("modal-overlay").classList.add("active");
+  addLog(`EVENT: ${ev.title}`, ev.class);
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("active");
+}
+
+// Event handlers
+function eventPayToll() {
+  G.credits -= 80;
+  addLog("Paid pirate toll: −80 Ȼ. Route cleared.", "warn");
+  toast("Paid toll. −80 Ȼ");
+  resolveTransit();
+}
+function eventEvade() {
+  if (Math.random() > 0.5) {
+    addLog("Evasion successful! No toll paid.", "good");
+    toast("✓ Evasion successful!");
+  } else {
+    G.ship.hull -= 15;
+    addLog("Evasion FAILED. Pirates hit hull. Hull −15.", "danger");
+    toast("⚠ Hull damage! −15");
+  }
+  resolveTransit();
+}
+function eventHail() {
+  G.rep = Math.min(5, G.rep + 1);
+  addLog("Haulers Union responded. Pirates dispersed. Rep +1", "good");
+  resolveTransit();
+}
+function eventPushThrough() {
+  G.ship.engine = Math.max(10, G.ship.engine - 10);
+  addLog("Pushed through flare. Engine stress −10.", "warn");
+  resolveTransit();
+}
+function eventSafeRoute() {
+  G.day++;
+  addLog("Safe route taken. +1 day added to transit.", "info");
+  resolveTransit();
+}
+function eventNavigate() {
+  G.ship.hull -= 5;
+  addLog("Navigated debris field. Minor hull wear −5.", "info");
+  resolveTransit();
+}
+function eventBurnThrough() {
+  G.ship.hull -= 12;
+  G.ship.fuel -= 10;
+  addLog("Burned through debris. Hull −12, Fuel −10. Saved time.", "warn");
+  resolveTransit();
+}
+function eventDOTInspect() {
+  triggerDOTInspection();
+}
+function eventAssist() {
+  G.rep = Math.min(5, G.rep + 1);
+  G.day++;
+  addLog("Assisted distressed freighter. Rep +1. Day +1.", "good");
+  resolveTransit();
+}
+function eventIgnore() {
+  addLog("Ignored distress signal. Continued route.", "info");
+  resolveTransit();
+}
+function eventReeferOverride() {
+  G.reefer.coolant = Math.max(20, G.reefer.coolant - 15);
+  G.reefer.spoilage = Math.max(0, G.reefer.spoilage - 10);
+  addLog("❄ Reefer emergency override! Coolant −15%, spoilage reduced.", "reefer");
+  resolveTransit();
+}
+function eventReeferRecal() {
+  G.reefer.spoilage = Math.max(0, G.reefer.spoilage + 5);
+  addLog("❄ Reefer recalibrated manually. Slight spoilage risk increase.", "warn");
+  resolveTransit();
+}
+function eventSmooth() {
+  addLog("Clean transit. No incidents.", "good");
+  resolveTransit();
+}
+
+// ============================================================
+// DOT INSPECTION
+// ============================================================
+function triggerDOTInspection(level=1) {
+  const c = G.activeContract;
+  setPhase("transit");
+
+  const checks = [];
+  if (level >= 1) {
+    checks.push({ label:"Hull Integrity", pass: G.ship.hull >= 50, note: G.ship.hull + "%" });
+    checks.push({ label:"Engine Systems", pass: G.ship.engine >= 40, note: G.ship.engine + "%" });
+    checks.push({ label:"Fuel Load", pass: G.ship.fuel >= 20, note: G.ship.fuel + "%" });
+    checks.push({ label:"Cargo Permits", pass: true, note:"VALID" });
+  }
+  if (c?.type === "reefer" || c?.type === "cannery") {
+    checks.push({ label:"Reefer Temp", pass: G.reefer.coolant >= 60, note: G.reefer.target + "°C" });
+    checks.push({ label:"Coolant Level", pass: G.reefer.coolant >= 70, note: G.reefer.coolant + "%" });
+  }
+  if (c?.type === "hazmat") {
+    checks.push({ label:"Hazmat Placards", pass: G.ship.hazmat, note: G.ship.hazmat ? "DISPLAYED" : "MISSING" });
+    checks.push({ label:"Containment PSI", pass: G.hazmat.containment >= 80, note: G.hazmat.containment + "%" });
+    checks.push({ label:"Hazmat Cert", pass: G.upgrades.hazmat_class3 || G.upgrades.hazmat_class7, note: G.ship.hazmatLevel > 0 ? "CLASS " + G.ship.hazmatLevel : "NONE" });
+  }
+  if (level >= 3) {
+    checks.push({ label:"AI Logbook", pass: true, note:"COMPLIANT" });
+    checks.push({ label:"HOS Compliance", pass: true, note:"IN LIMITS" });
+  }
+
+  const failures = checks.filter(ch => !ch.pass);
+  const passed = failures.length === 0;
+
+  let checkHTML = checks.map(ch =>
+    `<div class="inspection-item">
+      <span>${ch.label}</span>
+      <span class="${ch.pass ? "check-pass" : "check-fail"}">${ch.pass ? "✓ " : "✗ "}${ch.note}</span>
+    </div>`
+  ).join("");
+
+  let resultMsg = "";
+  let fine = 0;
+  if (passed) {
+    fine = 0;
+    resultMsg = `<div style="color:var(--accent3);font-family:'Orbitron',monospace;">✓ INSPECTION PASSED — Clean record bonus: +50 Ȼ · Rep +1</div>`;
+    G.credits += 50;
+    G.rep = Math.min(5, G.rep + 1);
+    addLog("🚨 DOT INSPECTION PASSED — Clean record! +50Ȼ +1 Rep", "good");
+  } else {
+    fine = failures.length * 75;
+    resultMsg = `<div style="color:var(--hell);font-family:'Orbitron',monospace;">✗ ${failures.length} VIOLATION(S) — FINE: ${fine}Ȼ</div>`;
+    G.credits -= fine;
+    G.day++; // Forced delay
+    addLog(`🚨 DOT INSPECTION FAILED — ${failures.length} violations. Fine: −${fine}Ȼ. Delay: +1 day.`, "danger");
+  }
+
+  document.getElementById("dot-idle").style.display = "none";
+  document.getElementById("dot-active").style.display = "block";
+  document.getElementById("dot-type-label").textContent = `LEVEL ${level} — DOT INSPECTION IN PROGRESS`;
+  document.getElementById("dot-checklist").innerHTML = checkHTML;
+  document.getElementById("dot-result").innerHTML = resultMsg;
+  document.getElementById("btn-close-dot").disabled = false;
+
+  updateHUD();
+  switchTab("systems");
+  toast("🚨 DOT Inspection triggered! Review SYSTEMS tab.");
+}
+
+function closeDOT() {
+  document.getElementById("dot-active").style.display = "none";
+  document.getElementById("dot-idle").style.display = "block";
+  document.getElementById("btn-close-dot").disabled = true;
+  resolveTransit();
+}
+
+// ============================================================
+// DELIVERY
+// ============================================================
+function resolveTransit() {
+  G.day++;
+  const c = G.activeContract;
+  if (!c) return;
+
+  // Check if over time limit
+  const onTime = G.day <= (G.startDay + c.timeLimit);
+  let pay = c.pay;
+  if (onTime) pay += c.bonus;
+
+  // Reefer spoilage penalty
+  if ((c.type === "reefer" || c.type === "cannery") && G.reefer.spoilage > 30) {
+    const penalty = Math.floor(pay * 0.3);
+    pay -= penalty;
+    addLog(`❄ SPOILAGE PENALTY: −${penalty}Ȼ (${G.reefer.spoilage}% spoilage)`, "danger");
+  }
+
+  setPhase("deliver");
+  G.location = c.to;
+  G.credits += pay;
+  G.hauls++;
+  G.ship.cargoUsed -= c.units;
+  G.ship.fuel = Math.max(10, G.ship.fuel - 15);
+  G.rep = Math.min(5, G.rep + (onTime ? 1 : 0));
+
+  if (G.hellWeek.active) {
+    G.hellWeek.loads++;
+    document.getElementById("hw-loads").textContent = G.hellWeek.loads;
+  }
+
+  addLog(`✓ DELIVERY COMPLETE — ${c.to}`, "good");
+  addLog(`Pay received: +${pay}Ȼ ${onTime ? "(ON-TIME BONUS included)" : "(LATE — no bonus)"}`, "good");
+  if (!onTime) addLog("⚠ Delivered late — no time bonus.", "warn");
+
+  G.activeContract = null;
+  G._dotTriggered = false;
+  G.reefer.active = false;
+  G.reefer.spoilage = 2;
+
+  updateActiveContractDisplay();
+  updateCargoManifest();
+  buildMap();
+  updateHUD();
+  setPhase("upgrade");
+  document.getElementById("btn-launch").disabled = true;
+  document.getElementById("current-location").textContent = c.to;
+  updateMiniLog();
+
+  // Show delivery modal
+  const modal = document.getElementById("modal-box");
+  modal.className = "modal";
+  document.getElementById("modal-title").textContent = "✓ DELIVERY COMPLETE";
+  document.getElementById("modal-title").className = "modal-title blue";
+  document.getElementById("modal-body").innerHTML = `
+    <strong style="color:var(--accent3);font-family:'Orbitron',monospace;font-size:14px;">+${pay} Ȼ EARNED</strong><br><br>
+    Delivered <strong>${c.cargo}</strong> to <strong style="color:var(--accent)">${c.to}</strong>.<br><br>
+    ${onTime ? '<span style="color:var(--accent3)">✓ On-time bonus included!</span>' : '<span style="color:var(--warn)">⚠ Late delivery. No bonus.</span>'}<br><br>
+    Total credits: <strong style="color:var(--accent3)">${G.credits}Ȼ</strong><br>
+    Reputation: ${"★".repeat(G.rep)}${"☆".repeat(5-G.rep)}
+    ${G.hellWeek.active ? `<br><br><span style="color:var(--hell)">🔥 HELL WEEK: ${G.hellWeek.loads}/14 loads complete</span>` : ""}
+  `;
+  document.getElementById("modal-choices").innerHTML = `
+    <button class="btn btn-go" onclick="closeModal();switchTab('contracts');renderContracts();setPhase('contracts');" style="width:100%;margin-top:0;">▶ VIEW NEW CONTRACTS</button>
+    <button class="btn btn-primary btn-sm" onclick="closeModal();switchTab('upgrades');" style="margin-top:6px;">⬆ VISIT UPGRADE SHOP</button>
+  `;
+  document.getElementById("modal-overlay").classList.add("active");
+
+  generateSave();
+}
+
+function updateMiniLog() {
+  const recent = G.logEntries.slice(-4).reverse();
+  document.getElementById("mini-log").innerHTML = recent.map(e =>
+    `<div style="color:${e.cls === "good" ? "var(--accent3)" : e.cls === "danger" ? "var(--hell)" : e.cls === "warn" ? "var(--warn)" : "var(--text2)"}">▶ ${e.msg.substring(0,45)}${e.msg.length>45?"...":""}</div>`
+  ).join("");
+}
+
+// ============================================================
+// HELL WEEK
+// ============================================================
+function startHellWeek() {
+  if (G.hellWeek.active) { toast("Hell Week already active!"); return; }
+  G.hellWeek = { active: true, day: 1, loads: 0 };
+  document.getElementById("hell-week-banner").classList.add("active");
+  document.getElementById("hw-day").textContent = 1;
+  document.getElementById("hw-loads").textContent = 0;
+  addLog("🔥 HELL WEEK INITIATED — 7 days, 14 loads, no mercy.", "danger");
+  toast("🔥 HELL WEEK ACTIVATED. Good luck, trucker.");
+}
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+function generateSave() {
+  const save = {
+    v: 1,
+    credits: G.credits,
+    day: G.day,
+    hauls: G.hauls,
+    rep: G.rep,
+    location: G.location,
+    ship: G.ship,
+    upgrades: G.upgrades,
+    hellWeek: G.hellWeek,
+    savedAt: new Date().toISOString()
+  };
+  document.getElementById("save-state").value = JSON.stringify(save, null, 2);
+}
+
+function loadSave() {
+  const raw = document.getElementById("save-state").value;
+  try {
+    const save = JSON.parse(raw);
+    G.credits = save.credits;
+    G.day = save.day;
+    G.hauls = save.hauls;
+    G.rep = save.rep;
+    G.location = save.location;
+    Object.assign(G.ship, save.ship);
+    Object.assign(G.upgrades, save.upgrades);
+    G.hellWeek = save.hellWeek;
+    if (G.hellWeek.active) {
+      document.getElementById("hell-week-banner").classList.add("active");
+      document.getElementById("hw-day").textContent = G.hellWeek.day;
+      document.getElementById("hw-loads").textContent = G.hellWeek.loads;
+    }
+    updateHUD();
+    buildMap();
+    toast("✓ Save loaded!");
+    addLog("SAVE STATE LOADED.", "accent");
+  } catch(e) {
+    toast("⚠ Invalid save data.");
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  G.startDay = 1;
+  buildMap();
+  renderContracts();
+  updateHUD();
+  updateActiveContractDisplay();
+  updateCargoManifest();
+  setPhase("contracts");
+  addLog("STARHAULER SYSTEMS ONLINE — Welcome, pilot.", "accent");
+  addLog("Location: Terra Nova Station. Credits: 500Ȼ. Ship: Rustbucket Mk-I", "info");
+  addLog("⚠ Reefer unit not installed. Hazmat cert: NONE.", "warn");
+  addLog("Select a contract to begin your first haul.", "info");
+  addLog("TIP: Machine Parts (c003) is the safest first run.", "info");
+  generateSave();
+}
+
+init();
+</script>
+</body>
+</html>
