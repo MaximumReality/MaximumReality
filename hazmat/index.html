@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAZMAT CDL Study Guide & Practice Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1c2030;
+    --border: #252b3b;
+    --accent: #f5a623;
+    --accent2: #e84040;
+    --accent3: #3ecf8e;
+    --text: #e8eaf0;
+    --muted: #7a8099;
+    --class1: #f5a623;
+    --class2: #4fc3f7;
+    --class3: #ef5350;
+    --class4: #ff7043;
+    --class5: #66bb6a;
+    --class6: #ab47bc;
+    --class7: #ffee58;
+    --class8: #ec407a;
+    --class9: #78909c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,15,20,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 2px solid var(--accent);
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 1.5rem;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 1rem 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.2s, border-bottom 0.2s;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  nav button:hover, nav button.active {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0d0f14 0%, #1a0a00 50%, #0d0f14 100%);
+    border-bottom: 2px solid var(--border);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(245,166,35,0.03) 40px, rgba(245,166,35,0.03) 41px),
+                repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(245,166,35,0.03) 40px, rgba(245,166,35,0.03) 41px);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--accent2);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    padding: 0.25rem 0.75rem;
+    border-radius: 3px;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    letter-spacing: 4px;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 600px;
+    margin: 0 auto 1.5rem;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* CONTENT */
+  .content {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* SECTION HEADER */
+  .section-header {
+    border-left: 4px solid var(--accent);
+    padding-left: 1rem;
+    margin-bottom: 2rem;
+  }
+  .section-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 3px;
+    color: var(--accent);
+  }
+  .section-header p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .card ul {
+    padding-left: 1.25rem;
+  }
+  .card ul li {
+    margin-bottom: 0.4rem;
+    color: var(--text);
+  }
+  .card ul li::marker { color: var(--accent); }
+
+  /* HAZARD CLASS CARDS */
+  .class-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .class-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    border-top: 4px solid var(--accent);
+  }
+  .class-card .class-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+  }
+  .class-card h4 {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  .class-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .class-card .examples {
+    font-size: 0.8rem;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .class-card .placard-note {
+    font-size: 0.75rem;
+    color: var(--text);
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  /* COLOR VARIANTS */
+  .c1 { border-top-color: var(--class1); } .c1 .class-num { color: var(--class1); }
+  .c2 { border-top-color: var(--class2); } .c2 .class-num { color: var(--class2); }
+  .c3 { border-top-color: var(--class3); } .c3 .class-num { color: var(--class3); }
+  .c4 { border-top-color: var(--class4); } .c4 .class-num { color: var(--class4); }
+  .c5 { border-top-color: var(--class5); } .c5 .class-num { color: var(--class5); }
+  .c6 { border-top-color: var(--class6); } .c6 .class-num { color: var(--class6); }
+  .c7 { border-top-color: var(--class7); } .c7 .class-num { color: var(--class7); }
+  .c8 { border-top-color: var(--class8); } .c8 .class-num { color: var(--class8); }
+  .c9 { border-top-color: var(--class9); } .c9 .class-num { color: var(--class9); }
+
+  /* ALERT BOXES */
+  .alert {
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  .alert-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
+  .alert-warn { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); }
+  .alert-danger { background: rgba(232,64,64,0.1); border: 1px solid rgba(232,64,64,0.3); }
+  .alert-info { background: rgba(62,207,142,0.1); border: 1px solid rgba(62,207,142,0.3); }
+  .alert strong { display: block; margin-bottom: 0.25rem; font-weight: 700; }
+  .alert-warn strong { color: var(--accent); }
+  .alert-danger strong { color: var(--accent2); }
+  .alert-info strong { color: var(--accent3); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; margin-bottom: 1.25rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:hover td { background: var(--surface2); }
+  .tag {
+    display: inline-block;
+    background: rgba(245,166,35,0.15);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .tag-red { background: rgba(232,64,64,0.15); color: var(--accent2); }
+  .tag-green { background: rgba(62,207,142,0.15); color: var(--accent3); }
+
+  /* QUIZ */
+  #quiz-section .question-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .q-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent);
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+  .q-num.scenario { background: var(--accent2); }
+  .q-num.tanker { background: #4fc3f7; color: #000; }
+  .q-num.security { background: var(--class6); }
+  .q-text { font-weight: 500; line-height: 1.6; }
+  .q-tag {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .options { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+  .options li {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    display: flex;
+    gap: 0.6rem;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 0.9rem;
+  }
+  .options li:hover { border-color: var(--accent); background: rgba(245,166,35,0.06); }
+  .options li.correct { background: rgba(62,207,142,0.12); border-color: var(--accent3); }
+  .options li.wrong { background: rgba(232,64,64,0.12); border-color: var(--accent2); }
+  .options li.revealed { pointer-events: none; }
+  .opt-letter {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    width: 18px;
+  }
+
+  /* SCORE */
+  .score-bar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .score-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4rem;
+    color: var(--accent);
+    letter-spacing: 4px;
+    line-height: 1;
+  }
+  .score-label { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+  .progress-track {
+    background: var(--surface2);
+    border-radius: 100px;
+    height: 12px;
+    margin: 1rem 0 0.5rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    transition: width 0.5s ease;
+  }
+
+  /* ANSWER KEY */
+  .answer-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .answer-item .ans-q { font-weight: 600; margin-bottom: 0.35rem; font-size: 0.9rem; }
+  .answer-item .ans-correct {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent3);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+  .answer-item .ans-explain { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+  /* CONTROLS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-ghost:hover { background: rgba(245,166,35,0.1); }
+
+  .quiz-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    align-items: center;
+  }
+
+  /* FILTER */
+  .filter-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .filter-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover, .filter-btn.on { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .class-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 2.2rem; }
+  }
+
+  .inline-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+    color: var(--accent);
+  }
+  .reveal-btn {
+    margin-top: 0.75rem;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.78rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+  }
+  .reveal-btn:hover { border-color: var(--accent3); color: var(--accent3); }
+  .explanation {
+    display: none;
+    margin-top: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(62,207,142,0.08);
+    border: 1px solid rgba(62,207,142,0.25);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .explanation.show { display: block; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">⚠ HAZMAT</div>
+  <button class="active" onclick="showSection('guide', this)">Study Guide</button>
+  <button onclick="showSection('classes', this)">Hazard Classes</button>
+  <button onclick="showSection('placards', this)">Placards</button>
+  <button onclick="showSection('shipping', this)">Shipping Papers</button>
+  <button onclick="showSection('loading', this)">Loading Rules</button>
+  <button onclick="showSection('emergency', this)">Emergency</button>
+  <button onclick="showSection('security', this)">Security</button>
+  <button onclick="showSection('driving', this)">Driving Rules</button>
+  <button onclick="showSection('tanker', this)">Tanker Hazmat</button>
+  <button onclick="showSection('quiz', this)">📝 100-Q Test</button>
+  <button onclick="showSection('answers', this)">Answer Key</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">FMCSA / PHMSA — CDL Hazmat Endorsement</div>
+  <h1>Hazmat Study Guide</h1>
+  <p>Complete CDL Hazmat Endorsement preparation — regulations, practice test, and answer key with full explanations.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">9</span><span class="stat-label">Hazard Classes</span></div>
+    <div class="stat"><span class="stat-num">8</span><span class="stat-label">Study Sections</span></div>
+    <div class="stat"><span class="stat-num">100</span><span class="stat-label">Practice Questions</span></div>
+    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Answer Explanations</span></div>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ===================== OVERVIEW ===================== -->
+<div id="guide" class="section active">
+  <div class="section-header">
+    <h2>Study Guide Overview</h2>
+    <p>What you need to know — and why it matters in the real world</p>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>What Is the Hazmat Endorsement?</strong>
+      The CDL Hazmat Endorsement (HME) is required any time you transport hazardous materials in a quantity requiring placards OR any amount of a material listed as a Select Agent or Toxin. You must pass a written knowledge test AND a TSA security threat assessment (background check).
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>Federal Law — Not Optional</strong>
+      Hazmat regulations come from two agencies: <strong>PHMSA</strong> (Pipeline and Hazardous Materials Safety Administration) sets the standards for classifying, packaging, and communicating hazmat. <strong>FMCSA</strong> (Federal Motor Carrier Safety Administration) governs hazmat transport by commercial motor vehicle. Both sets of rules apply to you.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📚 How To Use This Guide</h3>
+    <ul>
+      <li>Use the navigation bar above to jump to any section.</li>
+      <li>Study each section completely — test questions pull from all areas.</li>
+      <li>The <strong>100-Question Test</strong> simulates real state hazmat exam questions.</li>
+      <li>After the test, the <strong>Answer Key</strong> explains the logic behind every answer.</li>
+      <li>Pay special attention to boxes labeled ⚠️ CRITICAL — these are common test fail points.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🎯 Most Commonly Tested Topics</h3>
+    <ul>
+      <li>When placards are required (Table 1 vs. Table 2, quantity thresholds)</li>
+      <li>Proper shipping paper sequence and basic description</li>
+      <li>Forbidden materials and forbidden combinations</li>
+      <li>Railroad crossing rules for hazmat vehicles</li>
+      <li>Attendance and parking requirements</li>
+      <li>Emergency response — ERG use, spills, fire</li>
+      <li>Security plan requirements and driver responsibilities</li>
+      <li>Cargo tank inspection requirements</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== HAZARD CLASSES ===================== -->
+<div id="classes" class="section">
+  <div class="section-header">
+    <h2>Hazard Classes &amp; Divisions</h2>
+    <p>All 9 DOT hazard classes — memorize these cold</p>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>
+      <strong>The 9 Hazard Classes</strong>
+      Every hazardous material is assigned to one of 9 classes based on its primary danger. Some classes are divided into divisions (sub-groups). The class number appears on placards and shipping papers.
+    </div>
+  </div>
+
+  <div class="class-grid">
+    <div class="class-card c1">
+      <div class="class-num">CLASS 1 — EXPLOSIVES</div>
+      <h4>Explosives</h4>
+      <p>Materials that can rapidly release energy through explosion, fire, or burst.</p>
+      <div class="examples">Divisions: 1.1 (Mass explosion) · 1.2 (Projection hazard) · 1.3 (Fire/minor blast) · 1.4 (Minor hazard) · 1.5 (Very insensitive) · 1.6 (Extremely insensitive)</div>
+      <div class="placard-note">Examples: Dynamite (1.1), Fireworks (1.3, 1.4), Ammunition (1.4)<br>Placard: Orange with explosion symbol. Division 1.4S may not require placard.</div>
+    </div>
+    <div class="class-card c2">
+      <div class="class-num">CLASS 2 — GASES</div>
+      <h4>Gases</h4>
+      <p>Materials that are gaseous at normal temperature and pressure.</p>
+      <div class="examples">Div 2.1: Flammable gas · Div 2.2: Non-flammable, non-toxic · Div 2.3: Poison/toxic gas</div>
+      <div class="placard-note">Examples: Propane (2.1), CO₂ (2.2), Chlorine (2.3)<br>Placard: 2.1 = Red, 2.2 = Green, 2.3 = White (POISON GAS)</div>
+    </div>
+    <div class="class-card c3">
+      <div class="class-num">CLASS 3 — FLAMMABLE LIQUIDS</div>
+      <h4>Flammable &amp; Combustible Liquids</h4>
+      <p>Liquids with a flash point below 141°F (60.5°C). Combustible: 141°F–200°F.</p>
+      <div class="examples">No sub-divisions.</div>
+      <div class="placard-note">Examples: Gasoline, diesel, acetone, paint<br>Placard: Red diamond with flame symbol. "FLAMMABLE" or "COMBUSTIBLE"</div>
+    </div>
+    <div class="class-card c4">
+      <div class="class-num">CLASS 4 — FLAMMABLE SOLIDS</div>
+      <h4>Flammable Solids / Spontaneous Combustion / Water-Reactive</h4>
+      <p>Solids that burn easily or can ignite under specific conditions.</p>
+      <div class="examples">Div 4.1: Flammable solid · Div 4.2: Spontaneously combustible · Div 4.3: Dangerous when wet</div>
+      <div class="placard-note">Examples: Matches (4.1), White phosphorus (4.2), Sodium metal (4.3)<br>Placard: 4.1 = Red/white stripes, 4.2 = White/red, 4.3 = Blue</div>
+    </div>
+    <div class="class-card c5">
+      <div class="class-num">CLASS 5 — OXIDIZERS</div>
+      <h4>Oxidizers &amp; Organic Peroxides</h4>
+      <p>Materials that yield oxygen easily and promote combustion of other materials.</p>
+      <div class="examples">Div 5.1: Oxidizer · Div 5.2: Organic peroxide</div>
+      <div class="placard-note">Examples: Hydrogen peroxide (5.1), Ammonium nitrate (5.1), Benzoyl peroxide (5.2)<br>Placard: Yellow with flame-over-circle symbol</div>
+    </div>
+    <div class="class-card c6">
+      <div class="class-num">CLASS 6 — POISONS</div>
+      <h4>Toxic &amp; Infectious Substances</h4>
+      <p>Materials that are toxic to humans or carry infectious pathogens.</p>
+      <div class="examples">Div 6.1: Toxic substances · Div 6.2: Infectious substances</div>
+      <div class="placard-note">Examples: Pesticides (6.1), Medical waste (6.2)<br>Placard: 6.1 = White with skull; 6.2 = White with biohazard symbol</div>
+    </div>
+    <div class="class-card c7">
+      <div class="class-num">CLASS 7 — RADIOACTIVE</div>
+      <h4>Radioactive Materials</h4>
+      <p>Materials that spontaneously emit ionizing radiation.</p>
+      <div class="examples">No sub-divisions. Three label categories: I (white), II (yellow/white), III (yellow/white).</div>
+      <div class="placard-note">Examples: Medical isotopes, uranium ore, smoke detectors<br>Placard: Yellow/white with trefoil (radiation) symbol</div>
+    </div>
+    <div class="class-card c8">
+      <div class="class-num">CLASS 8 — CORROSIVES</div>
+      <h4>Corrosives</h4>
+      <p>Liquids or solids that destroy living tissue or severely corrode steel/aluminum.</p>
+      <div class="examples">No sub-divisions.</div>
+      <div class="placard-note">Examples: Battery acid (sulfuric acid), hydrochloric acid, sodium hydroxide (lye)<br>Placard: Black/white with liquid attacking metal/hand</div>
+    </div>
+    <div class="class-card c9">
+      <div class="class-num">CLASS 9 — MISCELLANEOUS</div>
+      <h4>Miscellaneous Hazardous Materials</h4>
+      <p>Hazardous materials that present a hazard during transport but don't fit other classes.</p>
+      <div class="examples">No sub-divisions.</div>
+      <div class="placard-note">Examples: Dry ice, lithium batteries, elevated temperature materials, magnetized materials<br>Placard: White with 7 vertical stripes (top) — only required for bulk quantities</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Special Categories You Must Know</h3>
+    <ul>
+      <li><strong>ORM-D (Other Regulated Materials – Domestic):</strong> Consumer commodities — treated less strictly. Still requires "ORM-D" marking.</li>
+      <li><strong>Poison Inhalation Hazard (PIH):</strong> Extra-dangerous toxic gases/liquids that are dangerous when inhaled. Requires both POISON and INHALATION HAZARD placards. Examples: Anhydrous ammonia, chlorine, methyl bromide.</li>
+      <li><strong>Marine Pollutants:</strong> Substances severely harmful to the aquatic environment. Must be marked if in non-bulk packages ≥ 882 lbs or bulk packages.</li>
+      <li><strong>Elevated Temperature Materials:</strong> Liquids ≥ 212°F or solids ≥ 464°F during transport. Class 9, requires HOT placard on tank cars (not trucks).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== PLACARDS ===================== -->
+<div id="placards" class="section">
+  <div class="section-header">
+    <h2>Placards &amp; Labels</h2>
+    <p>When you need them, where they go, and what the rules say</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>Who Is Responsible for Placarding?</strong>
+      The CARRIER (you/your company) is responsible for placarding the vehicle, not the shipper. However, the shipper must provide the correct placards or tell you which ones are needed. You cannot transport if proper placards are not available.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📐 Placard Specifications</h3>
+    <ul>
+      <li>Must be at least <strong>10¾ inches (273mm) on each side</strong> — diamond shape</li>
+      <li>Must be readable from all 4 sides of the vehicle</li>
+      <li>Placed on front, rear, and both sides of vehicle</li>
+      <li>Must be at least <strong>3 inches from other markings</strong></li>
+      <li>Background must contrast with placard color</li>
+      <li>Must show the hazard class number in the bottom corner</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>📋 Table 1 vs. Table 2 — The Critical Distinction</h3>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr>
+        <th>Table</th>
+        <th>Materials</th>
+        <th>Quantity Threshold</th>
+        <th>Rule</th>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">TABLE 1</span></td>
+        <td>Class 1.1, 1.2, 1.3 · Class 2.3 · Class 4.3 · Class 6.1 (PIH, Packing Group I) · Class 7 (radioactive label III) · Class Poison gas</td>
+        <td><strong>ANY amount</strong></td>
+        <td>Placard required regardless of quantity — even a single package</td>
+      </tr>
+      <tr>
+        <td><span class="tag">TABLE 2</span></td>
+        <td>All other hazmat classes (1.4, 1.5, 1.6, 2.1, 2.2, 3, 4.1, 4.2, 5.1, 5.2, 6.1, 6.2, 8, 9)</td>
+        <td><strong>1,001 lbs or more</strong> (aggregate gross weight)</td>
+        <td>Placard required only when total weight of ALL Table 2 materials ≥ 1,001 lbs</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Mixed Load Rule — Table 2</strong>
+      When you carry multiple different Table 2 materials, add ALL their weights together. If the combined total is 1,001 lbs or more, use the <strong>DANGEROUS</strong> placard — unless any single material is 5,000 lbs or more (then placard that specific material instead).
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🚫 Placard Exceptions (When You Do NOT Need Placards)</h3>
+    <ul>
+      <li>Infectious substances (6.2) — no placard required</li>
+      <li>ORM-D materials</li>
+      <li>Limited quantities of certain materials (small packages)</li>
+      <li>Radioactive materials without Category III labels</li>
+      <li>Combustible liquids in non-bulk packaging — no placard unless combined weight ≥ 1,001 lbs</li>
+      <li>Class 1.4 Division S (1.4S) in small quantities</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🏷️ Labels vs. Placards — Know the Difference</h3>
+    <ul>
+      <li><strong>Labels</strong> go on individual packages — at least 3.9 inches (100mm) per side. Applied by the SHIPPER.</li>
+      <li><strong>Placards</strong> go on the vehicle — at least 10¾ inches per side. Applied by the CARRIER.</li>
+      <li>Both must show the hazard class number in the bottom point of the diamond.</li>
+      <li>Labels are required when shipping "hazardous materials" — placards are required when a vehicle carries enough to reach thresholds.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== SHIPPING PAPERS ===================== -->
+<div id="shipping" class="section">
+  <div class="section-header">
+    <h2>Shipping Papers</h2>
+    <p>The document that travels with every hazmat load</p>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>
+      <strong>What Are Shipping Papers?</strong>
+      Shipping papers (bills of lading, manifests, etc.) describe every hazardous material on board. They must be accurate, accessible, and legible at all times. Emergency responders use them to identify what's on your truck if you're in an accident.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📄 Required Basic Description — In This Order</h3>
+    <p style="margin-bottom:0.75rem">The <strong>basic description</strong> must appear in this exact sequence:</p>
+    <ol style="padding-left:1.5rem; line-height:2.2">
+      <li><strong>UN or NA Identification Number</strong> (e.g., UN1203)</li>
+      <li><strong>Proper Shipping Name</strong> (e.g., Gasoline)</li>
+      <li><strong>Hazard Class or Division</strong> (e.g., 3)</li>
+      <li><strong>Packing Group</strong> in Roman numerals (e.g., II) — if applicable</li>
+    </ol>
+    <p style="margin-top:0.75rem; color: var(--muted); font-size:0.85rem">Example: <span class="inline-code">UN1203, Gasoline, 3, II</span></p>
+    <p style="margin-top:0.5rem; color: var(--muted); font-size:0.85rem">Additional required info: Total quantity, number and type of packages, emergency response phone number.</p>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>TRICK QUESTION: The Order Matters!</strong>
+      The test will show you descriptions in wrong order. Always: <strong>ID Number FIRST, then Shipping Name, then Class, then Packing Group.</strong> Some materials don't have a packing group (Class 2 gases, explosives, radioactive) — that's OK, just leave it out.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Additional Required Information on Shipping Papers</h3>
+    <ul>
+      <li><strong>Emergency Response Telephone Number</strong> — must be monitored 24/7 by someone knowledgeable about the material (e.g., CHEMTREC 1-800-424-9300 is commonly used)</li>
+      <li><strong>Shipper's certification</strong> — signed statement that the shipment is properly described, packaged, marked, and labeled</li>
+      <li><strong>Reportable Quantity (RQ)</strong> — if the material has a reportable quantity, must appear before the proper shipping name or as "RQ" in the description</li>
+      <li><strong>Poison Inhalation Hazard (PIH)</strong> — must be noted on shipping papers if applicable</li>
+      <li><strong>Marine Pollutant</strong> — must be noted if applicable</li>
+      <li><strong>Elevated temperature</strong> — noted with "HOT" if applicable</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>📍 Where to Keep Shipping Papers</h3>
+    <ul>
+      <li>While <strong>driving</strong>: within reach in the cab — in a pouch on the driver's door or on the seat</li>
+      <li>When <strong>out of the cab</strong>: on the driver's seat or in a pouch on the driver's door — clearly visible to anyone entering</li>
+      <li>Must be readily accessible at all times during transport</li>
+    </ul>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Responsibility</th><th>Shipper</th><th>Carrier/Driver</th></tr>
+      <tr><td>Classify the material</td><td>✅</td><td></td></tr>
+      <tr><td>Package the material correctly</td><td>✅</td><td></td></tr>
+      <tr><td>Mark and label packages</td><td>✅</td><td></td></tr>
+      <tr><td>Prepare shipping papers</td><td>✅</td><td></td></tr>
+      <tr><td>Sign shipper's certification</td><td>✅</td><td></td></tr>
+      <tr><td>Placard the vehicle</td><td></td><td>✅</td></tr>
+      <tr><td>Verify shipping papers are complete</td><td></td><td>✅</td></tr>
+      <tr><td>Refuse improper shipments</td><td></td><td>✅</td></tr>
+      <tr><td>Keep papers accessible while driving</td><td></td><td>✅</td></tr>
+      <tr><td>Report spills/incidents</td><td></td><td>✅</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===================== LOADING ===================== -->
+<div id="loading" class="section">
+  <div class="section-header">
+    <h2>Loading &amp; Unloading Rules</h2>
+    <p>Segregation, forbidden combos, and what can't ride together</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>Absolutely Forbidden Combinations</strong>
+      These materials can NEVER be loaded together in the same vehicle — no exceptions.
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Material A</th><th>Cannot Be Loaded With</th><th>Reason</th></tr>
+      <tr><td>Explosives (1.1, 1.2, 1.3)</td><td>Detonators, caps, other explosive classes</td><td>Mass detonation risk</td></tr>
+      <tr><td>Chlorine (2.3 PIH)</td><td>Anhydrous ammonia</td><td>Toxic gas reaction</td></tr>
+      <tr><td>Flammable gases (2.1)</td><td>Oxidizers (5.1, 5.2)</td><td>Fire/explosion risk</td></tr>
+      <tr><td>Poison gas (2.3)</td><td>All food, feed, drugs, and certain other materials</td><td>Contamination hazard</td></tr>
+      <tr><td>Infectious substances (6.2)</td><td>Food, feed, or drugs for humans or animals</td><td>Contamination hazard</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>🚫 Hazmat + Food Rule</h3>
+    <ul>
+      <li>Poisons (Class 6.1 Packing Group I), poison gases (2.3), and infectious substances (6.2) cannot be loaded in the same vehicle with food, feed, or drugs for human or animal consumption</li>
+      <li>No separation distance can fix this — it is a forbidden combination</li>
+      <li>Exception: If materials are in fully enclosed containers that prevent contamination, some exceptions may apply — but this is rare in practice</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>📦 Loading Rules</h3>
+    <ul>
+      <li><strong>No loading near open fires</strong> — must be at least 25 feet from open flames during loading/unloading of flammable materials</li>
+      <li><strong>No smoking</strong> within 25 feet of any hazmat vehicle during loading/unloading</li>
+      <li><strong>Engine off</strong> during fueling and while loading/unloading Class 1 explosives or flammable liquids (unless engine runs the pump)</li>
+      <li><strong>Packages must be secured</strong> — blocking and bracing to prevent movement, shifting, or falling</li>
+      <li><strong>Containers must be closed and secured</strong> before moving the vehicle</li>
+      <li><strong>Never drop or throw packages</strong> of hazmat</li>
+      <li>Damaged packages must be reported and segregated</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Attending the Vehicle During Loading/Unloading</h3>
+    <ul>
+      <li>Someone must be in attendance when loading/unloading Class 1 explosives, Class 2.3 poison gases, and certain other high-hazard materials</li>
+      <li>"Attended" means a person is within 50 feet, has the vehicle in sight, and is awake and alert — not sleeping in the cab</li>
+      <li>You may not leave a placarded vehicle unattended at a rest stop, fuel stop, or any public location — you must follow strict attendance rules</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Blocking &amp; Bracing Requirements</strong>
+      Hazmat packages must be secured so they cannot shift, tip, or fall during normal transport conditions. Use dunnage (wood, foam, etc.), bracing, or tie-downs as appropriate for the package type and hazard class. This is the CARRIER's responsibility.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== EMERGENCY ===================== -->
+<div id="emergency" class="section">
+  <div class="section-header">
+    <h2>Emergency Response</h2>
+    <p>What to do when things go wrong on the road</p>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>Your #1 Priority in Any Emergency: KEEP PEOPLE SAFE</strong>
+      Get away from the scene if you can't stop a leak. Warn others. Call for help. Do not attempt to handle hazmat spills unless you are trained and equipped. Your job is communication and evacuation, not cleanup.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📕 The Emergency Response Guidebook (ERG)</h3>
+    <ul>
+      <li>Published by PHMSA — a guide for first responders to identify hazardous materials and respond safely</li>
+      <li>Organized by UN/NA number and proper shipping name</li>
+      <li>Each material points to an <strong>orange guide page</strong> with response information</li>
+      <li>Drivers should know how to use the ERG but are NOT required to carry it (though it's strongly recommended)</li>
+      <li>The ERG is updated every 4 years</li>
+      <li>Look up: UN number → Guide page → Initial isolation distances and protective action distances</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🚨 If You're in an Accident with Hazmat</h3>
+    <ul>
+      <li>Check for injuries — get medical help immediately</li>
+      <li>Keep people away from the area — set up a perimeter</li>
+      <li>Do NOT let anyone smoke or start fires near the area</li>
+      <li>Notify emergency services (911) immediately</li>
+      <li>Contact your dispatcher/company</li>
+      <li>Call the emergency response number on the shipping papers</li>
+      <li>Provide responders with the shipping papers, placards, and ERG guide number</li>
+      <li>Stay upwind and uphill from spills when possible</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🔥 Fire in/near a Hazmat Vehicle</h3>
+    <ul>
+      <li>If cargo is on fire or you suspect a cargo fire: pull over, get out, move away, call 911</li>
+      <li>Do NOT fight cargo fires — hazmat requires specialized training and equipment</li>
+      <li>Tire fires: you may use dry chemical or CO₂ extinguisher on a tire fire carefully</li>
+      <li>Never use water on a 4.3 (Dangerous When Wet) material — it can cause violent reaction or toxic gas release</li>
+      <li>Never use water on a 5.1 oxidizer fire — can intensify the fire</li>
+      <li>Have a fire extinguisher rated 10 B:C or higher in the cab</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>💧 Spills &amp; Leaks</h3>
+    <ul>
+      <li>Stop safely away from traffic</li>
+      <li>Do not attempt to stop a leak unless trained and equipped</li>
+      <li>Notify the National Response Center (NRC) at <strong>1-800-424-8802</strong> for reportable quantity spills</li>
+      <li>Notify your company immediately</li>
+      <li>Keep unauthorized people at least 300 feet away from unknown material spills</li>
+      <li>If you have a leak and can continue safely to a place to off-load without increasing the danger, do so — otherwise stop</li>
+    </ul>
+  </div>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Situation</th><th>Required Action</th></tr>
+      <tr><td>Spill of a Reportable Quantity (RQ)</td><td>Report to National Response Center 1-800-424-8802 within 24 hrs</td></tr>
+      <tr><td>Fire involving hazmat</td><td>Call 911 immediately; do not fight cargo fires</td></tr>
+      <tr><td>Person injured by hazmat</td><td>911 + notify NRC + give responders shipping papers</td></tr>
+      <tr><td>Radioactive material incident</td><td>Call 911 + NRC + keep people 50-100+ feet back</td></tr>
+      <tr><td>Unknown hazmat smell/leak</td><td>Stop, evacuate, call 911, stay upwind</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ===================== SECURITY ===================== -->
+<div id="security" class="section">
+  <div class="section-header">
+    <h2>Security Awareness &amp; Plans</h2>
+    <p>TSA requirements and your role in hazmat security</p>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>
+      <strong>Post-9/11 Requirements</strong>
+      All hazmat employees (including drivers) must receive security awareness training. Carriers that transport certain "select hazmat" must develop and follow a written security plan. This is required by 49 CFR Part 172, Subpart I.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📋 Who Needs a Security Plan?</h3>
+    <ul>
+      <li>Carriers transporting hazmat in quantities requiring placards</li>
+      <li>Carriers transporting SELECT AGENTS or TOXINS (any quantity)</li>
+      <li>Carriers transporting certain radioactive materials, infectious substances, or other high-hazard materials</li>
+      <li>The plan must be in writing and reviewed/updated at least annually</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>📝 What the Security Plan Must Include</h3>
+    <ul>
+      <li>Personnel security — background checks, authorization procedures</li>
+      <li>Unauthorized access prevention — how you protect cargo and vehicles</li>
+      <li>En-route security — procedures while transporting</li>
+      <li>Communication procedures — who to notify if something is wrong</li>
+      <li>Response procedures for security incidents</li>
+      <li>Training requirements</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🚛 Driver Responsibilities — Security</h3>
+    <ul>
+      <li>Know your company's security plan and follow it</li>
+      <li>Be alert to suspicious behavior around your vehicle</li>
+      <li>Lock your cab when not in the vehicle</li>
+      <li>Keep hazmat shipment details confidential — do not discuss cargo with strangers</li>
+      <li>Report suspicious activity to law enforcement and your company</li>
+      <li>Never leave placarded vehicle unattended in a public place</li>
+      <li>Verify the identity of people who ask about your load</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>☢️ High-Risk Materials (Require Extra Security)</h3>
+    <ul>
+      <li>Explosives (Class 1) — especially 1.1, 1.2, 1.3</li>
+      <li>Poison inhalation hazard (PIH) materials — chlorine, anhydrous ammonia</li>
+      <li>Radioactive materials (Highway Route Controlled Quantities — HRCQ)</li>
+      <li>Infectious substances (6.2)</li>
+      <li>Materials meeting the definition of "select hazmat" — explosives above certain quantities, flammable liquids and gases above certain quantities</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>TSA Background Check</strong>
+      To obtain the Hazmat Endorsement, you must pass a TSA security threat assessment (fingerprinting, criminal background check, and immigration status verification). This is a federal requirement. Prior convictions for certain crimes permanently disqualify a driver from the HME.
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DRIVING RULES ===================== -->
+<div id="driving" class="section">
+  <div class="section-header">
+    <h2>Driving &amp; Parking Rules</h2>
+    <p>Special rules that apply when your truck carries hazmat</p>
+  </div>
+
+  <div class="card">
+    <h3>🚂 Railroad Crossings — CRITICAL TEST TOPIC</h3>
+    <ul>
+      <li>You <strong>MUST stop</strong> at ALL railroad crossings when carrying hazmat that requires placards — no exceptions</li>
+      <li>Stop <strong>between 15 and 50 feet</strong> from the nearest rail</li>
+      <li>Do not shift gears while crossing the tracks</li>
+      <li>Do not stop on the tracks — cross only when you are certain you can completely clear the tracks</li>
+      <li>Turn on 4-way flashers before stopping and while crossing</li>
+      <li>Look and listen in both directions before proceeding</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-danger">
+    <span class="alert-icon">🔴</span>
+    <div>
+      <strong>TRICK QUESTION: Exempt Crossings</strong>
+      A railroad crossing marked "EXEMPT" does NOT exempt hazmat vehicles. If you have a placarded load, you ALWAYS stop at all railroad crossings regardless of signs.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🅿️ Parking Rules for Hazmat Vehicles</h3>
+    <ul>
+      <li>Do NOT park within <strong>5 feet of the traveled portion</strong> of a road if you can avoid it</li>
+      <li>Avoid parking in <strong>tunnels, on bridges, or in underpasses</strong></li>
+      <li>Avoid populated areas, places where people gather, and areas near open flames or sparks</li>
+      <li>If you must stop on a roadway: turn on 4-way flashers and set out warning devices (triangles, flares — but avoid flares near flammable material)</li>
+      <li>Never park within <strong>300 feet of an open fire</strong></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>👁️ Attendance Requirements</h3>
+    <ul>
+      <li>A placarded hazmat vehicle must be <strong>attended at all times</strong> unless parked in a safe haven or attended facility</li>
+      <li>"Attended" = person is within <strong>100 feet</strong> of the vehicle, can see it, and is awake</li>
+      <li>Explosives (1.1, 1.2, 1.3): Must ALWAYS be attended — even when stopped</li>
+      <li>Poison gas (2.3): Must always be attended</li>
+      <li>If unattended, vehicle must be parked in a locked facility or safe haven — locked, fenced area</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🚇 Tunnels &amp; Restricted Routes</h3>
+    <ul>
+      <li>Some tunnels, bridges, and urban routes are restricted for certain hazmat classes</li>
+      <li>You must obey all posted hazmat route restrictions</li>
+      <li>Class 1.1, 1.2, 1.3 explosives: Cannot use certain tunnels and bridges — check local routing rules</li>
+      <li>Radioactive materials (HRCQ): Require NRC-approved routes and advance notification in some states</li>
+      <li>Never take a hazmat load into a restricted area</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>⚠️ Other Driving Rules</h3>
+    <ul>
+      <li>No smoking within <strong>25 feet</strong> of a tanker or vehicle carrying Class 1, 2.1, 3, 4, or 5 materials</li>
+      <li>Keep fire extinguisher charged and accessible at all times</li>
+      <li>Do not drive into a potentially dangerous area with hazmat</li>
+      <li>If you discover a leak enroute: safely exit traffic, warn others, call for help — do not continue with a leaking load unless it is safe to do so</li>
+      <li>Keep shipping papers accessible at all times while driving</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== TANKER ===================== -->
+<div id="tanker" class="section">
+  <div class="section-header">
+    <h2>Tanker-Specific Hazmat Rules</h2>
+    <p>Cargo tanks, bulk packaging, and tanker endorsement requirements</p>
+  </div>
+
+  <div class="alert alert-info">
+    <span class="alert-icon">ℹ️</span>
+    <div>
+      <strong>Two Endorsements, Two Roles</strong>
+      The <strong>Tank Vehicle (N) endorsement</strong> is required to drive tank trucks. The <strong>Hazmat (H) endorsement</strong> is required when those tanks carry hazardous materials. If you drive a placarded tanker, you need both — or the combined <strong>X endorsement</strong>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📦 Bulk vs. Non-Bulk Packaging</h3>
+    <ul>
+      <li><strong>Bulk packaging:</strong> A single container with a capacity of ≥119 gallons (liquid), ≥882 lbs (solid), or ≥882 lbs water capacity (gas) — cargo tanks, tank cars, intermediate bulk containers (IBCs)</li>
+      <li><strong>Non-bulk packaging:</strong> Drums, boxes, cylinders, bags — smaller individual containers</li>
+      <li>Cargo tanks are the most common bulk packaging for highway transport</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🔧 Cargo Tank Types</h3>
+    <ul>
+      <li><strong>DOT MC-306/DOT406:</strong> Atmospheric pressure — flammable liquids (gasoline, diesel). Oval cross-section, rollover protection.</li>
+      <li><strong>DOT MC-307/DOT407:</strong> Low pressure — chemicals, food-grade products. Circular cross-section, stronger than MC-306.</li>
+      <li><strong>DOT MC-312/DOT412:</strong> High pressure corrosives — sulfuric acid, other corrosives. Smaller diameter, heavier construction.</li>
+      <li><strong>DOT MC-331:</strong> High-pressure tank — compressed gases (propane, anhydrous ammonia). Round ends, pressure relief valves.</li>
+      <li><strong>DOT MC-338:</strong> Cryogenic liquids — LNG, liquid nitrogen, liquid oxygen. Vacuum-jacketed insulated tank.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🔍 Pre-Trip Inspection — Tanker Hazmat</h3>
+    <ul>
+      <li>Inspect for leaks — body, fittings, manhole covers, valves, hoses</li>
+      <li>Check emergency discharge valves — must be closed and functioning</li>
+      <li>Verify dome covers/manhole covers are secure</li>
+      <li>Check vents and pressure relief devices — clear and operational</li>
+      <li>Verify ground bonding/grounding capability for flammable liquids</li>
+      <li>Check certification date on cargo tank — tanks must be inspected and tested on schedule (MC-306: annual internal inspection; MC-331: pressure test every 5 years)</li>
+      <li>Ensure correct placards are displayed</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🌊 Liquid Surge &amp; Stability</h3>
+    <ul>
+      <li>Liquid surge is the sloshing of liquid in a partially-filled tank — it can affect steering and braking</li>
+      <li>Baffled tanks: Have dividers that slow surge — less movement front/back but still side surge</li>
+      <li>Unbaffled (smooth bore) tanks: Full surge — most dangerous. Used for food and corrosives where cleaning is needed.</li>
+      <li>Surge effect is strongest when tank is 75–85% full — a partly filled tank is more dangerous than a full one</li>
+      <li>Speed up/slow down gently to manage surge forces</li>
+      <li>Take curves at reduced speed — outward surge can tip the tank</li>
+    </ul>
+  </div>
+
+  <div class="alert alert-warn">
+    <span class="alert-icon">⚠️</span>
+    <div>
+      <strong>Outage / Outage Requirements</strong>
+      Liquid cargo tanks must have outage (space left at the top) to allow for thermal expansion of the liquid. The amount of outage depends on the material. Overfilling can cause pressure buildup or spills. The shipper is responsible for proper fill levels.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Grounding &amp; Bonding for Flammable Liquids</h3>
+    <ul>
+      <li>When loading/unloading flammable liquids, the tank must be grounded to prevent static electricity buildup</li>
+      <li>Connect the ground wire <strong>before</strong> opening any valves or hatches</li>
+      <li>Do not disconnect the ground until after closing valves/hatches</li>
+      <li>Bond the tank to the receiving container to equalize electrical charge</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ===================== QUIZ ===================== -->
+<div id="quiz" class="section">
+  <div class="section-header">
+    <h2>100-Question Practice Test</h2>
+    <p>Click an answer to check it. All 100 questions — realistic hazmat exam format.</p>
+  </div>
+
+  <div class="score-bar-wrap" id="scoreBox" style="display:none">
+    <div class="score-big" id="scoreNum">0/100</div>
+    <div class="score-label">Correct answers</div>
+    <div class="progress-track"><div class="progress-fill" id="scoreFill" style="width:0%"></div></div>
+    <p style="color:var(--muted); font-size:0.8rem; margin-top:0.5rem" id="scoreMsg"></p>
+  </div>
+
+  <div class="quiz-controls">
+    <button class="btn" onclick="resetQuiz()">↺ Reset Test</button>
+    <button class="btn btn-ghost" onclick="revealAll()">Show All Answers</button>
+    <span id="progressText" style="color:var(--muted);font-size:0.85rem;margin-left:0.5rem"></span>
+  </div>
+
+  <div id="questionsContainer"></div>
+</div>
+
+<!-- ===================== ANSWERS ===================== -->
+<div id="answers" class="section">
+  <div class="section-header">
+    <h2>Answer Key &amp; Explanations</h2>
+    <p>Full explanations for all 100 questions — understand the WHY</p>
+  </div>
+  <div id="answerKeyContainer"></div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ===== NAVIGATION =====
+function showSection(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ===== QUIZ DATA =====
+const questions = [
+  // HAZARD CLASSES (1-15)
+  {cat:'Hazard Classes', q:'Which hazard class covers materials that can cause a mass explosion affecting almost the entire load?', opts:['A. Class 1.2','B. Class 1.1','C. Class 1.3','D. Class 1.4'], ans:1, exp:'Division 1.1 is defined as a mass explosion hazard — an explosion that affects virtually the entire load instantaneously. This is the most dangerous division of Class 1.'},
+  {cat:'Hazard Classes', q:'Propane is classified as which hazard class and division?', opts:['A. Class 3, Flammable Liquid','B. Class 2.2, Non-flammable Gas','C. Class 2.1, Flammable Gas','D. Class 4.1, Flammable Solid'], ans:2, exp:'Propane is a flammable gas — Class 2.1. It is gaseous at normal temperature and pressure, and it is flammable, placing it in Division 2.1.'},
+  {cat:'Hazard Classes', q:'Chlorine is an example of which hazard class?', opts:['A. Class 2.2','B. Class 2.1','C. Class 6.1','D. Class 2.3'], ans:3, exp:'Chlorine is Class 2.3 — a poisonous/toxic gas. It is one of the most commonly tested examples of a Poison Inhalation Hazard (PIH) material.'},
+  {cat:'Hazard Classes', q:'Which class covers materials that spontaneously combust when exposed to air or moisture?', opts:['A. Class 4.1','B. Class 4.3','C. Class 4.2','D. Class 5.1'], ans:2, exp:'Division 4.2 covers pyrophoric materials — substances that spontaneously catch fire when exposed to air. White phosphorus is a classic example.'},
+  {cat:'Hazard Classes', q:'Sodium metal, which reacts violently with water to produce hydrogen gas, is classified as:', opts:['A. Class 4.1','B. Class 5.1','C. Class 4.3','D. Class 3'], ans:2, exp:'Division 4.3 is "Dangerous When Wet" — materials that react with water to produce flammable gases. Sodium and potassium metals are classic examples. Never use water on these fires.'},
+  {cat:'Hazard Classes', q:'A shipment of ammonium nitrate fertilizer falls under which hazard class?', opts:['A. Class 3','B. Class 5.1','C. Class 8','D. Class 4.1'], ans:1, exp:'Ammonium nitrate is an oxidizer — Class 5.1. It provides oxygen to sustain or intensify combustion of other materials. This is why it is so dangerous near combustibles.'},
+  {cat:'Hazard Classes', q:'Which hazard class includes materials that destroy living tissue or severely corrode steel?', opts:['A. Class 6.1','B. Class 9','C. Class 8','D. Class 5.2'], ans:2, exp:'Class 8 is Corrosives — materials that destroy living tissue on contact or corrode steel or aluminum. Sulfuric acid (battery acid) and sodium hydroxide (lye) are common examples.'},
+  {cat:'Hazard Classes', q:'Dry ice (solid carbon dioxide) used as a refrigerant is classified as:', opts:['A. Class 2.2','B. Class 3','C. Class 9','D. Class 8'], ans:2, exp:'Dry ice is Class 9 — Miscellaneous Hazardous Material. It doesn\'t fit neatly into other classes but presents a hazard (CO₂ gas buildup, extreme cold) during transport.'},
+  {cat:'Hazard Classes', q:'A Poison Inhalation Hazard (PIH) material requires which placards?', opts:['A. Only POISON placard','B. Both POISON and INHALATION HAZARD placards','C. Only TOXIC placard','D. FLAMMABLE and POISON placards'], ans:1, exp:'PIH materials require TWO placards: POISON and INHALATION HAZARD. They cannot substitute one for the other. This dual-placard requirement reflects the extreme danger of these materials.'},
+  {cat:'Hazard Classes', q:'Which division of Class 6 covers infectious substances like medical waste?', opts:['A. 6.1','B. 6.2','C. 6.3','D. 6.0'], ans:1, exp:'Division 6.2 covers infectious substances — biological material containing or suspected to contain pathogens. Division 6.1 covers toxic substances (poisons).'},
+  {cat:'Hazard Classes', q:'Gasoline has a flash point below 73°F. It is classified as:', opts:['A. Combustible liquid, Class 3','B. Flammable liquid, Class 3','C. Flammable solid, Class 4.1','D. Oxidizer, Class 5.1'], ans:1, exp:'Gasoline\'s flash point is well below 73°F, making it a flammable liquid — Class 3. Combustible liquids have flash points between 141°F and 200°F.'},
+  {cat:'Hazard Classes', q:'Radioactive materials are assigned which class number?', opts:['A. Class 5','B. Class 6','C. Class 7','D. Class 8'], ans:2, exp:'Class 7 is reserved exclusively for radioactive materials — substances that spontaneously emit ionizing radiation.'},
+  {cat:'Hazard Classes', q:'Which of these is a Table 1 hazmat material requiring placards regardless of quantity?', opts:['A. Gasoline','B. Chlorine (Class 2.3)','C. Diesel fuel','D. Ammonium nitrate'], ans:1, exp:'Class 2.3 (Poison Gas) materials — including chlorine — are Table 1 materials. They require placards in ANY quantity, even a single small package.'},
+  {cat:'Hazard Classes', q:'Lithium batteries that are being shipped alone (not in equipment) fall under:', opts:['A. Class 3','B. Class 5.1','C. Class 9','D. Class 4.2'], ans:2, exp:'Lithium batteries are classified as Class 9 — Miscellaneous Hazardous Materials. They pose fire and thermal runaway risks and have specific packaging and transport requirements.'},
+  {cat:'Hazard Classes', q:'Which class of explosives is considered the LEAST hazardous and often does NOT require a placard?', opts:['A. Division 1.1','B. Division 1.4','C. Division 1.2','D. Division 1.3'], ans:1, exp:'Division 1.4 (minor explosion hazard, effects largely confined to package) is the least hazardous division of explosives. Division 1.4S specifically may not require a placard in certain quantities.'},
+
+  // PLACARDS (16-30)
+  {cat:'Placards', q:'When must you placard a vehicle carrying Table 2 hazardous materials?', opts:['A. Any amount','B. When the combined gross weight is 1,001 lbs or more','C. When any single package weighs 100 lbs or more','D. Only when carrying liquids'], ans:1, exp:'Table 2 materials require placards when the AGGREGATE (combined total) gross weight of all Table 2 hazmat on the vehicle is 1,001 lbs or more.'},
+  {cat:'Placards', q:'You are carrying 400 lbs of flammable liquid and 700 lbs of oxidizer (both Table 2). Do you need to placard?', opts:['A. No — neither individual material reaches 1,001 lbs','B. Yes — the combined weight of 1,100 lbs requires the DANGEROUS placard','C. Yes — but only with a FLAMMABLE placard','D. No — oxidizers are exempt'], ans:1, exp:'You add ALL Table 2 hazmat weights together: 400 + 700 = 1,100 lbs, which exceeds the 1,001 lb threshold. You use the DANGEROUS placard for mixed Table 2 loads unless one material is 5,000 lbs or more.'},
+  {cat:'Placards', q:'Who is responsible for placarding the vehicle?', opts:['A. The shipper','B. The carrier/driver','C. The freight broker','D. The loading dock supervisor'], ans:1, exp:'The CARRIER (driver/company) is responsible for placarding the vehicle. The shipper must provide placard information or the placards themselves, but the carrier applies them.'},
+  {cat:'Placards', q:'How many sides of the vehicle must have placards?', opts:['A. Front and rear only','B. Both sides only','C. All four sides — front, rear, and both sides','D. Rear only'], ans:2, exp:'Placards must be placed on all four sides of the vehicle — front, rear, and both left and right sides — so the hazard can be identified from any direction.'},
+  {cat:'Placards', q:'The minimum size for a placard is:', opts:['A. 6 inches on each side','B. 8 inches on each side','C. 10¾ inches on each side','D. 12 inches on each side'], ans:2, exp:'A placard must be a diamond shape with each side measuring at least 10¾ inches (273mm). This ensures visibility from a safe distance.'},
+  {cat:'Placards', q:'Which materials are exempt from the placard requirement even in large quantities?', opts:['A. Flammable liquids in bulk containers','B. ORM-D (Other Regulated Materials – Domestic)','C. Oxidizers in 5,000 lb lots','D. Class 8 corrosives'], ans:1, exp:'ORM-D materials (consumer commodities like small aerosol cans) are exempt from placard requirements. They still require an "ORM-D" marking on packages, but no vehicle placard is needed.'},
+  {cat:'Placards', q:'You carry Class 2.3 poison gas. You notice you have no poison gas placard. What do you do?', opts:['A. Drive anyway — small amounts do not need placards','B. Refuse to transport the load until proper placards are available','C. Use the nearest available placard','D. Cover the package so it is not visible'], ans:1, exp:'Class 2.3 is a Table 1 material — it requires a placard in ANY quantity. You must refuse to move the shipment until proper placards are available. It\'s illegal and dangerous to transport without them.'},
+  {cat:'Placards', q:'The DANGEROUS placard is used when:', opts:['A. Carrying any amount of poison','B. Carrying multiple Table 2 hazmat materials totaling 1,001 lbs or more, without any single material at 5,000 lbs','C. Carrying Class 1 explosives only','D. Carrying radioactive materials'], ans:1, exp:'The DANGEROUS placard is used for mixed loads of Table 2 materials when the combined weight reaches 1,001 lbs, as long as no single material reaches 5,000 lbs (in which case, that material\'s specific placard is required).'},
+  {cat:'Placards', q:'How far must a placard be from other markings on the vehicle?', opts:['A. 1 inch','B. 2 inches','C. 3 inches','D. 5 inches'], ans:2, exp:'Placards must be placed at least 3 inches (76mm) from any other markings. This prevents confusion and ensures the placard is clearly visible.'},
+  {cat:'Placards', q:'A label on a hazmat package differs from a placard because:', opts:['A. Labels are applied by the carrier; placards by the shipper','B. Labels go on individual packages; placards go on the vehicle','C. Labels are larger than placards','D. Placards are only for liquid hazmat'], ans:1, exp:'Labels are smaller diamond-shaped markings applied by the SHIPPER to individual packages. Placards are larger diamonds applied by the CARRIER to the vehicle.'},
+  {cat:'Placards', q:'Which statement about infectious substances (Class 6.2) and placards is correct?', opts:['A. They always require placards','B. They require the BIOHAZARD placard for loads over 1,001 lbs','C. They are exempt from vehicle placarding requirements','D. They require the TOXIC placard'], ans:2, exp:'Class 6.2 (Infectious Substances) are exempt from vehicle placard requirements. Individual packages require biohazard labels, but no placard is required on the vehicle.'},
+  {cat:'Placards', q:'A shipment of 2,500 lbs of flammable liquid (Table 2) and 3,000 lbs of corrosive (Table 2). Which placard do you use?', opts:['A. FLAMMABLE and CORROSIVE','B. DANGEROUS','C. CORROSIVE only','D. No placard needed'], ans:1, exp:'Combined weight = 5,500 lbs (over 1,001 lbs threshold). But neither material alone reaches 5,000 lbs, so you use the DANGEROUS placard for the mixed load.'},
+  {cat:'Placards', q:'A flammable liquid shipment weighs 6,000 lbs (Table 2) along with 200 lbs of corrosive. Which placard is required?', opts:['A. DANGEROUS only','B. FLAMMABLE only','C. FLAMMABLE for the liquid and CORROSIVE for the other material','D. No special rule — use DANGEROUS'], ans:1, exp:'When a single Table 2 material reaches 5,000 lbs or more, you must placard with THAT material\'s specific placard. The flammable liquid at 6,000 lbs requires a FLAMMABLE placard. The 200 lbs of corrosive (under 1,001 lbs alone) may not need separate placarding if the DANGEROUS placard is not being used.'},
+  {cat:'Placards', q:'Which color placard is used for Class 2.1 Flammable Gas?', opts:['A. Green','B. Orange','C. Red','D. Yellow'], ans:2, exp:'Class 2.1 (Flammable Gas) uses a RED placard with a flame symbol. Green is for non-flammable gas (2.2). Orange is for explosives. Yellow is for oxidizers.'},
+  {cat:'Placards', q:'The number that must appear in the bottom corner of every placard represents:', opts:['A. The UN identification number','B. The hazard class or division','C. The packing group','D. The ERG guide number'], ans:1, exp:'The bottom point of a placard must display the hazard class number (e.g., 3 for flammable liquid, 2.3 for poison gas). This helps emergency responders quickly identify the hazard class.'},
+
+  // SHIPPING PAPERS (31-45)
+  {cat:'Shipping Papers', q:'What is the correct order for the basic description on a shipping paper?', opts:['A. Proper shipping name, class, ID number, packing group','B. ID number, proper shipping name, hazard class, packing group','C. Hazard class, ID number, proper shipping name, packing group','D. Packing group, ID number, hazard class, proper shipping name'], ans:1, exp:'The required sequence is: (1) ID Number, (2) Proper Shipping Name, (3) Hazard Class, (4) Packing Group. Example: UN1203, Gasoline, 3, II. This exact order is required by federal regulations.'},
+  {cat:'Shipping Papers', q:'Which of these is a correctly written basic description on a shipping paper?', opts:['A. Gasoline, UN1203, 3, II','B. 3, UN1203, Gasoline, II','C. UN1203, Gasoline, 3, II','D. Gasoline, 3, II, UN1203'], ans:2, exp:'The correct format is ID number first: UN1203, Gasoline, 3, II. This is the only sequence compliant with 49 CFR 172.202.'},
+  {cat:'Shipping Papers', q:'Where must shipping papers be kept while the driver is operating the vehicle?', opts:['A. In a locked glove box','B. Within reach in the cab — on the seat or in the door pouch','C. In the sleeper berth for safe keeping','D. In the trailer with the cargo'], ans:1, exp:'Shipping papers must be within reach of the driver while driving — typically in a door pouch or on the driver\'s seat. They must be immediately accessible to emergency responders.'},
+  {cat:'Shipping Papers', q:'When the driver is out of the cab, where should shipping papers be?', opts:['A. In the driver\'s jacket pocket','B. In the trailer','C. On the driver\'s seat or in the driver\'s door pouch — visible from outside','D. In the dispatcher\'s office'], ans:2, exp:'When out of the cab, shipping papers must be on the driver\'s seat OR in the driver\'s side door pouch — where they are clearly visible to anyone who opens the door, such as a first responder.'},
+  {cat:'Shipping Papers', q:'The emergency response telephone number on shipping papers must be:', opts:['A. A number that is answered only during business hours','B. A 24-hour monitored number by someone knowledgeable about the hazmat','C. A government emergency line','D. The driver\'s personal cell phone number'], ans:1, exp:'The emergency response number must be monitored 24 hours a day, 7 days a week, by someone with knowledge of the hazardous material. CHEMTREC (1-800-424-9300) is a common example.'},
+  {cat:'Shipping Papers', q:'Who prepares and signs the shipping papers?', opts:['A. The driver','B. The carrier company','C. The shipper','D. The freight broker'], ans:2, exp:'The SHIPPER prepares and signs the shipping papers. By signing, the shipper certifies that the shipment is properly described, classified, packaged, marked, and labeled.'},
+  {cat:'Shipping Papers', q:'A material listed on the shipping paper as "RQ" before the proper shipping name indicates:', opts:['A. The material requires refrigeration','B. The material is a Reportable Quantity — a spill must be reported to the NRC','C. The material requires a route qualification','D. The material is radioactive quality'], ans:1, exp:'"RQ" stands for Reportable Quantity. If this material is released in an amount equal to or exceeding its reportable quantity, the incident must be reported to the National Response Center at 1-800-424-8802.'},
+  {cat:'Shipping Papers', q:'The shipping paper must show the total quantity of each hazardous material. This means:', opts:['A. Number of packages only','B. Weight or volume plus the type of packaging','C. Both the number and type of packages and the total weight or volume','D. The purchase cost of the material'], ans:2, exp:'The shipping paper must show the number and type of packages (e.g., "4 drums") AND the total quantity (e.g., "800 lbs" or "200 gallons"). Both pieces of information are required.'},
+  {cat:'Shipping Papers', q:'Which class of hazmat does NOT require a packing group on the shipping paper?', opts:['A. Class 3 (Flammable Liquid)','B. Class 8 (Corrosives)','C. Class 2 (Gases)','D. Class 4.1 (Flammable Solid)'], ans:2, exp:'Class 2 (gases) do not use packing groups — they use pressure classification instead. Explosives (Class 1) and radioactive materials (Class 7) also do not have packing groups.'},
+  {cat:'Shipping Papers', q:'A Poison Inhalation Hazard material must be identified on the shipping paper with:', opts:['A. The word TOXIC in red letters','B. The words "Poison – Inhalation Hazard" or "Inhalation Hazard" in the basic description','C. Only the hazard class 2.3 designation','D. A skull-and-crossbones symbol'], ans:1, exp:'PIH materials must include "Poison – Inhalation Hazard" or "Inhalation Hazard" in the basic description on shipping papers, along with the proper class designation. This alerts responders to the special danger.'},
+  {cat:'Shipping Papers', q:'The driver\'s responsibility regarding shipping papers is to:', opts:['A. Prepare the papers and certify their accuracy','B. Verify the papers appear complete and keep them accessible during transport','C. Sign the shipper\'s certification','D. Determine the correct hazard class for all materials'], ans:1, exp:'The driver\'s role is to verify that shipping papers appear to be complete and accurate (not necessarily verify every detail), and then keep those papers accessible throughout the trip. The shipper is responsible for accuracy.'},
+  {cat:'Shipping Papers', q:'What information is NOT typically required on a hazmat shipping paper?', opts:['A. The UN identification number','B. The driver\'s CDL number','C. The emergency response telephone number','D. The proper shipping name'], ans:1, exp:'The driver\'s CDL number is NOT a required element on hazmat shipping papers. Required elements include the UN number, proper shipping name, hazard class, packing group (if applicable), quantity, emergency contact number, and shipper certification.'},
+  {cat:'Shipping Papers', q:'A "marine pollutant" designation on shipping papers means:', opts:['A. The material is flammable on water','B. The material is severely harmful to the aquatic environment and must be identified','C. The material can only be transported by ship','D. The material requires special marine insurance'], ans:1, exp:'"Marine Pollutant" must be noted on shipping papers and packages when the material poses a severe risk to the aquatic environment. This designation triggers additional handling and reporting requirements.'},
+  {cat:'Shipping Papers', q:'How long must a carrier retain hazmat shipping papers after a shipment is complete?', opts:['A. 30 days','B. 6 months','C. 1 year','D. 375 days (approximately 1 year and 10 days)'], ans:2, exp:'Carriers must retain copies of hazmat shipping papers for 1 year after the shipment is accepted. This allows regulators to review records in case of an incident or audit.'},
+  {cat:'Shipping Papers', q:'On a shipping paper with both hazmat and non-hazmat items, the hazardous materials must:', opts:['A. Appear at the bottom of the list','B. Be listed first, or highlighted, or on a separate page','C. Be mixed in alphabetically with other items','D. Be written in red ink only'], ans:1, exp:'When hazmat and non-hazmat items appear on the same shipping paper, hazmat entries must be clearly identified — either listed first, highlighted in a contrasting color, or included on a separate document.'},
+
+  // LOADING & UNLOADING (46-57)
+  {cat:'Loading & Unloading', q:'Which hazmat combination is absolutely forbidden in the same vehicle?', opts:['A. Gasoline and diesel fuel','B. Ammonium nitrate and flammable materials','C. Dry ice and fresh produce','D. Corrosives and oxidizers in sealed packages'], ans:1, exp:'Ammonium nitrate (a strong oxidizer) and flammable materials is a forbidden combination — the two together create severe explosion risk. Ammonium nitrate feeds oxygen to flammables.'},
+  {cat:'Loading & Unloading', q:'Poison gas (Class 2.3) may NOT be loaded in the same vehicle as:', opts:['A. Other Class 2 gases','B. Food, feed, or drugs for human or animal consumption','C. Class 3 flammable liquids','D. Class 8 corrosives in sealed drums'], ans:1, exp:'Poison gas cannot be transported in the same vehicle with food, feed, or drugs intended for humans or animals. Contamination could be fatal, and no amount of physical separation makes this acceptable.'},
+  {cat:'Loading & Unloading', q:'How far from open flames must you be when loading or unloading flammable hazmat?', opts:['A. 10 feet','B. 15 feet','C. 25 feet','D. 50 feet'], ans:2, exp:'You must be at least 25 feet from any open flame or fire when loading or unloading flammable hazardous materials. Smoking is also prohibited within 25 feet during this time.'},
+  {cat:'Loading & Unloading', q:'During loading of Class 1 explosives, the engine should be:', opts:['A. Running at all times for a quick getaway','B. Shut off unless it is operating the loading equipment','C. Running at idle','D. Running with the cab doors open'], ans:1, exp:'The engine must be shut off during loading/unloading of Class 1 explosives (and during fueling). An exception exists when the engine is needed to run loading equipment (like a pump), but only under controlled conditions.'},
+  {cat:'Loading & Unloading', q:'What must you NEVER use to fight a fire involving Class 4.3 (Dangerous When Wet) materials?', opts:['A. CO₂ extinguisher','B. Dry chemical extinguisher','C. Water or foam','D. Sand'], ans:2, exp:'NEVER use water or water-based foam on Class 4.3 (Dangerous When Wet) materials. Water reacts with these materials to produce flammable or toxic gases, potentially causing an explosion or toxic release.'},
+  {cat:'Loading & Unloading', q:'Blocking and bracing of hazmat cargo is required to:', opts:['A. Make the load look neat','B. Prevent packages from shifting, tipping, or falling during transport','C. Make unloading easier','D. Meet weight distribution laws only'], ans:1, exp:'Blocking and bracing prevents hazmat packages from moving during normal transport conditions. Shifting packages can rupture containers, causing leaks, spills, or dangerous chemical reactions.'},
+  {cat:'Loading & Unloading', q:'You discover a damaged or leaking hazmat package at the loading dock. What should you do?', opts:['A. Load it carefully and monitor it during the trip','B. Refuse the package and report it to your supervisor and the shipper','C. Reinforce the package with tape and load it','D. Load it in an isolated area of the trailer'], ans:1, exp:'A damaged or leaking package must be REFUSED. You must notify your supervisor and the shipper. A leaking package is a spill waiting to happen — loading it makes you liable for a hazmat incident.'},
+  {cat:'Loading & Unloading', q:'Class 1 explosives (1.1, 1.2, 1.3) may NOT be transported with:', opts:['A. Other Class 1.1 materials from the same shipper','B. Detonators, caps, or other initiating explosives unless in authorized containers','C. Class 4.1 flammable solids','D. All of the above'], ans:3, exp:'Explosives compatibility rules are very strict. Mass explosion hazards (1.1, 1.2, 1.3) generally cannot be mixed with detonators or caps, and mixing different explosive divisions has strict rules. When in doubt, treat all explosive combinations as requiring compatibility verification.'},
+  {cat:'Loading & Unloading', q:'When loading hazmat, which statement is correct about smoking?', opts:['A. Smoking is allowed if you are 10 feet from the vehicle','B. Smoking is prohibited within 25 feet of the vehicle during loading/unloading of most hazmat','C. Smoking is only prohibited with Class 1 explosives','D. Smoking is allowed in the cab during loading'], ans:1, exp:'Smoking is prohibited within 25 feet during loading/unloading of flammable materials. This rule protects against ignition of vapors or materials that could be released during the loading process.'},
+  {cat:'Loading & Unloading', q:'Infectious substances (Class 6.2) may NOT be loaded with:', opts:['A. Class 8 corrosives','B. Class 9 miscellaneous materials','C. Food, feed, or drugs for human or animal consumption','D. Class 2.2 non-flammable gas'], ans:2, exp:'Infectious substances (6.2) cannot be loaded with food, feed, or drugs intended for human or animal consumption, due to the risk of contamination with pathogens.'},
+  {cat:'Loading & Unloading', q:'Attending a hazmat vehicle during loading means a person must be:', opts:['A. Within 100 feet and able to see the vehicle','B. Within 50 feet, awake, and able to see the vehicle','C. In the cab at all times','D. Anywhere on the property'], ans:1, exp:'During loading/unloading of high-hazard materials, the vehicle must be attended by someone within 50 feet who can see the vehicle and is awake and alert — not sleeping.'},
+  {cat:'Loading & Unloading', q:'Which hazmat class requires the vehicle engine to be shut off BEFORE a hose connection is made during unloading?', opts:['A. Class 9','B. Class 8','C. Class 3 Flammable Liquids from cargo tanks','D. Class 2.2'], ans:2, exp:'When unloading flammable liquids from a cargo tank, the engine must generally be shut off before connecting or disconnecting hoses, to prevent ignition from engine heat or electrical sources.'},
+
+  // EMERGENCY RESPONSE (58-69)
+  {cat:'Emergency Response', q:'The Emergency Response Guidebook (ERG) is used to:', opts:['A. Complete shipping papers','B. Identify the hazard and find safe response procedures for hazmat emergencies','C. Determine placard requirements','D. Calculate insurance claims for hazmat spills'], ans:1, exp:'The ERG is a guide for first responders — police, fire, EMS — and drivers to quickly identify hazardous materials and take appropriate initial protective actions during an emergency.'},
+  {cat:'Emergency Response', q:'In the ERG, you look up a material by its UN number. The number directs you to:', opts:['A. The shipping paper template for that material','B. An orange-bordered guide page with emergency response information','C. The correct placard for the material','D. A list of reportable quantities'], ans:1, exp:'The ERG directs you to orange-bordered guide pages that provide initial isolation distances, fire response guidance, first aid, and protective action recommendations for specific hazard types.'},
+  {cat:'Emergency Response', q:'You have an accident and your hazmat load is involved. After ensuring your safety, your FIRST call should be to:', opts:['A. Your dispatcher','B. Your insurance company','C. 911 (emergency services)','D. The National Response Center'], ans:2, exp:'Life safety comes first. Call 911 immediately to get emergency services to the scene. Your dispatcher and the NRC come next, but medical/fire/police response must be initiated without delay.'},
+  {cat:'Emergency Response', q:'The National Response Center (NRC) must be notified when:', opts:['A. Any placard is displayed on a vehicle','B. A spill of a hazmat material in a Reportable Quantity (RQ) occurs','C. You park a hazmat vehicle overnight','D. You cross a state line with hazmat'], ans:1, exp:'The NRC (1-800-424-8802) must be notified of spills involving Reportable Quantities of hazardous substances. This triggers federal response and monitoring. You have approximately 24 hours to report.'},
+  {cat:'Emergency Response', q:'After an accident involving hazmat, what should you give to first responders?', opts:['A. Your insurance card only','B. Shipping papers, placards (or placard numbers), and ERG guide number','C. Your CDL and registration only','D. The shipper\'s contact information only'], ans:1, exp:'Give responders your shipping papers (which identify the materials), the placard information, and the ERG guide number if you have it. This information is critical for safe emergency response.'},
+  {cat:'Emergency Response', q:'You smell a strong chemical odor coming from your cargo. You should:', opts:['A. Open the windows and continue to the destination','B. Safely pull off the road, leave the vehicle, and call for help','C. Check the cargo yourself to find the source','D. Speed up to finish the delivery quickly'], ans:1, exp:'Unknown or unexpected chemical odors indicate a potential leak. Safely exit traffic immediately, leave the vehicle, stay upwind, and call emergency services. Never try to investigate a potential hazmat leak yourself.'},
+  {cat:'Emergency Response', q:'You discover a small fuel leak from your cargo tank. The safe action is to:', opts:['A. Continue driving — small leaks are not reportable','B. Stop, evaluate the situation, notify dispatch, and take appropriate action per your training','C. Speed up to get to your destination before it gets worse','D. Use duct tape to seal the leak and continue'], ans:1, exp:'Any leak requires stopping and evaluating the situation. Even small leaks can grow rapidly or ignite. Notify dispatch, and if the leak is significant, call emergency services and the NRC.'},
+  {cat:'Emergency Response', q:'You should stay upwind from a hazmat spill because:', opts:['A. Wind helps contain the spill','B. Wind can carry toxic fumes or vapors toward you if you are downwind','C. Regulations require it','D. It helps emergency responders find you'], ans:1, exp:'Staying upwind means the breeze blows hazardous vapors away from you, not toward you. Most toxic gases and vapors are heavier than air and can travel downwind at ground level.'},
+  {cat:'Emergency Response', q:'A cargo fire is discovered in your hazmat-loaded trailer. You should:', opts:['A. Try to fight it with your extinguisher immediately','B. Pull over, get out, move away from the vehicle, and call 911','C. Drive to the nearest fire station','D. Open the trailer doors to vent the fire'], ans:1, exp:'Do NOT fight cargo fires involving hazmat — you lack the training, equipment, and knowledge of how the specific materials will react. Pull over, get out, move far away, and call 911.'},
+  {cat:'Emergency Response', q:'Which fire extinguisher type is required in the cab of a hazmat vehicle?', opts:['A. 5 B:C rating','B. 10 B:C rating or higher','C. 20 B:C rating only','D. Water-type extinguisher'], ans:1, exp:'FMCSA requires at least one fire extinguisher rated 10 B:C in a CMV cab. The B rating covers flammable liquid fires; the C rating covers electrical fires. Always check that it is charged.'},
+  {cat:'Emergency Response', q:'If a radioactive material package is damaged in an accident, people should be kept at least:', opts:['A. 10 feet away','B. 25 feet away','C. 50-100 feet or more, depending on the material','D. 300 feet away — the same as all hazmat'], ans:2, exp:'Initial isolation distances for radioactive material incidents vary widely by material type and activity level, but 50-100 feet is a reasonable initial safe distance. Emergency responders with radiation meters determine the actual safe perimeter.'},
+  {cat:'Emergency Response', q:'The phrase "initial isolation zone" in the ERG refers to:', opts:['A. The distance from the incident where you can safely park','B. A protective circle around the spill where evacuation or shelter-in-place is recommended','C. The area where cleanup crews must work','D. The distance placards must be visible from'], ans:1, exp:'The initial isolation zone is the area immediately surrounding the incident. Persons within this zone should evacuate or shelter in place. Larger protective action zones (downwind) may also be identified in the ERG.'},
+
+  // SECURITY (70-77)
+  {cat:'Security', q:'Who is required to have hazmat security awareness training?', opts:['A. Only drivers who transport explosives','B. All hazmat employees, including drivers, loaders, and handlers','C. Only drivers who transport PIH materials','D. Only employees with security clearances'], ans:1, exp:'ALL hazmat employees — anyone who handles, transports, or is involved in hazmat shipments — must receive security awareness training per 49 CFR 172.704. This includes drivers, dock workers, dispatchers, etc.'},
+  {cat:'Security', q:'A written hazmat security plan is required for carriers who transport:', opts:['A. Any hazmat, regardless of quantity','B. Hazmat in quantities requiring placards, or select agents in any quantity','C. Only explosives and radioactive materials','D. Only materials with a PIH designation'], ans:1, exp:'A written security plan is required for carriers transporting hazmat in quantities requiring placards. Carriers transporting select agents or toxins in any quantity also require a security plan per 49 CFR 172.800.'},
+  {cat:'Security', q:'Under your security plan, a driver\'s responsibility includes:', opts:['A. Conducting background checks on shippers','B. Being alert to suspicious activity and reporting it','C. Inspecting shipper facilities for security compliance','D. Approving hazmat manifests before acceptance'], ans:1, exp:'Drivers must be alert to their surroundings, report suspicious activity to law enforcement and their company, and follow all security plan procedures. Security awareness is a daily responsibility.'},
+  {cat:'Security', q:'A stranger approaches your placarded vehicle and asks detailed questions about your cargo. You should:', opts:['A. Answer their questions — public transparency is important','B. Give them your company contact information and refer them to your dispatcher','C. Refuse to discuss cargo details and report the contact to your company','D. Give them the shipping papers to review'], ans:2, exp:'Hazmat cargo details are sensitive. Refuse to discuss your load with strangers, report the contact to your company, and if the behavior seems threatening or suspicious, contact law enforcement.'},
+  {cat:'Security', q:'How often must a carrier\'s security plan be reviewed and updated?', opts:['A. Every month','B. Every 6 months','C. Annually (at least once per year)','D. Every 5 years'], ans:2, exp:'Security plans must be reviewed and updated at least annually, and whenever there is a change in operations that affects the plan\'s effectiveness.'},
+  {cat:'Security', q:'Which materials are considered "high-risk" and receive enhanced security attention?', opts:['A. Class 9 materials like dry ice','B. Class 1.1, 1.2, 1.3 explosives; PIH materials; HRCQ radioactive materials','C. Combustible liquids only','D. Class 8 corrosives in small packages'], ans:1, exp:'High-risk hazmat includes mass-explosion explosives (1.1-1.3), poison inhalation hazard materials, and Highway Route Controlled Quantities of radioactive material. These are priority targets for terrorists and require the most stringent security.'},
+  {cat:'Security', q:'When parking a placarded hazmat vehicle overnight, you should:', opts:['A. Park at any 24-hour truck stop','B. Park in a secure facility or attended area — avoid unattended public locations','C. Park with the nose facing the road for quick departure','D. Disconnect the trailer in a public lot'], ans:1, exp:'Placarded hazmat vehicles should not be left unattended in public places. Secure facilities, locked and fenced areas, or attended locations are required. Unattended hazmat vehicles in public are security and safety risks.'},
+  {cat:'Security', q:'TSA security threat assessment for the Hazmat Endorsement includes:', opts:['A. A driving skills test','B. Fingerprinting, criminal background check, and immigration status verification','C. A medical examination','D. A cargo handling skills test'], ans:1, exp:'The TSA background check for HME applicants involves fingerprinting, a criminal background check, and immigration status verification. Certain criminal convictions permanently disqualify a person from obtaining an HME.'},
+
+  // DRIVING RULES (78-88)
+  {cat:'Driving Rules', q:'A vehicle carrying hazmat that requires placards approaches a railroad crossing marked "EXEMPT." The driver must:', opts:['A. Proceed without stopping since the sign says exempt','B. Still stop between 15 and 50 feet from the nearest rail','C. Slow to 15 mph but does not need to stop','D. Honk and proceed at normal speed'], ans:1, exp:'CRITICAL: "Exempt" signs on railroad crossings do NOT apply to hazmat vehicles. If your vehicle requires placards, you MUST stop at ALL railroad crossings — no exceptions, no signs change this rule.'},
+  {cat:'Driving Rules', q:'When stopped at a railroad crossing with a hazmat load, you must stop:', opts:['A. 5 to 10 feet from the nearest rail','B. 15 to 50 feet from the nearest rail','C. 50 to 100 feet from the nearest rail','D. Wherever feels safe'], ans:1, exp:'The law requires stopping 15 to 50 feet from the nearest rail. This distance keeps your vehicle back from potential train overhang while giving you visibility of the tracks.'},
+  {cat:'Driving Rules', q:'While crossing railroad tracks with a hazmat load, you should:', opts:['A. Speed up to minimize time on the tracks','B. Not shift gears while crossing','C. Stop halfway across to check for trains','D. Keep your window closed to block noise'], ans:1, exp:'Never shift gears while crossing railroad tracks — if you have to downshift, you might stall on the tracks. Cross in a gear you can maintain all the way across.'},
+  {cat:'Driving Rules', q:'A placarded hazmat vehicle should avoid parking:', opts:['A. At a truck stop with fuel available','B. In tunnels, on bridges, or in underpasses','C. In a fenced terminal yard','D. Within 50 feet of a fire station'], ans:1, exp:'Tunnels, bridges, and underpasses are dangerous locations for hazmat vehicles — restricted space, limited escape routes, and potential for concentrated toxic exposure. Avoid these for parking hazmat vehicles.'},
+  {cat:'Driving Rules', q:'You must not park a placarded hazmat vehicle within ___ feet of an open fire.', opts:['A. 100','B. 200','C. 300','D. 500'], ans:2, exp:'Hazmat vehicles must be kept at least 300 feet from any open fire. This distance helps protect against radiant heat igniting cargo and prevents a hazmat incident from threatening people near the fire.'},
+  {cat:'Driving Rules', q:'What is required when stopping a hazmat vehicle on a roadway due to an emergency?', opts:['A. Sound the air horn continuously','B. Turn on 4-way flashers and set out warning devices','C. Leave the vehicle and lock it','D. Display the ERG on the dashboard'], ans:1, exp:'Activate 4-way emergency flashers and set out warning devices (triangles or reflectors) per standard CMV breakdown procedures. Avoid flares near flammable materials — use reflective triangles instead.'},
+  {cat:'Driving Rules', q:'"Attended" for a placarded hazmat vehicle means the driver or other responsible person is:', opts:['A. Within 300 feet and has a cell phone','B. Within 100 feet, can see the vehicle, and is awake','C. In the cab at all times','D. Available by radio at all times'], ans:1, exp:'The attendance requirement: within 100 feet of the vehicle, has a clear view of it, and is awake and alert. Simply being near the vehicle while asleep does not count as "attended."'},
+  {cat:'Driving Rules', q:'Which hazmat materials require the vehicle to be attended at ALL TIMES, including while parked?', opts:['A. Class 3 flammable liquids','B. Class 1.1, 1.2, 1.3 explosives and Class 2.3 poison gases','C. Class 9 miscellaneous materials','D. Class 8 corrosives'], ans:1, exp:'Mass-explosion explosives (1.1-1.3) and poison gases (2.3) require continuous attendance — the vehicle cannot be left unattended, period. These materials present immediate catastrophic risk.'},
+  {cat:'Driving Rules', q:'You are transporting hazmat through a tunnel. The safest action if unsure of restrictions is:', opts:['A. Drive slowly through the tunnel','B. Check posted signs and your company routing — if prohibited, find an alternate route','C. Ask another driver via CB radio','D. Contact the shipper for advice'], ans:1, exp:'Always check posted tunnel restrictions before entering. Many tunnels prohibit certain hazmat classes. If your class is restricted, you MUST find an alternate route — never violate a hazmat routing restriction.'},
+  {cat:'Driving Rules', q:'Smoking is prohibited within ___ feet of a vehicle carrying flammable hazmat during loading/unloading.', opts:['A. 10','B. 15','C. 25','D. 50'], ans:2, exp:'No smoking within 25 feet of any vehicle carrying Class 1, 2.1, 3, 4, or 5 materials during loading or unloading. A single spark near flammable vapors can cause a catastrophic fire or explosion.'},
+  {cat:'Driving Rules', q:'If you discover a hazmat leak while driving, you should NOT:', opts:['A. Safely pull off the road','B. Notify emergency services','C. Continue driving to the destination to prevent delay','D. Keep others away from the area'], ans:2, exp:'You should NEVER continue driving with a known hazmat leak (unless the leak stops and it is safe). Continuing risks worsening the leak, exposing the public, and increasing your liability. Stop and get help.'},
+
+  // TANKER (89-100)
+  {cat:'Tanker Hazmat', q:'The Tank Vehicle (N) endorsement combined with the Hazmat (H) endorsement gives the combined endorsement:', opts:['A. HN','B. X','C. TH','D. NH'], ans:1, exp:'When both tank vehicle and hazmat endorsements are combined, they are listed on the CDL as the "X" endorsement. Drivers of placarded tankers need the X endorsement (or both H and N separately).'},
+  {cat:'Tanker Hazmat', q:'Bulk packaging is defined as a single container with a liquid capacity of at least:', opts:['A. 55 gallons','B. 119 gallons','C. 500 gallons','D. 1,000 gallons'], ans:1, exp:'Bulk packaging for liquids is defined as a single container with a capacity of 119 gallons (450 liters) or more. This is the threshold that distinguishes bulk from non-bulk packaging.'},
+  {cat:'Tanker Hazmat', q:'An unbaffled (smooth-bore) tank is most commonly used for:', opts:['A. Gasoline and diesel','B. Propane and compressed gas','C. Food-grade liquids and corrosives requiring easy cleaning','D. Dry bulk materials'], ans:2, exp:'Smooth-bore tanks (without internal baffles) are used for food-grade products and corrosives that require thorough cleaning between loads. The smooth interior allows complete washout without residue trapped in baffles.'},
+  {cat:'Tanker Hazmat', q:'Liquid surge in a tanker is most dangerous when the tank is approximately:', opts:['A. Completely full','B. Empty','C. 75–85% full','D. 50% full'], ans:2, exp:'A tank that is 75-85% full has the most liquid to surge while still having enough headspace for violent movement. A full tank has no room to surge; an empty tank has almost nothing to move.'},
+  {cat:'Tanker Hazmat', q:'Which cargo tank type is used for high-pressure compressed gases like propane?', opts:['A. MC-306/DOT-406','B. MC-307/DOT-407','C. MC-331','D. MC-338'], ans:2, exp:'The MC-331 (and DOT-331) is the high-pressure tank used for compressed gases like propane and anhydrous ammonia. It has a circular cross-section, hemispherical heads, and pressure relief valves.'},
+  {cat:'Tanker Hazmat', q:'Before loading flammable liquids into a cargo tank, you must:', opts:['A. Ensure the tank is pressurized','B. Ground the tank to prevent static electricity buildup','C. Turn off the tank\'s pressure relief valves','D. Fill the tank as quickly as possible'], ans:1, exp:'Grounding the cargo tank before loading flammable liquids prevents static electricity from accumulating. Static discharge can ignite vapors — proper grounding is a critical safety step.'},
+  {cat:'Tanker Hazmat', q:'The MC-306/DOT-406 cargo tank is designed for:', opts:['A. Cryogenic liquids','B. High-pressure compressed gases','C. Flammable liquids at atmospheric pressure (gasoline, diesel)','D. Concentrated sulfuric acid'], ans:2, exp:'The MC-306/DOT-406 is the standard petroleum tanker — oval cross-section, atmospheric pressure, used for gasoline, diesel, jet fuel, and similar flammable liquids.'},
+  {cat:'Tanker Hazmat', q:'A cargo tank inspection and test schedule means tanks must be:', opts:['A. Inspected only when they look damaged','B. Inspected and tested at regular intervals per DOT regulations (e.g., annually for leakage)','C. Replaced every 5 years','D. Painted and recertified each year'], ans:1, exp:'Cargo tanks must pass regular inspections and tests per DOT standards. For example, MC-306 tanks require annual external visual inspection and periodic leakage testing. Expired inspection = out-of-service.'},
+  {cat:'Tanker Hazmat', q:'When should you NEVER load a cargo tank?', opts:['A. When the tank is below the required temperature','B. When the certification/inspection is expired or the tank has known defects','C. During heavy rain','D. When the destination is more than 500 miles away'], ans:1, exp:'You should never load a tank with an expired inspection, known structural defects, or safety equipment failures. Operating an out-of-spec tank is a federal violation and a serious safety hazard.'},
+  {cat:'Tanker Hazmat', q:'Outage in a cargo tank refers to:', opts:['A. Time the tank is out of service for maintenance','B. The space left at the top of the tank to allow for thermal expansion of the liquid','C. The amount of product lost due to a leak','D. The distance between the tank and the ground'], ans:1, exp:'Outage is the empty space left in a cargo tank to allow the liquid to expand when its temperature rises. Without sufficient outage, thermal expansion can overpressurize the tank and cause a rupture or valve failure.'},
+  {cat:'Tanker Hazmat', q:'A cryogenic liquid cargo tank (MC-338) is characterized by:', opts:['A. High internal pressure with bare metal walls','B. Atmospheric pressure with a vacuum-jacketed insulated design to maintain very low temperatures','C. Multiple baffles to control liquid movement','D. Pressurized nitrogen blanket to prevent freezing'], ans:1, exp:'The MC-338 is a vacuum-jacketed insulated tank designed to carry cryogenic liquids (LNG, liquid nitrogen, liquid oxygen) at extremely cold temperatures. The vacuum jacket works like a thermos to maintain temperature.'},
+  {cat:'Tanker Hazmat', q:'The safest way to take a curve in a loaded tanker is to:', opts:['A. Maintain highway speed and countersteer if the tank sways','B. Slow down before the curve and maintain a steady speed through it','C. Accelerate slightly through the curve for stability','D. Brake during the curve to reduce speed'], ans:1, exp:'Always slow down BEFORE a curve. Braking in a curve with a liquid load is especially dangerous because it can cause the liquid to surge to one side, potentially tipping the tank. Steady speed through the curve is safest.'},
+];
+
+let answered = 0;
+let correct = 0;
+let answeredMap = {};
+
+function buildQuiz() {
+  const container = document.getElementById('questionsContainer');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'question-block';
+    div.id = 'q'+i;
+
+    const catClass = q.cat.toLowerCase().includes('scenario') ? 'scenario' : q.cat.toLowerCase().includes('tank') ? 'tanker' : q.cat.toLowerCase().includes('security') ? 'security' : '';
+
+    div.innerHTML = `
+      <div class="q-header">
+        <span class="q-num ${catClass}">${i+1}</span>
+        <div>
+          <span class="q-tag">${q.cat}</span>
+          <div class="q-text">${q.q}</div>
+        </div>
+      </div>
+      <ul class="options" id="opts${i}">
+        ${q.opts.map((o,j)=>`<li onclick="checkAnswer(${i},${j})" id="opt${i}_${j}">
+          <span class="opt-letter">${['A','B','C','D'][j]}</span>${o}
+        </li>`).join('')}
+      </ul>
+    `;
+    container.appendChild(div);
+  });
+  updateProgress();
+}
+
+function checkAnswer(qi, chosen) {
+  if (answeredMap[qi] !== undefined) return;
+  answeredMap[qi] = chosen;
+  answered++;
+
+  const q = questions[qi];
+  const optsEl = document.getElementById('opts'+qi);
+  optsEl.querySelectorAll('li').forEach((li,j) => {
+    li.classList.add('revealed');
+    if (j === q.ans) li.classList.add('correct');
+    else if (j === chosen && chosen !== q.ans) li.classList.add('wrong');
+  });
+
+  if (chosen === q.ans) correct++;
+  updateProgress();
+}
+
+function updateProgress() {
+  document.getElementById('progressText').textContent = `${answered}/100 answered · ${correct} correct`;
+  if (answered > 0) {
+    const scoreBox = document.getElementById('scoreBox');
+    scoreBox.style.display = 'block';
+    document.getElementById('scoreNum').textContent = `${correct}/${answered}`;
+    const pct = Math.round((correct/100)*100);
+    document.getElementById('scoreFill').style.width = pct+'%';
+    const msg = answered === 100 ?
+      (correct >= 80 ? '🎉 PASSED — Great work! Score ≥80% required to pass.' : '❌ Needs improvement — review missed topics and retake.') :
+      `In progress — ${100-answered} questions remaining`;
+    document.getElementById('scoreMsg').textContent = msg;
+  }
+}
+
+function resetQuiz() {
+  answered = 0; correct = 0; answeredMap = {};
+  buildQuiz();
+  document.getElementById('scoreBox').style.display = 'none';
+  document.getElementById('progressText').textContent = '';
+}
+
+function revealAll() {
+  questions.forEach((_,i) => {
+    if (answeredMap[i] === undefined) checkAnswer(i, questions[i].ans);
+  });
+}
+
+// ===== ANSWER KEY =====
+function buildAnswerKey() {
+  const container = document.getElementById('answerKeyContainer');
+  container.innerHTML = '';
+  questions.forEach((q,i) => {
+    const div = document.createElement('div');
+    div.className = 'answer-item';
+    div.innerHTML = `
+      <div class="ans-q">${i+1}. ${q.q}</div>
+      <div class="ans-correct">✓ Correct Answer: ${['A','B','C','D'][q.ans]}. ${q.opts[q.ans]}</div>
+      <div class="ans-explain">${q.exp}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+// INIT
+buildQuiz();
+buildAnswerKey();
+</script>
+</body>
+</html>
