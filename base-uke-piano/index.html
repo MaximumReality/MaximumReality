@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bass Uke Number Piano</title>
+<style>
+  /* ── Google Font Import ── */
+  @import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Cousine:wght@400;700&display=swap');
+
+  /* ── Design Tokens ── */
+  :root {
+    --bg:         #1a1208;
+    --surface:    #261b0c;
+    --surface2:   #332310;
+    --surface3:   #3e2b14;
+    --border:     #5a3e1e;
+    --amber:      #d48c2a;
+    --amber-lite: #f0b84a;
+    --amber-glow: #ffcd6e;
+    --green:      #6ab04c;
+    --red:        #c0392b;
+    --cream:      #f5e6c8;
+    --muted:      #8a6a40;
+    --string-g:   #e8c96e;
+    --string-d:   #b8a060;
+    --string-a:   #c8884a;
+    --string-e:   #8a6838;
+    --key-w:      clamp(52px, 11vw, 88px);
+    --key-h:      clamp(90px, 18vw, 140px);
+    --radius:     6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Cousine', monospace;
+    min-height: 100vh;
+    padding: 16px 12px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, #3d2200 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 100%, #2a1800 0%, transparent 55%);
+  }
+
+  /* ── Title ── */
+  header {
+    text-align: center;
+    padding-top: 6px;
+  }
+  header h1 {
+    font-family: 'Special Elite', cursive;
+    font-size: clamp(1.3rem, 5vw, 2rem);
+    color: var(--amber-lite);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+  header p {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* ── Panel ── */
+  .panel {
+    width: 100%;
+    max-width: 680px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .panel-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.78rem;
+    color: var(--amber);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0.85;
+  }
+
+  /* ── Mode Tabs ── */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    max-width: 680px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .mode-tab {
+    flex: 1;
+    padding: 10px 6px;
+    background: var(--surface2);
+    border: none;
+    color: var(--muted);
+    font-family: 'Special Elite', cursive;
+    font-size: 0.85rem;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    transition: background 0.2s, color 0.2s;
+  }
+  .mode-tab.active {
+    background: var(--amber);
+    color: var(--bg);
+  }
+  .mode-tab:not(.active):hover { background: var(--surface3); color: var(--cream); }
+
+  /* ── Piano Keys ── */
+  .keys-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .key {
+    width: var(--key-w);
+    height: var(--key-h);
+    background: linear-gradient(175deg, #4a3318 0%, #2e1e0a 100%);
+    border: 2px solid var(--border);
+    border-bottom: 5px solid #120c04;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.08s, background 0.1s, box-shadow 0.1s;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .key .key-num {
+    font-family: 'Special Elite', cursive;
+    font-size: clamp(1.3rem, 3.5vw, 2rem);
+    color: var(--amber-lite);
+    line-height: 1;
+  }
+  .key .key-note {
+    font-size: clamp(0.55rem, 1.5vw, 0.75rem);
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.06em;
+  }
+  .key:hover {
+    background: linear-gradient(175deg, #5c4120 0%, #3a2510 100%);
+  }
+  .key.active {
+    background: linear-gradient(175deg, var(--amber) 0%, #a06a18 100%);
+    box-shadow: 0 0 18px 4px rgba(212, 140, 42, 0.55);
+    transform: translateY(3px) scale(1.04);
+    border-color: var(--amber-glow);
+  }
+  .key.active .key-num { color: #1a1208; }
+  .key.active .key-note { color: #3a2510; }
+  /* Teach-mode hint: pulse the next key */
+  .key.hint {
+    box-shadow: 0 0 14px 3px rgba(106, 176, 76, 0.6);
+    border-color: var(--green);
+    animation: hint-pulse 0.9s ease-in-out infinite alternate;
+  }
+  @keyframes hint-pulse {
+    from { box-shadow: 0 0 10px 2px rgba(106,176,76,0.4); }
+    to   { box-shadow: 0 0 22px 6px rgba(106,176,76,0.75); }
+  }
+
+  /* ── Song Controls ── */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: end;
+  }
+  .controls-grid .full { grid-column: 1 / -1; }
+  label.ctrl-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  select, input[type=range] {
+    width: 100%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--cream);
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-family: 'Cousine', monospace;
+    font-size: 0.82rem;
+    cursor: pointer;
+    appearance: none;
+  }
+  select:focus, input[type=range]:focus { outline: 1px solid var(--amber); }
+
+  input[type=range] {
+    padding: 6px 0;
+    accent-color: var(--amber);
+  }
+  .tempo-row { display: flex; align-items: center; gap: 8px; }
+  .tempo-val {
+    font-size: 0.82rem;
+    color: var(--amber-lite);
+    min-width: 36px;
+    text-align: right;
+  }
+
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button.btn {
+    flex: 1;
+    min-width: 90px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-family: 'Special Elite', cursive;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.06em;
+    background: var(--surface3);
+    color: var(--cream);
+  }
+  button.btn:hover { background: var(--surface2); }
+  button.btn.primary { background: var(--amber); color: var(--bg); border-color: var(--amber-glow); }
+  button.btn.primary:hover { background: var(--amber-lite); }
+  button.btn.active-btn { background: var(--green); color: #0d1a09; border-color: #9fd87e; }
+  button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Song Sequence Display ── */
+  .sequence-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 38px;
+    align-items: center;
+  }
+  .seq-note {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem;
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .seq-note.current {
+    background: var(--amber);
+    color: var(--bg);
+    border-color: var(--amber-glow);
+    box-shadow: 0 0 10px 2px rgba(212,140,42,0.5);
+    font-size: 1.1rem;
+  }
+  .seq-note.done {
+    background: var(--surface2);
+    color: var(--surface3);
+    border-color: var(--surface2);
+  }
+  .seq-note.rest {
+    color: var(--border);
+    font-size: 0.7rem;
+  }
+  .seq-divider {
+    color: var(--border);
+    font-size: 1rem;
+    user-select: none;
+  }
+
+  /* ── Feedback ── */
+  #feedback {
+    min-height: 28px;
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem;
+    text-align: center;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  #feedback.good  { color: var(--green); }
+  #feedback.bad   { color: var(--red); }
+  #feedback.info  { color: var(--amber-lite); }
+  #feedback.done  { color: var(--amber-glow); font-size: 1.1rem; }
+
+  /* ── Uke Diagram ── */
+  .uke-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  @media (max-width: 420px) {
+    .uke-info-grid { grid-template-columns: 1fr; }
+  }
+  .uke-stat {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .uke-stat .label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 4px;
+  }
+  .uke-stat .value {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.2rem;
+    color: var(--amber-lite);
+  }
+  .uke-hint {
+    grid-column: 1 / -1;
+    font-size: 0.78rem;
+    color: var(--cream);
+    opacity: 0.7;
+    line-height: 1.55;
+    font-style: italic;
+  }
+
+  /* ── Fretboard Diagram ── */
+  .fretboard-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .fretboard {
+    display: grid;
+    /* 4 strings + labels = 5 cols; fret rows */
+    grid-template-columns: 22px repeat(4, 1fr);
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #1e1408;
+  }
+  .fb-header {
+    background: var(--surface3);
+    color: var(--amber);
+    font-size: 0.68rem;
+    text-align: center;
+    padding: 4px 2px;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+  .fb-fret-label {
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 0.62rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 5px 0;
+    line-height: 1;
+  }
+  .fb-cell {
+    border-bottom: 1px solid rgba(90,62,30,0.5);
+    border-left: 1px solid rgba(90,62,30,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 2px;
+    position: relative;
+    min-height: 28px;
+  }
+  /* Vertical string line */
+  .fb-cell::before {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: rgba(160,120,60,0.3);
+    transform: translateX(-50%);
+  }
+  .fb-cell.highlight::before { background: rgba(212,140,42,0.6); }
+  .finger-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px 2px rgba(212,140,42,0.7);
+    z-index: 1;
+    position: relative;
+  }
+  .fb-cell.open-string .finger-dot {
+    background: var(--green);
+    box-shadow: 0 0 8px 2px rgba(106,176,76,0.7);
+  }
+
+  /* ── Compact note info ── */
+  #note-number-display {
+    font-family: 'Special Elite', cursive;
+    font-size: 3rem;
+    color: var(--amber);
+    line-height: 1;
+    text-align: center;
+  }
+  .note-name-big {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.8rem;
+    color: var(--amber-lite);
+    text-align: center;
+  }
+
+  /* ── Section visibility ── */
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  /* ── Divider ── */
+  hr.divider {
+    width: 100%;
+    max-width: 680px;
+    border: none;
+    border-top: 1px solid var(--border);
+    opacity: 0.4;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎸 Bass Uke Number Piano</h1>
+  <p>Number notation · Song teacher · Fretboard mapper</p>
+</header>
+
+<!-- MODE TABS -->
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tab-freeplay" onclick="setMode('freeplay')">Free Play</button>
+  <button class="mode-tab" id="tab-song"     onclick="setMode('song')">Song Teacher</button>
+  <button class="mode-tab" id="tab-mapper"   onclick="setMode('mapper')">Uke Mapper</button>
+</div>
+
+<!-- ── PIANO KEYS (always visible) ── -->
+<div class="panel" style="padding-bottom:16px;">
+  <div class="panel-title">Number Keys  ·  Press 1–8 or click</div>
+  <div class="keys-row" id="keys-row">
+    <!-- generated by JS -->
+  </div>
+</div>
+
+<!-- ── FREE PLAY PANEL ── -->
+<div class="panel section visible" id="section-freeplay">
+  <div class="panel-title">Free Play</div>
+  <div id="feedback" class="info">Click a key or press 1–8 to play</div>
+</div>
+
+<!-- ── SONG TEACHER PANEL ── -->
+<div class="panel section" id="section-song">
+  <div class="panel-title">Song Teacher</div>
+  <div class="controls-grid">
+    <div>
+      <label class="ctrl-label" for="song-select">Song</label>
+      <select id="song-select" onchange="loadSong()">
+        <!-- populated by JS -->
+      </select>
+    </div>
+    <div>
+      <label class="ctrl-label">Tempo</label>
+      <div class="tempo-row">
+        <input type="range" id="tempo-slider" min="40" max="160" value="90" oninput="updateTempo()">
+        <span class="tempo-val" id="tempo-val">90%</span>
+      </div>
+    </div>
+    <div class="full btn-row">
+      <button class="btn primary" id="btn-demo" onclick="startDemo()">▶ Play Demo</button>
+      <button class="btn"         id="btn-teach" onclick="startTeach()">🎓 Teach Me</button>
+      <button class="btn"         id="btn-stop"  onclick="stopAll()" disabled>■ Stop</button>
+    </div>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:14px 0 12px;">
+
+  <div class="panel-title" style="margin-bottom:8px;">Sequence</div>
+  <div class="sequence-row" id="sequence-row">
+    <span style="color:var(--muted);font-size:0.8rem;">Select a song above</span>
+  </div>
+
+  <hr style="border:none;border-top:1px solid var(--border);margin:12px 0 10px;">
+  <div id="feedback" class="info" style="text-align:center;"></div>
+  <!-- Note: there's a second #feedback for song mode; we share the first via JS reference -->
+  <div id="song-feedback" class="info" style="text-align:center;font-family:'Special Elite',cursive;font-size:1rem;min-height:26px;"></div>
+</div>
+
+<!-- ── UKE MAPPER PANEL ── -->
+<div class="panel section" id="section-mapper">
+  <div class="panel-title">Bass Ukulele Fretboard Mapper</div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div id="note-number-display">–</div>
+      <div class="note-name-big" id="note-name-display">Select a key</div>
+    </div>
+    <div class="fretboard-wrap">
+      <div class="fretboard" id="fretboard">
+        <!-- built by JS -->
+      </div>
+      <div style="font-size:0.62rem;color:var(--muted);margin-top:3px;">strings: E  A  D  G  (low→high)</div>
+    </div>
+  </div>
+
+  <div class="uke-info-grid" id="uke-info-grid">
+    <div class="uke-stat">
+      <div class="label">String</div>
+      <div class="value" id="uke-string">—</div>
+    </div>
+    <div class="uke-stat">
+      <div class="label">Fret</div>
+      <div class="value" id="uke-fret">—</div>
+    </div>
+    <div class="uke-hint" id="uke-hint">Tap a number key above to see the fret position.</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+
+// Bass Uke tuning (4-string): E A D G  (low to high = columns 0..3)
+// Mapping: number → { note, string (0=E,1=A,2=D,3=G), fret, hint }
+const UKE_MAP = {
+  1: { note: 'C', string: 1, fret: 3, hint: 'A string, 3rd fret. Feel three fret bars from the nut, place finger just behind the third.' },
+  2: { note: 'D', string: 1, fret: 5, hint: 'A string, 5th fret. Count five fret bars from the nut.' },
+  3: { note: 'E', string: 2, fret: 2, hint: 'D string, 2nd fret. Just two steps up from open.' },
+  4: { note: 'F', string: 2, fret: 3, hint: 'D string, 3rd fret. One step further than E.' },
+  5: { note: 'G', string: 2, fret: 5, hint: 'D string, 5th fret. Stretch to the 5th fret on the D string.' },
+  6: { note: 'A', string: 3, fret: 2, hint: 'G string, 2nd fret. G string is the thinnest; feel it vibrate most.' },
+  7: { note: 'B', string: 3, fret: 4, hint: 'G string, 4th fret. Four bars up on the G string.' },
+  8: { note: 'C', string: 3, fret: 5, hint: 'G string, 5th fret. Same note as key 1 but one octave higher!' },
+};
+const STRING_NAMES = ['E', 'A', 'D', 'G'];
+const FRET_RANGE = 6; // show frets 0..5
+
+// C major scale frequencies (bass octave, roughly matching bass uke range)
+const FREQS = {
+  1: 130.81, // C3
+  2: 146.83, // D3
+  3: 164.81, // E3
+  4: 174.61, // F3
+  5: 196.00, // G3
+  6: 220.00, // A3
+  7: 246.94, // B3
+  8: 261.63, // C4
+};
+
+const SONGS = {
+  'Happy Birthday': [
+    {note:1,dur:1},{note:1,dur:1},{note:2,dur:2},{note:1,dur:2},{note:4,dur:2},{note:3,dur:4},
+    {note:0,dur:1},
+    {note:1,dur:1},{note:1,dur:1},{note:2,dur:2},{note:1,dur:2},{note:5,dur:2},{note:4,dur:4},
+    {note:0,dur:1},
+    {note:1,dur:1},{note:1,dur:1},{note:8,dur:2},{note:6,dur:2},{note:4,dur:2},{note:3,dur:2},{note:2,dur:4},
+    {note:0,dur:1},
+    {note:7,dur:1},{note:7,dur:1},{note:6,dur:2},{note:4,dur:2},{note:5,dur:2},{note:4,dur:4},
+  ],
+  'Bridal March': [
+    {note:1,dur:2},{note:4,dur:2},{note:4,dur:2},{note:4,dur:4},
+    {note:1,dur:2},{note:5,dur:2},{note:3,dur:2},{note:4,dur:4},
+    {note:1,dur:2},{note:4,dur:2},{note:5,dur:2},{note:3,dur:2},{note:2,dur:4},
+    {note:1,dur:2},{note:4,dur:2},{note:4,dur:3},{note:3,dur:1},{note:4,dur:4},
+  ],
+  'Jingle Bells': [
+    {note:3,dur:1},{note:3,dur:1},{note:3,dur:2},
+    {note:3,dur:1},{note:3,dur:1},{note:3,dur:2},
+    {note:3,dur:1},{note:5,dur:1},{note:1,dur:1},{note:2,dur:1},{note:3,dur:4},
+    {note:4,dur:1},{note:4,dur:1},{note:4,dur:2},
+    {note:4,dur:1},{note:3,dur:1},{note:3,dur:2},
+    {note:5,dur:1},{note:5,dur:1},{note:4,dur:1},{note:2,dur:1},{note:1,dur:4},
+  ],
+  'Twinkle Twinkle': [
+    {note:1,dur:1},{note:1,dur:1},{note:5,dur:1},{note:5,dur:1},{note:6,dur:1},{note:6,dur:1},{note:5,dur:2},
+    {note:4,dur:1},{note:4,dur:1},{note:3,dur:1},{note:3,dur:1},{note:2,dur:1},{note:2,dur:1},{note:1,dur:2},
+    {note:5,dur:1},{note:5,dur:1},{note:4,dur:1},{note:4,dur:1},{note:3,dur:1},{note:3,dur:1},{note:2,dur:2},
+    {note:5,dur:1},{note:5,dur:1},{note:4,dur:1},{note:4,dur:1},{note:3,dur:1},{note:3,dur:1},{note:2,dur:2},
+    {note:1,dur:1},{note:1,dur:1},{note:5,dur:1},{note:5,dur:1},{note:6,dur:1},{note:6,dur:1},{note:5,dur:2},
+    {note:4,dur:1},{note:4,dur:1},{note:3,dur:1},{note:3,dur:1},{note:2,dur:1},{note:2,dur:1},{note:1,dur:2},
+  ],
+  'Mary Had a Little Lamb': [
+    {note:3,dur:1},{note:2,dur:1},{note:1,dur:1},{note:2,dur:1},{note:3,dur:1},{note:3,dur:1},{note:3,dur:2},
+    {note:2,dur:1},{note:2,dur:1},{note:2,dur:2},{note:3,dur:1},{note:5,dur:1},{note:5,dur:2},
+    {note:3,dur:1},{note:2,dur:1},{note:1,dur:1},{note:2,dur:1},{note:3,dur:1},{note:3,dur:1},{note:3,dur:1},{note:3,dur:1},
+    {note:2,dur:1},{note:2,dur:1},{note:3,dur:1},{note:2,dur:1},{note:1,dur:4},
+  ],
+};
+
+// ══════════════════════════════════════════
+//  AUDIO ENGINE
+// ══════════════════════════════════════════
+
+let audioCtx = null;
+
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playTone(num, durationSec = 0.5) {
+  if (num === 0) return; // rest
+  const ctx = getAudioCtx();
+  const freq = FREQS[num];
+  if (!freq) return;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+  // Envelope: fast attack, sustain, release
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(0.28, ctx.currentTime + 0.02);
+  gain.gain.setValueAtTime(0.22, ctx.currentTime + durationSec * 0.6);
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + durationSec);
+
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + durationSec + 0.05);
+}
+
+// ══════════════════════════════════════════
+//  UI STATE
+// ══════════════════════════════════════════
+
+let currentMode = 'freeplay'; // 'freeplay' | 'song' | 'mapper'
+let playbackMode = null;      // null | 'demo' | 'teach'
+let currentSongSteps = [];
+let currentStepIdx = 0;
+let demoTimeout = null;
+let tempoFactor = 1.0; // 0.4..1.6 mapped from slider
+const BASE_BEAT_MS = 500; // quarter note at 100%
+
+// ══════════════════════════════════════════
+//  BUILD KEYS
+// ══════════════════════════════════════════
+
+function buildKeys() {
+  const row = document.getElementById('keys-row');
+  row.innerHTML = '';
+  for (let n = 1; n <= 8; n++) {
+    const k = document.createElement('div');
+    k.className = 'key';
+    k.id = 'key-' + n;
+    k.innerHTML = `<span class="key-num">${n}</span><span class="key-note">${UKE_MAP[n].note}</span>`;
+    k.addEventListener('pointerdown', (e) => { e.preventDefault(); onKeyPress(n); });
+    row.appendChild(k);
+  }
+}
+
+function flashKey(num, durationMs = 300) {
+  const k = document.getElementById('key-' + num);
+  if (!k) return;
+  k.classList.add('active');
+  setTimeout(() => k.classList.remove('active'), durationMs);
+}
+
+function setHintKey(num) {
+  // clear all hints
+  for (let i = 1; i <= 8; i++) {
+    document.getElementById('key-' + i)?.classList.remove('hint');
+  }
+  if (num) document.getElementById('key-' + num)?.classList.add('hint');
+}
+
+// ══════════════════════════════════════════
+//  BUILD FRETBOARD
+// ══════════════════════════════════════════
+
+function buildFretboard(activeString = -1, activeFret = -1, isOpen = false) {
+  const fb = document.getElementById('fretboard');
+  fb.innerHTML = '';
+
+  // Header row: blank + string names
+  const blank = document.createElement('div');
+  blank.className = 'fb-header';
+  blank.textContent = '';
+  fb.appendChild(blank);
+  STRING_NAMES.forEach((s, si) => {
+    const h = document.createElement('div');
+    h.className = 'fb-header';
+    h.textContent = s;
+    if (si === activeString) {
+      h.style.color = isOpen ? 'var(--green)' : 'var(--amber-glow)';
+    }
+    fb.appendChild(h);
+  });
+
+  // Fret rows 0..FRET_RANGE-1
+  for (let f = 0; f < FRET_RANGE; f++) {
+    // Fret label
+    const fl = document.createElement('div');
+    fl.className = 'fb-fret-label';
+    fl.textContent = f === 0 ? 'nut' : f;
+    fb.appendChild(fl);
+
+    // String cells
+    for (let s = 0; s < 4; s++) {
+      const cell = document.createElement('div');
+      cell.className = 'fb-cell';
+      const isActive = (s === activeString && f === activeFret);
+      const isOpenActive = (s === activeString && f === 0 && activeFret === 0);
+
+      if (isActive || isOpenActive) {
+        cell.classList.add(activeFret === 0 ? 'open-string' : 'highlight');
+        const dot = document.createElement('div');
+        dot.className = 'finger-dot';
+        cell.appendChild(dot);
+      }
+      fb.appendChild(cell);
+    }
+  }
+}
+
+function updateUkeDisplay(num) {
+  const m = UKE_MAP[num];
+  if (!m) return;
+
+  document.getElementById('note-number-display').textContent = num;
+  document.getElementById('note-name-display').textContent = m.note;
+  document.getElementById('uke-string').textContent = STRING_NAMES[m.string] + ' string';
+  document.getElementById('uke-fret').textContent = m.fret === 0 ? 'Open' : m.fret + (m.fret === 1 ? 'st' : m.fret === 2 ? 'nd' : m.fret === 3 ? 'rd' : 'th') + ' fret';
+  document.getElementById('uke-hint').textContent = m.hint;
+
+  buildFretboard(m.string, m.fret, m.fret === 0);
+}
+
+// ══════════════════════════════════════════
+//  SONG SEQUENCE DISPLAY
+// ══════════════════════════════════════════
+
+function buildSequence(steps, currentIdx = -1) {
+  const row = document.getElementById('sequence-row');
+  row.innerHTML = '';
+  steps.forEach((s, i) => {
+    if (s.note === 0) {
+      const d = document.createElement('span');
+      d.className = 'seq-note rest';
+      d.textContent = '·';
+      row.appendChild(d);
+      return;
+    }
+    const cell = document.createElement('span');
+    cell.className = 'seq-note';
+    cell.textContent = s.note;
+    if (i === currentIdx) cell.classList.add('current');
+    else if (currentIdx >= 0 && i < currentIdx) cell.classList.add('done');
+    row.appendChild(cell);
+  });
+}
+
+function loadSong() {
+  stopAll();
+  const sel = document.getElementById('song-select');
+  const name = sel.value;
+  currentSongSteps = SONGS[name] || [];
+  buildSequence(currentSongSteps);
+  setSongFeedback('Song loaded. Press Play Demo or Teach Me.', 'info');
+}
+
+function populateSongSelect() {
+  const sel = document.getElementById('song-select');
+  sel.innerHTML = '';
+  Object.keys(SONGS).forEach(name => {
+    const o = document.createElement('option');
+    o.value = name;
+    o.textContent = name;
+    sel.appendChild(o);
+  });
+  loadSong();
+}
+
+// ══════════════════════════════════════════
+//  TEMPO
+// ══════════════════════════════════════════
+
+function updateTempo() {
+  const v = parseInt(document.getElementById('tempo-slider').value);
+  document.getElementById('tempo-val').textContent = v + '%';
+  tempoFactor = v / 100;
+}
+
+function beatMs(dur) {
+  return (dur * BASE_BEAT_MS) / tempoFactor;
+}
+
+// ══════════════════════════════════════════
+//  DEMO MODE
+// ══════════════════════════════════════════
+
+function startDemo() {
+  stopAll();
+  playbackMode = 'demo';
+  currentStepIdx = 0;
+  setButtonState(true);
+  setSongFeedback('▶ Playing demo…', 'info');
+  playDemoStep();
+}
+
+function playDemoStep() {
+  if (currentStepIdx >= currentSongSteps.length) {
+    setSongFeedback('✓ Demo complete!', 'done');
+    stopAll();
+    return;
+  }
+  const step = currentSongSteps[currentStepIdx];
+  buildSequence(currentSongSteps, currentStepIdx);
+
+  if (step.note !== 0) {
+    const durSec = (step.dur * BASE_BEAT_MS) / (tempoFactor * 1000) * 0.85;
+    playTone(step.note, durSec);
+    flashKey(step.note, durSec * 900);
+    // Update uke if in mapper mode
+    if (currentMode === 'mapper') updateUkeDisplay(step.note);
+  }
+
+  demoTimeout = setTimeout(() => {
+    currentStepIdx++;
+    playDemoStep();
+  }, beatMs(step.dur));
+}
+
+// ══════════════════════════════════════════
+//  TEACH MODE
+// ══════════════════════════════════════════
+
+function startTeach() {
+  stopAll();
+  playbackMode = 'teach';
+  currentStepIdx = 0;
+  setButtonState(true);
+  advanceToNextTeachStep();
+}
+
+function advanceToNextTeachStep() {
+  // Skip rests automatically
+  while (currentStepIdx < currentSongSteps.length &&
+         currentSongSteps[currentStepIdx].note === 0) {
+    currentStepIdx++;
+  }
+  if (currentStepIdx >= currentSongSteps.length) {
+    setHintKey(null);
+    setSongFeedback('🎉 Song complete! Great job!', 'done');
+    buildSequence(currentSongSteps, currentSongSteps.length);
+    setButtonState(false);
+    playbackMode = null;
+    return;
+  }
+  const step = currentSongSteps[currentStepIdx];
+  buildSequence(currentSongSteps, currentStepIdx);
+  setHintKey(step.note);
+  setSongFeedback('Your turn: press  ' + step.note + '  (' + UKE_MAP[step.note].note + ')', 'info');
+  if (currentMode === 'mapper') updateUkeDisplay(step.note);
+}
+
+function handleTeachInput(num) {
+  if (playbackMode !== 'teach') return;
+  const step = currentSongSteps[currentStepIdx];
+  if (!step) return;
+  if (num === step.note) {
+    setSongFeedback('✓ Good!', 'good');
+    flashKey(num, 300);
+    playTone(num, 0.4);
+    setHintKey(null);
+    currentStepIdx++;
+    setTimeout(advanceToNextTeachStep, 600);
+  } else {
+    setSongFeedback('✗ Try again — press  ' + step.note, 'bad');
+    flashKey(num, 200);
+    playTone(num, 0.2);
+  }
+}
+
+// ══════════════════════════════════════════
+//  STOP ALL
+// ══════════════════════════════════════════
+
+function stopAll() {
+  if (demoTimeout) { clearTimeout(demoTimeout); demoTimeout = null; }
+  playbackMode = null;
+  setHintKey(null);
+  setButtonState(false);
+  if (currentSongSteps.length) buildSequence(currentSongSteps, -1);
+}
+
+function setButtonState(active) {
+  document.getElementById('btn-stop').disabled = !active;
+  document.getElementById('btn-demo').disabled = active;
+  document.getElementById('btn-teach').disabled = active;
+}
+
+// ══════════════════════════════════════════
+//  FEEDBACK
+// ══════════════════════════════════════════
+
+let feedbackTimer = null;
+
+function setSongFeedback(msg, type) {
+  const el = document.getElementById('song-feedback');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = type;
+}
+
+// ══════════════════════════════════════════
+//  KEY PRESS HANDLER
+// ══════════════════════════════════════════
+
+function onKeyPress(num) {
+  // Resume audio context on first interaction
+  getAudioCtx().resume();
+
+  if (playbackMode === 'teach') {
+    handleTeachInput(num);
+    return;
+  }
+
+  if (playbackMode === 'demo') return; // ignore during demo
+
+  // Free play / mapper mode
+  playTone(num, 0.6);
+  flashKey(num, 500);
+
+  if (currentMode === 'mapper' || (currentMode === 'freeplay')) {
+    updateUkeDisplay(num);
+  }
+
+  if (currentMode === 'freeplay') {
+    const m = UKE_MAP[num];
+    setSongFeedback(num + ' → ' + m.note + ' · ' + STRING_NAMES[m.string] + ' string, ' + (m.fret === 0 ? 'open' : 'fret ' + m.fret), 'info');
+  }
+}
+
+// ══════════════════════════════════════════
+//  MODE SWITCHING
+// ══════════════════════════════════════════
+
+function setMode(mode) {
+  stopAll();
+  currentMode = mode;
+
+  ['freeplay','song','mapper'].forEach(m => {
+    document.getElementById('tab-' + m).classList.toggle('active', m === mode);
+    const s = document.getElementById('section-' + m);
+    if (s) s.classList.toggle('visible', m === mode);
+  });
+}
+
+// ══════════════════════════════════════════
+//  KEYBOARD INPUT
+// ══════════════════════════════════════════
+
+document.addEventListener('keydown', (e) => {
+  const n = parseInt(e.key);
+  if (n >= 1 && n <= 8) onKeyPress(n);
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+
+buildKeys();
+populateSongSelect();
+buildFretboard(); // empty state
+document.getElementById('song-feedback').textContent = '';
+</script>
+</body>
+</html>
