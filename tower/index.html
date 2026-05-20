@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SPIRE.EXE // Maximum Reality</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cyan: #00ffe7;
+    --pink: #ff0080;
+    --green: #aaff00;
+    --yellow: #ffcc00;
+    --orange: #ff6600;
+    --red: #ff0044;
+    --bg: #050510;
+    --panel: #08081a;
+    --border: #1a1a3a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: #c0c8ff;
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    touch-action: manipulation;
+  }
+
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* Animated background grid */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,231,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,231,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridScroll 8s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes gridScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 40px; }
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 16px 12px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .header-sub {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--pink);
+    text-shadow: 0 0 14px var(--pink);
+    margin-bottom: 4px;
+  }
+  .header-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--cyan);
+    text-shadow: 0 0 20px var(--cyan), 0 0 50px rgba(0,255,231,0.3);
+    letter-spacing: 6px;
+    line-height: 1;
+  }
+  .header-sub2 {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #2a3366;
+    margin-top: 4px;
+  }
+
+  /* ── PANEL ── */
+  .panel {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+  }
+  .panel-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #060616;
+    border: 1px solid var(--border);
+    padding: 7px 12px;
+    font-size: 11px;
+    letter-spacing: 2px;
+  }
+  .stat-val { color: var(--cyan); }
+  .stat-rec { color: var(--pink); }
+
+  /* ── FLAVOR ── */
+  .flavor {
+    width: 100%;
+    font-size: 10px;
+    color: #3a4466;
+    font-style: italic;
+    padding: 4px 10px;
+    border-left: 2px solid #1a1a4a;
+    line-height: 1.5;
+    min-height: 32px;
+    transition: color 0.3s;
+  }
+
+  /* ── LAST RESULT ── */
+  .last-result {
+    width: 100%;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    min-height: 22px;
+    transition: all 0.2s;
+  }
+
+  /* ── CRANE STAGE ── */
+  .crane-stage {
+    width: 100%;
+    background: #040412;
+    border: 1px solid var(--border);
+    padding: 10px 0 8px;
+    overflow: hidden;
+  }
+  .crane-rail-wrap {
+    text-align: center;
+    font-size: 10px;
+    color: #1a2244;
+    letter-spacing: 0;
+    line-height: 1;
+    margin-bottom: 0;
+  }
+  .crane-cable {
+    text-align: center;
+    font-size: 13px;
+    color: #1a3355;
+    white-space: pre;
+    line-height: 1.1;
+    letter-spacing: 0;
+  }
+  .crane-block {
+    text-align: center;
+    font-size: 14px;
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--cyan);
+    white-space: pre;
+    line-height: 1.2;
+    letter-spacing: 0;
+    transition: text-shadow 0.1s;
+  }
+  .crane-label {
+    text-align: center;
+    font-size: 9px;
+    color: #1a2244;
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  /* ── TOWER ── */
+  .tower-wrap {
+    width: 100%;
+    background: #040412;
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 300px;
+    overflow: hidden;
+  }
+  .floor-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .floor-label {
+    font-size: 9px;
+    color: #1e2a44;
+    width: 30px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .floor-block {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 2px;
+    line-height: 1.2;
+  }
+
+  /* ── TAP BUTTON ── */
+  .tap-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 6px;
+    padding: 16px 0;
+    cursor: pointer;
+    text-shadow: 0 0 10px var(--cyan);
+    box-shadow: 0 0 16px rgba(0,255,231,0.1), inset 0 0 16px rgba(0,255,231,0.02);
+    transition: all 0.1s;
+    -webkit-tap-highlight-color: transparent;
+    animation: btnPulse 1.4s ease-in-out infinite;
+  }
+  .tap-btn:active {
+    background: rgba(0,255,231,0.08);
+    box-shadow: 0 0 30px rgba(0,255,231,0.3);
+    transform: scale(0.99);
+  }
+  @keyframes btnPulse {
+    0%,100% { border-color: rgba(0,255,231,0.3); color: rgba(0,255,231,0.4); text-shadow: none; }
+    50% { border-color: var(--cyan); color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+  }
+
+  /* ── INTRO / GAMEOVER SCREENS ── */
+  .screen {
+    width: 100%;
+    border: 1px solid #1a1a4a;
+    padding: 22px 18px;
+    background: #07071a;
+  }
+  .screen.over {
+    border-color: #440011;
+    background: #0a0006;
+  }
+  .screen-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+    text-align: center;
+  }
+  .brief-line {
+    font-size: 12px;
+    line-height: 2;
+    color: #6677aa;
+  }
+  .brief-line span { color: var(--cyan); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: #060010;
+    border: 1px solid #220018;
+    padding: 10px 12px;
+  }
+  .stat-card-label {
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #332244;
+    margin-bottom: 4px;
+  }
+  .stat-card-val {
+    font-size: 15px;
+  }
+
+  .action-btn {
+    width: 100%;
+    background: transparent;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 5px;
+    padding: 12px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    margin-top: 14px;
+  }
+  .action-btn.start {
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    text-shadow: 0 0 8px var(--cyan);
+    box-shadow: 0 0 14px rgba(0,255,231,0.1);
+  }
+  .action-btn.restart {
+    border: 1px solid var(--red);
+    color: var(--red);
+    text-shadow: 0 0 8px var(--red);
+    box-shadow: 0 0 14px rgba(255,0,68,0.1);
+  }
+  .action-btn:active { opacity: 0.7; transform: scale(0.98); }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 8px 0;
+  }
+
+  .end-summary {
+    font-size: 10px;
+    color: #334455;
+    line-height: 1.8;
+    padding-top: 10px;
+    border-top: 1px solid #1a0014;
+    margin-top: 4px;
+  }
+
+  .stability-bar-wrap {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9px;
+    color: #2a3355;
+    letter-spacing: 2px;
+  }
+  .stability-bar-track {
+    flex: 1;
+    height: 4px;
+    background: #0d0d22;
+    border: 1px solid #1a1a3a;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .stability-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s, background 0.4s;
+  }
+
+  .hidden { display: none !important; }
+
+  /* Drop flash animation */
+  @keyframes flashDrop {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+  }
+  .flash { animation: flashDrop 0.15s ease; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="header">
+    <div class="header-sub">◈ MAXIMUM REALITY ◈</div>
+    <div class="header-title">SPIRE.EXE</div>
+    <div class="header-sub2">NEON DISTRICT // STRUCTURAL PROTOCOL</div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div id="screen-intro" class="screen">
+    <div class="screen-title" style="color: var(--cyan);">// MISSION BRIEF</div>
+    <div class="brief-line">▸ A crane swings a <span>floor block</span> left and right.</div>
+    <div class="brief-line">▸ Tap <span>DROP</span> to release it onto the tower below.</div>
+    <div class="brief-line">▸ Land it centered = <span>solid</span>. Off-center = wobble.</div>
+    <div class="brief-line">▸ Miss too far = block falls, <span>game over</span>.</div>
+    <div class="brief-line">▸ The crane gets <span>faster</span> every floor. Stack high.</div>
+    <button class="action-btn start" onclick="startGame()">[ INITIATE ]</button>
+  </div>
+
+  <!-- GAME SCREEN (hidden until started) -->
+  <div id="screen-game" class="hidden" style="width:100%;display:flex;flex-direction:column;gap:8px;align-items:center;">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <span>FLR <span class="stat-val" id="stat-floors">00</span></span>
+      <span id="stat-stability" style="color: var(--cyan);">SOLID</span>
+      <span>REC <span class="stat-rec" id="stat-record">00</span></span>
+    </div>
+
+    <!-- Stability bar -->
+    <div class="stability-bar-wrap" style="padding: 0 2px;">
+      <span>STRUCT</span>
+      <div class="stability-bar-track">
+        <div class="stability-bar-fill" id="stability-fill" style="width:0%;background:var(--cyan);"></div>
+      </div>
+      <span id="wobble-pct">0%</span>
+    </div>
+
+    <!-- Flavor text -->
+    <div class="flavor" id="flavor-text">The city hums below as the first floor swings into place…</div>
+
+    <!-- Last result -->
+    <div class="last-result" id="last-result"></div>
+
+    <!-- Crane stage -->
+    <div class="crane-stage">
+      <div class="crane-rail-wrap">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+      <div class="crane-cable" id="crane-cable">&nbsp;</div>
+      <div class="crane-block" id="crane-block">&nbsp;</div>
+      <div class="crane-label">↓ &nbsp; DROP ZONE &nbsp; ↓</div>
+    </div>
+
+    <!-- Tower -->
+    <div class="tower-wrap" id="tower-wrap"></div>
+
+    <!-- Drop button -->
+    <button class="tap-btn" id="tap-btn" onclick="handleDrop()">▼ &nbsp; DROP &nbsp; ▼</button>
+
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="screen-over" class="screen over hidden">
+    <div class="screen-title" style="color: var(--red);">✗ &nbsp; SIGNAL LOST</div>
+    <div class="flavor" id="over-msg" style="color:#aa2233; border-color:#440011; margin-bottom:14px;"></div>
+    <div class="grid-2">
+      <div class="stat-card">
+        <div class="stat-card-label">FLOORS STACKED</div>
+        <div class="stat-card-val" id="over-floors" style="color:var(--cyan);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">ALL-TIME RECORD</div>
+        <div class="stat-card-val" id="over-record" style="color:var(--pink);">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">FINAL STABILITY</div>
+        <div class="stat-card-val" id="over-stability">SOLID</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">LAST DROP</div>
+        <div class="stat-card-val" id="over-last" style="font-size:11px;">—</div>
+      </div>
+    </div>
+    <div class="end-summary" id="over-summary"></div>
+    <button class="action-btn restart" onclick="startGame()">[ REINITIATE ]</button>
+  </div>
+
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const BLOCK_W       = 9;    // visual chars wide
+const CRANE_RANGE   = 13;   // max offset from center
+const SPEED_BASE    = 14;   // chars/sec
+const SPEED_MAX     = 40;
+const SPEED_STEP    = 1.2;
+const MAX_WOBBLE    = 12;
+const STAGE_W       = CRANE_RANGE * 2 + BLOCK_W + 4;
+
+const FLAVOR = [
+  "The city hums below as another floor swings into place…",
+  "Neon rain streaks the viewport. The crane does not wait.",
+  "Signal locked. Drop when ready, operator.",
+  "The spire rises. GRID BREACH imminent.",
+  "Another floor. Another meter above the static.",
+  "The tower defies physics. For now.",
+  "Uplink stable. Keep stacking.",
+  "Maximum Reality protocol engaged.",
+  "The wobble is real. Compensate.",
+  "Azul watches from the quantum layer. Impressed.",
+  "Mochkil rates this stack: very spicy.",
+  "VOID-WALKER approves. Keep climbing.",
+  "Static city below. Clarity above.",
+  "The algorithm is watching your precision.",
+  "Azul: 'I would have landed that perfectly.' (lies)",
+  "Mochkil: 'Is there food up there?'",
+  "Structural integrity is a suggestion in this district.",
+  "The neon never sleeps. Neither does the crane.",
+];
+
+const GAMEOVER_LINES = [
+  "SIGNAL LOST. The block fell into the static.",
+  "STRUCTURE COMPROMISED. The tower returns to the grid.",
+  "ALIGNMENT FAILURE. Physics wins this round.",
+  "CONNECTION TERMINATED. The spire collapses.",
+  "Azul sighs. Mochkil knocks something off the desk.",
+];
+
+// ── STATE ────────────────────────────────────────────────
+let cranePos   = 0;
+let craneDir   = 1;
+let craneSpeed = SPEED_BASE;
+let towerCenter = 0;   // drift offset
+let floors     = [];   // [{wobble, off}]
+let totalWobble = 0;
+let record     = 0;
+let phase      = 'intro'; // intro | playing | gameover
+let animId     = null;
+let lastTime   = null;
+let canDrop    = true;
+
+// ── HELPERS ──────────────────────────────────────────────
+function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function buildVisual() {
+  const w     = STAGE_W;
+  const mid   = Math.floor(w / 2);
+  const bMid  = mid + Math.round(cranePos);
+  const tMid  = mid + towerCenter;
+  const half  = Math.floor(BLOCK_W / 2);
+
+  // Cable row: just the vertical line
+  let cable = Array(w).fill(' ');
+  if (bMid >= 0 && bMid < w) cable[bMid] = '│';
+
+  // Block row
+  let block = Array(w).fill(' ');
+  for (let i = bMid - half; i <= bMid + half; i++) {
+    if (i >= 0 && i < w) block[i] = '█';
+  }
+
+  // Tower top marker (faint guide)
+  let guide = Array(w).fill('·');
+  for (let i = tMid - half; i <= tMid + half; i++) {
+    if (i >= 0 && i < w) guide[i] = '▒';
+  }
+
+  return {
+    cable: cable.join(''),
+    block: block.join(''),
+    guide: guide.join(''),
+  };
+}
+
+function calcDrop() {
+  const off    = Math.round(cranePos) - towerCenter;
+  const absOff = Math.abs(off);
+  const half   = Math.floor(BLOCK_W / 2);
+
+  if (absOff <= 1)          return { result: 'perfect', off, absOff };
+  if (absOff <= 3)          return { result: 'good',    off, absOff };
+  if (absOff <= half)       return { result: 'wobbly',  off, absOff };
+  if (absOff <= half + 2)   return { result: 'bad',     off, absOff };
+  return                           { result: 'fall',    off, absOff };
+}
+
+const RESULT_META = {
+  perfect: { label: '⚡ PERFECT', color: '#00ffe7', wobble: 0,  msg: 'Dead center. The district cheers.' },
+  good:    { label: '✓ GOOD',    color: '#aaff00', wobble: 0,  msg: 'Clean drop. Solid.' },
+  wobbly:  { label: '⚠ WOBBLY', color: '#ffcc00', wobble: 1,  msg: 'Off-center. The tower sways.' },
+  bad:     { label: '⚡ RISKY',  color: '#ff6600', wobble: 2,  msg: 'Barely caught it. Risk rising.' },
+  fall:    { label: '✗ FALL',   color: '#ff0044', wobble: 99, msg: 'Too far. Gone.' },
+};
+
+function wobbleColor(w) {
+  if (w === 0)  return '#00ffe7';
+  if (w <= 1)   return '#aaff00';
+  if (w <= 2)   return '#ffcc00';
+  if (w <= 3)   return '#ff6600';
+  return '#ff0044';
+}
+
+function wobbleChar(w) {
+  if (w === 0) return '█';
+  if (w <= 1)  return '▓';
+  if (w <= 2)  return '▒';
+  return '░';
+}
+
+function stabilityLabel(tw) {
+  if (tw === 0)   return 'SOLID';
+  if (tw <= 2)    return 'STABLE';
+  if (tw <= 5)    return 'SHAKY';
+  if (tw <= 9)    return 'CRITICAL';
+  return 'COLLAPSING';
+}
+
+// ── RENDER ───────────────────────────────────────────────
+function render() {
+  if (phase !== 'playing') return;
+
+  const vis = buildVisual();
+
+  // Crane
+  document.getElementById('crane-cable').textContent = vis.cable;
+  document.getElementById('crane-block').textContent = vis.block;
+
+  // Guide row in cable slot (show tower position)
+  document.getElementById('crane-cable').textContent = vis.guide;
+  document.getElementById('crane-block').textContent = vis.block;
+
+  // Tower
+  const wrap = document.getElementById('tower-wrap');
+  wrap.innerHTML = '';
+
+  const display = floors.slice(-14).reverse();
+  display.forEach((fl, i) => {
+    const idx = floors.length - 1 - i;
+    const row = document.createElement('div');
+    row.className = 'floor-row';
+    row.innerHTML =
+      `<span class="floor-label">F${String(idx+1).padStart(2,'0')}</span>` +
+      `<span class="floor-block" style="color:${wobbleColor(fl.wobble)};text-shadow:${fl.wobble===0?'0 0 5px rgba(0,255,231,0.4)':'none'}">${wobbleChar(fl.wobble).repeat(BLOCK_W)}</span>`;
+    wrap.appendChild(row);
+  });
+
+  // Base
+  const baseRow = document.createElement('div');
+  baseRow.className = 'floor-row';
+  baseRow.innerHTML =
+    `<span class="floor-label" style="color:#1a2a44;">BASE</span>` +
+    `<span class="floor-block" style="color:#2a4466;">${'▓'.repeat(BLOCK_W)}</span>`;
+  wrap.appendChild(baseRow);
+
+  // Stats
+  document.getElementById('stat-floors').textContent  = String(floors.length).padStart(2,'0');
+  document.getElementById('stat-record').textContent  = String(record).padStart(2,'0');
+
+  const sl = stabilityLabel(totalWobble);
+  const sc = wobbleColor(totalWobble === 0 ? 0 : Math.ceil(totalWobble / 2));
+  document.getElementById('stat-stability').textContent  = sl;
+  document.getElementById('stat-stability').style.color  = sc;
+
+  const pct = Math.min(100, Math.round((totalWobble / MAX_WOBBLE) * 100));
+  document.getElementById('stability-fill').style.width      = pct + '%';
+  document.getElementById('stability-fill').style.background = sc;
+  document.getElementById('wobble-pct').textContent           = pct + '%';
+}
+
+// ── ANIMATION LOOP ───────────────────────────────────────
+function loop(ts) {
+  if (phase !== 'playing') return;
+  if (!lastTime) lastTime = ts;
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+
+  cranePos += craneDir * craneSpeed * dt;
+  if (cranePos >= CRANE_RANGE)  { cranePos = CRANE_RANGE;  craneDir = -1; }
+  if (cranePos <= -CRANE_RANGE) { cranePos = -CRANE_RANGE; craneDir =  1; }
+
+  render();
+  animId = requestAnimationFrame(loop);
+}
+
+function stopLoop() {
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  lastTime = null;
+}
+
+// ── ACTIONS ──────────────────────────────────────────────
+function startGame() {
+  stopLoop();
+  cranePos     = 0;
+  craneDir     = 1;
+  craneSpeed   = SPEED_BASE;
+  towerCenter  = 0;
+  floors       = [];
+  totalWobble  = 0;
+  canDrop      = true;
+
+  document.getElementById('screen-intro').classList.add('hidden');
+  document.getElementById('screen-over').classList.add('hidden');
+  document.getElementById('screen-game').classList.remove('hidden');
+  document.getElementById('screen-game').style.display = 'flex';
+
+  document.getElementById('last-result').textContent = '';
+  document.getElementById('flavor-text').textContent  = rnd(FLAVOR);
+
+  render();
+  phase = 'playing';
+  animId = requestAnimationFrame(loop);
+}
+
+function handleDrop() {
+  if (phase !== 'playing' || !canDrop) return;
+  canDrop = false;
+  setTimeout(() => { canDrop = true; }, 120);
+
+  const drop = calcDrop();
+  const meta = RESULT_META[drop.result];
+
+  // Flash block
+  const blk = document.getElementById('crane-block');
+  blk.classList.remove('flash');
+  void blk.offsetWidth;
+  blk.classList.add('flash');
+
+  // Result display
+  const el = document.getElementById('last-result');
+  el.textContent = `${meta.label}  —  ${meta.msg}`;
+  el.style.color      = meta.color;
+  el.style.textShadow = `0 0 8px ${meta.color}`;
+
+  if (drop.result === 'fall') {
+    stopLoop();
+    record = Math.max(record, floors.length);
+    phase  = 'gameover';
+    showGameOver(drop, meta);
+    return;
+  }
+
+  const prevWobble = floors.length ? floors[floors.length - 1].wobble : 0;
+  const newWobble  = Math.min(prevWobble + meta.wobble, 4);
+  floors.push({ wobble: newWobble, off: drop.off });
+  totalWobble += meta.wobble;
+
+  // Drift tower center slightly toward block on off-center drops
+  towerCenter = Math.max(-8, Math.min(8, Math.round(towerCenter + drop.off * 0.15)));
+
+  // Speed up
+  craneSpeed = Math.min(SPEED_BASE + floors.length * SPEED_STEP, SPEED_MAX);
+
+  document.getElementById('flavor-text').textContent = rnd(FLAVOR);
+  render();
+}
+
+function showGameOver(drop, meta) {
+  document.getElementById('screen-game').classList.add('hidden');
+  const ov = document.getElementById('screen-over');
+  ov.classList.remove('hidden');
+
+  document.getElementById('over-msg').textContent      = rnd(GAMEOVER_LINES);
+  document.getElementById('over-floors').textContent   = floors.length;
+  document.getElementById('over-record').textContent   = record;
+
+  const sl = stabilityLabel(totalWobble);
+  const sc = wobbleColor(totalWobble === 0 ? 0 : Math.ceil(totalWobble / 2));
+  document.getElementById('over-stability').textContent   = sl;
+  document.getElementById('over-stability').style.color   = sc;
+
+  document.getElementById('over-last').textContent    = meta.label;
+  document.getElementById('over-last').style.color    = meta.color;
+
+  let summary = '';
+  if (floors.length >= 15)     summary = '⚡ Legendary. The Maximum Reality archive logs this stack.';
+  else if (floors.length >= 10) summary = '⚡ Master-class. The district takes notice.';
+  else if (floors.length >= 6)  summary = 'Respectable spire. The neon approves.';
+  else if (floors.length >= 3)  summary = 'A start. The grid has seen worse.';
+  else                           summary = 'The crane does not judge. Azul does. Try again.';
+  document.getElementById('over-summary').textContent = summary;
+}
+
+// ── KEYBOARD ─────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'Enter') {
+    e.preventDefault();
+    if (phase === 'playing') handleDrop();
+  }
+});
+</script>
+</body>
+</html>
