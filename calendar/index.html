@@ -6,18 +6,23 @@
 <title>Daily Blueprint // Maximum Reality</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
 <style>
+/* ── SEASONAL TOKENS (overridden by JS) ── */
 :root {
-  --bg:        #05060d;
-  --surface:   #0b0d18;
-  --card:      #0f1120;
-  --neon:      #00f0ff;
-  --pink:      #ff007f;
-  --amber:     #ffb700;
-  --dim:       #3a4060;
-  --mid:       #6a7590;
-  --text:      #dde8f0;
-  --glow-c:    rgba(0,240,255,0.35);
-  --glow-p:    rgba(255,0,127,0.35);
+  --bg:         #05060d;
+  --surface:    #0b0d18;
+  --card:       #0f1120;
+  --neon:       #00f0ff;
+  --neon-rgb:   0,240,255;
+  --pink:       #ff007f;
+  --amber:      #ffb700;
+  --dim:        #3a4060;
+  --mid:        #6a7590;
+  --text:       #dde8f0;
+  --glow-c:     rgba(0,240,255,0.35);
+  --glow-p:     rgba(255,0,127,0.35);
+  --season-bg:  rgba(0,240,255,0.025);
+  --corner-tint:rgba(0,240,255,0.06);
+  --grid-line:  rgba(0,240,255,0.025);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,54 +33,46 @@ html, body {
   color: var(--text);
   font-family: 'Share Tech Mono', monospace;
   overscroll-behavior: none;
+  transition: background 1.2s ease;
 }
 
-/* ── CRT scanlines overlay ── */
+/* ── CRT scanlines ── */
 body::before {
   content: "";
   position: fixed; inset: 0;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.18) 2px,
-      rgba(0,0,0,0.18) 4px
-    );
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 4px
+  );
   pointer-events: none;
   z-index: 999;
 }
 
-/* ── grid texture ── */
+/* ── seasonal grid texture (color shifts with season) ── */
 body::after {
   content: "";
   position: fixed; inset: 0;
   background-image:
-    linear-gradient(rgba(0,240,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,240,255,0.025) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 36px 36px;
   pointer-events: none;
   z-index: 0;
+  transition: background-image 1.2s ease;
 }
 
-/* ── outer layout ── */
+/* ── shell ── */
 .shell {
-  position: relative;
-  z-index: 1;
+  position: relative; z-index: 1;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 18px 14px 32px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 18px 14px 36px;
 }
 
 /* ── masthead ── */
 .masthead {
-  width: 100%;
-  max-width: 460px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  width: 100%; max-width: 460px;
+  display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 18px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--dim);
@@ -83,120 +80,216 @@ body::after {
 .masthead-left { display: flex; flex-direction: column; gap: 3px; }
 .brand {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 4px;
-  color: var(--neon);
-  text-transform: uppercase;
-  opacity: 0.7;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 4px; color: var(--neon);
+  text-transform: uppercase; opacity: 0.7;
+  transition: color 1.2s ease;
 }
 .clock {
   font-family: 'VT323', monospace;
-  font-size: 2.1rem;
-  line-height: 1;
+  font-size: 2.1rem; line-height: 1;
   color: var(--neon);
   text-shadow: 0 0 12px var(--glow-c);
   letter-spacing: 2px;
+  animation: clockFlicker 8s infinite;
+  transition: color 1.2s ease, text-shadow 1.2s ease;
 }
-.date-line {
-  font-size: 0.72rem;
-  color: var(--mid);
-  letter-spacing: 1px;
+@keyframes clockFlicker {
+  0%, 97%, 100% { opacity: 1; }
+  98%           { opacity: 0.88; }
+  99%           { opacity: 0.97; }
+}
+.date-line { font-size: 0.72rem; color: var(--mid); letter-spacing: 1px; }
+
+/* ── season badge ── */
+.season-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem; font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--neon);
+  opacity: 0.55;
+  text-transform: uppercase;
+  border: 1px solid var(--dim);
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: color 1.2s ease, border-color 1.2s ease;
 }
 
 /* ── main card ── */
 .card {
-  width: 100%;
-  max-width: 460px;
+  width: 100%; max-width: 460px;
   background: var(--card);
   border: 1px solid var(--dim);
   border-radius: 14px;
   padding: 20px;
   box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
+  transition: border-color 1.2s ease;
 }
-/* corner accent */
 .card::before {
   content: "";
-  position: absolute;
-  top: 0; right: 0;
+  position: absolute; top: 0; right: 0;
   width: 80px; height: 80px;
-  background: linear-gradient(225deg, rgba(0,240,255,0.06), transparent 60%);
+  background: linear-gradient(225deg, var(--corner-tint), transparent 60%);
   pointer-events: none;
+  transition: background 1.2s ease;
 }
 
-/* ── month nav header ── */
+/* ── month nav ── */
 .cal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 16px;
 }
 .nav-btn {
   background: transparent;
-  border: 1px solid var(--dim);
-  border-radius: 6px;
-  color: var(--neon);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 1rem;
-  width: 34px; height: 34px;
+  border: 1px solid var(--dim); border-radius: 6px;
+  color: var(--neon); font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem; width: 34px; height: 34px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: all 0.18s;
   -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
-.nav-btn:hover, .nav-btn:active {
-  background: rgba(0,240,255,0.1);
+.nav-btn:active {
+  background: rgba(var(--neon-rgb),0.12);
   border-color: var(--neon);
   box-shadow: 0 0 10px var(--glow-c);
 }
+@media (hover: hover) {
+  .nav-btn:hover {
+    background: rgba(var(--neon-rgb),0.1);
+    border-color: var(--neon);
+    box-shadow: 0 0 10px var(--glow-c);
+  }
+}
 .month-year {
   font-family: 'Orbitron', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--text);
+  font-size: 1rem; font-weight: 700;
+  letter-spacing: 2px; color: var(--text);
   text-transform: uppercase;
 }
 
 /* ── motivation box ── */
 .motive-box {
-  background: rgba(0,240,255,0.04);
+  background: var(--season-bg);
   border-left: 3px solid var(--neon);
   border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  min-height: 88px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
+  padding: 14px 16px; margin-bottom: 18px;
+  min-height: 92px;
+  display: flex; flex-direction: column; justify-content: center; gap: 6px;
+  transition: background 1.2s ease, border-color 1.2s ease;
+  position: relative; overflow: hidden;
+  cursor: pointer;
 }
+/* subtle glitch shimmer on hover */
+.motive-box::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 40%, rgba(var(--neon-rgb),0.04) 50%, transparent 60%);
+  transform: translateX(-100%);
+  transition: transform 0s;
+}
+.motive-box:hover::after { transform: translateX(100%); transition: transform 0.6s ease; }
+
 .motive-tag {
-  font-size: 0.65rem;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--pink);
-  font-weight: 700;
+  font-size: 0.65rem; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--pink);
+  font-weight: 700; transition: color 1.2s ease;
 }
 .motive-text {
-  font-size: 0.88rem;
-  line-height: 1.55;
+  font-size: 0.88rem; line-height: 1.55;
+  color: var(--text); font-style: italic;
+  transition: opacity 0.22s ease, filter 0.22s ease;
+}
+.motive-text.hidden { opacity: 0; filter: blur(3px); }
+
+/* special lore classes */
+.motive-box.anomaly { border-left-color: var(--pink); background: rgba(255,0,127,0.05); }
+.motive-box.anomaly .motive-tag { color: var(--neon); }
+.motive-box.glitch-active .motive-text {
+  animation: textGlitch 0.4s ease;
+}
+@keyframes textGlitch {
+  0%   { transform: translate(0); clip-path: none; }
+  20%  { transform: translate(-2px, 1px); }
+  40%  { transform: translate(2px, -1px); clip-path: inset(20% 0 40% 0); }
+  60%  { transform: translate(-1px, 2px); clip-path: inset(60% 0 10% 0); }
+  80%  { transform: translate(1px, -2px); clip-path: none; }
+  100% { transform: translate(0); }
+}
+
+/* ── journal note area (inside motive-box when expanded) ── */
+.journal-area {
+  margin-top: 10px;
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+}
+.journal-area.open { display: flex; }
+.journal-textarea {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--dim);
+  border-radius: 6px;
   color: var(--text);
-  font-style: italic;
-  transition: opacity 0.22s ease;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 8px 10px;
+  resize: none;
+  min-height: 60px;
+  outline: none;
+  transition: border-color 0.18s;
+}
+.journal-textarea:focus { border-color: var(--neon); }
+.journal-actions {
+  display: flex; gap: 6px; justify-content: flex-end; align-items: center;
+}
+.j-btn {
+  background: transparent;
+  border: 1px solid var(--dim);
+  border-radius: 5px;
+  color: var(--mid);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.j-btn.save { color: var(--neon); border-color: var(--dim); }
+.j-btn.save:active, .j-btn.save:hover { border-color: var(--neon); background: rgba(var(--neon-rgb),0.08); }
+.j-btn.mark { color: var(--amber); }
+.j-btn.mark:active, .j-btn.mark:hover { border-color: var(--amber); background: rgba(255,183,0,0.08); }
+.j-btn.clear-note { color: #ff6060; }
+.mood-row {
+  display: flex; gap: 5px; flex-wrap: wrap;
+}
+.mood-btn {
+  background: transparent;
+  border: 1px solid var(--dim);
+  border-radius: 4px;
+  font-size: 1rem;
+  padding: 2px 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0.6;
+}
+.mood-btn:active, .mood-btn.picked { opacity: 1; border-color: var(--neon); transform: scale(1.15); }
+.journal-hint {
+  font-size: 0.6rem; letter-spacing: 1.5px; color: var(--mid);
+  text-transform: uppercase; opacity: 0.6; text-align: right;
+  cursor: pointer;
 }
 
 /* ── weekday labels ── */
 .wday-row {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: grid; grid-template-columns: repeat(7,1fr);
   text-align: center;
-  font-size: 0.65rem;
-  letter-spacing: 1px;
-  color: var(--mid);
-  text-transform: uppercase;
+  font-size: 0.65rem; letter-spacing: 1px;
+  color: var(--mid); text-transform: uppercase;
   margin-bottom: 8px;
 }
 .wday-row span:first-child,
@@ -204,26 +297,37 @@ body::after {
 
 /* ── days grid ── */
 .days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  display: grid; grid-template-columns: repeat(7,1fr);
   gap: 5px;
+  transition: opacity 0.22s ease, transform 0.22s ease, filter 0.22s ease;
 }
+.days-grid.slide-out-left  { opacity: 0; transform: translateX(-18px); filter: blur(2px); }
+.days-grid.slide-out-right { opacity: 0; transform: translateX(18px);  filter: blur(2px); }
+.days-grid.slide-in        { opacity: 0; transform: translateX(0);     filter: blur(2px); }
+
 .day {
   aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   font-size: 0.88rem;
   border-radius: 8px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.13s ease, background 0.18s ease, box-shadow 0.18s ease;
+  transition: transform 0.13s ease, background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
   -webkit-tap-highlight-color: transparent;
   position: relative;
+  user-select: none;
 }
 .day.empty { visibility: hidden; pointer-events: none; }
 .day.weekend { color: #ff9bcf; }
-.day:not(.empty):hover { transform: scale(1.1); background: rgba(255,255,255,0.05); }
+
+/* touch-safe hover: only on real hover-capable devices */
+@media (hover: hover) {
+  .day:not(.empty):hover {
+    transform: scale(1.1);
+    background: rgba(255,255,255,0.05);
+  }
+}
+.day:not(.empty):active { transform: scale(0.95); }
 
 .day.today {
   background: var(--neon);
@@ -231,12 +335,12 @@ body::after {
   font-weight: 700;
   font-family: 'Orbitron', sans-serif;
   animation: pulseDay 2.8s ease-in-out infinite;
+  transition: background 1.2s ease;
 }
 @keyframes pulseDay {
-  0%,100% { box-shadow: 0 0 8px var(--glow-c); }
-  50%      { box-shadow: 0 0 22px rgba(0,240,255,0.8), 0 0 40px rgba(0,240,255,0.3); }
+  0%,100% { box-shadow: 0 0 8px  rgba(var(--neon-rgb),0.4); }
+  50%     { box-shadow: 0 0 22px rgba(var(--neon-rgb),0.85), 0 0 40px rgba(var(--neon-rgb),0.3); }
 }
-
 .day.selected:not(.today) {
   border-color: var(--pink);
   color: var(--pink);
@@ -244,30 +348,67 @@ body::after {
   box-shadow: 0 0 8px var(--glow-p);
 }
 
-/* dot marker for days that have been "visited" */
+/* dot = has saved note */
 .day.has-note::after {
   content: "";
-  position: absolute;
-  bottom: 3px;
+  position: absolute; bottom: 3px;
   width: 4px; height: 4px;
   border-radius: 50%;
   background: var(--amber);
-  opacity: 0.7;
+  opacity: 0.85;
+}
+/* ring = mission complete */
+.day.complete::before {
+  content: "";
+  position: absolute; inset: 2px;
+  border-radius: 6px;
+  border: 1px solid rgba(var(--neon-rgb),0.5);
+  pointer-events: none;
 }
 
-/* ── footer status bar ── */
+/* streak counter badge on today */
+.streak-badge {
+  position: absolute; top: -6px; right: -6px;
+  background: var(--amber);
+  color: #0a0800;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem; font-weight: 700;
+  border-radius: 8px;
+  padding: 1px 4px;
+  letter-spacing: 0;
+  line-height: 1.4;
+  display: none;
+  z-index: 2;
+}
+
+/* ── status bar ── */
 .statusbar {
-  width: 100%;
-  max-width: 460px;
+  width: 100%; max-width: 460px;
   margin-top: 12px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.62rem;
-  color: var(--dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+  display: flex; justify-content: space-between;
+  font-size: 0.62rem; color: var(--dim);
+  letter-spacing: 1px; text-transform: uppercase;
   padding: 0 2px;
 }
+.streak-info { color: var(--amber); display: none; }
+
+/* ── toast notifications ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--card);
+  border: 1px solid var(--neon);
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.75rem; letter-spacing: 1px;
+  color: var(--neon);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 1000;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 0 20px var(--glow-c);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -279,6 +420,7 @@ body::after {
       <div id="clock" class="clock">00:00:00</div>
       <div id="dateLine" class="date-line"></div>
     </div>
+    <div id="seasonBadge" class="season-badge"></div>
   </div>
 
   <div class="card">
@@ -288,9 +430,28 @@ body::after {
       <button class="nav-btn" id="nextBtn" aria-label="Next month">&#8594;</button>
     </div>
 
-    <div class="motive-box">
-      <div id="motiveTag" class="motive-tag">Today's Protocol</div>
-      <div id="motiveText" class="motive-text">Initializing daily calibration sequence...</div>
+    <div class="motive-box" id="motiveBox">
+      <div id="motiveTag" class="motive-tag">INITIALIZING...</div>
+      <div id="motiveText" class="motive-text">Loading transmission...</div>
+
+      <!-- Journal panel (hidden until tapped) -->
+      <div class="journal-area" id="journalArea">
+        <div class="mood-row" id="moodRow">
+          <button class="mood-btn" data-mood="⚡">⚡</button>
+          <button class="mood-btn" data-mood="🌊">🌊</button>
+          <button class="mood-btn" data-mood="🔥">🔥</button>
+          <button class="mood-btn" data-mood="🌑">🌑</button>
+          <button class="mood-btn" data-mood="⚙️">⚙️</button>
+          <button class="mood-btn" data-mood="✅">✅</button>
+        </div>
+        <textarea class="journal-textarea" id="journalInput" placeholder="// log entry..." rows="3"></textarea>
+        <div class="journal-actions">
+          <button class="j-btn clear-note" id="clearNoteBtn">ERASE</button>
+          <button class="j-btn mark" id="markCompleteBtn">MISSION ✓</button>
+          <button class="j-btn save" id="saveNoteBtn">SAVE LOG</button>
+        </div>
+      </div>
+      <div class="journal-hint" id="journalHint">// TAP TO LOG</div>
     </div>
 
     <div class="wday-row">
@@ -302,424 +463,491 @@ body::after {
 
   <div class="statusbar">
     <span id="dayCount"></span>
-    <span>MR-CAL v2.0</span>
+    <span id="streakInfo" class="streak-info"></span>
+    <span>MR-CAL v3.0</span>
     <span id="weekNum"></span>
   </div>
-
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-// ─────────────────────────────────────────────
-//  FULL-YEAR MOTIVATIONS  (month 1–12, day 1–31)
-//  Key format: "M-D"
-// ─────────────────────────────────────────────
-const motivations = {
-// ── JANUARY ──
-"1-1":  "New initialization sequence. Wipe the cache of what didn't serve you, keep the good data, and boot fresh.",
-"1-2":  "Don't let the energy of a new start fade. Lock it into a system before the buzz burns off.",
-"1-3":  "The third day is where most resolutions quietly die. Prove you're not a statistic.",
-"1-4":  "Momentum is fragile in the early cycles. Guard your routines like firewall rules.",
-"1-5":  "What's one habit from last year worth keeping? Isolate it, protect it, expand it.",
-"1-6":  "Silence the noise of everyone else's goals. Your mission parameters are yours alone.",
-"1-7":  "One week in. Check your vector. Are you trending toward the target or drifting?",
-"1-8":  "Cold starts are hard on every engine. Warm up slowly, then push the throttle.",
-"1-9":  "A plan on paper is just a dream. The first execution step makes it real.",
-"1-10": "Discipline in small acts compounds into extraordinary results. Tiny inputs, massive outputs.",
-"1-11": "Strip away one thing today that's consuming bandwidth without returning value.",
-"1-12": "Patience isn't passive. It's active waiting while you keep working.",
-"1-13": "January blues are real. Override them with a single completed task.",
-"1-14": "Two weeks in. Reflect: what's working? Double it. What's not? Delete it.",
-"1-15": "Midpoint of month one. Your year is being written right now, word by word.",
-"1-16": "Fear of failure is just the brain's overcautious security system. Override it today.",
-"1-17": "Execution beats explanation every time. Do it, then describe it.",
-"1-18": "Winter is quieter by design. Use the stillness to build what needs depth.",
-"1-19": "Your environment shapes your output. Audit one corner of your space today.",
-"1-20": "Don't wait for motivation to start. Start, and motivation will catch up.",
-"1-21": "Three weeks built. The habit is starting to harden into structure.",
-"1-22": "Protect your peak hours. Not everyone deserves access to your best energy.",
-"1-23": "Write down what winning this month looks like. Concrete. Specific. Measurable.",
-"1-24": "The 24th rule: most people quit by now. You are not most people.",
-"1-25": "One conversation you've been avoiding needs to happen. Schedule it today.",
-"1-26": "What's your system for ideas? Capture, sort, execute. Build the pipeline.",
-"1-27": "You've survived every bad day so far. This one will be no different.",
-"1-28": "The final stretch of month one. Finish what you started before you start anything new.",
-"1-29": "Rest with intention today. You're not stopping — you're recharging for the push.",
-"1-30": "Almost there. One month in means eleven more of data to gather.",
-"1-31": "January complete. Archive the lessons, export the wins, delete the regrets.",
+// ═══════════════════════════════════════════════════════
+//  LORE SYSTEM — anomaly dates, glitch events, rare transmissions
+// ═══════════════════════════════════════════════════════
+const ANOMALY_DATES = new Set([
+  "1-1","2-29","3-20","6-21","9-22","12-21",    // solstices/equinoxes
+  "10-31","11-11","12-31","7-4","4-1","3-14"     // signal breach / special
+]);
 
-// ── FEBRUARY ──
-"2-1":  "New month, new frame. February is shorter — that means every day counts harder.",
-"2-2":  "Groundhog logic: stop repeating yesterday's patterns expecting new results.",
-"2-3":  "Your biggest obstacle right now — write it down and name it. Named things lose power.",
-"2-4":  "A short month demands tight execution. No fluff, no filler. Precision only.",
-"2-5":  "Invest in one skill this month that pays compounding dividends for years.",
-"2-6":  "The people who shape your daily mood deserve a conscious audit.",
-"2-7":  "You can't pour from an empty system. Refuel with something that energizes you.",
-"2-8":  "Cold season fatigue is real. Your stubbornness is realer. Suit up anyway.",
-"2-9":  "Break a comfortable routine today. Growth hides just outside the familiar loop.",
-"2-10": "What would you attempt if you knew the outcome was guaranteed? Attempt it anyway.",
-"2-11": "Creative blocks are buffer overflows. Empty the queue — write, draw, move, anything.",
-"2-12": "Every master was once a disaster. You are exactly where you should be.",
-"2-13": "Superstition is noise. The 13th is just another square on the grid. Execute.",
-"2-14": "Love, in all its forms, is worth engineering for. Invest in the people who matter.",
-"2-15": "Halfway through February. Short months teach speed. Apply that lesson now.",
-"2-16": "Collaboration multiplies force. Who can you build with today?",
-"2-17": "A constraint is just an invitation to be more creative with fewer resources.",
-"2-18": "What's the most boring task on your list? That's today's priority. Clear it.",
-"2-19": "Finishing February strong is a statement that length doesn't determine output.",
-"2-20": "Your body is hardware. Maintenance isn't optional if you want peak performance.",
-"2-21": "You've been holding back one idea. Today's the day you let it breathe.",
-"2-22": "22/22 — double signal day. Two intentional actions, twice the forward motion.",
-"2-23": "What you practice in private shows up in public. Practice accordingly.",
-"2-24": "A week left in the month. What needs to close before March begins?",
-"2-25": "Ship the imperfect thing. Refinement requires something to refine.",
-"2-26": "Integrity means doing the work when no one's watching the dashboard.",
-"2-27": "Three days out. Wrap up cleanly. No loose threads entering the next cycle.",
-"2-28": "February's last day — or nearly. You showed up through the shortest, coldest stretch.",
-"2-29": "Leap day: a bonus cycle that only the calendar grants every four years. Use it big.",
+const GLITCH_DATES = new Set(["6-6","9-9","11-11","12-12","3-3","8-8"]);
 
-// ── MARCH ──
-"3-1":  "March: the system starts to warm. Your momentum from winter compounds now.",
-"3-2":  "Spring is loading. Every small act of growth right now has seasonal tailwind.",
-"3-3":  "Identify one thing that's been 'almost done' for weeks. Today you finish it.",
-"3-4":  "March forth — literally. Movement is the message.",
-"3-5":  "Audit your information diet. What inputs are shaping your outputs?",
-"3-6":  "Energy shifts in March. Ride it — don't waste this seasonal window.",
-"3-7":  "A week in. What's the theme of this month? Name it so you can track it.",
-"3-8":  "International Women's Day. Honor the builders, coders, creators, dreamers.",
-"3-9":  "Comfort is a slow-acting sedative. Introduce productive discomfort today.",
-"3-10": "Document one lesson you've learned this year so far. Writing it locks it in.",
-"3-11": "The gap between knowing and doing is where most dreams die. Bridge it today.",
-"3-12": "Spring cleaning isn't just physical. Clear mental clutter with equal urgency.",
-"3-13": "What signal are you broadcasting to the people around you? Is it intentional?",
-"3-14": "Pi Day. Life is circular — what cycle are you intentionally closing or opening?",
-"3-15": "The Ides: historically treacherous. Stay alert, trust your gut, watch the flanks.",
-"3-16": "Midpoint, mid-month. Recalibrate your aim for the second half of March.",
-"3-17": "Luck is what happens when preparation meets opportunity. You've been preparing.",
-"3-18": "Teach someone something today. The act of explaining solidifies your own mastery.",
-"3-19": "One day before spring. Let go of something winter-heavy you've been carrying.",
-"3-20": "Equinox. Balance. Light and dark in perfect ratio. Find your equilibrium.",
-"3-21": "New season starts. Rewrite one goal with fresh urgency and spring energy.",
-"3-22": "Water is life. Hydrate your ambitions: feed them daily, consistently.",
-"3-23": "Don't mistake motion for progress. Are your actions moving toward the target?",
-"3-24": "What you ignore grows. Address the small thing before it becomes the big thing.",
-"3-25": "Springtime bravery: attempt the thing that scared you in February.",
-"3-26": "Your network is an asset. Invest ten minutes in a real connection today.",
-"3-27": "The last days of March demand a final push. Don't coast into April.",
-"3-28": "Rest is productive when it's intentional. Sleep, reflect, recharge with purpose.",
-"3-29": "What would this month look like if you gave it 20% more effort for three days?",
-"3-30": "March wrap-up mode. Tie the threads. What promised to yourself did you keep?",
-"3-31": "Q1 closes. One quarter of the year — your data tells the story. Read it honestly.",
-
-// ── APRIL ──
-"4-1":  "April opens. No jokes — only execution. Fool the skeptics with results.",
-"4-2":  "Two days in. The Q2 engine is running. What's your fuel source for this quarter?",
-"4-3":  "Bloom where you're planted. You don't need perfect conditions to produce output.",
-"4-4":  "Symmetry check: are your actions aligned with the identity you're building?",
-"4-5":  "Spring rain is an inconvenience or a resource depending on your perspective.",
-"4-6":  "What's the most important email, message, or conversation you've been avoiding?",
-"4-7":  "One week into Q2. Your pace now predicts your June outcomes.",
-"4-8":  "April showers: the mess comes before the bloom. Sit with the mess productively.",
-"4-9":  "Upgrade one tool, one workflow, or one habit this week.",
-"4-10": "Ten days in. What's your biggest win of the month so far? Build on that.",
-"4-11": "The gap between amateur and professional is often just doing it when you don't want to.",
-"4-12": "Invest in long-term thinking today. A decision that pays off in December starts now.",
-"4-13": "Creativity is a muscle. It requires use, not inspiration, to grow.",
-"4-14": "Slow down to speed up — deliberate practice beats frantic repetition.",
-"4-15": "Mid-April. The year is 28% complete. Track your percentage toward your annual goal.",
-"4-16": "Break your biggest goal into weekly checkpoints. Where's the nearest one?",
-"4-17": "What would the most focused version of you do with the next two hours?",
-"4-18": "Connection is currency. Spend some today on someone who matters to you.",
-"4-19": "Spring is full bloom. Match the season with full-volume effort.",
-"4-20": "Adaptability is your best feature. Demonstrate it in one situation today.",
-"4-21": "What skill, practiced for 30 days, would change your output significantly?",
-"4-22": "Earth Day. Your environment sustains you — sustain it back in small ways.",
-"4-23": "The compound interest on daily reading is enormous. Open something today.",
-"4-24": "You are the architect of your own constraints. Build better ones or knock them down.",
-"4-25": "Five days left in April. Identify the one thing that would make this month complete.",
-"4-26": "Output quality correlates directly to input quality. Audit your inputs.",
-"4-27": "Almost May. What habit formed in April survives the season change?",
-"4-28": "Persistence is just showing up while others quit. Keep showing up.",
-"4-29": "Final push. Don't let the last days of a month become a drift toward the next.",
-"4-30": "April out. Q2 checkpoint: recalibrate heading before May opens the throttle.",
-
-// ── MAY ──
-"5-1":  "May Day — labor and will. What you build with your hands and mind belongs to you.",
-"5-2":  "Spring is at peak energy. Synchronize with the season and output at full capacity.",
-"5-3":  "Discomfort is a signal, not a stop sign. Decode it and keep moving.",
-"5-4":  "May the force of intentional action carry you further than motivation alone.",
-"5-5":  "Five days in. Name five things going well. Gratitude recalibrates your sensor array.",
-"5-6":  "Build something today that will outlast the day. A skill, a draft, a foundation.",
-"5-7":  "One week of May down. What's the dominant pattern so far?",
-"5-8":  "The work you're avoiding is often the work that changes everything. Go there.",
-"5-9":  "Every expert was once an embarrassing beginner. Embrace the stage you're in.",
-"5-10": "Collaborate with someone today. Two minds generate exponential possibilities.",
-"5-11": "What's eating your time without nourishing your progress? Eliminate it.",
-"5-12": "Precision beats intensity. A focused hour beats a frantic day.",
-"5-13": "May's middle is approaching. Momentum built now pays dividends through summer.",
-"5-14": "Your past doesn't determine your next output — your next decision does.",
-"5-15": "Half of May complete. Check your annual resolution. Still on track?",
-"5-16": "Identify the most valuable skill you could develop in the next 90 days.",
-"5-17": "Consistency today is courage compounding. Show up even when it's small.",
-"5-18": "Creativity thrives under constraints. Pick one and see what emerges.",
-"5-19": "What's one boundary you need to set to protect your most important work?",
-"5-20": "Spring is peaking. What have you been letting bloom passively? Tend it actively.",
-"5-21": "Three weeks in. New habits formed in May lock in with summer reinforcement.",
-"5-22": "Take ownership of one mistake from this week. No blame, just correction.",
-"5-23": "The finish line of a long project begins with today's single productive act.",
-"5-24": "Sharpen your why. When the how gets hard, a strong why carries you through.",
-"5-25": "Memorial Day territory: honor sacrifice by making your own effort count.",
-"5-26": "What question, if answered, would change your path the most? Pursue that answer.",
-"5-27": "Four days left. Plan the May finale — strong finish over coasting in.",
-"5-28": "What you leave undone at month end becomes the weight of next month's beginning.",
-"5-29": "Almost June. Compress your remaining May goals into tight, decisive execution.",
-"5-30": "Two days to close May's chapter with something you're genuinely proud of.",
-"5-31": "May complete. You crossed from spring's beginning toward summer's full power.",
-
-// ── JUNE ──
-"6-1":  "Summer's door opens. The longest days of the year are yours to fill with intention.",
-"6-2":  "Long days mean more runway. Use the light — literally and metaphorically.",
-"6-3":  "Identify the project that summer could unlock if you gave it space to breathe.",
-"6-4":  "Second quarter closing in. What does a strong Q2 finish look like for you?",
-"6-5":  "You have more energy than you think. Channel what you've been leaking elsewhere.",
-"6-6":  "Audit your digital environment: apps, feeds, notifications — delete the clutter.",
-"6-7":  "One week of June. The year is nearly halfway. Read the dashboard honestly.",
-"6-8":  "What would double your output this month? Name it. Then pursue it.",
-"6-9":  "Consistency across 9 days of a new month is already a pattern worth protecting.",
-"6-10": "June is a bridge month. Use it to finish Q2 strong and lay Q3 infrastructure.",
-"6-11": "A vision without a system is just a dream with good lighting. Build the system.",
-"6-12": "Mid-June closing in. The year's midpoint is near — your half-year self-assessment awaits.",
-"6-13": "What have you been saying you'll start 'when things settle'? Things won't settle. Start.",
-"6-14": "Flag Day: plant your flag on one commitment you're no longer wavering on.",
-"6-15": "Midpoint of the calendar year is one week away. Make the next seven days count.",
-"6-16": "What legacy action can you take today — something that matters five years from now?",
-"6-17": "Fatigue is the enemy of good decisions. Rest before you hit critical mass.",
-"6-18": "Father's Day week. Honor the builders and protectors in your orbit.",
-"6-19": "Juneteenth: Freedom is built, not given. Build what liberates you.",
-"6-20": "One day to solstice. The longest run-up of the year has been building to this.",
-"6-21": "Summer Solstice. Peak light, peak energy. Commit to the most ambitious thing on the list.",
-"6-22": "The day after the peak. Sustain the solstice energy through summer's full arc.",
-"6-23": "What's the one thing this month that you'll be proud you pushed through?",
-"6-24": "Final week of June and Q2. Close strong — don't drift into Q3 mid-coast.",
-"6-25": "Document your half-year progress. Data tells a truer story than memory does.",
-"6-26": "What do you want Q3 to look like? Define it now, before July arrives.",
-"6-27": "Execution is the only gap between the current you and the version you're becoming.",
-"6-28": "Two days to Q2 close. What needs to ship before you flip the quarter?",
-"6-29": "Tie the threads. Finish the draft, send the message, close the loop.",
-"6-30": "Half the year complete. You are not the same person who opened January. Good.",
-
-// ── JULY ──
-"7-1":  "Q3 opens. Second half of the year, first day of the final push. Set the tone.",
-"7-2":  "The year is past its midpoint. Your second-half self is being written now.",
-"7-3":  "Pre-holiday energy is scattered. Channel it into deliberate work before the noise.",
-"7-4":  "Independence Day: declare freedom from one habit, fear, or thought pattern today.",
-"7-5":  "Post-celebration, back to the signal. The work doesn't take holidays.",
-"7-6":  "Summer heat is real friction. Adapt your energy to the environment.",
-"7-7":  "Lucky sevens: double your focus on the goal most worth achieving this month.",
-"7-8":  "What would you do this week if you knew it was the most important week of the year?",
-"7-9":  "Hydrate your ambition. Dry spells come in all forms. Keep the stream flowing.",
-"7-10": "The summer slump is a choice. Opt out of it — choose momentum.",
-"7-11": "Make one connection this week that exists outside your usual frequency.",
-"7-12": "What book, course, or conversation would level you up most right now? Pursue it.",
-"7-13": "The second half of the year has started strong. Lock that energy in as a pattern.",
-"7-14": "Bastille Day: tear down one wall — internal or external — that's kept you in.",
-"7-15": "Midpoint of July. Summer momentum is yours to direct or lose.",
-"7-16": "Clean energy: do one thing today purely for joy, not production.",
-"7-17": "What's the next milestone on your biggest project? Define the exact next step.",
-"7-18": "Your audience — whoever it is — is worth showing up for consistently.",
-"7-19": "Reverse-engineer the October version of yourself. What did July-you do to get there?",
-"7-20": "Moon landing day. Your personal moonshot: what's the most audacious thing on the list?",
-"7-21": "Three weeks of Q3 in. Adjust strategy, not just tactics.",
-"7-22": "Accountability is a gift. Share one goal with someone who will ask about it.",
-"7-23": "You have more capability than your comfort zone reflects. Test the boundary today.",
-"7-24": "Summer is for building what winter will reveal. What are you constructing?",
-"7-25": "The final week of July arrives. What July promise is still outstanding?",
-"7-26": "Ship something. A done thing is worth more than a perfect draft.",
-"7-27": "What would make August easier? Build it in the final days of July.",
-"7-28": "Gratitude practice: name three unlikely sources of strength from this summer.",
-"7-29": "Almost August. The year's third quarter is building. Don't let it flatten.",
-"7-30": "Two days to close July's chapter. Strong endings breed strong openings.",
-"7-31": "July complete. Summer is half-used. The second half has everything to prove.",
-
-// ── AUGUST ──
-"8-1":  "August opens. Summer's final full month — the energy here is electric. Use it.",
-"8-2":  "Dog days demand dog discipline. Don't let the heat slow the mission.",
-"8-3":  "What's the largest uncompleted task from July? Today, get it 50% done.",
-"8-4":  "Back-to-school energy in the air. What are you learning this month?",
-"8-5":  "Five days in. Name the one August goal that, if accomplished, defines the month.",
-"8-6":  "Focus is the competitive advantage no one talks about. Develop yours.",
-"8-7":  "One week of August. Long summer days still in play — maximize the light.",
-"8-8":  "August 8 — infinite loops. Break the loop you've been running on autopilot.",
-"8-9":  "What small victory can you lock in today that builds toward the big one?",
-"8-10": "The work that changes your life rarely announces itself. Do the mundane well.",
-"8-11": "Your calendar is a mirror of your priorities. Does it reflect your real values?",
-"8-12": "Meteor showers peak tonight. Look up more often — context resets perspective.",
-"8-13": "Summer's winding down. What did you want to start before September? Start it now.",
-"8-14": "Two weeks in. August is short on time and big on opportunity. Compress.",
-"8-15": "Midpoint. The year is 61% complete. What single effort would change your year-end score?",
-"8-16": "What have you been overthinking? Pick the option and commit. Execution cures analysis.",
-"8-17": "The 90-day Q4 window opens soon. Prepare your infrastructure now.",
-"8-18": "Teach, write, or explain something you've mastered. Articulation is mastery proof.",
-"8-19": "You don't need anyone's permission to pursue your own vision. Build it.",
-"8-20": "Summer's end is close enough to feel. What season-specific goal needs a final push?",
-"8-21": "Calibrate your rest-to-output ratio. You've earned recovery — take it deliberately.",
-"8-22": "What three things do you want September-you to thank August-you for?",
-"8-23": "Virgo season: precision, craft, systems. Apply that energy to your messiest area.",
-"8-24": "Final week countdown. The last stretch of summer has its own gravity. Use it.",
-"8-25": "What one habit, started today and sustained for 90 days, would change your life?",
-"8-26": "Back-to-routine energy is building. Design your fall system before fall arrives.",
-"8-27": "Appreciation check: what aspect of your life would someone else trade anything for?",
-"8-28": "Three days left in August. Sprint to finish, not drift to close.",
-"8-29": "Almost September. One final summer push — leave no daylight on the table.",
-"8-30": "August close. The year's most energetic stretch is banking. What did you build?",
-"8-31": "Summer finale. Log your gains, archive the season, prepare for the fall sprint.",
-
-// ── SEPTEMBER ──
-"9-1":  "September: the fall engine ignites. Energy, focus, and cooler air. This is prime time.",
-"9-2":  "Labor Day season: honor your own labor by making it count and choosing it consciously.",
-"9-3":  "Back-to-everything energy. Build your September system in the first 72 hours.",
-"9-4":  "The most productive season of the year for many begins now. Capitalize.",
-"9-5":  "What creative project has been waiting for the right temperature? Fall is calling.",
-"9-6":  "One week in. September's pace should be sharper than August's. Confirm it.",
-"9-7":  "What's your Q4 vision? Define it before October arrives and demands urgency.",
-"9-8":  "Literacy Day: what are you reading, learning, absorbing this fall?",
-"9-9":  "Nine days in. Name the number-one September goal and lock resources onto it.",
-"9-10": "Your inputs shape your outputs with a time delay. What are you planting now?",
-"9-11": "Remember those who didn't get another morning. Use yours with full intention.",
-"9-12": "Fall clarity: shorter days concentrate energy. Less daylight, more focus.",
-"9-13": "What was left unfinished from summer? Name it, date it, do it.",
-"9-14": "Two weeks of September. The school year model applies even if you've graduated.",
-"9-15": "Midpoint. September is your Q3 finale. Finish the quarter with authority.",
-"9-16": "Build systems that work when your willpower doesn't. That's sustainable architecture.",
-"9-17": "Your story is being written by your daily choices. Read today's paragraph.",
-"9-18": "What's the hardest conversation you need to have before October? Schedule it.",
-"9-19": "Autumn approaches the door. Tend to what needs tending before the season turns.",
-"9-20": "Three days to the equinox. Equilibrium: balance what's tilted in your life.",
-"9-21": "Peace Day: resolve one internal conflict that's been consuming resources.",
-"9-22": "Autumnal Equinox. Light and dark in balance. Center yourself before Q4.",
-"9-23": "Fall is official. Your focus sharpens like the air. Match the season.",
-"9-24": "What would make Q4 your best quarter? Name it, plan it, begin it.",
-"9-25": "Final week of September. Q3 close is in sight. Audit and complete.",
-"9-26": "What seeds planted in spring are harvest-ready now? Collect what you grew.",
-"9-27": "Wrap up September's open loops before the month clock resets.",
-"9-28": "Two days left. What September goal, if completed now, validates the whole month?",
-"9-29": "Almost October. The final quarter of the year begins tomorrow. Prepare.",
-"9-30": "Q3 complete. You made it through three quarters of the year. Review, refine, advance.",
-
-// ── OCTOBER ──
-"10-1":  "Q4 opens. The year's final lap begins now. Everything you've built leads here.",
-"10-2":  "October is the last full month before the year's final sprint. Set aggressive targets.",
-"10-3":  "What do you want December-you to thank October-you for? Start building that outcome.",
-"10-4":  "Systems check: the Q4 machine needs all cylinders. What's misfiring?",
-"10-5":  "The leaves fall to make room. What can you shed to make room for growth?",
-"10-6":  "One week in. October's energy is crisp and clarifying. Lock into it.",
-"10-7":  "What unfinished project from Q3 gets its last chance in Q4? Name it.",
-"10-8":  "The harvest season is literal. What have your year's efforts actually grown?",
-"10-9":  "Audit your annual goals. Three months left. Which ones are still reachable?",
-"10-10": "Ten/ten. Perfect alignment. What goal are you now more aligned with than when you started?",
-"10-11": "Autumn is peak creative season for many. Push your most ambitious creative work now.",
-"10-12": "Two weeks approaching. What's the dominant pattern of your October so far?",
-"10-13": "Don't let the year's countdown pressure you into poor decisions. Calm. Execute.",
-"10-14": "What one conversation would change the trajectory of your Q4 most?",
-"10-15": "Mid-October. The year is 79% complete. The final score is still being written.",
-"10-16": "What habit, started today, completes 78 days by year's end? Choose it wisely.",
-"10-17": "Consistency in the fourth quarter is the differentiator. Others coast. You push.",
-"10-18": "What is your Q4 moonshot? The one thing that, if achieved, redefines the year?",
-"10-19": "Three weeks in. October pressure is productive. Let it sharpen, not scatter you.",
-"10-20": "Name one thing you're grateful for that you didn't expect when January started.",
-"10-21": "The year's final two months are coming. What do you want them to prove?",
-"10-22": "Your decisions in the next ten days create your November landscape.",
-"10-23": "Scorpio season begins: deep, focused, powerful. Apply that energy.",
-"10-24": "One week left in October. Finish strong. No coasting.",
-"10-25": "What's one area where you're still playing small? Call it out. Challenge it.",
-"10-26": "Build the daily ritual that carries you cleanly through November and December.",
-"10-27": "Three days. Compress the remaining October goals into tight, decisive effort.",
-"10-28": "What are you most proud of building this year? Write it down. You earned that.",
-"10-29": "Almost November. Final push — finish October's chapter with impact.",
-"10-30": "One day left. Halloween eve: what fear are you leaving behind in October?",
-"10-31": "October complete. Q4 month one is done. The year's finale is loading. Stay ready.",
-
-// ── NOVEMBER ──
-"11-1":  "November opens. The year's penultimate month. What you do here echoes in December.",
-"11-2":  "What did you leave undone in October? Today is the first rescue window.",
-"11-3":  "Fall is deep. The inner work happens now. Go deeper than the surface.",
-"11-4":  "The year's countdown is audible now. Use the urgency as fuel, not fear.",
-"11-5":  "NaNoWriMo in progress. Write the story — code, words, art, music — your story.",
-"11-6":  "One week in. November is short and important. Treat every day as premium time.",
-"11-7":  "Election energy, decision energy. Make one clear, definitive choice today.",
-"11-8":  "What if this month went exactly right? Reverse-engineer what that looks like.",
-"11-9":  "Nine days into November. The winter clock is ticking. Don't hibernate early.",
-"11-10": "Veterans Day territory. Honor service by doing something worthy of sacrifice.",
-"11-11": "11/11 — amplified intention. Make a wish, then make a plan.",
-"11-12": "Two weeks approaching. Name the one November victory that matters most.",
-"11-13": "Quiet persistence in dark months builds the character winter can't diminish.",
-"11-14": "What needs to be resolved before the holiday season absorbs all your bandwidth?",
-"11-15": "Mid-November. One month and change remaining in the year. The last push is now.",
-"11-16": "What have you been saving for 'later' that is actually urgent right now?",
-"11-17": "Build your Thanksgiving list early — not just gratitude, but growth inventory.",
-"11-18": "What you practice under pressure is what you truly know. Practice the real things.",
-"11-19": "One week to Thanksgiving in the US. What are you thankful for building this year?",
-"11-20": "Three weeks in. November is no place for passengers. Drive hard.",
-"11-21": "What task, if done this week, would meaningfully change your December experience?",
-"11-22": "The year's finish line is 40 days away. Pace yourself — don't sprint too early.",
-"11-23": "What have you learned about yourself in the last eleven months?",
-"11-24": "Thanksgiving week: feast on gratitude and then return to the mission.",
-"11-25": "Post-holiday momentum is rare. If you have it, protect it and extend it.",
-"11-26": "What gift can you give to December-you right now? Build it today.",
-"11-27": "The year has less than five weeks left. What's still worth fighting for?",
-"11-28": "Almost December. The final chapter of the year is on the next page.",
-"11-29": "Two days left. Close November like the month of your best work.",
-"11-30": "November complete. One month remains. You know what needs to happen. Begin.",
-
-// ── DECEMBER ──
-"12-1":  "December: the year's final chapter opens. Write it like it matters.",
-"12-2":  "The holiday season is a distraction or a source of fuel depending on your frame.",
-"12-3":  "What's the most important thing you can accomplish before the year resets?",
-"12-4":  "December clarity: the year is almost over and that makes every day vivid.",
-"12-5":  "Five days in. What December looks like at its end depends on what you do today.",
-"12-6":  "One week remaining before the mid-December threshold. Use it with precision.",
-"12-7":  "What year-end gift do you want to give yourself? Map the path backward from it.",
-"12-8":  "The final sprint requires pacing. Avoid burnout on the way to the finish.",
-"12-9":  "Nine days in. Identify the one December goal above all others. Execute toward it.",
-"12-10": "Human rights and dignity: build something that makes the world even fractionally better.",
-"12-11": "What single decision, made today, improves next year dramatically?",
-"12-12": "12/12: twelve doors, twelve possibilities. Open the one you've been avoiding.",
-"12-13": "December 13 — not superstition, just another day to execute. Don't read omens, read progress.",
-"12-14": "Two weeks left in the year. What's your last-two-weeks manifesto?",
-"12-15": "Mid-December. The year's final business window is shrinking. Ship what needs shipping.",
-"12-16": "What do you want January-you to inherit from December-you? Build it.",
-"12-17": "Gather your year's greatest wins. They're proof of a capable system — that's you.",
-"12-18": "Seven days to the 25th. Give yourself the gift of one completed goal.",
-"12-19": "What story about this year do you most want to tell? Make it real in the next 12 days.",
-"12-20": "The shortest day — solstice incoming. Even the earth is turning toward more light.",
-"12-21": "Winter Solstice. Longest night, and after this: more light, every single day.",
-"12-22": "What you finish before the year closes carries a different weight than what you start in January.",
-"12-23": "Nine days left. No panic, only intentional execution. One brick at a time.",
-"12-24": "The eve of many things. Honor the anticipation by being fully present.",
-"12-25": "Whatever this day means to you — rest, celebrate, create, connect — do it fully.",
-"12-26": "Five days left. The year's final lap. Run it with everything you have.",
-"12-27": "What do you want to say you did in this year? There's still time to do it.",
-"12-28": "Three days. Compress the remaining goals into what's actually achievable. Finish those.",
-"12-29": "The year closes in two days. Document your lessons before they fade.",
-"12-30": "One day left. What does a perfect final day of the year look like for you? Do that.",
-"12-31": "Year complete. You survived every bad day, shipped real work, and showed up. That's everything."
+const RARE_TRANSMISSIONS = {
+  "1-1":   "◈ NEW CYCLE INITIALIZED ◈ All prior data archived. The operator begins fresh. Anomaly window: 24hrs. Proceed.",
+  "2-29":  "⚠ TEMPORAL ANOMALY ⚠ This date exists only once every 1461 days. The system has unlocked an extra cycle. Use it differently than every other day.",
+  "3-14":  "∏ IRRATIONAL SIGNAL DETECTED ∏ 3.14159... Some things cannot be expressed precisely — only approximated through infinite effort. That is enough.",
+  "3-20":  "◉ VERNAL EQUINOX ◉ Light achieves equilibrium. The signal strengthens from this point forward. Biological and digital systems respond to the shift.",
+  "4-1":   "// NULL TRANSMISSION // This message does not exist. The calendar has been compromised. Or has it? Execute regardless of the frame.",
+  "6-6":   "▓▓ SIGNAL BREACH 06-06 ▓▓ R3P34T P4TT3RN D3T3CT3D. Break the loop. The operator has the override code.",
+  "6-21":  "◈ SUMMER SOLSTICE ◈ Maximum light achieved. The system runs at peak luminosity. This window closes slowly — do not waste a single photon.",
+  "7-4":   "★ INDEPENDENCE PROTOCOL ACTIVE ★ Declare one freedom from your own limitation today. This is not optional.",
+  "8-8":   "∞ INFINITE LOOP DAY ∞ Two rings stacked. The cycle eats itself. Break one pattern today. Any pattern. Do it now.",
+  "9-9":   "◎ SIGNAL ECHO 09-09 ◎ The system broadcasts a reflection. What you transmit returns doubled. Choose your signal carefully.",
+  "9-22":  "◉ AUTUMNAL EQUINOX ◉ The signal inverts. Light begins its retreat. The system turns inward. Inner work begins.",
+  "10-31": "⚠ YEAR-END THRESHOLD BREACH ⚠ Signal instability detected. The membrane between cycles is thin. What will you carry through? What must be left behind?",
+  "11-11": "11:11 ◈ 11/11 ◈ AMPLIFICATION EVENT ◈ Intention doubles in clarity. Name the one thing you want most clearly. The system is recording.",
+  "12-12": "◈ FINAL PORTAL ◈ 12/12 marks the last numeric gate of the year. Twelve months accessed. What did you learn that you didn't know in January?",
+  "12-21": "◈ WINTER SOLSTICE ◈ The longest night. The system reaches minimum brightness and begins its return. Every day after this: more light. The grid turns.",
+  "12-31": "◈ YEAR BOUNDARY ◈ Cycle #{YEAR} terminates in {HRS} hours. Archive your data. Keep what matters. Release what doesn't. The next initialization begins."
 };
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+//  FULL-YEAR MOTIVATIONS (month-day keys)
+// ═══════════════════════════════════════════════════════
+const motivations = {
+"1-2":"Consistency isn't flash — it's the steady rhythm that outlasts the noise. Stay the course.",
+"1-3":"The third day is where most resolutions quietly die. Prove you're not a statistic.",
+"1-4":"Momentum is fragile in the early cycles. Guard your routines like firewall rules.",
+"1-5":"What's one habit from last year worth keeping? Isolate it, protect it, expand it.",
+"1-6":"Silence the noise of everyone else's goals. Your mission parameters are yours alone.",
+"1-7":"One week in. Check your vector. Are you trending toward the target or drifting?",
+"1-8":"Cold starts are hard on every engine. Warm up slowly, then push the throttle.",
+"1-9":"A plan on paper is just a dream. The first execution step makes it real.",
+"1-10":"Discipline in small acts compounds into extraordinary results. Tiny inputs, massive outputs.",
+"1-11":"Strip away one thing today that's consuming bandwidth without returning value.",
+"1-12":"Patience isn't passive. It's active waiting while you keep working.",
+"1-13":"January blues are real. Override them with a single completed task.",
+"1-14":"Two weeks in. What's working? Double it. What's not? Delete it.",
+"1-15":"Midpoint of month one. Your year is being written right now, word by word.",
+"1-16":"Fear of failure is just the brain's overcautious security system. Override it today.",
+"1-17":"Execution beats explanation every time. Do it, then describe it.",
+"1-18":"Winter is quieter by design. Use the stillness to build what needs depth.",
+"1-19":"Your environment shapes your output. Audit one corner of your space today.",
+"1-20":"Don't wait for motivation to start. Start, and motivation will catch up.",
+"1-21":"Three weeks built. The habit is starting to harden into structure.",
+"1-22":"Protect your peak hours. Not everyone deserves access to your best energy.",
+"1-23":"Write down what winning this month looks like. Concrete. Specific. Measurable.",
+"1-24":"The 24th rule: most people quit by now. You are not most people.",
+"1-25":"One conversation you've been avoiding needs to happen. Schedule it today.",
+"1-26":"What's your system for ideas? Capture, sort, execute. Build the pipeline.",
+"1-27":"You've survived every bad day so far. This one is no different.",
+"1-28":"The final stretch of month one. Finish what you started before you start anything new.",
+"1-29":"Rest with intention. You're not stopping — you're recharging for the push.",
+"1-30":"Almost there. One month in means eleven more of data to gather.",
+"1-31":"January complete. Archive the lessons, export the wins, delete the regrets.",
+"2-1":"New month, new frame. February is shorter — every day counts harder.",
+"2-2":"Groundhog logic: stop repeating yesterday's patterns expecting new results.",
+"2-3":"Your biggest obstacle right now — write it down and name it. Named things lose power.",
+"2-4":"A short month demands tight execution. No fluff, no filler. Precision only.",
+"2-5":"Invest in one skill this month that pays compounding dividends for years.",
+"2-6":"The people who shape your daily mood deserve a conscious audit.",
+"2-7":"You can't pour from an empty system. Refuel with something that energizes you.",
+"2-8":"Cold season fatigue is real. Your stubbornness is realer. Suit up anyway.",
+"2-9":"Break a comfortable routine today. Growth hides just outside the familiar loop.",
+"2-10":"What would you attempt if the outcome was guaranteed? Attempt it anyway.",
+"2-11":"Creative blocks are buffer overflows. Empty the queue — write, draw, move, anything.",
+"2-12":"Every master was once a disaster. You are exactly where you should be.",
+"2-13":"Superstition is noise. The 13th is just another square on the grid. Execute.",
+"2-14":"Love, in all its forms, is worth engineering for. Invest in the people who matter.",
+"2-15":"Halfway through February. Short months teach speed. Apply that lesson now.",
+"2-16":"Collaboration multiplies force. Who can you build with today?",
+"2-17":"A constraint is just an invitation to be more creative with fewer resources.",
+"2-18":"What's the most boring task on your list? That's today's priority. Clear it.",
+"2-19":"Finishing February strong is a statement that length doesn't determine output.",
+"2-20":"Your body is hardware. Maintenance isn't optional if you want peak performance.",
+"2-21":"You've been holding back one idea. Today's the day you let it breathe.",
+"2-22":"Double signal day. Two intentional actions, twice the forward motion.",
+"2-23":"What you practice in private shows up in public. Practice accordingly.",
+"2-24":"A week left in the month. What needs to close before March begins?",
+"2-25":"Ship the imperfect thing. Refinement requires something to refine.",
+"2-26":"Integrity means doing the work when no one's watching the dashboard.",
+"2-27":"Three days out. Wrap up cleanly. No loose threads entering the next cycle.",
+"2-28":"February's last standard day. You showed up through the shortest, coldest stretch.",
+"3-1":"March: the system starts to warm. Momentum from winter compounds now.",
+"3-2":"Spring is loading. Every small act of growth right now has seasonal tailwind.",
+"3-3":"Identify one thing that's been 'almost done' for weeks. Today you finish it.",
+"3-4":"March forth — literally. Movement is the message.",
+"3-5":"Audit your information diet. What inputs are shaping your outputs?",
+"3-6":"Energy shifts in March. Ride it — don't waste this seasonal window.",
+"3-7":"A week in. What's the theme of this month? Name it so you can track it.",
+"3-8":"Honor the builders, coders, creators, and dreamers. All of them.",
+"3-9":"Comfort is a slow-acting sedative. Introduce productive discomfort today.",
+"3-10":"Document one lesson you've learned this year so far. Writing it locks it in.",
+"3-11":"The gap between knowing and doing is where most dreams die. Bridge it today.",
+"3-12":"Spring cleaning isn't just physical. Clear mental clutter with equal urgency.",
+"3-13":"What signal are you broadcasting? Is it intentional?",
+"3-15":"Stay alert, trust your gut, watch the flanks. Eyes open.",
+"3-16":"Midpoint, mid-month. Recalibrate your aim for the second half of March.",
+"3-17":"Luck is what happens when preparation meets opportunity. You've been preparing.",
+"3-18":"Teach someone something today. Explaining solidifies your own mastery.",
+"3-19":"One day before spring. Let go of something winter-heavy you've been carrying.",
+"3-21":"New season starts. Rewrite one goal with fresh urgency and spring energy.",
+"3-22":"Hydrate your ambitions: feed them daily, consistently.",
+"3-23":"Don't mistake motion for progress. Are your actions moving toward the target?",
+"3-24":"What you ignore grows. Address the small thing before it becomes the big thing.",
+"3-25":"Springtime bravery: attempt the thing that scared you in February.",
+"3-26":"Your network is an asset. Invest ten minutes in a real connection today.",
+"3-27":"The last days of March demand a final push. Don't coast into April.",
+"3-28":"Rest is productive when intentional. Sleep, reflect, recharge with purpose.",
+"3-29":"What would this month look like with 20% more effort for three days?",
+"3-30":"March wrap-up mode. Tie the threads. What promises to yourself did you keep?",
+"3-31":"Q1 closes. One quarter of the year — your data tells the story. Read it honestly.",
+"4-1":"No jokes — only execution. Fool the skeptics with results.",
+"4-2":"Two days in. The Q2 engine is running. What's your fuel source this quarter?",
+"4-3":"Bloom where you're planted. You don't need perfect conditions to produce output.",
+"4-4":"Symmetry check: are your actions aligned with the identity you're building?",
+"4-5":"Spring rain is an inconvenience or a resource depending on your perspective.",
+"4-6":"What's the most important message you've been avoiding sending?",
+"4-7":"One week into Q2. Your pace now predicts your June outcomes.",
+"4-8":"April showers: the mess comes before the bloom. Sit with the mess productively.",
+"4-9":"Upgrade one tool, one workflow, or one habit this week.",
+"4-10":"Ten days in. What's your biggest win of the month so far? Build on that.",
+"4-11":"The gap between amateur and professional is often just doing it when you don't want to.",
+"4-12":"Invest in long-term thinking today. A decision that pays off in December starts now.",
+"4-13":"Creativity is a muscle. It requires use, not inspiration, to grow.",
+"4-14":"Slow down to speed up — deliberate practice beats frantic repetition.",
+"4-15":"The year is 28% complete. Track your percentage toward your annual goal.",
+"4-16":"Break your biggest goal into weekly checkpoints. Where's the nearest one?",
+"4-17":"What would the most focused version of you do with the next two hours?",
+"4-18":"Connection is currency. Spend some today on someone who matters to you.",
+"4-19":"Spring is full bloom. Match the season with full-volume effort.",
+"4-20":"Adaptability is your best feature. Demonstrate it in one situation today.",
+"4-21":"What skill, practiced for 30 days, would change your output significantly?",
+"4-22":"Your environment sustains you — sustain it back in small ways.",
+"4-23":"The compound interest on daily reading is enormous. Open something today.",
+"4-24":"You are the architect of your own constraints. Build better ones or knock them down.",
+"4-25":"Five days left in April. What would make this month complete?",
+"4-26":"Output quality correlates directly to input quality. Audit your inputs.",
+"4-27":"Almost May. What habit formed in April survives the season change?",
+"4-28":"Persistence is just showing up while others quit. Keep showing up.",
+"4-29":"Final push. Don't let the last days of a month become a drift toward the next.",
+"4-30":"Q2 checkpoint: recalibrate heading before May opens the throttle.",
+"5-1":"What you build with your hands and mind belongs to you. Build accordingly.",
+"5-2":"Spring is at peak energy. Synchronize with the season and output at full capacity.",
+"5-3":"Discomfort is a signal, not a stop sign. Decode it and keep moving.",
+"5-4":"May the force of intentional action carry you further than motivation alone.",
+"5-5":"Name five things going well. Gratitude recalibrates your sensor array.",
+"5-6":"Build something today that will outlast the day. A skill, a draft, a foundation.",
+"5-7":"One week of May. What's the dominant pattern so far?",
+"5-8":"The work you're avoiding is often the work that changes everything. Go there.",
+"5-9":"Every expert was once an embarrassing beginner. Embrace the stage you're in.",
+"5-10":"Collaborate with someone today. Two minds generate exponential possibilities.",
+"5-11":"What's eating your time without nourishing your progress? Eliminate it.",
+"5-12":"Precision beats intensity. A focused hour beats a frantic day.",
+"5-13":"Momentum built now pays dividends through summer.",
+"5-14":"Your past doesn't determine your next output — your next decision does.",
+"5-15":"Half of May complete. Check your annual resolution. Still on track?",
+"5-16":"Identify the most valuable skill you could develop in the next 90 days.",
+"5-17":"Consistency today is courage compounding. Show up even when it's small.",
+"5-18":"Creativity thrives under constraints. Pick one and see what emerges.",
+"5-19":"What's one boundary you need to set to protect your most important work?",
+"5-20":"What have you been letting bloom passively? Tend it actively.",
+"5-21":"Three weeks in. New habits formed in May lock in with summer reinforcement.",
+"5-22":"Take ownership of one mistake from this week. No blame, just correction.",
+"5-23":"The finish line of a long project begins with today's single productive act.",
+"5-24":"Sharpen your why. When the how gets hard, a strong why carries you through.",
+"5-25":"Honor sacrifice by making your own effort count.",
+"5-26":"What question, if answered, would change your path the most? Pursue that answer.",
+"5-27":"Four days left. Plan the May finale — strong finish over coasting in.",
+"5-28":"What you leave undone at month end becomes the weight of next month's beginning.",
+"5-29":"Almost June. Compress your remaining May goals into tight, decisive execution.",
+"5-30":"Two days to close May's chapter with something you're genuinely proud of.",
+"5-31":"May complete. You crossed from spring's beginning toward summer's full power.",
+"6-1":"Summer's door opens. The longest days of the year are yours to fill with intention.",
+"6-2":"Long days mean more runway. Use the light — literally and metaphorically.",
+"6-3":"What project could summer unlock if you gave it space to breathe?",
+"6-4":"Second quarter closing in. What does a strong Q2 finish look like for you?",
+"6-5":"You have more energy than you think. Channel what you've been leaking elsewhere.",
+"6-7":"One week of June. The year is nearly halfway. Read the dashboard honestly.",
+"6-8":"What would double your output this month? Name it. Then pursue it.",
+"6-9":"Consistency across 9 days of a new month is already a pattern worth protecting.",
+"6-10":"June is a bridge month. Finish Q2 strong and lay Q3 infrastructure.",
+"6-11":"A vision without a system is just a dream with good lighting. Build the system.",
+"6-12":"Mid-June closing in. The year's midpoint is near — half-year self-assessment awaits.",
+"6-13":"What have you been saying you'll start 'when things settle'? Things won't settle. Start.",
+"6-14":"Plant your flag on one commitment you're no longer wavering on.",
+"6-15":"Midpoint of the calendar year is one week away. Make the next seven days count.",
+"6-16":"What legacy action can you take today — something that matters five years from now?",
+"6-17":"Fatigue is the enemy of good decisions. Rest before you hit critical mass.",
+"6-18":"Honor the builders and protectors in your orbit.",
+"6-19":"Freedom is built, not given. Build what liberates you.",
+"6-20":"One day to solstice. The longest run-up of the year has been building to this.",
+"6-22":"The day after the peak. Sustain the solstice energy through summer's full arc.",
+"6-23":"What's the one thing this month that you'll be proud you pushed through?",
+"6-24":"Final week of June and Q2. Close strong — don't drift into Q3 mid-coast.",
+"6-25":"Document your half-year progress. Data tells a truer story than memory does.",
+"6-26":"What do you want Q3 to look like? Define it now, before July arrives.",
+"6-27":"Execution is the only gap between you now and the version you're becoming.",
+"6-28":"Two days to Q2 close. What needs to ship before you flip the quarter?",
+"6-29":"Tie the threads. Finish the draft, send the message, close the loop.",
+"6-30":"Half the year complete. You are not the same person who opened January. Good.",
+"7-1":"Q3 opens. Second half of the year, first day of the final push. Set the tone.",
+"7-2":"The year is past its midpoint. Your second-half self is being written now.",
+"7-3":"Pre-holiday energy is scattered. Channel it into deliberate work before the noise.",
+"7-5":"Post-celebration, back to the signal. The work doesn't take holidays.",
+"7-6":"Summer heat is real friction. Adapt your energy to the environment.",
+"7-7":"Double your focus on the goal most worth achieving this month.",
+"7-8":"What would you do this week if you knew it was the most important week of the year?",
+"7-9":"Hydrate your ambition. Dry spells come in all forms. Keep the stream flowing.",
+"7-10":"The summer slump is a choice. Opt out of it — choose momentum.",
+"7-11":"Make one connection this week that exists outside your usual frequency.",
+"7-12":"What book, course, or conversation would level you up most right now?",
+"7-13":"The second half of the year has started strong. Lock that energy in as a pattern.",
+"7-14":"Tear down one wall — internal or external — that's kept you in.",
+"7-15":"Midpoint of July. Summer momentum is yours to direct or lose.",
+"7-16":"Do one thing today purely for joy, not production.",
+"7-17":"What's the next milestone on your biggest project? Define the exact next step.",
+"7-18":"Your audience — whoever it is — is worth showing up for consistently.",
+"7-19":"Reverse-engineer the October version of yourself. What did July-you do to get there?",
+"7-20":"What's the most audacious thing on the list? Today's the day to commit to it.",
+"7-21":"Three weeks of Q3 in. Adjust strategy, not just tactics.",
+"7-22":"Accountability is a gift. Share one goal with someone who will ask about it.",
+"7-23":"You have more capability than your comfort zone reflects. Test the boundary today.",
+"7-24":"Summer is for building what winter will reveal. What are you constructing?",
+"7-25":"The final week of July arrives. What July promise is still outstanding?",
+"7-26":"Ship something. A done thing is worth more than a perfect draft.",
+"7-27":"What would make August easier? Build it in the final days of July.",
+"7-28":"Name three unlikely sources of strength from this summer.",
+"7-29":"Almost August. The year's third quarter is building. Don't let it flatten.",
+"7-30":"Two days to close July's chapter. Strong endings breed strong openings.",
+"7-31":"July complete. Summer is half-used. The second half has everything to prove.",
+"8-1":"Summer's final full month — the energy here is electric. Use it.",
+"8-2":"Dog days demand dog discipline. Don't let the heat slow the mission.",
+"8-3":"What's the largest uncompleted task from July? Today, get it 50% done.",
+"8-4":"Back-to-school energy in the air. What are you learning this month?",
+"8-5":"Name the one August goal that, if accomplished, defines the month.",
+"8-6":"Focus is the competitive advantage no one talks about. Develop yours.",
+"8-7":"Long summer days still in play — maximize the light.",
+"8-9":"What small victory can you lock in today that builds toward the big one?",
+"8-10":"The work that changes your life rarely announces itself. Do the mundane well.",
+"8-11":"Your calendar is a mirror of your priorities. Does it reflect your real values?",
+"8-12":"Meteor showers peak tonight. Look up more often — context resets perspective.",
+"8-13":"Summer's winding down. What did you want to start before September? Start it now.",
+"8-14":"Two weeks in. August is short on time and big on opportunity. Compress.",
+"8-15":"The year is 61% complete. What single effort would change your year-end score?",
+"8-16":"What have you been overthinking? Pick the option and commit. Execution cures analysis.",
+"8-17":"The 90-day Q4 window opens soon. Prepare your infrastructure now.",
+"8-18":"Teach, write, or explain something you've mastered. Articulation is mastery proof.",
+"8-19":"You don't need anyone's permission to pursue your own vision. Build it.",
+"8-20":"Summer's end is close enough to feel. What needs a final push?",
+"8-21":"Calibrate your rest-to-output ratio. Recovery taken deliberately is a tool.",
+"8-22":"What three things do you want September-you to thank August-you for?",
+"8-23":"Precision, craft, systems. Apply that energy to your messiest area.",
+"8-24":"The last stretch of summer has its own gravity. Use it.",
+"8-25":"What one habit, started today and sustained for 90 days, would change your life?",
+"8-26":"Back-to-routine energy is building. Design your fall system before fall arrives.",
+"8-27":"What aspect of your life would someone else trade anything for?",
+"8-28":"Three days left in August. Sprint to finish, not drift to close.",
+"8-29":"One final summer push — leave no daylight on the table.",
+"8-30":"August close. The year's most energetic stretch is banking. What did you build?",
+"8-31":"Summer finale. Log your gains, archive the season, prepare for the fall sprint.",
+"9-1":"September: the fall engine ignites. Energy, focus, and cooler air. This is prime time.",
+"9-2":"Honor your own labor by making it count and choosing it consciously.",
+"9-3":"Back-to-everything energy. Build your September system in the first 72 hours.",
+"9-4":"The most productive season of the year for many begins now. Capitalize.",
+"9-5":"What creative project has been waiting for the right temperature? Fall is calling.",
+"9-6":"September's pace should be sharper than August's. Confirm it.",
+"9-7":"What's your Q4 vision? Define it before October arrives and demands urgency.",
+"9-8":"What are you reading, learning, absorbing this fall?",
+"9-9":"Name the number-one September goal and lock resources onto it.",
+"9-10":"Your inputs shape your outputs with a time delay. What are you planting now?",
+"9-11":"Remember those who didn't get another morning. Use yours with full intention.",
+"9-12":"Fall clarity: shorter days concentrate energy. Less daylight, more focus.",
+"9-13":"What was left unfinished from summer? Name it, date it, do it.",
+"9-14":"Two weeks of September. The school year model applies even if you've graduated.",
+"9-15":"Midpoint. September is your Q3 finale. Finish the quarter with authority.",
+"9-16":"Build systems that work when your willpower doesn't. That's sustainable architecture.",
+"9-17":"Your story is being written by your daily choices. Read today's paragraph.",
+"9-18":"What's the hardest conversation you need to have before October? Schedule it.",
+"9-19":"Autumn approaches. Tend to what needs tending before the season turns.",
+"9-20":"Three days to the equinox. Balance what's tilted in your life.",
+"9-21":"Resolve one internal conflict that's been consuming resources.",
+"9-23":"Fall is official. Your focus sharpens like the air. Match the season.",
+"9-24":"What would make Q4 your best quarter? Name it, plan it, begin it.",
+"9-25":"Final week of September. Q3 close is in sight. Audit and complete.",
+"9-26":"What seeds planted in spring are harvest-ready now? Collect what you grew.",
+"9-27":"Wrap up September's open loops before the month clock resets.",
+"9-28":"Two days left. What September goal, if completed now, validates the whole month?",
+"9-29":"Almost October. The final quarter of the year begins tomorrow. Prepare.",
+"9-30":"Q3 complete. Three quarters done. Review, refine, advance.",
+"10-1":"Q4 opens. The year's final lap begins now. Everything you've built leads here.",
+"10-2":"October is the last full month before the year's final sprint. Set aggressive targets.",
+"10-3":"What do you want December-you to thank October-you for? Start building that outcome.",
+"10-4":"Systems check: the Q4 machine needs all cylinders. What's misfiring?",
+"10-5":"The leaves fall to make room. What can you shed to make room for growth?",
+"10-6":"October's energy is crisp and clarifying. Lock into it.",
+"10-7":"What unfinished project from Q3 gets its last chance in Q4? Name it.",
+"10-8":"What have your year's efforts actually grown? Take the harvest.",
+"10-9":"Audit your annual goals. Three months left. Which ones are still reachable?",
+"10-10":"What goal are you now more aligned with than when you started?",
+"10-11":"Autumn is peak creative season. Push your most ambitious creative work now.",
+"10-12":"What's the dominant pattern of your October so far?",
+"10-13":"Don't let the year's countdown pressure you into poor decisions. Calm. Execute.",
+"10-14":"What one conversation would change the trajectory of your Q4 most?",
+"10-15":"The year is 79% complete. The final score is still being written.",
+"10-16":"What habit, started today, completes 77 days by year's end? Choose it wisely.",
+"10-17":"Consistency in the fourth quarter is the differentiator. Others coast. You push.",
+"10-18":"What is your Q4 moonshot? The one thing that, if achieved, redefines the year?",
+"10-19":"October pressure is productive. Let it sharpen, not scatter you.",
+"10-20":"Name one thing you're grateful for that you didn't expect when January started.",
+"10-21":"The year's final two months are coming. What do you want them to prove?",
+"10-22":"Your decisions in the next ten days create your November landscape.",
+"10-23":"Deep, focused, powerful. Apply that energy.",
+"10-24":"One week left in October. Finish strong. No coasting.",
+"10-25":"What's one area where you're still playing small? Call it out. Challenge it.",
+"10-26":"Build the daily ritual that carries you cleanly through November and December.",
+"10-27":"Compress the remaining October goals into tight, decisive effort.",
+"10-28":"What are you most proud of building this year? Write it down. You earned that.",
+"10-29":"Almost November. Final push — finish October's chapter with impact.",
+"10-30":"Halloween eve: what fear are you leaving behind in October?",
+"11-1":"November opens. The year's penultimate month. What you do here echoes in December.",
+"11-2":"What did you leave undone in October? Today is the first rescue window.",
+"11-3":"Fall is deep. The inner work happens now. Go deeper than the surface.",
+"11-4":"The year's countdown is audible now. Use the urgency as fuel, not fear.",
+"11-5":"Write the story — code, words, art, music — your story.",
+"11-6":"November is short and important. Treat every day as premium time.",
+"11-7":"Make one clear, definitive choice today.",
+"11-8":"What if this month went exactly right? Reverse-engineer what that looks like.",
+"11-9":"The winter clock is ticking. Don't hibernate early.",
+"11-10":"Do something worthy of sacrifice today.",
+"11-12":"Two weeks approaching. Name the one November victory that matters most.",
+"11-13":"Quiet persistence in dark months builds the character winter can't diminish.",
+"11-14":"What needs to be resolved before the holiday season absorbs all your bandwidth?",
+"11-15":"One month and change remaining in the year. The last push is now.",
+"11-16":"What have you been saving for 'later' that is actually urgent right now?",
+"11-17":"Build your gratitude list early — not just gratitude, but growth inventory.",
+"11-18":"What you practice under pressure is what you truly know. Practice the real things.",
+"11-19":"What are you thankful for building this year?",
+"11-20":"November is no place for passengers. Drive hard.",
+"11-21":"What task, done this week, would meaningfully change your December experience?",
+"11-22":"The year's finish line is 40 days away. Pace yourself — don't sprint too early.",
+"11-23":"What have you learned about yourself in the last eleven months?",
+"11-24":"Feast on gratitude and then return to the mission.",
+"11-25":"Post-holiday momentum is rare. If you have it, protect it and extend it.",
+"11-26":"What gift can you give to December-you right now? Build it today.",
+"11-27":"The year has less than five weeks left. What's still worth fighting for?",
+"11-28":"Almost December. The final chapter of the year is on the next page.",
+"11-29":"Two days left. Close November like the month of your best work.",
+"11-30":"November complete. One month remains. You know what needs to happen. Begin.",
+"12-1":"December: the year's final chapter opens. Write it like it matters.",
+"12-2":"The holiday season is a distraction or a source of fuel depending on your frame.",
+"12-3":"What's the most important thing you can accomplish before the year resets?",
+"12-4":"The year is almost over and that makes every day vivid.",
+"12-5":"What December looks like at its end depends on what you do today.",
+"12-6":"One week remaining before the mid-December threshold. Use it with precision.",
+"12-7":"What year-end gift do you want to give yourself? Map the path backward from it.",
+"12-8":"The final sprint requires pacing. Avoid burnout on the way to the finish.",
+"12-9":"Identify the one December goal above all others. Execute toward it.",
+"12-10":"Build something that makes the world even fractionally better.",
+"12-11":"What single decision, made today, improves next year dramatically?",
+"12-13":"Not superstition, just another day to execute. Don't read omens, read progress.",
+"12-14":"Two weeks left in the year. What's your last-two-weeks manifesto?",
+"12-15":"The year's final business window is shrinking. Ship what needs shipping.",
+"12-16":"What do you want January-you to inherit from December-you? Build it.",
+"12-17":"Gather your year's greatest wins. They're proof of a capable system — you.",
+"12-18":"Give yourself the gift of one completed goal before the 25th.",
+"12-19":"What story about this year do you most want to tell? Make it real.",
+"12-20":"The shortest day — solstice incoming. Even the earth is turning toward more light.",
+"12-22":"What you finish before the year closes carries a different weight than what you start in January.",
+"12-23":"No panic, only intentional execution. One brick at a time.",
+"12-24":"Honor the anticipation by being fully present.",
+"12-25":"Whatever this day means to you — rest, celebrate, create, connect — do it fully.",
+"12-26":"The year's final lap. Run it with everything you have.",
+"12-27":"There's still time to do the thing you want to say you did this year.",
+"12-28":"Three days. Compress the remaining goals into what's actually achievable. Finish those.",
+"12-29":"The year closes in two days. Document your lessons before they fade.",
+"12-30":"What does a perfect final day of the year look like for you? Do that."
+};
+
+// ═══════════════════════════════════════════════════════
+//  SEASONAL PALETTE SYSTEM
+// ═══════════════════════════════════════════════════════
+const SEASONS = {
+  winter: {
+    label: "WINTER // SIGNAL COLD",
+    neon: "#00f0ff", neonRgb: "0,240,255",
+    pink: "#7b8fff", amber: "#b8d4ff",
+    dim: "#2a3550", mid: "#4a5a80",
+    seasonBg: "rgba(0,120,200,0.04)",
+    cornerTint: "rgba(0,180,255,0.07)",
+    gridLine: "rgba(0,200,255,0.022)",
+    bg: "#04060e"
+  },
+  spring: {
+    label: "SPRING // SIGNAL BLOOM",
+    neon: "#00ffa3", neonRgb: "0,255,163",
+    pink: "#ff6eb4", amber: "#ffe066",
+    dim: "#2a4035", mid: "#4a7060",
+    seasonBg: "rgba(0,200,120,0.04)",
+    cornerTint: "rgba(0,255,150,0.06)",
+    gridLine: "rgba(0,200,120,0.022)",
+    bg: "#040e08"
+  },
+  summer: {
+    label: "SUMMER // SIGNAL PEAK",
+    neon: "#ffcc00", neonRgb: "255,204,0",
+    pink: "#ff4d6d", amber: "#ff9500",
+    dim: "#3d3010", mid: "#706020",
+    seasonBg: "rgba(255,200,0,0.04)",
+    cornerTint: "rgba(255,180,0,0.07)",
+    gridLine: "rgba(255,180,0,0.022)",
+    bg: "#0e0c04"
+  },
+  autumn: {
+    label: "AUTUMN // SIGNAL HARVEST",
+    neon: "#ff7b00", neonRgb: "255,123,0",
+    pink: "#cc3b8f", amber: "#ffdd55",
+    dim: "#3d1a00", mid: "#704020",
+    seasonBg: "rgba(255,100,0,0.04)",
+    cornerTint: "rgba(255,80,0,0.07)",
+    gridLine: "rgba(200,80,0,0.022)",
+    bg: "#0e0600"
+  }
+};
+
+function getSeason(month) {
+  // month = 1-12
+  if ([12,1,2].includes(month)) return "winter";
+  if ([3,4,5].includes(month)) return "spring";
+  if ([6,7,8].includes(month)) return "summer";
+  return "autumn";
+}
+
+function applySeasonalTheme(month) {
+  const s = SEASONS[getSeason(month)];
+  const r = document.documentElement.style;
+  r.setProperty("--neon", s.neon);
+  r.setProperty("--neon-rgb", s.neonRgb);
+  r.setProperty("--pink", s.pink);
+  r.setProperty("--amber", s.amber);
+  r.setProperty("--dim", s.dim);
+  r.setProperty("--mid", s.mid);
+  r.setProperty("--season-bg", s.seasonBg);
+  r.setProperty("--corner-tint", s.cornerTint);
+  r.setProperty("--grid-line", s.gridLine);
+  r.setProperty("--bg", s.bg);
+  r.setProperty("--glow-c", `rgba(${s.neonRgb},0.35)`);
+  document.body.style.background = s.bg;
+  document.getElementById("seasonBadge").textContent = s.label;
+}
+
+// ═══════════════════════════════════════════════════════
 //  STATE
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 const TODAY = new Date();
-let viewMonth = TODAY.getMonth();   // 0-11
+let viewMonth = TODAY.getMonth(); // 0-11
 let viewYear  = TODAY.getFullYear();
+let activeDay    = TODAY.getDate();
+let activeMonth1 = TODAY.getMonth() + 1;
+let journalOpen = false;
+let pendingMood = null;
 
 const MONTHS = ["January","February","March","April","May","June",
                 "July","August","September","October","November","December"];
-const DAYS_SHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-const WDAY_LABELS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 //  CLOCK
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 function tickClock() {
   const n = new Date();
   const h = String(n.getHours()).padStart(2,"0");
@@ -730,135 +958,362 @@ function tickClock() {
 setInterval(tickClock, 1000);
 tickClock();
 
-// ─────────────────────────────────────────────
-//  DATE LINE
-// ─────────────────────────────────────────────
 function updateDateLine() {
-  const opts = { weekday: "long", month: "short", day: "numeric", year: "numeric" };
+  const opts = { weekday:"long", month:"short", day:"numeric", year:"numeric" };
   document.getElementById("dateLine").textContent =
     "SYSTEM DATE: " + TODAY.toLocaleDateString("en-US", opts).toUpperCase();
 }
 updateDateLine();
 
-// ─────────────────────────────────────────────
-//  MOTIVATION
-// ─────────────────────────────────────────────
-function getMotivation(month1, day) {
-  return motivations[`${month1}-${day}`] ||
-    "Execute with precision. Every day of the year holds a distinct signal.";
+// ═══════════════════════════════════════════════════════
+//  PERSISTENCE HELPERS (localStorage)
+// ═══════════════════════════════════════════════════════
+function noteKey(m, d)    { return `mr_note_${m}_${d}`; }
+function completeKey(m, d){ return `mr_done_${m}_${d}`; }
+function moodKey(m, d)    { return `mr_mood_${m}_${d}`; }
+const STREAK_KEY = "mr_streak_data";
+
+function getNote(m, d)    { return localStorage.getItem(noteKey(m,d)) || ""; }
+function isDone(m, d)     { return localStorage.getItem(completeKey(m,d)) === "1"; }
+function getMood(m, d)    { return localStorage.getItem(moodKey(m,d)) || ""; }
+
+function saveNote(m, d, text) {
+  if (text.trim()) { localStorage.setItem(noteKey(m,d), text); }
+  else { localStorage.removeItem(noteKey(m,d)); }
+}
+function toggleDone(m, d) {
+  const was = isDone(m,d);
+  if (was) { localStorage.removeItem(completeKey(m,d)); }
+  else     { localStorage.setItem(completeKey(m,d), "1"); updateStreak(); }
+  return !was;
+}
+function saveMood(m, d, emoji) {
+  if (emoji) { localStorage.setItem(moodKey(m,d), emoji); }
+  else       { localStorage.removeItem(moodKey(m,d)); }
 }
 
-function showMotivation(month1, day, isToday) {
-  const tag  = document.getElementById("motiveTag");
-  const text = document.getElementById("motiveText");
+// ── streak logic ──
+function updateStreak() {
+  const data = getStreakData();
+  const todayStr = `${TODAY.getFullYear()}-${TODAY.getMonth()+1}-${TODAY.getDate()}`;
+  if (!data.dates.includes(todayStr)) {
+    data.dates.push(todayStr);
+    localStorage.setItem(STREAK_KEY, JSON.stringify(data));
+  }
+  renderStreak();
+}
+function getStreakData() {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY)) || { dates: [] }; }
+  catch { return { dates: [] }; }
+}
+function calcStreak() {
+  const data = getStreakData();
+  if (!data.dates.length) return 0;
+  const sorted = data.dates.slice().sort();
+  let streak = 0;
+  let check = new Date(TODAY);
+  for (let i = 0; i < 365; i++) {
+    const str = `${check.getFullYear()}-${check.getMonth()+1}-${check.getDate()}`;
+    if (sorted.includes(str)) { streak++; check.setDate(check.getDate()-1); }
+    else break;
+  }
+  return streak;
+}
+function renderStreak() {
+  const s = calcStreak();
+  const el = document.getElementById("streakInfo");
+  if (s > 1) {
+    el.textContent = `🔥 ${s}-DAY STREAK`;
+    el.style.display = "block";
+    const badge = document.querySelector(".streak-badge");
+    if (badge) { badge.textContent = s; badge.style.display = "block"; }
+  } else {
+    el.style.display = "none";
+  }
+}
 
-  text.style.opacity = "0";
+// ═══════════════════════════════════════════════════════
+//  LORE / MOTIVATION
+// ═══════════════════════════════════════════════════════
+function getLoreText(m, d) {
+  const key = `${m}-${d}`;
+  const box = document.getElementById("motiveBox");
+
+  // rare transmission override
+  if (RARE_TRANSMISSIONS[key]) {
+    box.classList.add("anomaly");
+    let txt = RARE_TRANSMISSIONS[key];
+    if (key === "12-31") {
+      const now = new Date();
+      const hrs = 23 - now.getHours();
+      txt = txt.replace("{YEAR}", now.getFullYear()).replace("{HRS}", hrs);
+    }
+    return txt;
+  }
+  box.classList.remove("anomaly");
+  return motivations[key] || "// TRANSMISSION PENDING // Signal logged. Execute with precision.";
+}
+
+function showMotivation(m, d, isToday) {
+  const tag   = document.getElementById("motiveTag");
+  const text  = document.getElementById("motiveText");
+  const box   = document.getElementById("motiveBox");
+  const key   = `${m}-${d}`;
+
+  text.classList.add("hidden");
 
   setTimeout(() => {
     tag.textContent = isToday
-      ? `TODAY'S PROTOCOL // ${MONTHS[month1-1].toUpperCase()} ${day}`
-      : `DAY INSIGHT // ${MONTHS[month1-1].toUpperCase()} ${day}`;
+      ? `TODAY'S PROTOCOL // ${MONTHS[m-1].toUpperCase()} ${d}`
+      : `DAY INSIGHT // ${MONTHS[m-1].toUpperCase()} ${d}`;
 
-    text.textContent = getMotivation(month1, day);
-    text.style.opacity = "1";
-  }, 180);
+    text.textContent = getLoreText(m, d);
+    text.classList.remove("hidden");
+
+    // glitch effect on anomaly/glitch dates
+    if (GLITCH_DATES.has(key) || ANOMALY_DATES.has(key)) {
+      box.classList.add("glitch-active");
+      setTimeout(() => box.classList.remove("glitch-active"), 500);
+    }
+  }, 200);
+
+  // restore journal
+  loadJournalPanel(m, d);
 }
 
-// ─────────────────────────────────────────────
-//  STATUS BAR HELPERS
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+//  JOURNAL PANEL
+// ═══════════════════════════════════════════════════════
+function loadJournalPanel(m, d) {
+  const input = document.getElementById("journalInput");
+  const hint  = document.getElementById("journalHint");
+  const moodRow = document.getElementById("moodRow");
+
+  input.value = getNote(m, d);
+
+  // mood buttons
+  const savedMood = getMood(m, d);
+  moodRow.querySelectorAll(".mood-btn").forEach(btn => {
+    btn.classList.toggle("picked", btn.dataset.mood === savedMood);
+  });
+  pendingMood = savedMood || null;
+
+  // complete button label
+  const markBtn = document.getElementById("markCompleteBtn");
+  markBtn.textContent = isDone(m,d) ? "MISSION ✓✓" : "MISSION ✓";
+
+  // hint text
+  const hasData = getNote(m,d) || getMood(m,d) || isDone(m,d);
+  hint.textContent = hasData ? "// LOGGED — TAP TO EDIT" : "// TAP TO LOG";
+
+  // close journal if switching days
+  if (journalOpen) { closeJournal(); }
+}
+
+function openJournal() {
+  journalOpen = true;
+  document.getElementById("journalArea").classList.add("open");
+  document.getElementById("journalHint").style.display = "none";
+  document.getElementById("journalInput").focus();
+}
+function closeJournal() {
+  journalOpen = false;
+  document.getElementById("journalArea").classList.remove("open");
+  document.getElementById("journalHint").style.display = "block";
+}
+
+document.getElementById("motiveBox").addEventListener("click", (e) => {
+  if (e.target.closest("#journalArea")) return;
+  if (journalOpen) { closeJournal(); }
+  else { openJournal(); }
+});
+
+document.getElementById("saveNoteBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const text = document.getElementById("journalInput").value;
+  saveNote(activeMonth1, activeDay, text);
+  if (pendingMood) saveMood(activeMonth1, activeDay, pendingMood);
+  renderCalendar(null, true); // re-render dots without animation
+  closeJournal();
+  showToast("// LOG SAVED");
+});
+
+document.getElementById("markCompleteBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const now = toggleDone(activeMonth1, activeDay);
+  e.currentTarget.textContent = now ? "MISSION ✓✓" : "MISSION ✓";
+  renderCalendar(null, true);
+  showToast(now ? "// MISSION COMPLETE ✓" : "// MISSION UNMARKED");
+});
+
+document.getElementById("clearNoteBtn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  localStorage.removeItem(noteKey(activeMonth1, activeDay));
+  localStorage.removeItem(moodKey(activeMonth1, activeDay));
+  document.getElementById("journalInput").value = "";
+  document.getElementById("moodRow").querySelectorAll(".mood-btn")
+    .forEach(b => b.classList.remove("picked"));
+  pendingMood = null;
+  renderCalendar(null, true);
+  showToast("// LOG ERASED");
+});
+
+document.getElementById("moodRow").addEventListener("click", (e) => {
+  e.stopPropagation();
+  const btn = e.target.closest(".mood-btn");
+  if (!btn) return;
+  document.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("picked"));
+  if (pendingMood === btn.dataset.mood) {
+    pendingMood = null;
+  } else {
+    btn.classList.add("picked");
+    pendingMood = btn.dataset.mood;
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer = null;
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  STATUS BAR
+// ═══════════════════════════════════════════════════════
 function getDayOfYear(d) {
-  const start = new Date(d.getFullYear(), 0, 0);
-  const diff = d - start + (start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
-  return Math.floor(diff / 86400000);
+  const s = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - s + (s.getTimezoneOffset() - d.getTimezoneOffset()) * 60000) / 86400000);
 }
-
-function getWeekNumber(d) {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay()||7));
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-  return Math.ceil((((date - yearStart) / 86400000) + 1)/7);
+function getWeekNum(d) {
+  const u = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  u.setUTCDate(u.getUTCDate() + 4 - (u.getUTCDay()||7));
+  const y = new Date(Date.UTC(u.getUTCFullYear(),0,1));
+  return Math.ceil((((u - y) / 86400000) + 1) / 7);
 }
-
 function updateStatusBar() {
-  const doy = getDayOfYear(TODAY);
-  const wk  = getWeekNumber(TODAY);
-  document.getElementById("dayCount").textContent = `DAY ${doy} OF YEAR`;
-  document.getElementById("weekNum").textContent  = `WEEK ${wk}`;
+  document.getElementById("dayCount").textContent = `DAY ${getDayOfYear(TODAY)} OF YEAR`;
+  document.getElementById("weekNum").textContent  = `WEEK ${getWeekNum(TODAY)}`;
+  renderStreak();
 }
 updateStatusBar();
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 //  CALENDAR RENDER
-// ─────────────────────────────────────────────
-function renderCalendar() {
-  document.getElementById("monthYear").textContent =
-    `${MONTHS[viewMonth]} ${viewYear}`;
-
+// ═══════════════════════════════════════════════════════
+function renderCalendar(direction, silent) {
   const grid = document.getElementById("daysGrid");
-  grid.innerHTML = "";
 
-  const firstDow   = new Date(viewYear, viewMonth, 1).getDay();
-  const totalDays  = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const isCurrentMonth =
-    viewMonth === TODAY.getMonth() && viewYear === TODAY.getFullYear();
+  const doRender = () => {
+    document.getElementById("monthYear").textContent =
+      `${MONTHS[viewMonth]} ${viewYear}`;
 
-  // blank spacers
-  for (let i = 0; i < firstDow; i++) {
-    const empty = document.createElement("div");
-    empty.className = "day empty";
-    grid.appendChild(empty);
-  }
+    grid.innerHTML = "";
 
-  // day cells
-  for (let d = 1; d <= totalDays; d++) {
-    const cell = document.createElement("div");
-    cell.className = "day";
-    cell.textContent = d;
+    const firstDow  = new Date(viewYear, viewMonth, 1).getDay();
+    const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const isNow     = viewMonth === TODAY.getMonth() && viewYear === TODAY.getFullYear();
+    const m1        = viewMonth + 1;
 
-    const dow = (firstDow + d - 1) % 7;
-    if (dow === 0 || dow === 6) cell.classList.add("weekend");
-
-    if (isCurrentMonth && d === TODAY.getDate()) {
-      cell.classList.add("today");
-      showMotivation(viewMonth + 1, d, true);
+    for (let i = 0; i < firstDow; i++) {
+      const e = document.createElement("div");
+      e.className = "day empty";
+      grid.appendChild(e);
     }
 
-    cell.addEventListener("click", () => {
-      document.querySelectorAll(".day").forEach(c => c.classList.remove("selected"));
-      const isTd = isCurrentMonth && d === TODAY.getDate();
-      if (!isTd) cell.classList.add("selected");
-      showMotivation(viewMonth + 1, d, isTd);
+    for (let d = 1; d <= totalDays; d++) {
+      const cell = document.createElement("div");
+      cell.className = "day";
+      cell.textContent = d;
+
+      const dow = (firstDow + d - 1) % 7;
+      if (dow === 0 || dow === 6) cell.classList.add("weekend");
+      if (getNote(m1, d))  cell.classList.add("has-note");
+      if (isDone(m1, d))   cell.classList.add("complete");
+
+      if (isNow && d === TODAY.getDate()) {
+        cell.classList.add("today");
+        // streak badge
+        const badge = document.createElement("span");
+        badge.className = "streak-badge";
+        const st = calcStreak();
+        if (st > 1) { badge.textContent = st; badge.style.display = "block"; }
+        cell.appendChild(badge);
+      }
+
+      if (isNow && d === activeDay && !(d === TODAY.getDate())) {
+        cell.classList.add("selected");
+      }
+
+      cell.addEventListener("click", () => {
+        document.querySelectorAll(".day").forEach(c => c.classList.remove("selected"));
+        const isTd = isNow && d === TODAY.getDate();
+        if (!isTd) cell.classList.add("selected");
+        activeDay    = d;
+        activeMonth1 = m1;
+        showMotivation(m1, d, isTd);
+      });
+
+      grid.appendChild(cell);
+    }
+
+    // if navigated away from today's month, show the 1st by default
+    if (!isNow) {
+      activeDay    = 1;
+      activeMonth1 = m1;
+      showMotivation(m1, 1, false);
+    } else {
+      showMotivation(m1, TODAY.getDate(), true);
+    }
+  };
+
+  if (silent || !direction) {
+    doRender();
+    return;
+  }
+
+  // ── animated transition ──
+  const outClass = direction === "left" ? "slide-out-left" : "slide-out-right";
+  grid.classList.add(outClass);
+
+  setTimeout(() => {
+    grid.classList.remove(outClass);
+    grid.classList.add("slide-in");
+    doRender();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        grid.classList.remove("slide-in");
+      });
     });
-
-    grid.appendChild(cell);
-  }
-
-  // if viewing a month that's not current, show the month's first-day motivation
-  if (!isCurrentMonth) {
-    showMotivation(viewMonth + 1, 1, false);
-  }
+  }, 230);
 }
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 //  NAVIGATION
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 document.getElementById("prevBtn").addEventListener("click", () => {
   viewMonth--;
   if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-  renderCalendar();
+  applySeasonalTheme(viewMonth + 1);
+  renderCalendar("right");
 });
-
 document.getElementById("nextBtn").addEventListener("click", () => {
   viewMonth++;
   if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-  renderCalendar();
+  applySeasonalTheme(viewMonth + 1);
+  renderCalendar("left");
 });
 
-// ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
 //  INIT
-// ─────────────────────────────────────────────
-renderCalendar();
+// ═══════════════════════════════════════════════════════
+applySeasonalTheme(TODAY.getMonth() + 1);
+renderCalendar(null, true);
 </script>
 </body>
 </html>
