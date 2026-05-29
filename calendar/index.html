@@ -932,11 +932,13 @@ function applySeasonalTheme(month) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  STATE
+//  STATE MANAGEMENT (Synced to Live System Frame)
 // ═══════════════════════════════════════════════════════
 const TODAY = new Date();
 let viewMonth = TODAY.getMonth(); // 0-11
 let viewYear  = TODAY.getFullYear();
+
+// Track exactly which day layout is actively highlighted
 let activeDay    = TODAY.getDate();
 let activeMonth1 = TODAY.getMonth() + 1;
 let journalOpen = false;
@@ -946,7 +948,7 @@ const MONTHS = ["January","February","March","April","May","June",
                 "July","August","September","October","November","December"];
 
 // ═══════════════════════════════════════════════════════
-//  CLOCK
+//  CLOCK TRANSMISSION
 // ═══════════════════════════════════════════════════════
 function tickClock() {
   const n = new Date();
@@ -966,7 +968,7 @@ function updateDateLine() {
 updateDateLine();
 
 // ═══════════════════════════════════════════════════════
-//  PERSISTENCE HELPERS (localStorage)
+//  PERSISTENCE STORAGE HELPERS (Local Database File)
 // ═══════════════════════════════════════════════════════
 function noteKey(m, d)    { return `mr_note_${m}_${d}`; }
 function completeKey(m, d){ return `mr_done_${m}_${d}`; }
@@ -992,7 +994,7 @@ function saveMood(m, d, emoji) {
   else       { localStorage.removeItem(moodKey(m,d)); }
 }
 
-// ── streak logic ──
+// ── Streak Tracking Log ──
 function updateStreak() {
   const data = getStreakData();
   const todayStr = `${TODAY.getFullYear()}-${TODAY.getMonth()+1}-${TODAY.getDate()}`;
@@ -1033,13 +1035,12 @@ function renderStreak() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  LORE / MOTIVATION
+//  LORE DECODER / CORE MOTIVATION
 // ═══════════════════════════════════════════════════════
 function getLoreText(m, d) {
   const key = `${m}-${d}`;
   const box = document.getElementById("motiveBox");
 
-  // rare transmission override
   if (RARE_TRANSMISSIONS[key]) {
     box.classList.add("anomaly");
     let txt = RARE_TRANSMISSIONS[key];
@@ -1070,19 +1071,17 @@ function showMotivation(m, d, isToday) {
     text.textContent = getLoreText(m, d);
     text.classList.remove("hidden");
 
-    // glitch effect on anomaly/glitch dates
     if (GLITCH_DATES.has(key) || ANOMALY_DATES.has(key)) {
       box.classList.add("glitch-active");
       setTimeout(() => box.classList.remove("glitch-active"), 500);
     }
   }, 200);
 
-  // restore journal
   loadJournalPanel(m, d);
 }
 
 // ═══════════════════════════════════════════════════════
-//  JOURNAL PANEL
+//  JOURNAL SYSTEM
 // ═══════════════════════════════════════════════════════
 function loadJournalPanel(m, d) {
   const input = document.getElementById("journalInput");
@@ -1091,22 +1090,18 @@ function loadJournalPanel(m, d) {
 
   input.value = getNote(m, d);
 
-  // mood buttons
   const savedMood = getMood(m, d);
   moodRow.querySelectorAll(".mood-btn").forEach(btn => {
     btn.classList.toggle("picked", btn.dataset.mood === savedMood);
   });
   pendingMood = savedMood || null;
 
-  // complete button label
   const markBtn = document.getElementById("markCompleteBtn");
   markBtn.textContent = isDone(m,d) ? "MISSION ✓✓" : "MISSION ✓";
 
-  // hint text
   const hasData = getNote(m,d) || getMood(m,d) || isDone(m,d);
   hint.textContent = hasData ? "// LOGGED — TAP TO EDIT" : "// TAP TO LOG";
 
-  // close journal if switching days
   if (journalOpen) { closeJournal(); }
 }
 
@@ -1132,8 +1127,8 @@ document.getElementById("saveNoteBtn").addEventListener("click", (e) => {
   e.stopPropagation();
   const text = document.getElementById("journalInput").value;
   saveNote(activeMonth1, activeDay, text);
-  if (pendingMood) saveMood(activeMonth1, activeDay, pendingMood);
-  renderCalendar(null, true); // re-render dots without animation
+  saveMood(activeMonth1, activeDay, pendingMood);
+  renderCalendar(null, true); 
   closeJournal();
   showToast("// LOG SAVED");
 });
@@ -1172,7 +1167,7 @@ document.getElementById("moodRow").addEventListener("click", (e) => {
 });
 
 // ═══════════════════════════════════════════════════════
-//  TOAST
+//  TOAST SYSTEMS
 // ═══════════════════════════════════════════════════════
 let toastTimer = null;
 function showToast(msg) {
@@ -1184,7 +1179,7 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  STATUS BAR
+//  METRIC LOG FOOTER
 // ═══════════════════════════════════════════════════════
 function getDayOfYear(d) {
   const s = new Date(d.getFullYear(), 0, 0);
@@ -1204,7 +1199,7 @@ function updateStatusBar() {
 updateStatusBar();
 
 // ═══════════════════════════════════════════════════════
-//  CALENDAR RENDER
+//  DYNAMIC CALENDAR GRAPHICS RENDER
 // ═══════════════════════════════════════════════════════
 function renderCalendar(direction, silent) {
   const grid = document.getElementById("daysGrid");
@@ -1217,15 +1212,17 @@ function renderCalendar(direction, silent) {
 
     const firstDow  = new Date(viewYear, viewMonth, 1).getDay();
     const totalDays = new Date(viewYear, viewMonth + 1, 0).getDate();
-    const isNow     = viewMonth === TODAY.getMonth() && viewYear === TODAY.getFullYear();
+    const isCurrentMonthView = viewMonth === TODAY.getMonth() && viewYear === TODAY.getFullYear();
     const m1        = viewMonth + 1;
 
+    // Fill Empty Grid Blocks
     for (let i = 0; i < firstDow; i++) {
       const e = document.createElement("div");
       e.className = "day empty";
       grid.appendChild(e);
     }
 
+    // Process Day Array Elements
     for (let d = 1; d <= totalDays; d++) {
       const cell = document.createElement("div");
       cell.className = "day";
@@ -1236,9 +1233,9 @@ function renderCalendar(direction, silent) {
       if (getNote(m1, d))  cell.classList.add("has-note");
       if (isDone(m1, d))   cell.classList.add("complete");
 
-      if (isNow && d === TODAY.getDate()) {
+      // Visual State Assignment: Today vs Selected Overrides
+      if (isCurrentMonthView && d === TODAY.getDate()) {
         cell.classList.add("today");
-        // streak badge
         const badge = document.createElement("span");
         badge.className = "streak-badge";
         const st = calcStreak();
@@ -1246,30 +1243,27 @@ function renderCalendar(direction, silent) {
         cell.appendChild(badge);
       }
 
-      if (isNow && d === activeDay && !(d === TODAY.getDate())) {
+      if (d === activeDay && m1 === activeMonth1 && !(isCurrentMonthView && d === TODAY.getDate())) {
         cell.classList.add("selected");
       }
 
       cell.addEventListener("click", () => {
         document.querySelectorAll(".day").forEach(c => c.classList.remove("selected"));
-        const isTd = isNow && d === TODAY.getDate();
-        if (!isTd) cell.classList.add("selected");
         activeDay    = d;
         activeMonth1 = m1;
+        
+        const isTd = isCurrentMonthView && d === TODAY.getDate();
+        if (!isTd) cell.classList.add("selected");
+        
         showMotivation(m1, d, isTd);
       });
 
       grid.appendChild(cell);
     }
 
-    // if navigated away from today's month, show the 1st by default
-    if (!isNow) {
-      activeDay    = 1;
-      activeMonth1 = m1;
-      showMotivation(m1, 1, false);
-    } else {
-      showMotivation(m1, TODAY.getDate(), true);
-    }
+    // Call dynamic motivation rendering safely without overwriting choice state
+    const isTargetToday = (activeMonth1 === TODAY.getMonth() + 1) && (activeDay === TODAY.getDate()) && (viewYear === TODAY.getFullYear());
+    showMotivation(activeMonth1, activeDay, isTargetToday);
   };
 
   if (silent || !direction) {
@@ -1277,7 +1271,7 @@ function renderCalendar(direction, silent) {
     return;
   }
 
-  // ── animated transition ──
+  // Matrix Horizontal Shifter Layout Animations
   const outClass = direction === "left" ? "slide-out-left" : "slide-out-right";
   grid.classList.add(outClass);
 
@@ -1294,23 +1288,33 @@ function renderCalendar(direction, silent) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  NAVIGATION
+//  NAV MATRIX CONTROLS
 // ═══════════════════════════════════════════════════════
 document.getElementById("prevBtn").addEventListener("click", () => {
   viewMonth--;
   if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-  applySeasonalTheme(viewMonth + 1);
+  
+  // Pivot default selection array state to match updated frame cleanly
+  activeMonth1 = viewMonth + 1;
+  activeDay = (activeMonth1 === TODAY.getMonth() + 1 && viewYear === TODAY.getFullYear()) ? TODAY.getDate() : 1;
+
+  applySeasonalTheme(activeMonth1);
   renderCalendar("right");
 });
+
 document.getElementById("nextBtn").addEventListener("click", () => {
   viewMonth++;
   if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-  applySeasonalTheme(viewMonth + 1);
+  
+  activeMonth1 = viewMonth + 1;
+  activeDay = (activeMonth1 === TODAY.getMonth() + 1 && viewYear === TODAY.getFullYear()) ? TODAY.getDate() : 1;
+
+  applySeasonalTheme(activeMonth1);
   renderCalendar("left");
 });
 
 // ═══════════════════════════════════════════════════════
-//  INIT
+//  INITIALIZATION TRIGGER
 // ═══════════════════════════════════════════════════════
 applySeasonalTheme(TODAY.getMonth() + 1);
 renderCalendar(null, true);
