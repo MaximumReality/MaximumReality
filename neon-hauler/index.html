@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEON HAULER: OVERDRIVE</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background-color: #05030a;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        #game-container {
+            position: relative;
+            width: 100vw;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 450px;
+            border: 4px solid #ff007f;
+            box-shadow: 0 0 20px #ff007f, inset 0 0 20px #00f0ff;
+            background: linear-gradient(to bottom, #0d0116 0%, #2a0845 50%, #000000 100%);
+            overflow: hidden;
+        }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        /* UI Overlays */
+        .hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00f0ff;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hud span {
+            color: #00f0ff;
+        }
+        #time-display {
+            color: #ff007f;
+            text-shadow: 0 0 5px #ff007f;
+        }
+        /* Touch Controls for Mobile */
+        .touch-zone {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            z-index: 5;
+        }
+        #zone-up { top: 0; }
+        #zone-down { bottom: 0; }
+
+        /* Screens */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 5, 20, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff, 0 0 20px #ff007f;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        p {
+            margin-bottom: 20px;
+            color: #e0d5f0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        button {
+            background: transparent;
+            border: 2px solid #ff007f;
+            color: #ff007f;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px #ff007f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        button:active {
+            background: #ff007f;
+            color: #fff;
+            box-shadow: 0 0 25px #ff007f;
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <!-- HUD -->
+        <div class="hud">
+            <div>ETA: <span id="time-display">30.0s</span></div>
+            <div>MILES LEFT: <span id="distance-display">1000</span></div>
+            <div>CARGO: <span id="status-display" style="color: #39ff14; text-shadow: 0 0 5px #39ff14;">SECURE</span></div>
+        </div>
+
+        <!-- Touch Target Areas for Mobile Play -->
+        <div id="zone-up" class="touch-zone"></div>
+        <div id="zone-down" class="touch-zone"></div>
+
+        <!-- Canvas for Game Graphics -->
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <h1>NEON HAULER</h1>
+            <p>HIGHWAY OVERDRIVE MODE<br>Deliver the cargo before your ETA hits zero.<br>Avoid slow traffic, blown tires, and rogue highway deer.</p>
+            <p style="color: #00f0ff; font-size: 0.8rem;">Controls: Tap TOP/BOTTOM halves of screen or use UP/DOWN arrow keys.</p>
+            <button id="start-btn">Start Run</button>
+        </div>
+
+        <!-- Game Over / Victory Screen -->
+        <div id="end-screen" class="screen hidden">
+            <h1 id="end-title">DELIVERY FAILED</h1>
+            <p id="end-desc">The clock hit zero. Dispatch is not happy.</p>
+            <button id="restart-btn">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Setup Canvas Resolution
+        canvas.width = 800;
+        canvas.height = 450;
+
+        // Game State Variables
+        let gameState = 'START'; 
+        let eta = 30.0;
+        let distance = 1200;
+        let gameSpeed = 8;
+        let baseSpeed = 8;
+        let score = 0;
+        let lastTime = 0;
+
+        // Lane setup (3 distinct driving lanes on the highway)
+        const lanes = [260, 320, 380]; 
+        
+        // Player Truck Object
+        const truck = {
+            lane: 1,
+            y: lanes[1],
+            x: 80,
+            width: 90,
+            height: 35,
+            targetY: lanes[1],
+            glowPhase: 0
+        };
+
+        // Obstacles array
+        let obstacles = [];
+        const obstacleTypes = [
+            { type: 'car', label: '🚗', width: 40, height: 25, speedModifier: -3, color: '#ff0055' },
+            { type: 'tire', label: '🛞', width: 25, height: 25, speedModifier: 0, color: '#ffff00' },
+            { type: 'deer', label: '🦌', width: 30, height: 30, speedModifier: 2, color: '#39ff14', behavior: 'jump' }
+        ];
+
+        // Background Parallax Variables
+        let starOffset = 0;
+        let gridOffset = 0;
+
+        // Event Listeners for Controls
+        document.getElementById('start-btn').addEventListener('click', startGame);
+        document.getElementById('restart-btn').addEventListener('click', startGame);
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (gameState !== 'PLAYING') return;
+            if (e.key === 'ArrowUp' && truck.lane > 0) {
+                truck.lane--;
+            } else if (e.key === 'ArrowDown' && truck.lane < lanes.length - 1) {
+                truck.lane++;
+            }
+            truck.targetY = lanes[truck.lane];
+        });
+
+        // Touch Controls (Optimized for iPhone Safari/PWA layouts)
+        document.getElementById('zone-up').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState === 'PLAYING' && truck.lane > 0) {
+                truck.lane--;
+                truck.targetY = lanes[truck.lane];
+            }
+        });
+
+        document.getElementById('zone-down').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (gameState === 'PLAYING' && truck.lane < lanes.length - 1) {
+                truck.lane++;
+                truck.targetY = lanes[truck.lane];
+            }
+        });
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.add('hidden');
+            
+            // Reset Values
+            eta = 35.0;
+            distance = 1500;
+            obstacles = [];
+            truck.lane = 1;
+            truck.y = lanes[1];
+            truck.targetY = lanes[1];
+            gameSpeed = baseSpeed;
+            gameState = 'PLAYING';
+            lastTime = performance.now();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Main Loop
+        function gameLoop(timestamp) {
+            if (gameState !== 'PLAYING') return;
+
+            let deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            update(deltaTime);
+            render();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Update Game Logic
+        function update(dt) {
+            // Smooth truck lane changing interpolation
+            truck.y += (truck.targetY - truck.y) * 0.2;
+            truck.glowPhase += 0.1;
+
+            // Update Progress & Time Limits
+            eta -= dt;
+            distance -= Math.floor(gameSpeed * dt * 5);
+
+            if (distance <= 0) {
+                distance = 0;
+                endGame(true); // Won!
+                return;
+            }
+
+            if (eta <= 0) {
+                eta = 0;
+                endGame(false); // Lost!
+                return;
+            }
+
+            // Document HUD values
+            document.getElementById('time-display').innerText = eta.toFixed(1) + 's';
+            document.getElementById('distance-display').innerText = distance;
+
+            // Background movement mechanics
+            starOffset = (starOffset + gameSpeed * 0.05) % 800;
+            gridOffset = (gridOffset + gameSpeed) % 40;
+
+            // Spawn Obstacles
+            if (Math.random() < 0.02 && obstacles.length < 4) {
+                spawnObstacle();
+            }
+
+            // Update Obstacles
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                
+                // Move obstacle to the left relative to truck speed
+                obs.x -= (gameSpeed + obs.speedModifier);
+
+                // Specialized jumping behavior for the neon deer
+                if (obs.behavior === 'jump') {
+                    obs.yOffset = Math.abs(Math.sin(performance.now() * 0.005)) * 25;
+                }
+
+                // Collision Detection Box
+                if (
+                    truck.x < obs.x + obs.width &&
+                    truck.x + truck.width > obs.x &&
+                    truck.y < (obs.y - (obs.yOffset || 0)) + obs.height &&
+                    truck.y + truck.height > (obs.y - (obs.yOffset || 0))
+                ) {
+                    // Trigger Impact penalty
+                    eta -= 4.0; // Penalty seconds
+                    document.getElementById('status-display').innerText = "IMPACT!";
+                    document.getElementById('status-display').style.color = "#ff0055";
+                    
+                    // Flash effect and clear object
+                    obstacles.splice(i, 1);
+                    
+                    setTimeout(() => {
+                        if(gameState === 'PLAYING') {
+                            document.getElementById('status-display').innerText = "SECURE";
+                            document.getElementById('status-display').style.color = "#39ff14";
+                        }
+                    }, 1000);
+                    continue;
+                }
+
+                // Remove out of bound items
+                if (obs.x < -50) {
+                    obstacles.splice(i, 1);
+                }
+            }
+        }
+
+        function spawnObstacle() {
+            let randType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+            let randLane = Math.floor(Math.random() * lanes.length);
+            
+            // Adjusting bounding boxes roughly centered to lanes
+            let spawnY = lanes[randLane] + 5; 
+
+            // Prevent stacking on top of active hazards instantly
+            if (obstacles.some(o => o.lane === randLane && o.x > 600)) return;
+
+            obstacles.push({
+                type: randType.type,
+                label: randType.label,
+                x: 800,
+                y: spawnY,
+                lane: randLane,
+                width: randType.width,
+                height: randType.height,
+                speedModifier: randType.speedModifier,
+                color: randType.color,
+                behavior: randType.behavior || 'none',
+                yOffset: 0
+            });
+        }
+
+        function endGame(victory) {
+            gameState = 'END';
+            document.getElementById('end-screen').classList.remove('hidden');
+            const title = document.getElementById('end-title');
+            const desc = document.getElementById('end-desc');
+
+            if (victory) {
+                title.innerText = "DELIVERY COMPLETE";
+                title.style.color = "#39ff14";
+                title.style.textShadow = "0 0 10px #39ff14";
+                desc.innerText = "On time, intact, and safe. You run these neon roads like a pro.";
+            } else {
+                title.innerText = "ETA EXPIRED";
+                title.style.color = "#ff0055";
+                title.style.textShadow = "0 0 10px #ff0055";
+                desc.innerText = "You missed the delivery slot. Watch out for those wild deer next time!";
+            }
+        }
+
+        // Render Graphics Engine
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Draw Starry Space Horizon Layer
+            ctx.fillStyle = "rgba(255, 255, 255, 0.15)";
+            for (let i = 0; i < 30; i++) {
+                let sx = (i * 35 - starOffset) % canvas.width;
+                if (sx < 0) sx += canvas.width;
+                let sy = (i * 7) % 150;
+                ctx.fillRect(sx, sy, 2, 2);
+            }
+
+            // 2. Draw The Classic Neon Outlined Retro Sun
+            let sunY = 160;
+            let radius = 60;
+            let gradient = ctx.createLinearGradient(400, sunY - radius, 400, sunY);
+            gradient.addColorStop(0, '#ff007f');
+            gradient.addColorStop(1, '#ffeb3b');
+            
+            ctx.beginPath();
+            ctx.arc(400, sunY, radius, Math.PI, 0, false);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Retro Sun Slice Lines
+            ctx.fillStyle = '#0d0116';
+            for (let l = 1; l < 6; l++) {
+                ctx.fillRect(400 - radius, sunY - (l * 10), radius * 2, 2 * (l * 0.6));
+            }
+
+            // 3. Draw Perspective Synth Neon Grid Lines
+            ctx.strokeStyle = '#00f0ff';
+            ctx.lineWidth = 2;
+            
+            // Horizontal lines moving backwards
+            ctx.beginPath();
+            let horizonY = 180;
+            ctx.moveTo(0, horizonY);
+            ctx.lineTo(canvas.width, horizonY);
+            ctx.stroke();
+
+            // Perspective Grid Floor Lines
+            for (let i = -10; i <= 20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(400 + (i * 20), horizonY);
+                ctx.lineTo(400 + (i * 80), canvas.height);
+                ctx.stroke();
+            }
+
+            // Moving horizontal grid lines to simulate forward momentum
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+            for (let j = 0; j < 10; j++) {
+                let hy = horizonY + Math.pow(j + (gridOffset / 40), 2.3);
+                if (hy < canvas.height) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, hy);
+                    ctx.lineTo(canvas.width, hy);
+                    ctx.stroke();
+                }
+            }
+
+            // 4. Draw Three-Lane Asphalt Highway
+            ctx.fillStyle = 'rgba(10, 5, 25, 0.85)';
+            ctx.fillRect(0, 240, canvas.width, 180);
+            
+            // Lane dividers
+            ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([20, 20]);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, 310); ctx.lineTo(canvas.width, 310);
+            ctx.moveTo(0, 370); ctx.lineTo(canvas.width, 370);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset dash line
+
+            // Outer Highway glowing borders
+            ctx.strokeStyle = '#ff007f';
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#ff007f';
+            ctx.beginPath();
+            ctx.moveTo(0, 240); ctx.lineTo(canvas.width, 240);
+            ctx.moveTo(0, 420); ctx.lineTo(canvas.width, 420);
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset shadow
+
+            // 5. Draw Obstacles (Sprites handled via stylized emojis for crisp scaling)
+            ctx.font = '28px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            
+            obstacles.forEach(obs => {
+                ctx.save();
+                // Apply shadow glow matched to danger type
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = obs.color;
+                
+                // Draw text sprite
+                ctx.fillText(obs.label, obs.x, obs.y - (obs.yOffset || 0));
+                ctx.restore();
+            });
+
+            // 6. Draw Player Neon Semi Truck Sprite Layout
+            ctx.save();
+            ctx.shadowBlur = 12 + Math.sin(truck.glowPhase) * 4;
+            ctx.shadowColor = '#00f0ff';
+            
+            // Draw Trailer Body
+            ctx.fillStyle = '#00f0ff';
+            ctx.fillRect(truck.x, truck.y, 60, truck.height - 4);
+            
+            // Draw Cab
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(truck.x + 60, truck.y + 4, 25, truck.height - 8);
+            
+            // Draw Neon Accent Stripes down the rig
+            ctx.fillStyle = '#ff007f';
+            ctx.fillRect(truck.x, truck.y + 6, 55, 4);
+            ctx.fillRect(truck.x, truck.y + truck.height - 14, 55, 4);
+
+            // Draw Glowing Tires
+            ctx.fillStyle = '#05030a';
+            ctx.strokeStyle = '#ff007f';
+            ctx.lineWidth = 2;
+            
+            let wheels = [truck.x + 10, truck.x + 22, truck.x + 45, truck.x + 72];
+            wheels.forEach(wx => {
+                ctx.beginPath();
+                ctx.arc(wx, truck.y + truck.height - 2, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            ctx.restore();
+        }
+    </script>
+</body>
+</html>
