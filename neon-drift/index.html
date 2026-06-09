@@ -324,19 +324,8 @@
     'use strict';
     
     const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');    
     const spriteSrc = {
-    "skaterSheet": "IMG/skater.png",       
-    "seagull": "IMG/seagull.png",
-    "seagull_down": "IMG/seagull-wings-down.png",
-    "cone": "IMG/cone.png",
-    "beachball": "IMG/beachball.png",
-    "star": "IMG/star.png",
-    "soda": "IMG/soda.png"
-};
-
-// === SPRITE LOADING (replace the old block) ===
-const spriteSrc = {
     "skater": "IMG/skater.png",           // faces left
     "skater_right": "IMG/skater-right.png", // faces right
     "seagull": "IMG/seagull.png",
@@ -356,29 +345,7 @@ Object.keys(spriteSrc).forEach(k => {
     sprites[k] = img;
 });
 
-   function drawPlayer(x, y, w, h) {
-    const movingRight = player.targetX > player.x + 3;
-    const img = movingRight ? sprites.skater_right : sprites.skater;
 
-    if (img && img.complete && img.naturalWidth > 0) {
-        ctx.save();
-        ctx.shadowColor = '#00ffff';
-        ctx.shadowBlur = 20;
-
-        const iw = w * 1.6;
-        const ih = h * 2.0;
-
-        ctx.drawImage(img, x - iw/2, y - ih*0.65, iw, ih);
-
-        ctx.restore();
-    } else {
-        // fallback
-        ctx.fillStyle = '#00ffff';
-        ctx.beginPath();
-        ctx.ellipse(x, y + h*0.35, w*0.5, h*0.18, 0, 0, Math.PI*2);
-        ctx.fill();
-    }
-}
 
     const startScreen = document.getElementById('startScreen');
     const gameOverScreen = document.getElementById('gameOverScreen');
@@ -1024,24 +991,29 @@ Object.keys(spriteSrc).forEach(k => {
         ctx.restore();
     }
 
-    function drawPlayer(x,y,w,h) {
-        const movingRight = player.targetX > player.x + 2;
-        const img = movingRight ? sprites.skater_right : sprites.skater;
-        if (img && img.complete && img.naturalWidth) {
-            ctx.save();
-            ctx.shadowColor = '#00ffff';
-            ctx.shadowBlur = 20;
-            const iw = w * 1.6;
-            const ih = h * 2.0;
-            ctx.drawImage(img, x - iw/2, y - ih*0.65, iw, ih);
-            ctx.restore();
-        } else {
-            ctx.fillStyle = '#00ffff';
-            ctx.beginPath();
-            ctx.ellipse(x, y+h*0.35, w*0.5, h*0.18, 0,0,Math.PI*2);
-            ctx.fill();
-        }
+    function drawPlayer(x, y, w, h) {
+    const movingRight = player.targetX > player.x + 3;
+    const img = movingRight ? sprites.skater_right : sprites.skater;
+
+    if (img && img.complete && img.naturalWidth > 0) {
+        ctx.save();
+        ctx.shadowColor = '#00ffff';
+        ctx.shadowBlur = 20;
+
+        const iw = w * 1.6;
+        const ih = h * 2.0;
+
+        ctx.drawImage(img, x - iw/2, y - ih*0.65, iw, ih);
+
+        ctx.restore();
+    } else {
+        // fallback
+        ctx.fillStyle = '#00ffff';
+        ctx.beginPath();
+        ctx.ellipse(x, y + h*0.35, w*0.5, h*0.18, 0, 0, Math.PI*2);
+        ctx.fill();
     }
+}
 
     function drawCone(x,y,w,h) {
         const img = sprites.cone;
