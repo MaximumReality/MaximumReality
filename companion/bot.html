@@ -654,7 +654,7 @@ async function sendMessage(userText) {
    if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
     const raw = data.message?.content?.[0]?.text || "...I got nothing.";
-console.log("raw text:", raw);
+
     const { replyText, emotion } = parseReply(raw);
 
     history.push({ role: "assistant", content: raw });
