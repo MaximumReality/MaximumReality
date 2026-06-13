@@ -303,7 +303,7 @@
 // ════════════════════════════════════════════════════════
 // CONFIG — paste your Cohere API key here
 // ════════════════════════════════════════════════════════
-const COHERE_API_KEY = "9GjdmArswkNloObhzefc82auKCoe34oruhf17mXa";
+const COHERE_API_KEY = "9GjdmArswkNloObhzefc82auK-Coe34oruhf17mXa";
 const COHERE_URL = "https://api.cohere.com/v2/chat";
 
 // ════════════════════════════════════════════════════════
@@ -640,8 +640,10 @@ async function sendMessage(userText) {
       },
       body: JSON.stringify({
         model: "command-r-plus",
-        system: SYSTEM_PROMPT,
-        messages: history,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...history
+        ],
         max_tokens: 200,
         temperature: 0.85
       })
