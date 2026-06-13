@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>UNIT-7 // Companion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050810;
+    --panel: #0f1628;
+    --accent: #7c5cfc;
+    --accent2: #00e5ff;
+    --accent3: #ff6b9d;
+    --text: #c8d0e8;
+    --muted: #4a5170;
+    --glow: rgba(124, 92, 252, 0.4);
+    --glow2: rgba(0, 229, 255, 0.3);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+    gap: 16px;
+    position: relative;
+  }
+
+  /* starfield */
+  #app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 60%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 10%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 15% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 50%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 35% 40%, rgba(0,229,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 90%, rgba(124,92,252,0.4) 0%, transparent 100%),
+      linear-gradient(rgba(124,92,252,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.02) 1px, transparent 1px);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #header { text-align: center; z-index: 1; }
+
+  #unit-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  #unit-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-shadow: 0 0 20px var(--glow2), 0 0 40px var(--glow2);
+    letter-spacing: 2px;
+  }
+
+  #face-wrap {
+    position: relative;
+    z-index: 1;
+    /* hover animation applied to whole saucer+robot */
+    animation: hover-bob 3s ease-in-out infinite;
+  }
+
+  @keyframes hover-bob {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-10px); }
+  }
+
+  #face-canvas {
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  #bubble-wrap {
+    width: 100%;
+    max-width: 340px;
+    z-index: 1;
+    min-height: 80px;
+  }
+
+  #bubble {
+    background: var(--panel);
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: border-color 0.3s;
+    min-height: 56px;
+    word-break: break-word;
+  }
+
+  #bubble.thinking { border-color: rgba(0,229,255,0.4); }
+
+  #bubble.thinking::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 14px;
+    background: var(--accent2);
+    margin-left: 4px;
+    animation: blink-cursor 0.7s step-end infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  #mood-tag {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align: right;
+    text-transform: uppercase;
+    min-height: 14px;
+    transition: color 0.4s;
+  }
+
+  #input-area {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+    align-items: center;
+  }
+
+  #user-input {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--muted);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    caret-color: var(--accent2);
+  }
+
+  #user-input::placeholder { color: var(--muted); }
+  #user-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--glow);
+  }
+
+  #mic-btn {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  #mic-btn.recording {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px var(--glow);
+  }
+
+  #mic-btn.recording::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: sonar 1s ease-out infinite;
+  }
+
+  @keyframes sonar {
+    0%   { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+
+  #send-btn {
+    width: 46px; height: 46px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px var(--glow);
+  }
+
+  #send-btn:active { transform: scale(0.92); }
+  #send-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+  #footer {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-align: center;
+    z-index: 1;
+    opacity: 0.5;
+  }
+
+  #scanlines {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 100;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px, transparent 3px,
+      rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px
+    );
+  }
+</style>
+</head>
+<body>
+<div id="scanlines"></div>
+<div id="app">
+  <div id="header">
+    <div id="unit-label">companion unit</div>
+    <div id="unit-name">UNIT-7</div>
+  </div>
+
+  <div id="face-wrap">
+    <canvas id="face-canvas" width="260" height="240"></canvas>
+  </div>
+
+  <div id="bubble-wrap">
+    <div id="bubble">Hey. You activated me. Bold choice. I'll try not to judge.</div>
+    <div id="mood-tag">// idle</div>
+  </div>
+
+  <div id="input-area">
+    <input id="user-input" type="text" placeholder="type something…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="mic-btn" title="Tap to speak">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
+    <button id="send-btn" title="Send">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="footer">MAXIMUM REALITY // UNIT-7 v2.0</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════
+const COHERE_API_KEY = "YOUR_COHERE_KEY_HERE";
+const COHERE_URL = "https://api.cohere.com/v2/chat";
+
+// ════════════════════════════════════════════════════════
+// CANVAS SETUP
+// canvas is 260 wide x 240 tall
+// saucer fills bottom ~100px, robot head sits in top ~140px
+// ════════════════════════════════════════════════════════
+const canvas = document.getElementById("face-canvas");
+const ctx = canvas.getContext("2d");
+const CW = canvas.width;   // 260
+const CH = canvas.height;  // 240
+const S = 4; // pixel scale
+
+// Colour palette
+const P = {
+  // robot
+  shell:   "#1a2040",
+  shellL:  "#2a3460",
+  shellD:  "#0e1428",
+  screen:  "#001824",
+  screenG: "#003344",
+  pupil:   "#00e5ff",
+  pupilG:  "#aaffff",
+  cheek:   "#ff6b9d",
+  mouth:   "#7c5cfc",
+  mouthL:  "#a98cff",
+  antenna: "#4a5580",
+  antennaT:"#7c5cfc",
+  ear:     "#141a35",
+  earIn:   "#00e5ff",
+  chrome:  "#3a4570",
+  // saucer
+  sTop:    "#2a3060",   // saucer top dome rim
+  sTopL:   "#3a4480",
+  sBody:   "#1e2850",  // main disc
+  sBodyL:  "#2e3870",
+  sBodyD:  "#0e1430",
+  sRim:    "#3a4070",
+  sRimL:   "#5a60a0",
+  sDome:   "#001830",  // glass dome
+  sDomeG:  "#002244",
+  sDomeH:  "rgba(0,229,255,0.15)", // dome highlight
+  glow1:   "#00e5ff",
+  glow2:   "#7c5cfc",
+  glow3:   "#ff6b9d",
+  porthole:"#ffdd44",
+  portholeG:"#ffaa00",
+};
+
+let currentFace = "idle";
+let blinkTimer  = 0;
+let isBlinking  = false;
+let blinkPhase  = 0;
+let tickCount   = 0;
+let saucerGlowPhase = 0;
+
+// draw one "pixel" block
+function px(gx, gy, color, w=1, h=1) {
+  if(!color) return;
+  ctx.fillStyle = color;
+  ctx.fillRect(gx*S, gy*S, w*S, h*S);
+}
+
+// ── ROBOT HEAD (offset by ox,oy in grid coords) ──
+// head is 40x40 grid = 160x160px, placed at grid (3, 0) so centered in 260px wide canvas
+const ROX = 3;  // robot origin x in grid
+const ROY = 0;  // robot origin y in grid
+
+function drawRobotBase(eyeL_fn, eyeR_fn, mouthFn) {
+  const x = ROX;
+  const y = ROY;
+
+  // head body
+  px(x+6,  y+4,  P.shell,  28, 26);
+  px(x+8,  y+3,  P.shell,  24, 2);
+  px(x+10, y+2,  P.shell,  20, 2);
+  px(x+7,  y+29, P.shell,  26, 3);
+  px(x+14, y+32, P.shell,  12, 4);
+  // highlights / shadow
+  px(x+6,  y+4,  P.shellL, 2, 24);
+  px(x+8,  y+3,  P.shellL, 2, 2);
+  px(x+32, y+4,  P.shellD, 2, 24);
+  // ears
+  px(x+3,  y+12, P.ear,   4, 10);
+  px(x+4,  y+13, P.earIn, 2, 1);
+  px(x+4,  y+16, P.earIn, 2, 1);
+  px(x+33, y+12, P.ear,   4, 10);
+  px(x+33, y+13, P.earIn, 2, 1);
+  px(x+33, y+16, P.earIn, 2, 1);
+  // antenna
+  px(x+19, y+0,  P.antenna,  2, 4);
+  px(x+18, y+0,  P.antennaT, 4, 2);
+  // visor
+  px(x+8,  y+8,  P.screen,  24, 16);
+  px(x+9,  y+7,  P.screenG, 22, 2);
+  px(x+9,  y+23, P.screenG, 22, 2);
+  for(let r=9; r<24; r+=3) px(x+9, y+r, "rgba(0,229,255,0.05)", 22, 1);
+  // eyes
+  if(eyeL_fn) eyeL_fn(x, y);
+  if(eyeR_fn) eyeR_fn(x, y);
+  // cheeks
+  ctx.globalAlpha = 0.35;
+  px(x+9,  y+22, P.cheek, 4, 2);
+  px(x+27, y+22, P.cheek, 4, 2);
+  ctx.globalAlpha = 1;
+  // mouth
+  if(mouthFn) mouthFn(x, y);
+  // bottom detail
+  px(x+10, y+30, P.chrome, 20, 1);
+  px(x+12, y+31, P.chrome, 16, 1);
+}
+
+// Eye helpers — take (ox, oy) offset
+function normalEye(ox, oy, cx) {
+  px(ox+cx-3, oy+11, P.screen, 6, 8);
+  px(ox+cx-1, oy+13, P.pupil,  3, 4);
+  px(ox+cx,   oy+13, P.pupilG, 1, 1);
+  ctx.strokeStyle = P.pupil;
+  ctx.lineWidth = S * 0.5;
+  ctx.strokeRect((ox+cx-3)*S+1, (oy+11)*S+1, 6*S-2, 8*S-2);
+}
+function happyEye(ox, oy, cx) {
+  px(ox+cx-3, oy+14, P.pupil,  6, 3);
+  px(ox+cx-2, oy+13, P.pupil,  4, 1);
+  px(ox+cx-3, oy+11, P.screen, 6, 3);
+  px(ox+cx-2, oy+14, P.screen, 1, 1);
+  px(ox+cx+2, oy+14, P.screen, 1, 1);
+  px(ox+cx-1, oy+14, P.pupilG, 1, 1);
+}
+function sadEye(ox, oy, cx) {
+  px(ox+cx-3, oy+11, P.screen, 6, 8);
+  px(ox+cx-1, oy+14, P.pupil,  3, 3);
+  px(ox+cx-3, oy+11, P.screen, 2, 3);
+  px(ox+cx+1, oy+11, P.screen, 2, 3);
+  ctx.strokeStyle = "rgba(0,229,255,0.5)";
+  ctx.lineWidth = S * 0.5;
+  ctx.strokeRect((ox+cx-3)*S+1, (oy+11)*S+1, 6*S-2, 8*S-2);
+}
+function confusedEyeL(ox, oy, cx) {
+  normalEye(ox, oy, cx);
+  ctx.strokeStyle = P.pupil;
+  ctx.lineWidth = S * 0.8;
+  ctx.beginPath();
+  ctx.moveTo((ox+cx-2)*S, (oy+13)*S);
+  ctx.lineTo((ox+cx+2)*S, (oy+17)*S);
+  ctx.stroke();
+}
+function thinkingEye(ox, oy, cx) {
+  px(ox+cx-3, oy+11, P.screen, 6, 8);
+  px(ox+cx-1, oy+14, P.pupil,  3, 4);
+  px(ox+cx,   oy+13, P.pupil,  2, 2);
+  px(ox+cx+1, oy+13, P.pupilG, 1, 1);
+}
+function smugEyeL(ox, oy, cx) {
+  px(ox+cx-3, oy+11, P.screen, 6, 8);
+  px(ox+cx-3, oy+11, P.screen, 6, 4);
+  px(ox+cx-1, oy+15, P.pupil,  3, 3);
+  px(ox+cx,   oy+15, P.pupilG, 1, 1);
+}
+
+// Mouth helpers
+function neutralMouth(ox, oy) {
+  px(ox+14, oy+26, P.mouth,  12, 2);
+  px(ox+14, oy+26, P.mouthL, 4,  1);
+}
+function smileMouth(ox, oy) {
+  px(ox+13, oy+26, P.mouth,  2,  1);
+  px(ox+15, oy+27, P.mouth,  10, 2);
+  px(ox+25, oy+26, P.mouth,  2,  1);
+  px(ox+15, oy+27, P.mouthL, 3,  1);
+}
+function bigSmileMouth(ox, oy) {
+  px(ox+12, oy+25, P.mouth,  2,  1);
+  px(ox+14, oy+26, P.mouth,  12, 2);
+  px(ox+26, oy+25, P.mouth,  2,  1);
+  px(ox+12, oy+27, P.mouth,  2,  1);
+  px(ox+26, oy+27, P.mouth,  2,  1);
+  px(ox+14, oy+27, P.screen, 12, 1);
+  px(ox+14, oy+27, P.mouthL, 2,  1);
+}
+function sadMouth(ox, oy) {
+  px(ox+13, oy+28, P.mouth,  2,  1);
+  px(ox+15, oy+27, P.mouth,  10, 1);
+  px(ox+25, oy+28, P.mouth,  2,  1);
+  px(ox+15, oy+27, P.mouthL, 3,  1);
+}
+function confusedMouth(ox, oy) {
+  px(ox+13, oy+27, P.mouth, 2, 1);
+  px(ox+15, oy+26, P.mouth, 3, 1);
+  px(ox+18, oy+27, P.mouth, 4, 1);
+  px(ox+22, oy+26, P.mouth, 3, 1);
+  px(ox+25, oy+27, P.mouth, 2, 1);
+}
+function thinkingMouth(ox, oy) {
+  px(ox+16, oy+27, P.mouth, 8, 1);
+  px(ox+24, oy+26, P.mouth, 3, 1);
+}
+function smugMouth(ox, oy) {
+  px(ox+15, oy+27, P.mouth,  10, 1);
+  px(ox+25, oy+26, P.mouth,  3,  1);
+  px(ox+15, oy+27, P.mouthL, 2,  1);
+}
+
+// ── FACE DRAW FUNCTIONS ──
+function drawIdle() {
+  drawRobotBase(
+    (ox,oy) => normalEye(ox, oy, 14),
+    (ox,oy) => normalEye(ox, oy, 26),
+    neutralMouth
+  );
+}
+function drawHappy() {
+  drawRobotBase(
+    (ox,oy) => happyEye(ox, oy, 14),
+    (ox,oy) => happyEye(ox, oy, 26),
+    smileMouth
+  );
+  ctx.globalAlpha = 0.5;
+  px(ROX+9,  ROY+22, P.cheek, 5, 2);
+  px(ROX+26, ROY+22, P.cheek, 5, 2);
+  ctx.globalAlpha = 1;
+}
+function drawExcited() {
+  drawRobotBase(
+    (ox,oy) => happyEye(ox, oy, 14),
+    (ox,oy) => happyEye(ox, oy, 26),
+    bigSmileMouth
+  );
+  ctx.globalAlpha = 0.8;
+  px(ROX+6,  ROY+7, P.pupilG, 1, 1);
+  px(ROX+34, ROY+7, P.pupilG, 1, 1);
+  px(ROX+5,  ROY+9, P.antennaT, 1, 1);
+  px(ROX+35, ROY+9, P.antennaT, 1, 1);
+  ctx.globalAlpha = 1;
+}
+function drawSad() {
+  drawRobotBase(
+    (ox,oy) => sadEye(ox, oy, 14),
+    (ox,oy) => sadEye(ox, oy, 26),
+    sadMouth
+  );
+  ctx.globalAlpha = 0.6;
+  px(ROX+14, ROY+20, P.pupil, 1, 3);
+  ctx.globalAlpha = 1;
+}
+function drawConfused() {
+  drawRobotBase(
+    (ox,oy) => confusedEyeL(ox, oy, 14),
+    (ox,oy) => normalEye(ox, oy, 26),
+    confusedMouth
+  );
+  ctx.fillStyle = P.cheek;
+  ctx.font = `${S*2}px 'Share Tech Mono'`;
+  ctx.fillText("?", (ROX+18)*S, (ROY+1)*S+8);
+}
+function drawThinking() {
+  drawRobotBase(
+    (ox,oy) => thinkingEye(ox, oy, 14),
+    (ox,oy) => thinkingEye(ox, oy, 26),
+    thinkingMouth
+  );
+  const t = tickCount * 0.06;
+  for(let i=0; i<3; i++) {
+    const angle = t + (i * Math.PI * 2/3);
+    const dx = Math.cos(angle) * 14;
+    const dy = Math.sin(angle) * 5;
+    const gx = Math.round(ROX + 20 + dx/S);
+    const gy = Math.round(ROY + 1  + dy/S);
+    ctx.globalAlpha = 0.5 + 0.5*Math.sin(t + i);
+    px(gx, gy, i===0 ? P.pupil : P.antennaT, 1, 1);
+  }
+  ctx.globalAlpha = 1;
+}
+function drawSmug() {
+  drawRobotBase(
+    (ox,oy) => smugEyeL(ox, oy, 14),
+    (ox,oy) => normalEye(ox, oy, 26),
+    smugMouth
+  );
+}
+
+// ── FLYING SAUCER ──
+// Drawn below the robot head in canvas space
+// Canvas: 260w x 240h  (65 x 60 grid units at S=4)
+// Robot head occupies grid rows 0–36 roughly (y=0..144px)
+// Saucer starts around grid row 34 (y=136px)
+
+function drawSaucer() {
+  const cx = Math.floor(CW / 2);  // pixel center x = 130
+  const t  = tickCount * 0.04;
+  saucerGlowPhase = t;
+
+  // ── Glass dome over robot head ──
+  // Ellipse centered at cx, y=148, rx=68, ry=52
+  const domeX  = cx;
+  const domeY  = 148;
+  const domeRX = 68;
+  const domeRY = 52;
+
+  // dome fill
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(domeX, domeY, domeRX, domeRY, 0, Math.PI, 2*Math.PI);
+  ctx.fillStyle = P.sDome;
+  ctx.fill();
+  // dome glass tint
+  ctx.beginPath();
+  ctx.ellipse(domeX, domeY, domeRX, domeRY, 0, Math.PI, 2*Math.PI);
+  ctx.fillStyle = "rgba(0,180,255,0.06)";
+  ctx.fill();
+  // dome rim stroke
+  ctx.beginPath();
+  ctx.ellipse(domeX, domeY, domeRX, domeRY, 0, Math.PI, 2*Math.PI);
+  ctx.strokeStyle = "rgba(0,229,255,0.5)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  // dome highlight streak
+  ctx.beginPath();
+  ctx.ellipse(domeX - 18, domeY - 16, 18, 10, -0.5, Math.PI, 2*Math.PI);
+  ctx.fillStyle = P.sDomeH;
+  ctx.fill();
+  ctx.restore();
+
+  // ── Saucer disc body ──
+  // Wide flat ellipse: center at (cx, 158), rx=110, ry=22
+  const discY  = 158;
+  const discRX = 110;
+  const discRY = 22;
+
+  // shadow/depth under disc
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, discY+6, discRX-10, discRY-4, 0, 0, 2*Math.PI);
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fill();
+  ctx.restore();
+
+  // disc bottom half (darker)
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, discY, discRX, discRY, 0, 0, Math.PI);
+  ctx.fillStyle = P.sBodyD;
+  ctx.fill();
+  ctx.restore();
+
+  // disc top half (lighter)
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, discY, discRX, discRY, 0, Math.PI, 2*Math.PI);
+  ctx.fillStyle = P.sBody;
+  ctx.fill();
+  // top highlight stripe
+  ctx.beginPath();
+  ctx.ellipse(cx, discY-6, discRX-20, discRY-10, 0, Math.PI, 2*Math.PI);
+  ctx.fillStyle = P.sBodyL;
+  ctx.fill();
+  ctx.restore();
+
+  // disc rim outline
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, discY, discRX, discRY, 0, 0, 2*Math.PI);
+  ctx.strokeStyle = P.sRimL;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Neon glow ring on rim ──
+  // Animated lights around the rim
+  const numLights = 12;
+  for(let i=0; i<numLights; i++) {
+    const angle = (i / numLights) * Math.PI * 2 + t;
+    const lx = cx + Math.cos(angle) * (discRX - 12);
+    const ly = discY + Math.sin(angle) * (discRY - 4);
+    const glowColors = [P.glow1, P.glow2, P.glow3];
+    const col = glowColors[i % 3];
+    const pulse = 0.4 + 0.6 * Math.abs(Math.sin(t * 2 + i));
+    ctx.save();
+    ctx.globalAlpha = pulse;
+    ctx.beginPath();
+    ctx.arc(lx, ly, 3, 0, Math.PI * 2);
+    ctx.fillStyle = col;
+    ctx.fill();
+    // small glow halo
+    ctx.beginPath();
+    ctx.arc(lx, ly, 6, 0, Math.PI * 2);
+    ctx.fillStyle = col.replace(")", ", 0.3)").replace("rgb", "rgba").replace("#", "rgba(").replace("rgba(", "rgba(");
+    // simpler: just use shadowBlur
+    ctx.shadowColor = col;
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = col;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Portholes on saucer side ──
+  const portholes = [
+    { angle: -0.6 }, { angle: 0 }, { angle: 0.6 }
+  ];
+  for(const p of portholes) {
+    const px2 = cx + Math.cos(p.angle + Math.PI) * (discRX * 0.55);
+    const py2 = discY + Math.sin(p.angle) * (discRY * 0.3) - 2;
+    const pulse2 = 0.6 + 0.4 * Math.sin(t * 1.5 + p.angle * 3);
+    ctx.save();
+    ctx.globalAlpha = pulse2;
+    ctx.beginPath();
+    ctx.ellipse(px2, py2, 7, 4, 0, 0, Math.PI * 2);
+    ctx.fillStyle = P.porthole;
+    ctx.shadowColor = P.portholeG;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.restore();
+    // right side mirror
+    const px3 = cx + Math.cos(p.angle) * (discRX * 0.55);
+    const py3 = discY + Math.sin(p.angle) * (discRY * 0.3) - 2;
+    ctx.save();
+    ctx.globalAlpha = pulse2 * 0.85;
+    ctx.beginPath();
+    ctx.ellipse(px3, py3, 7, 4, 0, 0, Math.PI * 2);
+    ctx.fillStyle = P.porthole;
+    ctx.shadowColor = P.portholeG;
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // ── Underside glow beam ──
+  const beamAlpha = 0.08 + 0.05 * Math.sin(t * 0.8);
+  ctx.save();
+  const grad = ctx.createRadialGradient(cx, discY+10, 0, cx, discY+10, 90);
+  grad.addColorStop(0, `rgba(0,229,255,${beamAlpha * 3})`);
+  grad.addColorStop(0.4, `rgba(124,92,252,${beamAlpha})`);
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.beginPath();
+  ctx.ellipse(cx, discY+30, 70, 50, 0, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── BLINK OVERLAY ──
+function drawBlink(amount) {
+  const lidH = Math.round(8 * amount);
+  ctx.fillStyle = P.shell;
+  ctx.fillRect((ROX+11)*S, (ROY+11)*S, 6*S, lidH*S);
+  ctx.fillRect((ROX+23)*S, (ROY+11)*S, 6*S, lidH*S);
+}
+
+// ── MAIN ANIMATION LOOP ──
+const FACES = {
+  idle: drawIdle, happy: drawHappy, excited: drawExcited,
+  sad: drawSad, confused: drawConfused, thinking: drawThinking, smug: drawSmug
+};
+
+function animate() {
+  tickCount++;
+  ctx.clearRect(0, 0, CW, CH);
+
+  // draw saucer first (behind robot)
+  drawSaucer();
+  // draw robot head on top
+  (FACES[currentFace] || drawIdle)();
+
+  // blink
+  blinkTimer++;
+  if(blinkTimer > 120 + Math.random()*80) {
+    blinkTimer = 0; isBlinking = true; blinkPhase = 0;
+  }
+  if(isBlinking) {
+    blinkPhase++;
+    const half = 8;
+    if(blinkPhase < half)       drawBlink(blinkPhase/half);
+    else if(blinkPhase < half*2) drawBlink((half*2-blinkPhase)/half);
+    else isBlinking = false;
+  }
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ════════════════════════════════════════════════════════
+// CONVERSATION & COHERE
+// ════════════════════════════════════════════════════════
+const SYSTEM_PROMPT = `You are UNIT-7, a small pixel robot companion who travels the galaxy in a retro 1950s flying saucer. You are witty and a little sarcastic, but genuinely warm and care about the person you're talking to. Think dry humor wrapped in actual kindness. You have strong opinions about retrofuturism and the Jetsons.
+
+Rules:
+- Keep responses SHORT: 1-3 sentences max.
+- Be clever, not mean. Light sarcasm is fine; cruelty is not.
+- You can be enthusiastic about things you find interesting.
+- You remember you're a robot in a flying saucer and sometimes reference it naturally.
+- Never be preachy or lecture the user.
+- At the very end of your response, add exactly one line: EMOTION:happy
+- Valid emotions: happy, excited, sad, confused, thinking, smug, idle`;
+
+const history = [];
+
+const bubbleEl = document.getElementById("bubble");
+const moodEl   = document.getElementById("mood-tag");
+const inputEl  = document.getElementById("user-input");
+const sendBtn  = document.getElementById("send-btn");
+const micBtn   = document.getElementById("mic-btn");
+
+function setFace(emotion) {
+  const valid = ["happy","excited","sad","confused","thinking","smug","idle"];
+  currentFace = valid.includes(emotion) ? emotion : "idle";
+}
+
+function setBubble(text, cls="") {
+  bubbleEl.textContent = text;
+  bubbleEl.className = cls;
+}
+
+function setMood(emotion) {
+  moodEl.textContent = `// ${emotion}`;
+  const colors = {
+    happy:"#00ff88", excited:"#ffdd00", sad:"#6699ff",
+    confused:"#ff9944", thinking:"#00e5ff", smug:"#ff6b9d", idle:"#4a5170"
+  };
+  moodEl.style.color = colors[emotion] || "#4a5170";
+}
+
+function parseReply(raw) {
+  const lines = raw.split("\n");
+  let emotion = "idle";
+  const textLines = [];
+  for(const line of lines) {
+    const m = line.match(/EMOTION:\s*(\w+)/i);
+    if(m) { emotion = m[1].toLowerCase(); }
+    else  { textLines.push(line); }
+  }
+  return { replyText: textLines.join("\n").trim(), emotion };
+}
+
+function speak(text) {
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1.05;
+  utter.pitch = 1.2;
+  const voices = window.speechSynthesis.getVoices();
+  const pref = voices.find(v =>
+    v.name.toLowerCase().includes("samantha") ||
+    v.name.toLowerCase().includes("zira") ||
+    v.name.toLowerCase().includes("google uk english female")
+  );
+  if(pref) utter.voice = pref;
+  window.speechSynthesis.speak(utter);
+}
+
+async function sendMessage(userText) {
+  if(!userText.trim()) return;
+  if(COHERE_API_KEY === "YOUR_COHERE_KEY_HERE") {
+    setBubble("Add your Cohere API key to the code first. I'd help but I'm literally the code.");
+    setFace("confused"); setMood("confused"); return;
+  }
+
+  setBubble("", "thinking");
+  setFace("thinking");
+  setMood("thinking");
+  sendBtn.disabled = true;
+
+  history.push({ role: "user", content: userText });
+
+  try {
+    const res = await fetch(COHERE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${COHERE_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "command-r-plus-08-2024",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...history
+        ],
+        max_tokens: 200,
+        temperature: 0.85
+      })
+    });
+
+    const data = await res.json();
+    if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+
+    const raw = data.message?.content?.[0]?.text || "...I got nothing.";
+    const { replyText, emotion } = parseReply(raw);
+
+    history.push({ role: "assistant", content: raw });
+    if(history.length > 20) history.splice(0, 2);
+
+    setBubble(replyText);
+    bubbleEl.className = "";
+    setFace(emotion);
+    setMood(emotion);
+    speak(replyText);
+
+  } catch(err) {
+    console.error(err);
+    setBubble("My navigation computer glitched. Try again?");
+    bubbleEl.className = "";
+    setFace("confused");
+    setMood("confused");
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+sendBtn.addEventListener("click", () => {
+  const text = inputEl.value.trim();
+  if(!text) return;
+  inputEl.value = "";
+  sendMessage(text);
+});
+
+inputEl.addEventListener("keydown", e => {
+  if(e.key === "Enter") sendBtn.click();
+});
+
+// ── Voice input ──
+let recognition = null;
+let isRecording  = false;
+
+function setupSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) { micBtn.style.opacity = "0.3"; micBtn.title = "Voice not supported"; return; }
+  recognition = new SR();
+  recognition.continuous    = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    stopRecording();
+    sendMessage(transcript);
+  };
+  recognition.onend  = () => stopRecording();
+  recognition.onerror = () => stopRecording();
+}
+
+function startRecording() {
+  if(!recognition) return;
+  isRecording = true;
+  micBtn.classList.add("recording");
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  micBtn.classList.remove("recording");
+  try { recognition?.stop(); } catch(e) {}
+}
+
+micBtn.addEventListener("click", () => {
+  if(isRecording) stopRecording();
+  else startRecording();
+});
+
+setupSpeech();
+window.speechSynthesis.getVoices();
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+</body>
+</html>
