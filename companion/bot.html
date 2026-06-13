@@ -651,8 +651,7 @@ async function sendMessage(userText) {
 
     const data = await res.json();
 
-    console.log("Cohere raw:", JSON.stringify(data));
-if(data.message && typeof data.message === "string") throw new Error(data.message);
+   if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
 
     const raw = data.message?.content?.[0]?.text || "...I got nothing.";
     const { replyText, emotion } = parseReply(raw);
