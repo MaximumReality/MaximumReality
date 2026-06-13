@@ -678,6 +678,15 @@ console.log("raw text:", raw);
   }
 }
 
+
+  console.log("replyText:", replyText);
+setBubble(replyText);
+bubbleEl.className = "";
+setFace(emotion);
+setMood(emotion);
+speak(replyText);
+
+
 sendBtn.addEventListener("click", () => {
   const text = inputEl.value.trim();
   if(!text) return;
