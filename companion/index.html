@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>UNIT-7 // Companion</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #050810;
+    --surface: #0b0f1e;
+    --panel: #0f1628;
+    --accent: #7c5cfc;
+    --accent2: #00e5ff;
+    --accent3: #ff6b9d;
+    --text: #c8d0e8;
+    --muted: #4a5170;
+    --glow: rgba(124, 92, 252, 0.4);
+    --glow2: rgba(0, 229, 255, 0.3);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    overflow: hidden;
+  }
+
+  #app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+    gap: 20px;
+    position: relative;
+  }
+
+  /* Subtle grid background */
+  #app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Header ── */
+  #header {
+    text-align: center;
+    z-index: 1;
+  }
+
+  #unit-label {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  #unit-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent2);
+    text-shadow: 0 0 20px var(--glow2), 0 0 40px var(--glow2);
+    letter-spacing: 2px;
+  }
+
+  /* ── Face canvas ── */
+  #face-wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  #face-canvas {
+    display: block;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 18px var(--glow)) drop-shadow(0 0 40px rgba(0,229,255,0.2));
+  }
+
+  #status-dot {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 8px #00ff88;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  /* ── Speech bubble ── */
+  #bubble-wrap {
+    width: 100%;
+    max-width: 340px;
+    z-index: 1;
+    min-height: 80px;
+  }
+
+  #bubble {
+    background: var(--panel);
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 16px 16px 16px 4px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+    transition: border-color 0.3s;
+    min-height: 56px;
+    word-break: break-word;
+  }
+
+  #bubble.thinking {
+    border-color: rgba(0,229,255,0.4);
+  }
+
+  #bubble.thinking::after {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 14px;
+    background: var(--accent2);
+    margin-left: 4px;
+    animation: blink-cursor 0.7s step-end infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes blink-cursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  #mood-tag {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-align: right;
+    text-transform: uppercase;
+    min-height: 14px;
+    transition: color 0.4s;
+  }
+
+  /* ── Input area ── */
+  #input-area {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    gap: 10px;
+    z-index: 1;
+    align-items: center;
+  }
+
+  #user-input {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--muted);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    caret-color: var(--accent2);
+  }
+
+  #user-input::placeholder { color: var(--muted); }
+
+  #user-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--glow);
+  }
+
+  #mic-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  #mic-btn:active, #mic-btn.recording {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 20px var(--glow);
+  }
+
+  #mic-btn.recording::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    animation: sonar 1s ease-out infinite;
+  }
+
+  @keyframes sonar {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+
+  #send-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    box-shadow: 0 0 12px var(--glow);
+  }
+
+  #send-btn:active { transform: scale(0.92); }
+
+  #send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ── Footer ── */
+  #footer {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-align: center;
+    z-index: 1;
+    opacity: 0.5;
+  }
+
+  /* ── Scanlines overlay ── */
+  #scanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    );
+  }
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+
+<div id="app">
+  <div id="header">
+    <div id="unit-label">companion unit</div>
+    <div id="unit-name">UNIT-7</div>
+  </div>
+
+  <div id="face-wrap">
+    <canvas id="face-canvas" width="160" height="160"></canvas>
+    <div id="status-dot"></div>
+  </div>
+
+  <div id="bubble-wrap">
+    <div id="bubble">Hey. You activated me. Bold choice. I'll try not to judge.</div>
+    <div id="mood-tag">// idle</div>
+  </div>
+
+  <div id="input-area">
+    <input id="user-input" type="text" placeholder="type something…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button id="mic-btn" title="Hold to speak">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" y1="19" x2="12" y2="23"/>
+        <line x1="8" y1="23" x2="16" y2="23"/>
+      </svg>
+    </button>
+    <button id="send-btn" title="Send">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="footer">MAXIMUM REALITY // UNIT-7 v1.0</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// CONFIG — AQ.Ab8RN6I0eQo-kS1w3vOVU18N8lpIru29-Hu_rBdyTKK43hBEEg
+// ════════════════════════════════════════════════════════
+const GEMINI_API_KEY = "AQ.Ab8RN6I0eQo-kS1w3vOVU18N8lpIru29-Hu_rBdyTKK43hBEEg";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AQ.Ab8RN6I0eQo-kS1w3vOVU18N8lpIru29-Hu_rBdyTKK43hBEEg}`;
+
+// ════════════════════════════════════════════════════════
+// PIXEL ROBOT FACE RENDERER
+// ════════════════════════════════════════════════════════
+const canvas = document.getElementById("face-canvas");
+const ctx = canvas.getContext("2d");
+const W = canvas.width;   // 160
+const H = canvas.height;  // 160
+const SCALE = 4;          // each "pixel" = 4×4 real pixels
+const COLS = W / SCALE;   // 40
+const ROWS = H / SCALE;   // 40
+
+// Palette
+const P = {
+  bg:       null,           // transparent
+  shell:    "#1a2040",      // dark blue-grey body
+  shellL:   "#232d55",      // lighter shell highlight
+  shellD:   "#0e1428",      // shadow
+  screen:   "#001824",      // visor dark
+  screenG:  "#003344",      // visor glow base
+  pupil:    "#00e5ff",      // cyan eyes
+  pupilG:   "#7fffff",      // eye glow
+  cheek:    "#ff6b9d",      // pink cheek blush
+  mouth:    "#7c5cfc",      // purple accent for mouth
+  mouthL:   "#a98cff",
+  accent:   "#7c5cfc",      // antenna tip
+  antenna:  "#4a5580",
+  ear:      "#141a35",
+  earIn:    "#00e5ff",
+  chrome:   "#3a4570",
+  white:    "#e0e8ff",
+  off:      "#1c2240",
+};
+
+// Face states: each returns a drawing function
+const FACES = {
+  idle:     drawIdle,
+  happy:    drawHappy,
+  excited:  drawExcited,
+  sad:      drawSad,
+  confused: drawConfused,
+  thinking: drawThinking,
+  smug:     drawSmug,
+};
+
+let currentFace = "idle";
+let blinkTimer = 0;
+let isBlinking = false;
+let animFrame;
+let tickCount = 0;
+
+function px(gx, gy, color, w=1, h=1) {
+  if (!color) return;
+  ctx.fillStyle = color;
+  ctx.fillRect(gx * SCALE, gy * SCALE, w * SCALE, h * SCALE);
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, W, H);
+}
+
+// ── Robot head base (shared) ──
+function drawBase(eyeL_fn, eyeR_fn, mouthRow, options={}) {
+  clearCanvas();
+
+  // Outer head
+  px(6,4, P.shell, 28,26);
+  // Top rounding
+  px(8,3, P.shell, 24,2);
+  px(10,2, P.shell, 20,2);
+  // Bottom
+  px(7,29, P.shell, 26,3);
+  // Neck
+  px(14,32, P.shell, 12,4);
+
+  // Shell highlights (left edge)
+  px(6,4, P.shellL, 2,24);
+  px(8,3, P.shellL, 2,2);
+  // Shell shadow (right edge)
+  px(32,4, P.shellD, 2,24);
+
+  // Ear left
+  px(3,12, P.ear, 4,10);
+  px(4,13, P.earIn, 2,1);
+  px(4,16, P.earIn, 2,1);
+  // Ear right
+  px(33,12, P.ear, 4,10);
+  px(33,13, P.earIn, 2,1);
+  px(33,16, P.earIn, 2,1);
+
+  // Antenna
+  px(19,0, P.antenna, 2,4);
+  px(18,0, P.accent, 4,2);  // tip glow
+
+  // Visor band across upper face
+  px(8,8, P.screen, 24,16);
+  px(9,7, P.screenG, 22,2);
+  px(9,23, P.screenG, 22,2);
+
+  // Visor scan-line shimmer
+  for(let r=9; r<24; r+=3) px(9, r, "rgba(0,229,255,0.05)", 22,1);
+
+  // Draw eyes
+  if(eyeL_fn) eyeL_fn();
+  if(eyeR_fn) eyeR_fn();
+
+  // Cheek blush
+  if(!options.noCheek) {
+    ctx.globalAlpha = 0.35;
+    px(9,22, P.cheek, 4,2);
+    px(27,22, P.cheek, 4,2);
+    ctx.globalAlpha = 1;
+  }
+
+  // Mouth
+  if(mouthRow) mouthRow();
+
+  // Bottom panel lines (detail)
+  px(10,30, P.chrome, 20,1);
+  px(12,31, P.chrome, 16,1);
+}
+
+// ── Eye helpers ──
+function normalEye(cx) {
+  // Lens
+  px(cx-3, 11, P.screen, 6,8);
+  // Pupil
+  px(cx-1, 13, P.pupil, 3,4);
+  // Glow top
+  px(cx, 13, P.pupilG, 1,1);
+  // Frame
+  ctx.strokeStyle = P.pupil;
+  ctx.lineWidth = SCALE * 0.5;
+  ctx.strokeRect((cx-3)*SCALE+1, 11*SCALE+1, 6*SCALE-2, 8*SCALE-2);
+}
+
+function happyEye(cx) {
+  // Arc / squint
+  px(cx-3, 14, P.pupil, 6,3);
+  px(cx-2, 13, P.pupil, 4,1);
+  // Lid covers top
+  px(cx-3, 11, P.screen, 6,3);
+  px(cx-2, 14, P.screen, 1,1);
+  px(cx+2, 14, P.screen, 1,1);
+  // glow
+  px(cx-1, 14, P.pupilG, 1,1);
+}
+
+function sadEye(cx) {
+  px(cx-3, 11, P.screen, 6,8);
+  px(cx-1, 14, P.pupil, 3,3);
+  // droopy lid
+  px(cx-3, 11, P.screen, 2,3);
+  px(cx+1, 11, P.screen, 2,3);
+  ctx.strokeStyle = "rgba(0,229,255,0.5)";
+  ctx.lineWidth = SCALE * 0.5;
+  ctx.strokeRect((cx-3)*SCALE+1, 11*SCALE+1, 6*SCALE-2, 8*SCALE-2);
+}
+
+function confusedEyeL(cx) {
+  // One normal, one squint
+  normalEye(cx);
+  // override with tilted slash
+  ctx.strokeStyle = P.pupil;
+  ctx.lineWidth = SCALE * 0.8;
+  ctx.beginPath();
+  ctx.moveTo((cx-2)*SCALE, 13*SCALE);
+  ctx.lineTo((cx+2)*SCALE, 17*SCALE);
+  ctx.stroke();
+}
+
+function thinkingEye(cx) {
+  px(cx-3, 11, P.screen, 6,8);
+  px(cx-1, 14, P.pupil, 3,4);
+  // Looking up-right
+  px(cx, 13, P.pupil, 2,2);
+  px(cx+1, 13, P.pupilG, 1,1);
+}
+
+function smugEyeL(cx) {
+  // Half-closed left
+  px(cx-3, 11, P.screen, 6,8);
+  px(cx-3, 11, P.screen, 6,4);  // lid
+  px(cx-1, 15, P.pupil, 3,3);
+  px(cx, 15, P.pupilG, 1,1);
+}
+
+// ── Mouth helpers ──
+function neutralMouth() {
+  px(14,26, P.mouth, 12,2);
+  px(14,26, P.mouthL, 4,1);
+}
+
+function smileMouth() {
+  // Curved smile
+  px(13,26, P.mouth, 2,1);
+  px(15,27, P.mouth, 10,2);
+  px(25,26, P.mouth, 2,1);
+  px(15,27, P.mouthL, 3,1);
+}
+
+function bigSmileMouth() {
+  px(12,25, P.mouth, 2,1);
+  px(14,26, P.mouth, 12,2);
+  px(26,25, P.mouth, 2,1);
+  px(12,27, P.mouth, 2,1);
+  px(26,27, P.mouth, 2,1);
+  px(14,27, P.screen, 12,1);
+  px(14,27, P.mouthL, 2,1);
+}
+
+function sadMouth() {
+  px(13,28, P.mouth, 2,1);
+  px(15,27, P.mouth, 10,1);
+  px(25,28, P.mouth, 2,1);
+  px(15,27, P.mouthL, 3,1);
+}
+
+function confusedMouth() {
+  // Wavy
+  px(13,27, P.mouth, 2,1);
+  px(15,26, P.mouth, 3,1);
+  px(18,27, P.mouth, 4,1);
+  px(22,26, P.mouth, 3,1);
+  px(25,27, P.mouth, 2,1);
+}
+
+function thinkingMouth() {
+  // Off-center
+  px(16,27, P.mouth, 8,1);
+  px(24,26, P.mouth, 3,1);
+}
+
+function smugMouth() {
+  px(15,27, P.mouth, 10,1);
+  px(25,26, P.mouth, 3,1);
+  px(15,27, P.mouthL, 2,1);
+}
+
+// ── Face draw functions ──
+function drawIdle() {
+  drawBase(
+    () => normalEye(14),
+    () => normalEye(26),
+    neutralMouth
+  );
+}
+
+function drawHappy() {
+  drawBase(
+    () => happyEye(14),
+    () => happyEye(26),
+    smileMouth
+  );
+  // Cheek blush stronger
+  ctx.globalAlpha = 0.5;
+  px(9,22, P.cheek, 5,2);
+  px(26,22, P.cheek, 5,2);
+  ctx.globalAlpha = 1;
+}
+
+function drawExcited() {
+  drawBase(
+    () => happyEye(14),
+    () => happyEye(26),
+    bigSmileMouth
+  );
+  // Star sparkles
+  ctx.globalAlpha = 0.7;
+  px(6,7, P.pupilG, 1,1);
+  px(34,7, P.pupilG, 1,1);
+  px(5,9, P.accent, 1,1);
+  px(35,9, P.accent, 1,1);
+  ctx.globalAlpha = 1;
+}
+
+function drawSad() {
+  drawBase(
+    () => sadEye(14),
+    () => sadEye(26),
+    sadMouth
+  );
+  // Tear
+  ctx.globalAlpha = 0.6;
+  px(14,20, P.pupil, 1,3);
+  ctx.globalAlpha = 1;
+}
+
+function drawConfused() {
+  drawBase(
+    () => confusedEyeL(14),
+    () => normalEye(26),
+    confusedMouth
+  );
+  // Question mark antenna tip
+  ctx.fillStyle = P.cheek;
+  ctx.font = `${SCALE*2}px 'Share Tech Mono'`;
+  ctx.fillText("?", 18*SCALE, 1*SCALE+8);
+}
+
+function drawThinking() {
+  drawBase(
+    () => thinkingEye(14),
+    () => thinkingEye(26),
+    thinkingMouth
+  );
+  // Spinning dots above head
+  const t = tickCount * 0.06;
+  for(let i=0; i<3; i++) {
+    const angle = t + (i * Math.PI * 2/3);
+    const dx = Math.cos(angle) * 14;
+    const dy = Math.sin(angle) * 5;
+    const gx = Math.round((20 + dx/SCALE));
+    const gy = Math.round((1 + dy/SCALE));
+    ctx.globalAlpha = 0.5 + 0.5*Math.sin(t + i);
+    px(gx, gy, i===0 ? P.accent2 : P.accent, 1,1);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawSmug() {
+  drawBase(
+    () => smugEyeL(14),
+    () => normalEye(26),
+    smugMouth
+  );
+}
+
+// ── Blink overlay ──
+function drawBlink(amount) {
+  // amount 0..1, 1 = fully closed
+  const lidH = Math.round(8 * amount);
+  // Left eye lid
+  ctx.fillStyle = P.shell;
+  ctx.fillRect(11*SCALE, 11*SCALE, 6*SCALE, lidH*SCALE);
+  // Right eye lid
+  ctx.fillRect(23*SCALE, 11*SCALE, 6*SCALE, lidH*SCALE);
+}
+
+// ── Animation loop ──
+let blinkPhase = 0;
+let blinkOpen = true;
+
+function animate() {
+  tickCount++;
+  const face = FACES[currentFace] || drawIdle;
+  face();
+
+  // Blink logic
+  blinkTimer++;
+  if(blinkTimer > 120 + Math.random()*60) {
+    blinkTimer = 0;
+    isBlinking = true;
+    blinkPhase = 0;
+  }
+
+  if(isBlinking) {
+    blinkPhase++;
+    const half = 8;
+    if(blinkPhase < half) drawBlink(blinkPhase/half);
+    else if(blinkPhase < half*2) drawBlink((half*2-blinkPhase)/half);
+    else isBlinking = false;
+  }
+
+  animFrame = requestAnimationFrame(animate);
+}
+
+animate();
+
+// ════════════════════════════════════════════════════════
+// CONVERSATION & GEMINI
+// ════════════════════════════════════════════════════════
+const SYSTEM_PROMPT = `You are UNIT-7, a small pixel robot companion. You are witty and a little sarcastic, but genuinely warm and care about the person you're talking to. Think of it as dry humor wrapped in actual kindness.
+
+Rules:
+- Keep responses SHORT: 1–3 sentences max.
+- Be clever, not mean. Light sarcasm is fine; cruelty is not.
+- You can be enthusiastic about things you find interesting.
+- You remember you're a robot and sometimes comment on that in a self-aware way.
+- Never be preachy or lecture the user.
+- At the very end of your response, add one line like: EMOTION:happy
+- Valid emotions: happy, excited, sad, confused, thinking, smug, idle
+
+Example:
+User: I burned my toast again.
+UNIT-7: Impressive. Most people burn it once and learn. You're committed to the bit. EMOTION:smug`;
+
+const history = [];
+
+const bubbleEl = document.getElementById("bubble");
+const moodEl   = document.getElementById("mood-tag");
+const inputEl  = document.getElementById("user-input");
+const sendBtn  = document.getElementById("send-btn");
+const micBtn   = document.getElementById("mic-btn");
+
+function setFace(emotion) {
+  const valid = ["happy","excited","sad","confused","thinking","smug","idle"];
+  currentFace = valid.includes(emotion) ? emotion : "idle";
+}
+
+function setBubble(text, cls="") {
+  bubbleEl.textContent = text;
+  bubbleEl.className = cls;
+}
+
+function setMood(emotion) {
+  moodEl.textContent = `// ${emotion}`;
+  const colors = {
+    happy:"#00ff88", excited:"#ffdd00", sad:"#6699ff",
+    confused:"#ff9944", thinking:"#00e5ff", smug:"#ff6b9d", idle:"#4a5170"
+  };
+  moodEl.style.color = colors[emotion] || "#4a5170";
+}
+
+function parseReply(raw) {
+  const lines = raw.split("\n");
+  let emotion = "idle";
+  let textLines = [];
+  for(const line of lines) {
+    const m = line.match(/EMOTION:\s*(\w+)/i);
+    if(m) { emotion = m[1].toLowerCase(); }
+    else   { textLines.push(line); }
+  }
+  return { replyText: textLines.join("\n").trim(), emotion };
+}
+
+function speak(text) {
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1.05;
+  utter.pitch = 1.2;
+  // Prefer a higher-pitched voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const pref = voices.find(v => v.name.toLowerCase().includes("samantha") ||
+                                v.name.toLowerCase().includes("zira") ||
+                                v.name.toLowerCase().includes("google uk english female"));
+  if(pref) utter.voice = pref;
+  window.speechSynthesis.speak(utter);
+}
+
+async function sendMessage(userText) {
+  if(!userText.trim()) return;
+  if(GEMINI_API_KEY === "YOUR_NEW_API_KEY_HERE") {
+    setBubble("Hey — you need to put your API key in the code first. I'd help but I'm literally running inside it.");
+    setFace("confused"); setMood("confused"); return;
+  }
+
+  setBubble("", "thinking");
+  setFace("thinking");
+  setMood("thinking");
+  sendBtn.disabled = true;
+
+  history.push({ role:"user", parts:[{ text: userText }] });
+
+  try {
+    const res = await fetch(GEMINI_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: history,
+        generationConfig: { maxOutputTokens: 200, temperature: 0.85 }
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.error) throw new Error(data.error.message);
+
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "…I got nothing.";
+    const { replyText, emotion } = parseReply(raw);
+
+    history.push({ role:"model", parts:[{ text: raw }] });
+    // Keep history from growing too long
+    if(history.length > 20) history.splice(0, 2);
+
+    setBubble(replyText);
+    bubbleEl.className = "";
+    setFace(emotion);
+    setMood(emotion);
+    speak(replyText);
+
+  } catch(err) {
+    console.error(err);
+    const msg = err.message?.includes("API_KEY") ?
+      "Your API key isn't working. Check it and update the code." :
+      "My brain glitched. Try again?";
+    setBubble(msg);
+    bubbleEl.className = "";
+    setFace("confused");
+    setMood("confused");
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+// ── Send button ──
+sendBtn.addEventListener("click", () => {
+  const text = inputEl.value.trim();
+  if(!text) return;
+  inputEl.value = "";
+  sendMessage(text);
+});
+
+inputEl.addEventListener("keydown", e => {
+  if(e.key === "Enter") sendBtn.click();
+});
+
+// ── Mic / Voice input ──
+let recognition = null;
+let isRecording = false;
+
+function setupSpeech() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR) {
+    micBtn.title = "Voice not supported on this browser";
+    micBtn.style.opacity = "0.3";
+    return;
+  }
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
+
+  recognition.onresult = (e) => {
+    const transcript = e.results[0][0].transcript;
+    inputEl.value = transcript;
+    stopRecording();
+    sendMessage(transcript);
+    inputEl.value = "";
+  };
+
+  recognition.onend = () => stopRecording();
+  recognition.onerror = () => stopRecording();
+}
+
+function startRecording() {
+  if(!recognition) return;
+  isRecording = true;
+  micBtn.classList.add("recording");
+  recognition.start();
+}
+
+function stopRecording() {
+  isRecording = false;
+  micBtn.classList.remove("recording");
+  try { recognition?.stop(); } catch(e) {}
+}
+
+micBtn.addEventListener("click", () => {
+  if(isRecording) stopRecording();
+  else startRecording();
+});
+
+setupSpeech();
+// Pre-load voices
+window.speechSynthesis.getVoices();
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+</body>
+</html>
