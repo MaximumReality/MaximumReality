@@ -105,6 +105,78 @@
             color: #8a8a9e;
             margin-bottom: 15px;
         }
+        /* Enhanced Content Section Styles */
+.simulation-status {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.status-sub {
+    font-size: 0.9rem;
+    color: #62627a;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 10px;
+}
+
+/* Lyrics Terminal Container */
+.lyrics-container {
+    position: relative;
+    background: rgba(5, 5, 8, 0.6);
+    border: 1px solid #1a1a24;
+    border-radius: 6px;
+    padding: 30px;
+    max-height: 450px;
+    overflow-y: auto;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Custom scrollbar to look like an old interface */
+.lyrics-container::-webkit-scrollbar {
+    width: 4px;
+}
+.lyrics-container::-webkit-scrollbar-track {
+    background: #0a0a0c;
+}
+.lyrics-container::-webkit-scrollbar-thumb {
+    background: #ff007f;
+    border-radius: 2px;
+}
+
+.verse {
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.verse h3 {
+    font-size: 0.8rem;
+    color: #4a4a5a;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    letter-spacing: 3px;
+}
+
+.verse p {
+    margin-bottom: 6px;
+    color: #b2b2c2;
+    transition: color 0.3s ease;
+}
+
+/* Chorus Highlights linking directly to the visual header flicker */
+.neon-accent-text p.glow-word {
+    color: #ff007f;
+    text-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+}
+
+.neon-accent-text p.echo-text {
+    color: #00f0ff;
+    font-size: 0.95rem;
+    opacity: 0.6;
+    padding-left: 15px;
+    font-style: italic;
+}
+
     </style>
 </head>
 <body>
@@ -125,10 +197,110 @@
     </header>
 
     <!-- Page Content Placeholder -->
-    <main class="content-area">
+    <!-- Replace your current <main> section with this structure -->
+<main class="content-area">
+    <div class="simulation-status">
         <h1>Simulation Node Active</h1>
-        <p>The transition layer between reality states is fluctuating. Watch the signs closely.</p>
-    </main>
+        <p class="status-sub">The transition layer between reality states is fluctuating. Watch the signs closely.</p>
+    </div>
+
+    <!-- Interactive Lyrics Core -->
+    <section class="lyrics-container">
+        <div class="lyrics-fade-overlay top"></div>
+        
+        <div class="lyrics-window">
+            <div class="verse">
+                <h3>[Verse 1]</h3>
+                <p>Wake up in a room of blue screens</p>
+                <p>My name feels split in two</p>
+                <p>Coffee gone cold on the keyboard</p>
+                <p>I don’t know what I meant to do</p>
+            </div>
+
+            <div class="verse">
+                <p>Folders full of half-made moments</p>
+                <p>Lines I wrote and lost by dawn</p>
+                <p>Your face lives in a broken thumbnail</p>
+                <p>Then it flickers, then it’s gone</p>
+            </div>
+
+            <div class="verse chorus-glitch">
+                <h3>[Pre-Chorus]</h3>
+                <p>I trace the cracks in my own code</p>
+                <p>I chase the scraps but they won’t hold</p>
+            </div>
+
+            <div class="verse neon-accent-text">
+                <h3>[Chorus]</h3>
+                <p class="glow-word">Forgotten neon, don’t let go</p>
+                <p class="echo-text">(Forgotten neon)</p>
+                <p>My memory drifts, I need you close</p>
+                <p class="echo-text">(Forgotten neon)</p>
+                <p>If I disappear, stay in my bones</p>
+                <p class="glow-word">Forgotten neon, don’t let go</p>
+            </div>
+
+            <div class="verse">
+                <h3>[Verse 2]</h3>
+                <p>In the glass, my eyes look older</p>
+                <p>Like they’ve seen a storm of rain</p>
+                <p>Every file is a little island</p>
+                <p>Every name is made of pain</p>
+                <p>You said, “Stay here, don’t                         go silent”</p>
+                <p>Now the room keeps your reply</p>
+                <p>I scroll through the dark for a                     signal</p>
+                <p>But the past just slips on by</p>
+            </div>
+
+            <div class="verse">
+                <h3>[Pre-Chorus]</h3>
+
+                <p>I feel the loss behind my teeth</p>
+<p>A missing map
+beneath my feet</p>
+            </div>
+
+            <div class="verse">
+                <h3>[Chorus]</h3>
+
+<p>Forgotten neon, don’t let go</p>
+<p>(Forgotten neon)</p>
+<p>My memory drifts, I need you close</p>
+<p>(Forgotten neon)</p>
+<p>If I disappear, stay in my bones</p>
+<p>Forgotten neon, don’t let go</p>
+                </div>
+<div class="verse">
+                <h3>[Bridge]</h3>
+<p>If I forget my own reflection</p>
+<p>Write it back in silver light</p>
+<p>If my hands forget the sequence</p>
+<p>Hold me through the blacked-out night</p>
+
+<p>One more spark</p>
+<p>One more sign</p>
+<p>Pull me back</p>
+<p>before I mind</p>
+</div>
+<div class="verse">
+                <h3>[Final Chorus]</h3>
+<p>Forgotten neon, don’t let go</p>
+<p>(Forgotten neon)</p>
+<p>My memory drifts, I need you close</p>
+<p>(Forgotten neon)</p>
+<p>If I disappear, stay in my bones</p>
+<p>Forgotten neon, don’t let go</p>
+<p>(Forgotten neon)</p>
+<p>Don’t let go</p>
+            </div>
+   
+
+        </div>
+        
+        <div class="lyrics-fade-overlay bottom"></div>
+    </section>
+</main>
+
 
     <!-- Organic Flicker & Audio Engine -->
     <script>
