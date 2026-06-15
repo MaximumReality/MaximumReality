@@ -1,1 +1,146 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maximum Reality // Neon Simulation</title>
+    <style>
+        /* Reset and Base Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a0c;
+            color: #e2e2e9;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: hidden;
+        }
+
+        /* Header Image Stack Container */
+        .flicker-header {
+            position: relative;
+            width: 100%;
+            height: 60vh; /* Adjust height as preferred (e.g., 50vh, 100vh) */
+            background-color: #000;
+            overflow: hidden;
+            border-bottom: 2px solid #1a1a24;
+        }
+
+        /* Shared image formatting to guarantee perfect alignment */
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* The Dark Frame (Base Layer) */
+        .base-lightless {
+            z-index: 1;
+        }
+
+        /* The Neon Frame (Top Layer) */
+        .neon-glow {
+            z-index: 2;
+            opacity: 0;
+            /* Ultra-fast transition mimics the physical snap of a gas tube firing */
+            transition: opacity 0.015s ease-in-out; 
+            filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.3));
+        }
+
+        /* State triggered by the JS engine */
+        .neon-glow.active {
+            opacity: 1;
+        }
+
+        /* Demo Content Section */
+        .content-area {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+            color: #ff007f;
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.5);
+        }
+
+        p {
+            color: #8a8a9e;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Component -->
+    <header class="flicker-header">
+        <!-- Lights Off Frame -->
+        <img src="IMG/IMG_0172.jpeg" alt="Dreamcore Base Scene" class="header-bg base-lightless">
+        
+        <!-- Lights On Frame -->
+        <img src="IMG/IMG_0173.jpeg" alt="Dreamcore Neon Active" class="header-bg neon-glow" id="neonLayer">
+    </header>
+
+    <!-- Page Content Placeholder -->
+    <main class="content-area">
+        <h1>Simulation Node Active</h1>
+        <p>The transition layer between reality states is fluctuating. Watch the signs closely.</p>
+    </main>
+
+    <!-- Organic Flicker Engine -->
+    <script>
+        const neonLayer = document.getElementById('neonLayer');
+
+        function runFlickerEngine() {
+            // Toggle the neon layer state
+            const isActive = neonLayer.classList.toggle('active');
+            
+            let nextTick = 100; // Default fallback delay (ms)
+
+            if (isActive) {
+                // When the neon turns ON:
+                const roll = Math.random();
+                if (roll > 0.4) {
+                    // 60% chance it stays solid neon for a realistic stretch (1.5 to 5 seconds)
+                    nextTick = Math.random() * 3500 + 1500;
+                } else {
+                    // 40% chance of a micro-stutter burst (quick flash off)
+                    nextTick = Math.random() * 120 + 30;
+                }
+            } else {
+                // When the neon turns OFF:
+                const roll = Math.random();
+                if (roll > 0.5) {
+                    // 50% chance it stays dead/dark for a brief moment (0.4 to 1.5 seconds)
+                    nextTick = Math.random() * 1100 + 400;
+                } else {
+                    // 50% chance of an aggressive, rapid spark-back-to-life
+                    nextTick = Math.random() * 80 + 20;
+                }
+            }
+
+            // Recursively trigger the next state shift based on calculated instability
+            setTimeout(runFlickerEngine, nextTick);
+        }
+
+        // Initialize the cycle on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Brief initialization delay
+            setTimeout(runFlickerEngine, 500);
+        });
+    </script>
+</body>
+</html>
