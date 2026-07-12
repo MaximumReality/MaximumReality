@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>DATA DRIFT // VR</title>
+<style>
+  :root{
+    --bg:#0a0a1a;
+    --cyan:#00f0ff;
+    --magenta:#ff2e9a;
+    --glitch:#baff29;
+  }
+  html,body{
+    margin:0; padding:0; width:100%; height:100%;
+    background:var(--bg); overflow:hidden;
+    font-family:'Courier New', monospace;
+    -webkit-user-select:none; user-select:none;
+    touch-action:none;
+  }
+  canvas{ display:block; }
+
+  #overlay{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at center, #10102a 0%, #0a0a1a 70%);
+    z-index:10; text-align:center; padding:24px; box-sizing:border-box;
+  }
+  #title{
+    font-size:clamp(2.2rem, 9vw, 3.2rem);
+    letter-spacing:0.12em;
+    color:#fff;
+    font-weight:700;
+    margin:0 0 6px 0;
+    text-shadow:
+      2px 0 var(--cyan),
+      -2px 0 var(--magenta);
+    animation: glitchtitle 3.2s infinite steps(1);
+  }
+  @keyframes glitchtitle{
+    0%, 92%, 100% { text-shadow: 2px 0 var(--cyan), -2px 0 var(--magenta); transform:translate(0,0); }
+    93% { text-shadow: 4px 0 var(--magenta), -4px 0 var(--glitch); transform:translate(-2px,1px); }
+    95% { text-shadow: -3px 0 var(--cyan), 3px 0 var(--magenta); transform:translate(2px,-1px); }
+    97% { text-shadow: 2px 0 var(--cyan), -2px 0 var(--magenta); transform:translate(0,0); }
+  }
+  #subtitle{
+    color:var(--cyan);
+    font-size:0.85rem;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    opacity:0.8;
+    margin-bottom:36px;
+  }
+  #enterBtn{
+    background:transparent;
+    border:1px solid var(--magenta);
+    color:var(--magenta);
+    padding:16px 40px;
+    font-family:inherit;
+    font-size:1rem;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    cursor:pointer;
+    box-shadow:0 0 20px rgba(255,46,154,0.25);
+    transition:all 0.2s;
+  }
+  #enterBtn:active{
+    background:var(--magenta);
+    color:#0a0a1a;
+  }
+  #hint{
+    margin-top:28px;
+    color:#556;
+    font-size:0.7rem;
+    letter-spacing:0.08em;
+    line-height:1.6;
+    max-width:280px;
+  }
+  #hint span{ color:var(--cyan); }
+
+  #hud{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%);
+    color:var(--cyan); font-size:0.65rem; letter-spacing:0.15em;
+    opacity:0.5; z-index:5; pointer-events:none;
+    display:none;
+  }
+  #exitZone{
+    position:fixed; top:0; right:0; width:64px; height:64px;
+    z-index:20; display:none;
+    background: transparent;
+  }
+</style>
+</head>
+<body>
+
+<div id="overlay">
+  <div id="title">DATA DRIFT</div>
+  <div id="subtitle">grid tunnel // stereo mode</div>
+  <button id="enterBtn">Enter the Grid</button>
+  <div id="hint">
+    Insert phone into <span>VR BOX</span> after tapping enter.<br>
+    Landscape orientation. Motion access required for head tracking &mdash;
+    tap allow if prompted.
+  </div>
+</div>
+
+<div id="hud">DATA DRIFT :: SECTOR 13</div>
+<div id="exitZone"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+
+  // ---------- Web Audio API Synthesizer Engine ----------
+  let audioCtx = null;
+  let oscillator = null;
+  let gainNode = null;
+  let lfo = null;
+
+  function initCyberDrone() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Low bass drone core
+    oscillator = audioCtx.createOscillator();
+    oscillator.type = 'sawtooth'; 
+    oscillator.frequency.setValueAtTime(55, audioCtx.currentTime); 
+
+    // Low pass filter to capture the grit without the harshness
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(170, audioCtx.currentTime); 
+
+    // LFO pulsing set at 3.4Hz to tie directly to DRIFT_SPEED
+    lfo = audioCtx.createOscillator();
+    lfo.type = 'sine';
+    lfo.frequency.setValueAtTime(3.4, audioCtx.currentTime); 
+    
+    const lfoGain = audioCtx.createGain();
+    lfoGain.gain.setValueAtTime(35, audioCtx.currentTime); 
+
+    gainNode = audioCtx.createGain();
+    gainNode.gain.setValueAtTime(0.0, audioCtx.currentTime); 
+
+    lfo.connect(lfoGain);
+    lfoGain.connect(filter.frequency);
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start(0);
+    lfo.start(0);
+
+    // Smooth volumetric ramp-up
+    gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 2.0); 
+  }
+
+  // ---------- Renderer / Scene / Camera ----------
+  const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  document.body.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0a1a, 0.028);
+  renderer.setClearColor(0x0a0a1a, 1);
+
+  const camera = new THREE.PerspectiveCamera(92, window.innerWidth/window.innerHeight, 0.05, 200);
+  camera.position.set(0,0,0);
+
+  const stereo = new THREE.StereoCamera();
+  // IPD dialed in at 66mm to optimize for wide Pro Max layouts inside budget VR plastic lenses
+  stereo.eyeSep = 0.066;
+
+  function resize(){
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h);
+    camera.aspect = (w/2) / h;
+    camera.updateProjectionMatrix();
+    stereo.aspect = 1;
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+  resize();
+
+  // ---------- Tunnel: neon rings ----------
+  const RING_COUNT = 44;
+  const RING_SPACING = 6;
+  const TUNNEL_LENGTH = RING_COUNT * RING_SPACING;
+  const rings = [];
+  const colorA = new THREE.Color(0x00f0ff);
+  const colorB = new THREE.Color(0xff2e9a);
+  const colorGlitch = new THREE.Color(0xbaff29);
+
+  for (let i = 0; i < RING_COUNT; i++){
+    const radius = 3.2 + Math.sin(i*0.4)*0.4;
+    const geo = new THREE.TorusGeometry(radius, 0.035, 8, 32);
+    const mat = new THREE.MeshBasicMaterial({
+      color: i % 2 === 0 ? colorA : colorB,
+      transparent:true,
+      opacity:0.85,
+      blending: THREE.AdditiveBlending,
+      depthWrite:false
+    });
+    const ring = new THREE.Mesh(geo, mat);
+    ring.position.z = -i * RING_SPACING;
+    ring.rotation.z = i * 0.18;
+    ring.userData.baseColor = mat.color.clone();
+    ring.userData.spinSpeed = (i % 2 === 0 ? 1 : -1) * (0.15 + (i % 5) * 0.03);
+    scene.add(ring);
+    rings.push(ring);
+  }
+
+  // ---------- Drifting glyph sprites ----------
+  function makeGlyphTexture(text, color){
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.clearRect(0,0,128,128);
+    ctx.font = '700 40px monospace';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 18;
+    ctx.fillText(text, 64, 64);
+    return new THREE.CanvasTexture(c);
+  }
+  const glyphStrings = ['01','GC','▓▓','10','MR','▒▒','7▓','13'];
+  const glyphColors = ['#00f0ff','#ff2e9a','#baff29'];
+  const glyphs = [];
+  const GLYPH_COUNT = 60;
+  for (let i = 0; i < GLYPH_COUNT; i++){
+    const txt = glyphStrings[Math.floor(Math.random()*glyphStrings.length)];
+    const col = glyphColors[Math.floor(Math.random()*glyphColors.length)];
+    const tex = makeGlyphTexture(txt, col);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent:true, opacity:0.75, blending:THREE.AdditiveBlending, depthWrite:false });
+    const sprite = new THREE.Sprite(mat);
+    const angle = Math.random() * Math.PI * 2;
+    const r = 2.0 + Math.random() * 2.2;
+    sprite.position.set(Math.cos(angle)*r, Math.sin(angle)*r, -Math.random()*TUNNEL_LENGTH);
+    const s = 0.25 + Math.random()*0.3;
+    sprite.scale.set(s, s, 1);
+    scene.add(sprite);
+    glyphs.push(sprite);
+  }
+
+  // ---------- Background particle field ----------
+  const starGeo = new THREE.BufferGeometry();
+  const STAR_COUNT = 900;
+  const starPos = new Float32Array(STAR_COUNT*3);
+  for (let i=0;i<STAR_COUNT;i++){
+    const angle = Math.random()*Math.PI*2;
+    const r = 5 + Math.random()*20;
+    starPos[i*3] = Math.cos(angle)*r;
+    starPos[i*3+1] = Math.sin(angle)*r;
+    starPos[i*3+2] = -Math.random()*TUNNEL_LENGTH;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({ color:0x8899ff, size:0.05, transparent:true, opacity:0.6, blending:THREE.AdditiveBlending, depthWrite:false });
+  const stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  // ---------- Head tracking (device orientation) ----------
+  let hasGyro = false;
+  let deviceQuat = new THREE.Quaternion();
+  const zee = new THREE.Vector3(0,0,1);
+  const euler = new THREE.Euler();
+  const q0 = new THREE.Quaternion();
+  const q1 = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+
+  function setQuaternionFromDeviceOrientation(quat, alpha, beta, gamma, orient){
+    euler.set(beta, alpha, -gamma, 'YXZ');
+    quat.setFromEuler(euler);
+    quat.multiply(q1);
+    quat.multiply(q0.setFromAxisAngle(zee, -orient));
+  }
+
+  function onDeviceOrientation(evt){
+    if (evt.alpha === null) return;
+    hasGyro = true;
+    const orient = (screen.orientation && screen.orientation.angle) ? THREE.MathUtils.degToRad(screen.orientation.angle) : 0;
+    setQuaternionFromDeviceOrientation(
+      deviceQuat,
+      THREE.MathUtils.degToRad(evt.alpha || 0),
+      THREE.MathUtils.degToRad(evt.beta || 0),
+      THREE.MathUtils.degToRad(evt.gamma || 0),
+      orient
+    );
+  }
+
+  // Drag fallback (desktop / no gyro)
+  let dragYaw = 0, dragPitch = 0;
+  let dragging = false, lastX = 0, lastY = 0;
+  renderer.domElement.addEventListener('pointerdown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+  window.addEventListener('pointerup', () => dragging = false);
+  window.addEventListener('pointermove', e => {
+    if (!dragging || hasGyro) return;
+    dragYaw -= (e.clientX - lastX) * 0.004;
+    dragPitch -= (e.clientY - lastY) * 0.004;
+    dragPitch = Math.max(-1.3, Math.min(1.3, dragPitch));
+    lastX = e.clientX; lastY = e.clientY;
+  });
+
+  // ---------- Drift / animation loop ----------
+  const clock = new THREE.Clock();
+  const DRIFT_SPEED = 3.4;
+  let driftZ = 0;
+
+  function animate(){
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.elapsedTime;
+
+    driftZ -= DRIFT_SPEED * dt;
+
+    rings.forEach((ring, i) => {
+      ring.rotation.z += ring.userData.spinSpeed * dt;
+      let z = ring.position.z + DRIFT_SPEED * dt;
+      if (z > 3){
+        z -= TUNNEL_LENGTH;
+        const glitchNow = Math.random() < 0.06;
+        ring.material.color.copy(glitchNow ? colorGlitch : ring.userData.baseColor);
+      }
+      ring.position.z = z;
+    });
+
+    glyphs.forEach(sp => {
+      let z = sp.position.z + DRIFT_SPEED * dt;
+      if (z > 2) z -= TUNNEL_LENGTH;
+      sp.position.z = z;
+      sp.material.rotation += dt * 0.3;
+    });
+
+    const starArr = starGeo.attributes.position.array;
+    for (let i=0;i<STAR_COUNT;i++){
+      let z = starArr[i*3+2] + DRIFT_SPEED * dt * 0.6;
+      if (z > 2) z -= TUNNEL_LENGTH;
+      starArr[i*3+2] = z;
+    }
+    starGeo.attributes.position.needsUpdate = true;
+
+    if (hasGyro){
+      camera.quaternion.copy(deviceQuat);
+    } else {
+      camera.quaternion.setFromEuler(new THREE.Euler(dragPitch, dragYaw, 0, 'YXZ'));
+    }
+
+    const size = new THREE.Vector2();
+    renderer.getSize(size);
+    stereo.update(camera);
+
+    renderer.setScissorTest(true);
+
+    renderer.setScissor(0, 0, size.x/2, size.y);
+    renderer.setViewport(0, 0, size.x/2, size.y);
+    renderer.render(scene, stereo.cameraL);
+
+    renderer.setScissor(size.x/2, 0, size.x/2, size.y);
+    renderer.setViewport(size.x/2, 0, size.x/2, size.y);
+    renderer.render(scene, stereo.cameraR);
+
+    renderer.setScissorTest(false);
+  }
+
+  // ---------- Entry flow ----------
+  const overlay = document.getElementById('overlay');
+  const enterBtn = document.getElementById('enterBtn');
+  const hud = document.getElementById('hud');
+  const exitZone = document.getElementById('exitZone');
+
+  function beginExperience(){
+    overlay.style.display = 'none';
+    hud.style.display = 'block';
+    exitZone.style.display = 'block'; // Turn on our hidden top-right breakout target
+    if (document.documentElement.requestFullscreen){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    }
+    animate();
+  }
+
+  enterBtn.addEventListener('click', () => {
+    // Safely fire Web Audio engine inside user interaction handler
+    try {
+      initCyberDrone();
+    } catch(err) {
+      console.warn("Audio Context blocked or uninitialized", err);
+    }
+
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function'){
+      DeviceOrientationEvent.requestPermission().then(state => {
+        if (state === 'granted'){
+          window.addEventListener('deviceorientation', onDeviceOrientation);
+        }
+        beginExperience();
+      }).catch(() => beginExperience());
+    } else {
+      window.addEventListener('deviceorientation', onDeviceOrientation);
+      beginExperience();
+    }
+  });
+
+  // Tap top right corner of screen to kill synth and reset
+  exitZone.addEventListener('click', () => {
+    if (audioCtx) {
+      audioCtx.close();
+    }
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(()=>{});
+    }
+    location.reload();
+  });
+
+})();
+</script>
+</body>
+</html>
