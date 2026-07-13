@@ -7,6 +7,14 @@
 const STORAGE_PREFIX = "glen_messages_"; // + session_id
 const CURRENT_SESSION_KEY = "glen_current_session";
 
+// The frontend can be hosted anywhere (Vercel, GitHub Pages, etc.) but the
+// serverless function only exists on the Vercel deployment. If this page is
+// running on the vercel.app domain itself, a relative path works fine; if
+// it's embedded elsewhere (like maximumreality.xyz), point at the full URL.
+const API_BASE = window.location.hostname.includes("vercel.app")
+  ? ""
+  : "https://glen-snowy.vercel.app";
+
 const chatWindow = document.getElementById("chatWindow");
 const composer = document.getElementById("composer");
 const messageInput = document.getElementById("messageInput");
@@ -97,7 +105,7 @@ async function sendMessage(userText) {
   showTyping();
 
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(API_BASE + "/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
