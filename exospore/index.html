@@ -28,6 +28,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 
 <style>
+
   @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
@@ -498,17 +499,21 @@
 
     // shards
     shards.forEach(s=> s.phase += dt*2.4);
+    let collectedThisFrame = 0;
     shards = shards.filter(s=>{
       if(dist(s.x,s.y,player.x,player.y) < s.r + player.r){
         shardCount++;
+        collectedThisFrame++;
         playSound('pickup');
         o2 = Math.min(100, o2 + 8);
         document.getElementById('shardCount').textContent = `${shardCount} / ${GOAL_SHARDS}`;
-        if(shardCount < GOAL_SHARDS) spawnShard();
         return false;
       }
       return true;
     });
+    for(let i=0; i<collectedThisFrame; i++){
+      if(shardCount < GOAL_SHARDS) spawnShard();
+    }
 
     // driftling spawn logic: more + faster spawns as it gets darker / time passes
     const spawnChance = (0.15 + nightAmt*0.6 + Math.min(elapsed/90,0.5)) * dt;
