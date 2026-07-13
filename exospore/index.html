@@ -29,6 +29,7 @@
 
 <style>
 
+
   @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
 
   :root{
@@ -317,10 +318,14 @@
   }
 
   // ---------- state ----------
-  let state = 'title'; // title | playing | win | lose
+  let state = 'title'; // title | playing | warp | win | lose
   let player, shards, driftlings, flora, stars;
   let o2, shardCount, elapsed, dayPhase, scanCooldown, pulses;
   let lastTime = 0;
+  let warpStars = [];
+  let warpActive = false;
+  let warpTimer = 0;
+  const UNIT7_URL = 'https://pixel-dust-virid.vercel.app';
 
   function rand(a,b){ return a + Math.random()*(b-a); }
   function dist(ax,ay,bx,by){ return Math.hypot(ax-bx, ay-by); }
@@ -542,10 +547,88 @@
     o2 = Math.max(0, Math.min(100, o2));
     document.getElementById('o2Fill').style.width = o2 + '%';
 
-    if(shardCount >= GOAL_SHARDS){ endGame(true); }
+    if(shardCount >= GOAL_SHARDS && state==='playing'){ initiateWarpTransition(); }
     else if(o2 <= 0){ endGame(false); }
 
     return nightAmt;
+  }
+
+  // ---------- warp transition (beacon charged -> hyperspace -> UNIT-7) ----------
+  function initiateWarpTransition(){
+    state = 'warp';
+    warpActive = true;
+    warpTimer = 3.0; // seconds of hyperspace warp effect
+    warpStars = [];
+    showPlayUI(false);
+
+    for(let i = 0; i < 150; i++){
+      const angle = Math.random() * Math.PI * 2;
+      const speed = rand(200, 600);
+      warpStars.push({
+        x: W / 2,
+        y: H / 2,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: Math.random() > 0.5 ? '#00e5ff' : '#7c5cfc'
+      });
+    }
+
+    playSound('win'); // engine charge-up cue
+  }
+
+  function updateWarp(dt){
+    warpTimer -= dt;
+    warpStars.forEach(s => {
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.vx *= 1.04;
+      s.vy *= 1.04;
+
+      if(s.x < -50 || s.x > W+50 || s.y < -50 || s.y > H+50){
+        const angle = Math.random() * Math.PI * 2;
+        const speed = rand(100, 300);
+        s.x = W / 2;
+        s.y = H / 2;
+        s.vx = Math.cos(angle) * speed;
+        s.vy = Math.sin(angle) * speed;
+      }
+    });
+
+    if(warpTimer <= 0){
+      warpActive = false;
+      state = 'transferring';
+      window.location.href = UNIT7_URL;
+    }
+  }
+
+  function drawWarpField(){
+    // deep space wash with trailing motion blur
+    ctx.fillStyle = 'rgba(5, 8, 16, 0.25)';
+    ctx.fillRect(0, 0, W, H);
+
+    warpStars.forEach(s => {
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2;
+      ctx.shadowColor = s.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x + (s.vx * 0.04), s.y + (s.vy * 0.04));
+      ctx.stroke();
+    });
+    ctx.shadowBlur = 0;
+
+    // fade to white near the very end as the "jump" completes
+    const fadeT = Math.max(0, 1 - warpTimer/0.5);
+    if(warpTimer < 0.5){
+      ctx.fillStyle = `rgba(255,255,255,${fadeT*0.9})`;
+      ctx.fillRect(0,0,W,H);
+    }
+
+    ctx.font = "600 0.85rem 'Space Mono', monospace";
+    ctx.fillStyle = 'rgba(0,245,212,' + (1-fadeT) + ')';
+    ctx.textAlign = 'center';
+    ctx.fillText('BEACON CHARGED — REROUTING SIGNAL...', W/2, H-40);
   }
 
   // ---------- draw ----------
@@ -663,12 +746,17 @@
   }
 
   function loop(now){
-    if(state !== 'playing'){ return; }
+    if(state !== 'playing' && state !== 'warp'){ return; }
     let dt = (now - lastTime)/1000;
     dt = Math.min(dt, 0.05);
     lastTime = now;
-    const nightAmt = update(dt);
-    draw(nightAmt);
+    if(state === 'warp'){
+      updateWarp(dt);
+      drawWarpField();
+    } else {
+      const nightAmt = update(dt);
+      draw(nightAmt);
+    }
     requestAnimationFrame(loop);
   }
 
