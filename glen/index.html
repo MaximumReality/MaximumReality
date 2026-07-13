@@ -1,15 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=https://chat-with-glen.base44.app">
-  <title>Just a minute...</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GLEN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Reenie+Beanie&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <p>hold on, I'm coming</p>
+  <div class="desk">
+    <header class="app-header">
+      <h1>GLEN</h1>
+      <button id="newChatBtn" class="new-chat-btn">New Chat</button>
+    </header>
 
-  <script>
-    window.location.replace("https://chat-with-glen.base44.app");
-  </script>
+    <main class="notebook-paper" id="chatWindow">
+      <!-- messages get inserted here -->
+    </main>
+
+    <form id="composer" class="composer">
+      <input
+        id="messageInput"
+        type="text"
+        placeholder="write something..."
+        autocomplete="off"
+      />
+      <button type="submit" id="sendBtn">send</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
