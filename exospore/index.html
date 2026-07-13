@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>EXOSPORE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --void:#0a0118;
+    --void2:#1b0a3f;
+    --cyan:#00f5d4;
+    --magenta:#ff206e;
+    --amber:#ffbd00;
+    --lavender:#c9b1ff;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none; }
+
+  html,body{
+    width:100%; height:100%; overflow:hidden;
+    background:var(--void);
+    font-family:'Space Mono', monospace;
+    touch-action:none;
+  }
+
+  #game{ display:block; position:fixed; inset:0; }
+
+  .overlay{
+    position:fixed; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:24px;
+    background:radial-gradient(ellipse at center, rgba(27,10,63,0.92) 0%, rgba(10,1,24,0.97) 75%);
+    z-index:10;
+  }
+  .hidden{ display:none !important; }
+
+  h1.title{
+    font-family:'Audiowide', sans-serif;
+    font-size:clamp(2rem, 9vw, 3.4rem);
+    color:var(--cyan);
+    letter-spacing:0.08em;
+    text-shadow: 0 0 12px rgba(0,245,212,0.8), 0 0 40px rgba(0,245,212,0.35);
+    margin-bottom:6px;
+  }
+  .subtitle{
+    color:var(--lavender);
+    font-size:0.85rem;
+    letter-spacing:0.15em;
+    opacity:0.75;
+    margin-bottom:28px;
+    text-transform:uppercase;
+  }
+  .lore{
+    max-width:340px;
+    color:var(--lavender);
+    font-size:0.8rem;
+    line-height:1.6;
+    opacity:0.85;
+    margin-bottom:30px;
+  }
+  .lore b{ color:var(--amber); }
+
+  .btn{
+    font-family:'Audiowide', sans-serif;
+    background:transparent;
+    border:2px solid var(--cyan);
+    color:var(--cyan);
+    padding:14px 34px;
+    font-size:1rem;
+    letter-spacing:0.1em;
+    border-radius:4px;
+    box-shadow:0 0 18px rgba(0,245,212,0.35);
+    cursor:pointer;
+  }
+  .btn:active{ background:rgba(0,245,212,0.15); }
+
+  .end-title{
+    font-family:'Audiowide', sans-serif;
+    font-size:clamp(1.6rem,8vw,2.6rem);
+    margin-bottom:10px;
+  }
+  .win .end-title{ color:var(--cyan); text-shadow:0 0 20px rgba(0,245,212,0.7); }
+  .lose .end-title{ color:var(--magenta); text-shadow:0 0 20px rgba(255,32,110,0.7); }
+  .stat{ color:var(--lavender); font-size:0.85rem; margin-bottom:6px; }
+  .stat span{ color:var(--amber); }
+
+  /* HUD */
+  #hud{
+    position:fixed; top:0; left:0; right:0;
+    padding:14px 16px;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    z-index:5; pointer-events:none;
+  }
+  .hud-block{
+    background:rgba(10,1,24,0.55);
+    border:1px solid rgba(0,245,212,0.25);
+    border-radius:6px;
+    padding:8px 12px;
+    backdrop-filter: blur(2px);
+  }
+  .hud-label{ font-size:0.6rem; letter-spacing:0.15em; color:var(--lavender); opacity:0.7; margin-bottom:4px; text-transform:uppercase; }
+  #o2Bar{ width:120px; height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
+  #o2Fill{ height:100%; width:100%; background:linear-gradient(90deg, var(--magenta), var(--amber), var(--cyan)); transition:width 0.2s linear; }
+  #shardCount{ font-family:'Audiowide', sans-serif; color:var(--cyan); font-size:1.1rem; text-shadow:0 0 8px rgba(0,245,212,0.6); }
+
+  /* Joystick */
+  #joystickZone{
+    position:fixed; left:0; bottom:0; width:45%; height:45%;
+    z-index:4; touch-action:none;
+  }
+  #joystickBase{
+    position:absolute; width:96px; height:96px; border-radius:50%;
+    border:2px solid rgba(0,245,212,0.35);
+    background:rgba(0,245,212,0.06);
+    display:none;
+    transform:translate(-50%,-50%);
+  }
+  #joystickKnob{
+    position:absolute; width:42px; height:42px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--cyan), #0d8f7c);
+    box-shadow:0 0 16px rgba(0,245,212,0.8);
+    top:50%; left:50%; transform:translate(-50%,-50%);
+  }
+
+  #scanBtn{
+    position:fixed; right:22px; bottom:34px; z-index:5;
+    width:78px; height:78px; border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, var(--magenta), #7a0e34);
+    border:2px solid rgba(255,32,110,0.6);
+    box-shadow:0 0 20px rgba(255,32,110,0.55);
+    color:#fff; font-family:'Audiowide', sans-serif; font-size:0.65rem; letter-spacing:0.1em;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+  }
+  #scanBtn.cooldown{ opacity:0.35; }
+
+  #hint{
+    position:fixed; bottom:2px; left:50%; transform:translateX(-50%);
+    color:var(--lavender); font-size:0.6rem; opacity:0.4; z-index:4; letter-spacing:0.08em;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="hud-block">
+    <div class="hud-label">O2 Reserve</div>
+    <div id="o2Bar"><div id="o2Fill"></div></div>
+  </div>
+  <div class="hud-block">
+    <div class="hud-label">Beacon Shards</div>
+    <div id="shardCount">0 / 8</div>
+  </div>
+</div>
+
+<div id="joystickZone" class="hidden">
+  <div id="joystickBase"><div id="joystickKnob"></div></div>
+</div>
+<div id="scanBtn" class="hidden">PULSE<br>SCAN</div>
+<div id="hint" class="hidden">drag left side to move · tap PULSE to stun</div>
+
+<div id="titleScreen" class="overlay">
+  <h1 class="title">EXOSPORE</h1>
+  <div class="subtitle">signal from vantar-9</div>
+  <div class="lore">
+    Your scout pod broke apart on the bioluminescent moon <b>Vantar-9</b>.
+    Scattered across the fungal plains are <b>8 crystal shards</b> — enough
+    charge to fire your beacon before your last O2 cell runs dry.<br><br>
+    When the twin suns set, the <b>driftlings</b> wake. Use your <b>scan pulse</b>
+    to stun them if they get close.
+  </div>
+  <button class="btn" id="startBtn">BEGIN DESCENT</button>
+</div>
+
+<div id="endScreen" class="overlay hidden">
+  <div class="end-title" id="endTitle">—</div>
+  <div class="stat" id="endStat1"></div>
+  <div class="stat" id="endStat2"></div>
+  <button class="btn" id="retryBtn" style="margin-top:22px;">TRY AGAIN</button>
+</div>
+
+<script>
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize(){ W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+  resize();
+  addEventListener('resize', resize);
+
+  const COLORS = { cyan:'#00f5d4', magenta:'#ff206e', amber:'#ffbd00', lavender:'#c9b1ff', voidA:'#0a0118', voidB:'#1b0a3f' };
+  const GOAL_SHARDS = 8;
+
+  // ---------- state ----------
+  let state = 'title'; // title | playing | win | lose
+  let player, shards, driftlings, flora, stars;
+  let o2, shardCount, elapsed, dayPhase, scanCooldown, pulses;
+  let lastTime = 0;
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function dist(ax,ay,bx,by){ return Math.hypot(ax-bx, ay-by); }
+
+  function resetGame(){
+    player = { x:W/2, y:H/2, r:15, speed:210, vx:0, vy:0, hitFlash:0, angle:0 };
+    shards = [];
+    driftlings = [];
+    pulses = [];
+    o2 = 100;
+    shardCount = 0;
+    elapsed = 0;
+    dayPhase = 0; // 0..1 loops, drives day/night
+    scanCooldown = 0;
+
+    flora = [];
+    for(let i=0;i<26;i++){
+      flora.push({ x:rand(0,W), y:rand(0,H), r:rand(3,9), hue: Math.random()<0.5?COLORS.cyan:COLORS.magenta, phase:rand(0,Math.PI*2) });
+    }
+    stars = [];
+    for(let i=0;i<70;i++){ stars.push({ x:rand(0,W), y:rand(0,H), r:rand(0.5,1.8), phase:rand(0,Math.PI*2) }); }
+
+    for(let i=0;i<3;i++) spawnShard();
+  }
+
+  function spawnShard(){
+    let x,y,tries=0;
+    do{
+      x = rand(40, W-40); y = rand(40, H-40);
+      tries++;
+    } while(dist(x,y,player.x,player.y) < 140 && tries < 20);
+    shards.push({ x, y, r:9, phase:rand(0,Math.PI*2), collected:false });
+  }
+
+  function spawnDriftling(){
+    // spawn at an edge
+    const edge = Math.floor(rand(0,4));
+    let x,y;
+    if(edge===0){ x=-20; y=rand(0,H); }
+    else if(edge===1){ x=W+20; y=rand(0,H); }
+    else if(edge===2){ x=rand(0,W); y=-20; }
+    else { x=rand(0,W); y=H+20; }
+    driftlings.push({ x, y, r:13, speed:rand(55,90), stunned:0, wobble:rand(0,Math.PI*2) });
+  }
+
+  // ---------- input: joystick ----------
+  const joyZone = document.getElementById('joystickZone');
+  const joyBase = document.getElementById('joystickBase');
+  const joyKnob = document.getElementById('joystickKnob');
+  let joyActive = false, joyOrigin = {x:0,y:0}, joyVec = {x:0,y:0};
+  const JOY_MAX = 46;
+
+  function joyStart(e){
+    const t = e.touches ? e.touches[0] : e;
+    joyActive = true;
+    joyOrigin = { x:t.clientX, y:t.clientY };
+    joyBase.style.left = t.clientX+'px';
+    joyBase.style.top = t.clientY+'px';
+    joyBase.style.display = 'block';
+    e.preventDefault();
+  }
+  function joyMove(e){
+    if(!joyActive) return;
+    const t = e.touches ? e.touches[0] : e;
+    let dx = t.clientX - joyOrigin.x;
+    let dy = t.clientY - joyOrigin.y;
+    const d = Math.hypot(dx,dy);
+    if(d > JOY_MAX){ dx = dx/d*JOY_MAX; dy = dy/d*JOY_MAX; }
+    joyKnob.style.transform = `translate(${dx-21}px, ${dy-21}px)`;
+    joyVec = { x: dx/JOY_MAX, y: dy/JOY_MAX };
+    e.preventDefault();
+  }
+  function joyEnd(e){
+    joyActive = false;
+    joyVec = {x:0,y:0};
+    joyBase.style.display = 'none';
+    joyKnob.style.transform = 'translate(-50%,-50%)';
+  }
+  joyZone.addEventListener('touchstart', joyStart, {passive:false});
+  joyZone.addEventListener('touchmove', joyMove, {passive:false});
+  joyZone.addEventListener('touchend', joyEnd);
+  joyZone.addEventListener('touchcancel', joyEnd);
+  // desktop fallback
+  joyZone.addEventListener('mousedown', joyStart);
+  addEventListener('mousemove', (e)=>{ if(joyActive) joyMove(e); });
+  addEventListener('mouseup', joyEnd);
+
+  // keyboard fallback
+  const keys = {};
+  addEventListener('keydown', e=> keys[e.key.toLowerCase()]=true);
+  addEventListener('keyup', e=> keys[e.key.toLowerCase()]=false);
+
+  // scan button
+  const scanBtn = document.getElementById('scanBtn');
+  function doScan(e){
+    if(e) e.preventDefault();
+    if(state!=='playing' || scanCooldown>0) return;
+    scanCooldown = 3.2;
+    pulses.push({ x:player.x, y:player.y, r:0, max:210, alpha:1 });
+    driftlings.forEach(d=>{
+      if(dist(d.x,d.y,player.x,player.y) < 210) d.stunned = 2.2;
+    });
+  }
+  scanBtn.addEventListener('touchstart', doScan, {passive:false});
+  scanBtn.addEventListener('mousedown', doScan);
+
+  // ---------- screens ----------
+  const titleScreen = document.getElementById('titleScreen');
+  const endScreen = document.getElementById('endScreen');
+  const hud = document.getElementById('hud');
+  const hint = document.getElementById('hint');
+
+  function showPlayUI(show){
+    hud.classList.toggle('hidden', !show);
+    joyZone.classList.toggle('hidden', !show);
+    scanBtn.classList.toggle('hidden', !show);
+    hint.classList.toggle('hidden', !show);
+  }
+
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  document.getElementById('retryBtn').addEventListener('click', startGame);
+
+  function startGame(){
+    resetGame();
+    state = 'playing';
+    titleScreen.classList.add('hidden');
+    endScreen.classList.add('hidden');
+    showPlayUI(true);
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
+  }
+
+  function endGame(win){
+    state = win ? 'win' : 'lose';
+    showPlayUI(false);
+    endScreen.classList.remove('hidden');
+    endScreen.className = 'overlay ' + (win ? 'win' : 'lose');
+    document.getElementById('endTitle').textContent = win ? 'BEACON ONLINE' : 'SIGNAL LOST';
+    document.getElementById('endStat1').innerHTML = `Shards recovered: <span>${shardCount} / ${GOAL_SHARDS}</span>`;
+    document.getElementById('endStat2').innerHTML = `Time survived: <span>${elapsed.toFixed(1)}s</span>`;
+  }
+
+  // ---------- update ----------
+  function update(dt){
+    elapsed += dt;
+    dayPhase = (dayPhase + dt/45) % 1; // full day/night cycle ~45s
+    const nightAmt = Math.sin(dayPhase*Math.PI*2)*0.5+0.5; // 0..1, 1 = deep night
+
+    // movement vector: joystick + keyboard
+    let mx = joyVec.x, my = joyVec.y;
+    if(keys['arrowleft']||keys['a']) mx = -1;
+    if(keys['arrowright']||keys['d']) mx = 1;
+    if(keys['arrowup']||keys['w']) my = -1;
+    if(keys['arrowdown']||keys['s']) my = 1;
+    const mlen = Math.hypot(mx,my);
+    if(mlen > 0.05){
+      mx/=Math.max(mlen,1); my/=Math.max(mlen,1);
+      player.x += mx * player.speed * dt;
+      player.y += my * player.speed * dt;
+      player.angle = Math.atan2(my,mx);
+    }
+    player.x = Math.max(player.r, Math.min(W-player.r, player.x));
+    player.y = Math.max(player.r, Math.min(H-player.r, player.y));
+    if(player.hitFlash>0) player.hitFlash -= dt;
+
+    // scan cooldown
+    if(scanCooldown>0) scanCooldown -= dt;
+    scanBtn.classList.toggle('cooldown', scanCooldown>0);
+
+    // pulses animation
+    pulses.forEach(p=>{ p.r += 520*dt; p.alpha = Math.max(0, 1 - p.r/p.max); });
+    pulses = pulses.filter(p=> p.r < p.max);
+
+    // shards
+    shards.forEach(s=> s.phase += dt*2.4);
+    shards = shards.filter(s=>{
+      if(dist(s.x,s.y,player.x,player.y) < s.r + player.r){
+        shardCount++;
+        o2 = Math.min(100, o2 + 8);
+        document.getElementById('shardCount').textContent = `${shardCount} / ${GOAL_SHARDS}`;
+        if(shardCount < GOAL_SHARDS) spawnShard();
+        return false;
+      }
+      return true;
+    });
+
+    // driftling spawn logic: more + faster spawns as it gets darker / time passes
+    const spawnChance = (0.15 + nightAmt*0.6 + Math.min(elapsed/90,0.5)) * dt;
+    if(Math.random() < spawnChance && driftlings.length < 5 + Math.floor(nightAmt*5)){
+      spawnDriftling();
+    }
+
+    driftlings.forEach(d=>{
+      d.wobble += dt*3;
+      if(d.stunned > 0){
+        d.stunned -= dt;
+      } else {
+        const ang = Math.atan2(player.y-d.y, player.x-d.x) + Math.sin(d.wobble)*0.25;
+        d.x += Math.cos(ang) * d.speed * dt;
+        d.y += Math.sin(ang) * d.speed * dt;
+      }
+      if(player.hitFlash<=0 && dist(d.x,d.y,player.x,player.y) < d.r + player.r && d.stunned<=0){
+        o2 -= 22;
+        player.hitFlash = 1.0;
+      }
+    });
+
+    // o2 drains over time, faster at night
+    o2 -= dt * (1.1 + nightAmt*1.2);
+    o2 = Math.max(0, Math.min(100, o2));
+    document.getElementById('o2Fill').style.width = o2 + '%';
+
+    if(shardCount >= GOAL_SHARDS){ endGame(true); }
+    else if(o2 <= 0){ endGame(false); }
+
+    return nightAmt;
+  }
+
+  // ---------- draw ----------
+  function draw(nightAmt){
+    // background gradient shifts with day/night
+    const g = ctx.createRadialGradient(W/2,H*0.4,0, W/2,H*0.4, Math.max(W,H)*0.8);
+    const dark = mix('#241157', '#04010c', nightAmt);
+    const edge = mix(COLORS.voidB, COLORS.voidA, nightAmt);
+    g.addColorStop(0, dark);
+    g.addColorStop(1, edge);
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // stars (more visible at night)
+    ctx.globalAlpha = 0.25 + nightAmt*0.6;
+    stars.forEach(s=>{
+      const tw = 0.6 + Math.sin(elapsed*2 + s.phase)*0.4;
+      ctx.fillStyle = '#ffffff';
+      ctx.globalAlpha = (0.15 + nightAmt*0.5) * tw;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // flora
+    flora.forEach(f=>{
+      const glow = 0.5 + Math.sin(elapsed*1.5+f.phase)*0.3;
+      ctx.beginPath();
+      ctx.fillStyle = f.hue;
+      ctx.globalAlpha = 0.35*glow;
+      ctx.arc(f.x,f.y,f.r*2.2,0,7); ctx.fill();
+      ctx.globalAlpha = 0.9;
+      ctx.arc(f.x,f.y,f.r*0.5,0,7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+
+    // shards
+    shards.forEach(s=>{
+      const bob = Math.sin(s.phase)*4;
+      ctx.save();
+      ctx.translate(s.x, s.y+bob);
+      ctx.rotate(s.phase*0.5);
+      ctx.fillStyle = COLORS.amber;
+      ctx.shadowColor = COLORS.amber;
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      for(let i=0;i<4;i++){
+        const a = i*Math.PI/2;
+        const rr = i%2===0 ? s.r : s.r*0.5;
+        ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    });
+
+    // pulses
+    pulses.forEach(p=>{
+      ctx.beginPath();
+      ctx.strokeStyle = COLORS.magenta;
+      ctx.globalAlpha = p.alpha*0.8;
+      ctx.lineWidth = 3;
+      ctx.arc(p.x,p.y,p.r,0,7);
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1;
+
+    // driftlings
+    driftlings.forEach(d=>{
+      ctx.save();
+      ctx.translate(d.x,d.y);
+      ctx.fillStyle = d.stunned>0 ? COLORS.lavender : COLORS.magenta;
+      ctx.shadowColor = d.stunned>0 ? COLORS.lavender : COLORS.magenta;
+      ctx.shadowBlur = d.stunned>0 ? 6 : 16;
+      ctx.globalAlpha = d.stunned>0 ? 0.5 : 0.9;
+      ctx.beginPath();
+      for(let i=0;i<6;i++){
+        const a = i/6*Math.PI*2 + d.wobble*0.3;
+        const rr = d.r * (1 + Math.sin(d.wobble+i)*0.15);
+        ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);
+      }
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    });
+    ctx.globalAlpha = 1;
+
+    // player
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.fillStyle = player.hitFlash>0 ? COLORS.magenta : COLORS.cyan;
+    ctx.shadowColor = ctx.fillStyle;
+    ctx.shadowBlur = 22;
+    ctx.beginPath();
+    ctx.arc(0,0,player.r,0,7);
+    ctx.fill();
+    // three eyes
+    ctx.rotate(player.angle);
+    ctx.fillStyle = COLORS.voidA;
+    ctx.shadowBlur = 0;
+    [-6,0,6].forEach(oy=>{ ctx.beginPath(); ctx.arc(6, oy, 2, 0, 7); ctx.fill(); });
+    ctx.restore();
+
+    // vignette
+    const vg = ctx.createRadialGradient(W/2,H/2, Math.min(W,H)*0.35, W/2,H/2, Math.max(W,H)*0.75);
+    vg.addColorStop(0,'rgba(0,0,0,0)');
+    vg.addColorStop(1,'rgba(0,0,0,0.55)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function mix(hexA, hexB, t){
+    const a = parseInt(hexA.slice(1),16), b = parseInt(hexB.slice(1),16);
+    const ar=(a>>16)&255, ag=(a>>8)&255, ab=a&255;
+    const br=(b>>16)&255, bg=(b>>8)&255, bb=b&255;
+    const r=Math.round(ar+(br-ar)*t), gC=Math.round(ag+(bg-ag)*t), bC=Math.round(ab+(bb-ab)*t);
+    return `rgb(${r},${gC},${bC})`;
+  }
+
+  function loop(now){
+    if(state !== 'playing'){ return; }
+    let dt = (now - lastTime)/1000;
+    dt = Math.min(dt, 0.05);
+    lastTime = now;
+    const nightAmt = update(dt);
+    draw(nightAmt);
+    requestAnimationFrame(loop);
+  }
+
+  // idle background animation on title screen
+  function idleDraw(){
+    if(state === 'title'){
+      if(!stars.length) resetGame();
+      const t = performance.now()/1000;
+      draw(0.5 + Math.sin(t*0.1)*0.5);
+    }
+    requestAnimationFrame(idleDraw);
+  }
+  resetGame();
+  idleDraw();
+})();
+</script>
+</body>
+</html>
