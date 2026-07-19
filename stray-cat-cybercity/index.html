@@ -150,14 +150,14 @@ const keys = {left:false,right:false,jump:false,down:false};
 window.addEventListener('keydown', e=>{
   if(['ArrowLeft','a','A'].includes(e.key)) keys.left=true;
   if(['ArrowRight','d','D'].includes(e.key)) keys.right=true;
-  if([' ','ArrowUp','w','W'].includes(e.key)){ keys.jump=true; e.preventDefault(); }
+  if([' ','ArrowUp','w','W'].includes(e.key)){ if(!e.repeat) tryJump(); e.preventDefault(); }
   if(['ArrowDown','s','S'].includes(e.key)) keys.down=true;
   if(['e','E'].includes(e.key)) doAction();
 });
 window.addEventListener('keyup', e=>{
   if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
   if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
-  if([' ','ArrowUp','w','W'].includes(e.key)) keys.jump=false;
+  
   if(['ArrowDown','s','S'].includes(e.key)) keys.down=false;
 });
 function bindHold(el, onDown, onUp){
@@ -236,8 +236,9 @@ for(let i=0;i<90;i++){
 
 const cat = {
   x:80, y:GROUND_Y-20, vx:0, vy:0, w:26, h:16,
-  onGround:true, facing:1, crouch:false, tailT:0, safeX:80
+  onGround:true, facing:1, crouch:false, tailT:0, safeX:80, jumps:0
 };
+const MAX_JUMPS = 2;
 let camX = 0;
 
 const drone = { active:false, x:cat.x, y:cat.y-40, t:0 };
@@ -570,7 +571,8 @@ function drawCat(){
   ctx.translate(sx+13, y+h/2);
   ctx.scale(cat.facing, 1);
 
-  ctx.strokeStyle = '#141822';
+  // tail — brown point
+  ctx.strokeStyle = '#5a3a22';
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.moveTo(-12, 0);
@@ -578,7 +580,8 @@ function drawCat(){
   ctx.quadraticCurveTo(-24, -6+tailWag*0.4, -22 - Math.abs(tailWag)*0.3, -14+tailWag);
   ctx.stroke();
 
-  ctx.fillStyle = '#181c27';
+  // body — cream
+  ctx.fillStyle = '#e8dcc0';
   ctx.beginPath();
   ctx.ellipse(0,0, 13, h/2, 0,0,Math.PI*2);
   ctx.fill();
@@ -589,15 +592,29 @@ function drawCat(){
   ctx.ellipse(0,0,13,h/2,0, Math.PI*0.9, Math.PI*1.6);
   ctx.stroke();
 
-  ctx.fillStyle = '#181c27';
+  // head — cream base
+  ctx.fillStyle = '#ecdfc4';
   ctx.beginPath();
   ctx.arc(12, -h/2+2, 7, 0, Math.PI*2);
   ctx.fill();
+
+  // ears — brown points
+  ctx.fillStyle = '#5a3a22';
   ctx.beginPath();
   ctx.moveTo(8,-h/2-3); ctx.lineTo(11,-h/2-9); ctx.lineTo(13,-h/2-2);
   ctx.fill();
   ctx.beginPath();
   ctx.moveTo(14,-h/2-3); ctx.lineTo(18,-h/2-8); ctx.lineTo(17,-h/2-1);
+  ctx.fill();
+
+  // muzzle mask + nose — brown point
+  ctx.fillStyle = 'rgba(90,58,34,0.55)';
+  ctx.beginPath();
+  ctx.arc(16, -h/2+3, 4, 0, Math.PI*2);
+  ctx.fill();
+  ctx.fillStyle = '#5a3a22';
+  ctx.beginPath();
+  ctx.arc(18, -h/2+3, 1.7, 0, Math.PI*2);
   ctx.fill();
 
   ctx.fillStyle = 'rgba(94,245,255,0.95)';
