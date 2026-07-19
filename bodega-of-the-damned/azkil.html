@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BODEGA OF THE DAMNED</title>
+<style>
+  :root{
+    --bg:#07080a;
+    --panel:#0d1014;
+    --line:#1c2128;
+    --neon:#39ff9d;
+    --neon-dim:#1c7a52;
+    --pink:#ff2e7e;
+    --cyan:#2ee6ff;
+    --purple:#b967ff;
+    --gold:#ffd23f;
+    --paper:#e9ffe4;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg);
+    font-family:'Courier New',ui-monospace,monospace;color:var(--paper);
+    overflow-x:hidden; overscroll-behavior-y:contain;}
+  #app{max-width:520px;margin:0 auto;min-height:100%;position:relative;
+    padding:10px 10px 24px;}
+
+  /* CRT overlay */
+  .crt{pointer-events:none;position:fixed;inset:0;z-index:50;mix-blend-mode:overlay;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 2px, transparent 3px);
+    animation:flicker 6s infinite;}
+  .vignette{pointer-events:none;position:fixed;inset:0;z-index:49;
+    box-shadow:inset 0 0 140px 40px rgba(0,0,0,0.85);}
+  @keyframes flicker{0%,100%{opacity:.55}45%{opacity:.35}50%{opacity:.7}55%{opacity:.35}}
+
+  h1,h2,h3{margin:0;font-family:inherit;}
+  .title{text-align:center;font-size:22px;letter-spacing:3px;color:var(--neon);
+    text-shadow:0 0 6px var(--neon), 0 0 18px var(--neon-dim);margin:6px 0 2px;}
+  .subtitle{text-align:center;font-size:10px;color:#5b6472;letter-spacing:2px;margin-bottom:10px;}
+
+  .hud{display:flex;flex-wrap:wrap;gap:6px;background:var(--panel);border:1px solid var(--line);
+    border-radius:6px;padding:8px;margin-bottom:10px;font-size:11px;}
+  .hud .stat{flex:1 1 44%;}
+  .hud .label{color:#7d8794;font-size:9px;letter-spacing:1px;}
+  .hud .val{font-size:13px;font-weight:bold;}
+  .bar-track{background:#12151a;border:1px solid var(--line);border-radius:3px;height:8px;overflow:hidden;margin-top:2px;}
+  .bar-fill{height:100%;transition:width .4s ease;}
+  .heat-fill{background:linear-gradient(90deg,#ffd23f,#ff2e7e);}
+  .cash{color:var(--gold);text-shadow:0 0 6px rgba(255,210,63,.6);}
+
+  .factions{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--panel);
+    border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:10px;}
+  .faction-row{font-size:10px;}
+  .faction-name{display:flex;justify-content:space-between;margin-bottom:2px;}
+
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;
+    margin-bottom:10px;min-height:120px;position:relative;overflow:hidden;}
+  .stage.glitching{animation:glitchIn .35s steps(2,end);}
+  @keyframes glitchIn{
+    0%{clip-path:inset(0 0 0 0);transform:translate(0,0);filter:hue-rotate(0deg);}
+    20%{clip-path:inset(10% 0 40% 0);transform:translate(-6px,0);filter:hue-rotate(40deg);}
+    40%{clip-path:inset(60% 0 5% 0);transform:translate(6px,0);filter:hue-rotate(-30deg);}
+    60%{clip-path:inset(20% 0 20% 0);transform:translate(-3px,0);}
+    100%{clip-path:inset(0 0 0 0);transform:translate(0,0);filter:hue-rotate(0);}
+  }
+  .cust-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .glyph{font-size:34px;width:48px;text-align:center;filter:drop-shadow(0 0 6px currentColor);}
+  .cust-name{font-size:14px;font-weight:bold;}
+  .cust-faction{font-size:10px;opacity:.8;}
+  .dialogue{font-size:13px;line-height:1.5;color:#cfe;border-left:2px solid var(--neon-dim);
+    padding-left:8px;margin:6px 0;}
+  .request{font-size:11px;color:var(--cyan);margin-top:6px;}
+
+  .panel-title{font-size:10px;letter-spacing:2px;color:#7d8794;margin:12px 0 6px;}
+
+  .inv-list{display:flex;flex-direction:column;gap:6px;max-height:none;}
+  .inv-item{display:flex;justify-content:space-between;align-items:center;background:var(--panel);
+    border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:11px;cursor:pointer;}
+  .inv-item.selected{border-color:var(--neon);box-shadow:0 0 8px rgba(57,255,157,.3);}
+  .inv-item.match{outline:1px dashed var(--cyan);}
+  .inv-item .iname{font-weight:bold;}
+  .inv-item .iprice{color:var(--gold);}
+  .inv-item.disabled{opacity:.35;pointer-events:none;}
+  .tag{display:inline-block;font-size:8px;padding:1px 5px;border-radius:8px;margin-left:6px;
+    letter-spacing:.5px;vertical-align:middle;}
+
+  .slider-wrap{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px;margin:8px 0;}
+  .slider-wrap .row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;}
+  input[type=range]{width:100%;accent-color:var(--neon);}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px;}
+  button{font-family:inherit;border:none;border-radius:6px;padding:12px 4px;font-size:11px;
+    letter-spacing:.5px;font-weight:bold;cursor:pointer;transition:transform .1s ease;}
+  button:active{transform:scale(.95);}
+  .btn-fair{background:var(--neon);color:#04150c;}
+  .btn-scam{background:var(--pink);color:#1a0009;}
+  .btn-refuse{background:#2a2f38;color:#c8d0da;}
+  .btn-primary{background:var(--cyan);color:#00232b;width:100%;padding:14px;font-size:12px;}
+  .btn-secondary{background:transparent;border:1px solid var(--line);color:#9aa4b0;width:100%;padding:10px;margin-top:6px;font-size:11px;}
+
+  /* Receipt */
+  .receipt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:40;
+    display:flex;align-items:flex-end;justify-content:center;padding-bottom:0;}
+  .receipt{width:100%;max-width:520px;background:#eafff0;color:#08130c;font-family:'Courier New',monospace;
+    padding:16px 18px 26px;border-radius:10px 10px 0 0;box-shadow:0 0 30px rgba(57,255,157,.4);
+    animation:printUp .4s ease-out;max-height:70vh;overflow-y:auto;}
+  @keyframes printUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .receipt h3{text-align:center;letter-spacing:2px;border-bottom:1px dashed #08130c;padding-bottom:6px;font-size:14px;}
+  .receipt .line{display:flex;justify-content:space-between;font-size:11px;margin:4px 0;}
+  .receipt .flavor{font-size:11px;font-style:italic;margin:10px 0;border-top:1px dashed #08130c;padding-top:8px;}
+  .receipt .barcode{text-align:center;font-size:22px;letter-spacing:2px;margin-top:8px;opacity:.6;}
+
+  /* Modal / endings */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:60;display:flex;
+    align-items:center;justify-content:center;padding:16px;}
+  .modal{background:var(--panel);border:1px solid var(--neon-dim);border-radius:10px;padding:20px;
+    max-width:460px;width:100%;text-align:center;box-shadow:0 0 40px rgba(57,255,157,.2);}
+  .modal h2{color:var(--neon);text-shadow:0 0 8px var(--neon);letter-spacing:2px;margin-bottom:10px;}
+  .modal p{font-size:12px;line-height:1.6;color:#cfe;}
+
+  .home-link{display:block;text-align:center;font-size:10px;color:#5b6472;margin-top:14px;text-decoration:none;letter-spacing:1px;}
+  .flash{animation:flash .3s ease;}
+  @keyframes flash{0%{filter:brightness(2)}100%{filter:brightness(1)}}
+  .empty{font-size:11px;color:#5b6472;text-align:center;padding:10px;}
+</style>
+</head>
+<body>
+<div class="crt"></div>
+<div class="vignette"></div>
+<div id="app">
+  <div class="title">BODEGA OF THE DAMNED</div>
+  <div class="subtitle">// UNLICENSED MOD KIOSK — SECTOR 9</div>
+
+  <div class="hud">
+    <div class="stat"><div class="label">NIGHT</div><div class="val" id="dayVal">1 / 5</div></div>
+    <div class="stat"><div class="label">CREDITS</div><div class="val cash" id="cashVal">¥0</div></div>
+    <div class="stat" style="flex:1 1 100%;">
+      <div class="label">HEAT</div>
+      <div class="bar-track"><div class="bar-fill heat-fill" id="heatBar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="factions" id="factionBox"></div>
+
+  <div class="stage" id="stage">
+    <div class="empty">Loading terminal...</div>
+  </div>
+
+  <div id="dealArea"></div>
+
+  <a class="home-link" href="https://maximumreality.xyz" target="_blank">◂ maximumreality.xyz</a>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- DATA ----------
+  const FACTIONS = {
+    saints: {name:"Chrome Saints", color:"#ff2e7e", rep:50},
+    stat:   {name:"The Static",    color:"#2ee6ff", rep:50},
+    church: {name:"Null Church",   color:"#b967ff", rep:50},
+    corpo:  {name:"Corpo Remnant", color:"#ffd23f", rep:50},
+  };
+
+  const ITEMS = [
+    {id:"hud",    name:"Ocular HUD Patch",      tag:"stat",   price:80,  desc:"Streams static-net glyphs across the retina."},
+    {id:"spike",  name:"NeuroSpike Booster",    tag:"saints", price:150, desc:"Chrome-grade reflex overclock. Illegal in 6 sectors."},
+    {id:"chip",   name:"Prayer-Chip",           tag:"church", price:60,  desc:"Runs a faith algorithm. Whispers scripture on boot."},
+    {id:"spoof",  name:"Corpo ID Spoofer",      tag:"corpo",  price:200, desc:"Borrows a clean identity for 24 hours."},
+    {id:"dampen", name:"Pain Dampener Mk.II",   tag:"none",   price:100, desc:"Numbs everything. Everything."},
+    {id:"cloak",  name:"Static Cloak",          tag:"stat",   price:120, desc:"Jams tracking signals in a 10m radius."},
+    {id:"sigil",  name:"Sigil Tattoo-Chip",     tag:"saints", price:90,  desc:"Chrome Saints gang ink, subdermal and glowing."},
+    {id:"relic",  name:"Null Church Relic",     tag:"church", price:140, desc:"Fragment of a decommissioned server-god."},
+    {id:"key",    name:"Corpo Backdoor Key",    tag:"corpo",  price:250, desc:"Opens doors that shouldn't open. Very hot."},
+    {id:"stim",   name:"Black Sun Stim",        tag:"none",   price:70,  desc:"Off-book stimulant. Heat magnet."},
+    // Co-star customized signature items
+    {id:"quantum",name:"Q-Physicist Injector",  tag:"stat",   price:180, desc:"Azul's specialized script. Glitches security filters on a quantum level."},
+    {id:"snack",  name:"Mochkil's Hot Sauce",   tag:"saints", price:85,  desc:"Michelin-star synthetic capsaicin chaos. Pure energy."}
+  ];
+
+  const CUSTOMERS = [
+    // Co-stars added directly into the queue mix
+    {name:"Dr. Azul",    glyph:"🐱", tag:"stat",   suspicion:.1, line:"My medical analysis implies Sector 9's net-filters are thickening. Hand over the Quantum Injector before I'm forced to claw-hack the main node.", want:"quantum"},
+    {name:"Chef Mochkil",glyph:"🐈", tag:"saints", suspicion:.9, line:"Yo! Snack Attack is going live in ten seconds! I need that chaotic hot sauce container or this entire flash-fry kitchen goes up in smoke!", want:"snack"},
+    
+    {name:"Vex-9",       glyph:"👁️", tag:"stat",   suspicion:.3, line:"Static's watching me through the vents again. Need something that jams signal, now.", want:"cloak"},
+    {name:"Rook",        glyph:"♟️", tag:"saints", suspicion:.5, line:"Boss wants everyone chromed up before the meet. You got Saints ink?", want:"sigil"},
+    {name:"Sister Amyl", glyph:"🕯️", tag:"church", suspicion:.2, line:"The Church requires a vessel for the algorithm. A chip. Any chip.", want:"chip"},
+    {name:"Mr. Ledger",  glyph:"💼", tag:"corpo",  suspicion:.7, line:"I need a clean identity by morning. Discretion costs extra, I assume.", want:"spoof"},
+    {name:"Nullkid",     glyph:"📡", tag:"stat",   suspicion:.4, line:"Everyone's watching everyone. Sell me a way to disappear off the grid.", want:"cloak"},
+    {name:"Big Chrome",  glyph:"🦾", tag:"saints", suspicion:.6, line:"Reflexes ain't what they used to be. Spike me up, bodega rat.", want:"spike"},
+    {name:"Deacon Frey", glyph:"⛪", tag:"church", suspicion:.3, line:"We seek a relic. The server-god demands a fragment of itself back.", want:"relic"},
+    {name:"Auditor 6",   glyph:"🗂️", tag:"corpo",  suspicion:.8, line:"I require access. A key. You didn't hear that from a corpo, understand?", want:"key"},
+    {name:"Glass Moth",  glyph:"🦋", tag:"none",   suspicion:.2, line:"Everything hurts. Give me something that makes it stop.", want:"dampen"},
+    {name:"Ash",         glyph:"🔥", tag:"none",   suspicion:.5, line:"Need to stay up three more nights. You know what I'm asking for.", want:"stim"},
+    {name:"Iris-7",      glyph:"👓", tag:"stat",   suspicion:.35,line:"My eyes lie to me lately. I want them to lie on purpose. HUD patch.", want:"hud"},
+    {name:"Old Marrow",  glyph:"🧟", tag:"saints", suspicion:.6, line:"Kid, chrome me up or I'm no use to the Saints tonight.", want:"spike"},
+  ];
+
+  const ENDINGS = [
+    {id:"raided", cond: s => s.heat>=100,
+      title:"RAIDED",
+      body:"Boots on the shutter at 3 AM. Someone talked, or someone counted the heat and did the math. The kiosk goes dark. Sector 9 forgets you by sunrise, the way it forgets everyone."},
+    {id:"saints", cond: s => s.factions.saints.rep>=80,
+      title:"CHROME SAINTS TAKEOVER",
+      body:"The Saints stop asking and start owning. Your bodega becomes a Saints storefront, your name becomes theirs. Safer. Louder. Not yours anymore, but never robbed either."},
+    {id:"stat", cond: s => s.factions.stat.rep>=80,
+      title:"GHOST OF THE STATIC",
+      body:"The Static folds you into the signal — no face, no ledger, just a node that always delivers. You stop existing on paper. You start existing everywhere else."},
+    {id:"church", cond: s => s.factions.church.rep>=80,
+      title:"NULL CHURCH ASCENSION",
+      body:"Deacon Frey anoints your counter a shrine. Customers kneel before they haggle now. You're not sure if you believe in the server-god, but the server-god clearly believes in your markup."},
+    {id:"corpo", cond: s => s.factions.corpo.rep>=80,
+      title:"CORPO BUYOUT",
+      body:"Mr. Ledger's people make an offer you can't parse the fine print on. The bodega gets a license, a logo, and a leash. You're legitimate now. You miss the heat, a little."},
+    {id:"exiled", cond: s => avgRep(s)<25,
+      title:"EXILED",
+      body:"You burned every faction that ever walked through your door. Sector 9 has a long memory and no forgiveness. You pack the kiosk into a duffel bag and disappear west."},
+    {id:"rich", cond: s => s.cash>=1600,
+      title:"RETIRED RICH",
+      body:"You never picked a side — you just picked their pockets, fairly and often. The counter closes for the last time with more credits behind it than Sector 9 has ever seen leave clean."},
+    {id:"legend", cond: s => avgRep(s)>=55 && s.heat<40,
+      title:"INDEPENDENT LEGEND",
+      body:"No faction owns you. No raid ever found you. Word gets around: the bodega on the corner is the only honest liar left in Sector 9. That's a kind of legend."},
+    {id:"scraping", cond: s => true,
+      title:"BARELY SCRAPING BY",
+      body:"The lights stay on. The shutter still opens at dusk. No one loves you, no one's raided you, and the till is thin but never empty. Some nights, that's the whole win."},
+  ];
+
+  function avgRep(s){
+    const r = s.factions;
+    return (r.saints.rep + r.stat.rep + r.church.rep + r.corpo.rep) / 4;
+  }
+
+  // ---------- STATE ----------
+  let state = null;
+  function freshState(){
+    return {
+      day: 1, maxDays: 5,
+      custIndex: 0, custPerNight: 4,
+      cash: 200, heat: 0,
+      factions: JSON.parse(JSON.stringify(FACTIONS)),
+      currentCustomer: null,
+      selectedItem: null,
+      priceMult: 1.0,
+      ended: false,
+      nightQueue: [],
+    };
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildNightQueue(){
+    state.nightQueue = shuffle(CUSTOMERS).slice(0, state.custPerNight);
+  }
+
+  // ---------- RENDER ----------
+  const stageEl = document.getElementById("stage");
+  const dealArea = document.getElementById("dealArea");
+  const dayVal = document.getElementById("dayVal");
+  const cashVal = document.getElementById("cashVal");
+  const heatBar = document.getElementById("heatBar");
+  const factionBox = document.getElementById("factionBox");
+
+  function renderHud(){
+    dayVal.textContent = state.day + " / " + state.maxDays;
+    cashVal.textContent = "¥" + Math.max(0, Math.round(state.cash));
+    heatBar.style.width = Math.min(100, state.heat) + "%";
+    factionBox.innerHTML = "";
+    Object.keys(state.factions).forEach(key=>{
+      const f = state.factions[key];
+      const row = document.createElement("div");
+      row.className = "faction-row";
+      row.innerHTML = `
+        <div class="faction-name"><span style="color:${f.color}">${f.name}</span><span>${Math.round(f.rep)}</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${f.rep}%;background:${f.color}"></div></div>
+      `;
+      factionBox.appendChild(row);
+    });
+  }
+
+  function glitch(){
+    stageEl.classList.remove("glitching");
+    void stageEl.offsetWidth;
+    stageEl.classList.add("glitching");
+  }
+
+  function tagColor(tag){
+    if(tag==="saints") return "#ff2e7e";
+    if(tag==="stat") return "#2ee6ff";
+    if(tag==="church") return "#b967ff";
+    if(tag==="corpo") return "#ffd23f";
+    return "#7d8794";
+  }
+  function tagName(tag){
+    if(tag==="none") return "UNAFFILIATED";
+    return FACTIONS[tag] ? FACTIONS[tag].name.toUpperCase() : tag.toUpperCase();
+  }
+
+  function renderCustomer(){
+    const c = state.currentCustomer;
+    glitch();
+    const wantItem = ITEMS.find(i=>i.id===c.want);
+    stageEl.innerHTML = `
+      <div class="cust-row">
+        <div class="glyph" style="color:${tagColor(c.tag)}">${c.glyph}</div>
+        <div>
+          <div class="cust-name">${c.name}</div>
+          <div class="cust-faction" style="color:${tagColor(c.tag)}">${tagName(c.tag)}</div>
+        </div>
+      </div>
+      <div class="dialogue">"${c.line}"</div>
+      <div class="request">WANTS: <strong>${wantItem.desc}</strong></div>
+    `;
+    renderDeal();
+  }
+
+  function renderDeal(){
+    const c = state.currentCustomer;
+    const wantItem = ITEMS.find(i=>i.id===c.want);
+    let html = `<div class="panel-title">▸ INVENTORY — TAP TO OFFER</div><div class="inv-list">`;
+    ITEMS.forEach(it=>{
+      const isMatch = it.id === c.want;
+      const selected = state.selectedItem === it.id;
+      html += `
+        <div class="inv-item ${selected?'selected':''} ${isMatch?'match':''}" data-item="${it.id}">
+          <span class="iname">${it.name}${isMatch?'<span class="tag" style="background:'+tagColor(it.tag)+';color:#04150c">MATCH</span>':''}</span>
+          <span class="iprice">¥${it.price}</span>
+        </div>`;
+    });
+    html += `</div>`;
+
+    if(state.selectedItem){
+      const sel = ITEMS.find(i=>i.id===state.selectedItem);
+      const price = Math.round(sel.price * state.priceMult);
+      html += `
+        <div class="slider-wrap">
+          <div class="row"><span>ASKING PRICE</span><span class="cash">¥${price}</span></div>
+          <input type="range" min="50" max="220" value="${Math.round(state.priceMult*100)}" id="priceSlider">
+          <div class="row" style="color:#5b6472;font-size:9px;"><span>LOWBALL</span><span>FAIR</span><span>GOUGE</span></div>
+        </div>
+        <div class="panel-title">▸ HOW DO YOU PLAY IT?</div>
+        <div class="actions">
+          <button class="btn-fair" id="btnFair">HONEST<br>DEAL</button>
+          <button class="btn-scam" id="btnScam">SCAM<br>(FAKE IT)</button>
+          <button class="btn-refuse" id="btnRefuse">TURN<br>AWAY</button>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="panel-title">▸ OR</div>
+        <button class="btn-secondary" id="btnNoMatch">TELL THEM YOU'RE OUT OF STOCK</button>
+      `;
+    }
+
+    dealArea.innerHTML = html;
+
+    // wire events
+    dealArea.querySelectorAll(".inv-item").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        state.selectedItem = el.dataset.item;
+        state.priceMult = 1.0;
+        renderDeal();
+      });
+    });
+    const slider = document.getElementById("priceSlider");
+    if(slider){
+      slider.addEventListener("input", e=>{
+        state.priceMult = parseInt(e.target.value,10)/100;
+        renderDeal();
+      });
+    }
+    const btnFair = document.getElementById("btnFair");
+    const btnScam = document.getElementById("btnScam");
+    const btnRefuse = document.getElementById("btnRefuse");
+    const btnNoMatch = document.getElementById("btnNoMatch");
+    if(btnFair) btnFair.addEventListener("click", ()=>resolveDeal("fair"));
+    if(btnScam) btnScam.addEventListener("click", ()=>resolveDeal("scam"));
+    if(btnRefuse) btnRefuse.addEventListener("click", ()=>resolveDeal("refuse"));
+    if(btnNoMatch) btnNoMatch.addEventListener("click", ()=>resolveDeal("nomatch"));
+  }
+
+  function repFactionOf(tag){
+    return tag !== "none" ? state.factions[tag] : null;
+  }
+
+  function resolveDeal(mode){
+    const c = state.currentCustomer;
+    const isMatch = state.selectedItem === c.want;
+    const sel = state.selectedItem ? ITEMS.find(i=>i.id===state.selectedItem) : null;
+    const price = sel ? Math.round(sel.price * state.priceMult) : 0;
+    const rf = repFactionOf(c.tag);
+
+    let flavor = "";
+    let cashDelta = 0, heatDelta = 0, repDelta = 0;
+
+    if(mode === "nomatch"){
+      flavor = `${c.name} clicks their tongue and walks. "Useless bodega," they mutter.`;
+      repDelta = -3;
+      heatDelta = 0;
+    }
+    else if(mode === "refuse"){
+      flavor = `You wave them off. ${c.name} doesn't argue — doesn't thank you either.`;
+      repDelta = -1;
+      heatDelta = -2;
+    }
+    else if(mode === "fair"){
+      const fairness = state.priceMult <= 1.3 ? 1 : (state.priceMult <= 1.7 ? 0 : -1);
+      cashDelta = price;
+      if(!isMatch){
+        flavor = `You hand over ${sel.name} instead. ${c.name} eyes it, unconvinced, but takes it anyway.`;
+        repDelta = fairness >= 0 ? 2 : -2;
+        heatDelta = 3;
+      } else if(fairness === 1){
+        // Dynamic character reactions for honest match deals
+        if(c.name === "Dr. Azul") {
+          flavor = `Azul purrs intelligently. "Calculations confirmed. This injector will clean up the grid leaks."`;
+        } else if(c.name === "Chef Mochkil") {
+          flavor = `Mochkil grabs the sauce! "YES! Time to bring total flavor chaos to Sector 9!"`;
+        } else {
+          flavor = `Clean trade. ${c.name} nods — that's respect, rare currency in Sector 9.`;
+        }
+        repDelta = 6;
+        heatDelta = 1;
+      } else if(fairness === 0){
+        flavor = `${c.name} pays, grumbling about the markup, but the deal holds.`;
+        repDelta = 1;
+        heatDelta = 3;
+      } else {
+        flavor = `${c.name} pays through gritted teeth. Word of the gouge will travel.`;
+        repDelta = -5;
+        heatDelta = 6;
+      }
+    }
+    else if(mode === "scam"){
+      const caught = Math.random() < (c.suspicion + (isMatch ? 0 : 0.25) + state.priceMult*0.15);
+      cashDelta = price;
+      if(caught){
+        if(c.name === "Dr. Azul") {
+          flavor = `Azul glares with striking blue eyes. "You tried to pass off basic copper wire as quantum architecture? Faulty logic."`;
+        } else if(c.name === "Chef Mochkil") {
+          flavor = `Mochkil spits. "This isn't my recipe! This is watered-down commercial trash! Fraud!"`;
+        } else {
+          flavor = `${c.name} catches the fake mid-handshake. "You think I can't tell chrome from tin?!" Word spreads fast.`;
+        }
+        repDelta = -15;
+        heatDelta = 20;
+        cashDelta = Math.round(price*0.3);
+      } else {
+        flavor = `${c.name} walks off with a convincing fake, none the wiser. Profit, clean-ish.`;
+        repDelta = -2;
+        heatDelta = 8;
+      }
+    }
+
+    if(rf) rf.rep = clamp(rf.rep + repDelta, 0, 100);
+    state.cash += cashDelta;
+    state.heat = clamp(state.heat + heatDelta, 0, 100);
+
+    showReceipt({
+      customer: c.name,
+      item: sel ? sel.name : "— none —",
+      price: cashDelta,
+      mode: mode,
+      flavor: flavor,
+    });
+  }
+
+  function clamp(v,lo,hi){ return Math.max(lo, Math.min(hi, v)); }
+
+  function showReceipt(info){
+    renderHud();
+    const overlay = document.createElement("div");
+    overlay.className = "receipt-overlay";
+    const modeLabel = {fair:"HONEST DEAL", scam:"SCAM ATTEMPT", refuse:"NO SALE", nomatch:"OUT OF STOCK"}[info.mode];
+    overlay.innerHTML = `
+      <div class="receipt">
+        <h3>★ BODEGA RECEIPT ★</h3>
+        <div class="line"><span>CUSTOMER</span><span>${info.customer}</span></div>
+        <div class="line"><span>ITEM</span><span>${info.item}</span></div>
+        <div class="line"><span>TYPE</span><span>${modeLabel}</span></div>
+        <div class="line"><span>CREDITS</span><span>${info.price>=0?'+':''}¥${info.price}</span></div>
+        <div class="flavor">${info.flavor}</div>
+        <button class="btn-primary" id="btnContinue">CONTINUE ▸</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById("btnContinue").addEventListener("click", ()=>{
+      overlay.remove();
+      nextCustomer();
+    });
+  }
+
+  function nextCustomer(){
+    if(state.heat >= 100){
+      return endGame();
+    }
+    state.custIndex++;
+    state.selectedItem = null;
+    state.priceMult = 1.0;
+    if(state.custIndex >= state.nightQueue.length){
+      return endNight();
+    }
+    state.currentCustomer = state.nightQueue[state.custIndex];
+    renderHud();
+    renderCustomer();
+  }
+
+  function endNight(){
+    state.heat = clamp(state.heat - 10, 0, 100);
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2>NIGHT ${state.day} — SHUTTER CLOSED</h2>
+        <p>Credits on hand: ¥${Math.round(state.cash)}<br>Heat: ${Math.round(state.heat)}%</p>
+        <p>Sector 9 exhales. Tomorrow, someone else needs something they shouldn't have.</p>
+        <button class="btn-primary" id="btnNextNight">${state.day >= state.maxDays ? 'CLOSE THE BODEGA FOR GOOD ▸' : 'OPEN NIGHT '+(state.day+1)+' ▸'}</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById("btnNextNight").addEventListener("click", ()=>{
+      overlay.remove();
+      if(state.day >= state.maxDays){
+        endGame();
+      } else {
+        state.day++;
+        state.custIndex = 0;
+        buildNightQueue();
+        state.currentCustomer = state.nightQueue[0];
+        renderHud();
+        renderCustomer();
+      }
+    });
+  }
+
+  function endGame(){
+    const ending = ENDINGS.find(e => e.cond(state));
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+    overlay.innerHTML = `
+      <div class="modal">
+        <h2>${ending.title}</h2>
+        <p>${ending.body}</p>
+        <p style="color:#7d8794;font-size:10px;margin-top:14px;">
+          Final credits: ¥${Math.round(state.cash)} · Heat: ${Math.round(state.heat)}%<br>
+          Saints ${Math.round(state.factions.saints.rep)} · Static ${Math.round(state.factions.stat.rep)} ·
+          Church ${Math.round(state.factions.church.rep)} · Corpo ${Math.round(state.factions.corpo.rep)}
+        </p>
+        <button class="btn-primary" id="btnRestart">REBOOT KIOSK ▸</button>
+        <a class="btn-secondary" style="display:block;text-align:center;text-decoration:none;" href="https://maximumreality.xyz">RETURN TO MAXIMUM REALITY</a>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById("btnRestart").addEventListener("click", ()=>{
+      overlay.remove();
+      init();
+    });
+  }
+
+  function init(){
+    state = freshState();
+    buildNightQueue();
+    state.currentCustomer = state.nightQueue[0];
+    renderHud();
+    renderCustomer();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
