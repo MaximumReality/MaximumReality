@@ -87,6 +87,8 @@
 <body>
 
 <div id="wrap"><canvas id="game"></canvas></div>
+<audio id="bgMusic" src="https://maximumreality.xyz/audio/stray.mp3" loop prefetch></audio>
+
 <div id="vignette"></div>
 <div id="scan"></div>
 
@@ -385,6 +387,11 @@ function updateDrone(){
 function triggerWin(){
   win = true;
   exitGate.open = true;
+  
+  // Lower the music volume or pause it when they escape
+  const music = document.getElementById('bgMusic');
+  if (music) music.pause(); 
+
   setTimeout(()=>{
     document.getElementById('winText').textContent =
       "The gate opens onto a stairwell of pale light. The drone chirps once, "+
@@ -652,7 +659,21 @@ function loop(){
   requestAnimationFrame(loop);
 }
 
-document.getElementById('startBtn').addEventListener('click', ()=>{
+document.getElementById('startBtn').addEventListener('click', () => {
+  document.getElementById('startScreen').classList.add('hidden');
+  started = true;
+  toast("Somewhere above, something still hums. Find it.");
+
+  // --- AUDIO INITIALIZATION ---
+  const music = document.getElementById('bgMusic');
+  if (music) {
+    music.volume = 0.15; // Sets volume to a low, atmospheric 15%
+    music.play().catch(err => {
+      console.log("Audio playback blocked or failed:", err);
+    });
+  }
+});
+
   document.getElementById('startScreen').classList.add('hidden');
   started = true;
   toast("Somewhere above, something still hums. Find it.");
