@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>STRAY SIGNAL — a lost cat's escape</title>
+<style>
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent; user-select:none;}
+  html,body{
+    margin:0; padding:0; width:100%; height:100%; overflow:hidden;
+    background:#07080d;
+    font-family: 'Courier New', ui-monospace, monospace;
+    touch-action:none;
+  }
+  #wrap{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at 50% 30%, #10131c 0%, #07080d 70%);
+  }
+  #game{ width:100%; height:100%; image-rendering:pixelated; display:block; }
+  #vignette{
+    position:fixed; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse at 50% 55%, transparent 45%, rgba(0,0,0,0.55) 100%);
+    mix-blend-mode: multiply;
+  }
+  #scan{
+    position:fixed; inset:0; pointer-events:none; opacity:0.05;
+    background: repeating-linear-gradient(0deg, #fff 0px, #fff 1px, transparent 1px, transparent 3px);
+  }
+  #hud{
+    position:fixed; top:0; left:0; right:0; padding:14px 18px;
+    display:flex; justify-content:space-between; align-items:flex-start;
+    pointer-events:none; z-index:5;
+  }
+  #shardHud{
+    color:#5ef5ff; font-size:13px; letter-spacing:2px;
+    text-shadow:0 0 8px rgba(94,245,255,0.7);
+    background:rgba(7,8,13,0.4); border:1px solid rgba(94,245,255,0.25);
+    padding:6px 10px; border-radius:3px;
+  }
+  #toast{
+    position:fixed; top:54px; left:50%; transform:translateX(-50%);
+    color:#eaf6ff; font-size:12.5px; letter-spacing:1px; text-align:center;
+    background:rgba(7,8,13,0.55); border:1px solid rgba(94,245,255,0.2);
+    padding:8px 14px; border-radius:3px; max-width:80vw;
+    opacity:0; transition:opacity .5s ease; pointer-events:none; z-index:6;
+  }
+  #toast.show{opacity:1;}
+  #controls{
+    position:fixed; left:0; right:0; bottom:0; padding:16px;
+    display:flex; justify-content:space-between; align-items:flex-end;
+    z-index:10; pointer-events:none;
+  }
+  .padGroup{ display:flex; gap:10px; pointer-events:auto; }
+  .btn{
+    width:58px; height:58px; border-radius:50%;
+    background:rgba(13,16,23,0.55); border:1px solid rgba(94,245,255,0.35);
+    color:#5ef5ff; font-size:20px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 0 12px rgba(94,245,255,0.08) inset;
+  }
+  .btn:active{ background:rgba(94,245,255,0.25); }
+  #jumpBtn, #actionBtn{
+    background:rgba(13,16,23,0.55); border:1px solid rgba(255,63,164,0.35); color:#ff3fa4;
+  }
+  #jumpBtn:active, #actionBtn:active{ background:rgba(255,63,164,0.22); }
+  .overlay{
+    position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+    flex-direction:column; text-align:center; gap:16px; padding:30px;
+    background:radial-gradient(ellipse at 50% 40%, #10131c 0%, #050609 80%);
+    color:#eaf6ff;
+  }
+  .hidden{ display:none !important; }
+  .title{
+    font-size:clamp(28px,7vw,52px); letter-spacing:6px; color:#5ef5ff;
+    text-shadow:0 0 18px rgba(94,245,255,0.6), 0 0 40px rgba(255,63,164,0.25);
+    font-weight:700;
+  }
+  .subtitle{ color:#9fb4c4; font-size:13px; letter-spacing:2px; max-width:520px; line-height:1.7;}
+  .glowbtn{
+    margin-top:8px; padding:12px 26px; border-radius:3px;
+    background:rgba(94,245,255,0.08); border:1px solid #5ef5ff; color:#5ef5ff;
+    font-size:14px; letter-spacing:3px; cursor:pointer;
+  }
+  .glowbtn:active{ background:rgba(94,245,255,0.25); }
+  .hint{ color:#5b7080; font-size:11px; letter-spacing:1.5px; margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div id="wrap"><canvas id="game"></canvas></div>
+<div id="vignette"></div>
+<div id="scan"></div>
+
+<div id="hud">
+  <div id="shardHud">DATA SHARDS &nbsp;0 / 5</div>
+</div>
+<div id="toast"></div>
+
+<div id="controls">
+  <div class="padGroup">
+    <div class="btn" id="leftBtn">◀</div>
+    <div class="btn" id="rightBtn">▶</div>
+  </div>
+  <div class="padGroup">
+    <div class="btn" id="actionBtn">◉</div>
+    <div class="btn" id="jumpBtn">▲</div>
+  </div>
+</div>
+
+<div class="overlay" id="startScreen">
+  <div class="title">STRAY SIGNAL</div>
+  <div class="subtitle">
+    Lost, alone, and far from the colony — a stray cat wakes in the buried levels of a city
+    that stopped listening to itself long ago. Somewhere above, a signal still pulses.
+    Slip past the old maintenance droids, gather what memory the city has left scattered
+    in the dark, and find the thing that used to answer back.
+  </div>
+  <div class="glowbtn" id="startBtn">STEP INTO THE ALLEY</div>
+  <div class="hint">MOVE: ◀ ▶ / A D &nbsp;&nbsp; JUMP: ▲ / SPACE &nbsp;&nbsp; MEOW: ◉ / E &nbsp;&nbsp; CROUCH: S / ↓</div>
+</div>
+
+<div class="overlay hidden" id="winScreen">
+  <div class="title" style="color:#ff3fa4; text-shadow:0 0 18px rgba(255,63,164,0.6);">SIGNAL FOUND</div>
+  <div class="subtitle" id="winText"></div>
+  <div class="glowbtn" id="againBtn">WALK IT AGAIN</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const VW = 960, VH = 540;
+canvas.width = VW; canvas.height = VH;
+
+function fitCanvas(){
+  const s = Math.min(window.innerWidth / VW, window.innerHeight / VH);
+  canvas.style.width = (VW*s)+'px';
+  canvas.style.height = (VH*s)+'px';
+}
+window.addEventListener('resize', fitCanvas);
+fitCanvas();
+
+const GROUND_Y = VH - 90;
+const LEVEL_W = 3400;
+const GRAVITY = 0.62;
+
+const keys = {left:false,right:false,jump:false,down:false};
+window.addEventListener('keydown', e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=true;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=true;
+  if([' ','ArrowUp','w','W'].includes(e.key)){ keys.jump=true; e.preventDefault(); }
+  if(['ArrowDown','s','S'].includes(e.key)) keys.down=true;
+  if(['e','E'].includes(e.key)) doAction();
+});
+window.addEventListener('keyup', e=>{
+  if(['ArrowLeft','a','A'].includes(e.key)) keys.left=false;
+  if(['ArrowRight','d','D'].includes(e.key)) keys.right=false;
+  if([' ','ArrowUp','w','W'].includes(e.key)) keys.jump=false;
+  if(['ArrowDown','s','S'].includes(e.key)) keys.down=false;
+});
+function bindHold(el, onDown, onUp){
+  el.addEventListener('touchstart', e=>{e.preventDefault(); onDown();});
+  el.addEventListener('touchend', e=>{e.preventDefault(); onUp&&onUp();});
+  el.addEventListener('mousedown', e=>{e.preventDefault(); onDown();});
+  el.addEventListener('mouseup', e=>{e.preventDefault(); onUp&&onUp();});
+  el.addEventListener('mouseleave', e=>{ onUp&&onUp(); });
+}
+bindHold(document.getElementById('leftBtn'), ()=>keys.left=true, ()=>keys.left=false);
+bindHold(document.getElementById('rightBtn'), ()=>keys.right=true, ()=>keys.right=false);
+bindHold(document.getElementById('jumpBtn'), ()=>keys.jump=true, ()=>keys.jump=false);
+bindHold(document.getElementById('actionBtn'), ()=>doAction(), ()=>{});
+
+let toastTimer=null;
+function toast(msg, dur=3200){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), dur);
+}
+
+const platforms = [
+  {x:520, y:GROUND_Y-60, w:120, h:24},
+  {x:760, y:GROUND_Y-120, w:100, h:24},
+  {x:1180, y:GROUND_Y-50, w:140, h:24},
+  {x:1500, y:GROUND_Y-110, w:110, h:24},
+  {x:1840, y:GROUND_Y-55, w:130, h:24},
+  {x:2220, y:GROUND_Y-130, w:110, h:24},
+  {x:2560, y:GROUND_Y-60, w:150, h:24},
+  {x:2900, y:GROUND_Y-110, w:120, h:24},
+];
+
+const shards = [
+  {x:640, y:GROUND_Y-95, id:0, got:false},
+  {x:1210, y:GROUND_Y-85, id:1, got:false},
+  {x:1870, y:GROUND_Y-90, id:2, got:false},
+  {x:2250, y:GROUND_Y-165, id:3, got:false},
+  {x:2960, y:GROUND_Y-145, id:4, got:false},
+];
+const shardLines = [
+  "A shard of old memory. The city hums a little louder.",
+  "Something in the wires stirs, listening.",
+  "The signal is closer now. Keep moving.",
+  "Almost whole again — one more piece.",
+  "The last shard. The gate ahead should wake."
+];
+
+const droids = [
+  {x:900, minX:820, maxX:1050, y:GROUND_Y-22, w:34,h:30, speed:1.1, dir:1, alert:0, distract:0},
+  {x:1620, minX:1540, maxX:1760, y:GROUND_Y-22, w:34,h:30, speed:1.3, dir:-1, alert:0, distract:0},
+  {x:2080, minX:2000, maxX:2260, y:GROUND_Y-22, w:34,h:30, speed:1.0, dir:1, alert:0, distract:0},
+  {x:2700, minX:2620, maxX:2900, y:GROUND_Y-22, w:34,h:30, speed:1.4, dir:-1, alert:0, distract:0},
+];
+
+const droneGate = {x:2400, y:GROUND_Y-140, w:26, h:140, open:false, promptShown:false};
+const exitGate = {x:LEVEL_W-160, y:GROUND_Y-160, w:60, h:160, open:false};
+
+const windows = [];
+for(let i=0;i<140;i++){
+  windows.push({
+    x: Math.random()*LEVEL_W*1.4,
+    y: 40+Math.random()*(GROUND_Y-220),
+    w: 6+Math.random()*8, h:8+Math.random()*10,
+    layer: Math.random()<0.5?0:1,
+    on: Math.random()<0.7,
+    flicker: Math.random()<0.08,
+    hue: Math.random()<0.5? 'cyan':'magenta'
+  });
+}
+const rain = [];
+for(let i=0;i<90;i++){
+  rain.push({x:Math.random()*VW, y:Math.random()*VH, l:6+Math.random()*10, s:6+Math.random()*6});
+}
+
+const cat = {
+  x:80, y:GROUND_Y-20, vx:0, vy:0, w:26, h:16,
+  onGround:true, facing:1, crouch:false, tailT:0, safeX:80
+};
+let camX = 0;
+
+const drone = { active:false, x:cat.x, y:cat.y-40, t:0 };
+
+let shardCount = 0;
+let win = false;
+let started = false;
+let meowPulse = 0;
+let caughtFlash = 0;
+
+function doAction(){
+  if(!started || win) return;
+  meowPulse = 1;
+  droids.forEach(d=>{
+    const dist = Math.abs(d.x - cat.x);
+    if(dist < 220){ d.distract = 140; d.alert = 0; }
+  });
+  if(drone.active && !droneGate.open){
+    const dist = Math.abs(cat.x - (droneGate.x+droneGate.w/2));
+    if(dist < 70){
+      droneGate.open = true;
+      toast("The drone syncs with the old panel. Something unlocks.");
+    }
+  }
+}
+
+function collectShard(s){
+  s.got = true;
+  shardCount++;
+  document.getElementById('shardHud').textContent = `DATA SHARDS  ${shardCount} / 5`;
+  toast(shardLines[s.id]);
+  if(shardCount === 1 && !drone.active){
+    drone.active = true;
+    setTimeout(()=> toast("Something small and metal drops beside you. It doesn't seem hostile.", 4200), 1200);
+  }
+}
+
+function rectsOverlap(ax,ay,aw,ah,bx,by,bw,bh){
+  return ax < bx+bw && ax+aw > bx && ay < by+ah && ay+ah > by;
+}
+
+function updateCat(){
+  const speed = cat.crouch ? 1.6 : 3.1;
+  if(keys.left){ cat.vx = -speed; cat.facing=-1; }
+  else if(keys.right){ cat.vx = speed; cat.facing=1; }
+  else { cat.vx *= 0.7; }
+
+  if(keys.jump && cat.onGround){ cat.vy = -10.5; cat.onGround = false; }
+  cat.crouch = keys.down;
+
+  cat.vy += GRAVITY;
+  if(cat.vy > 16) cat.vy = 16;
+
+  cat.x += cat.vx;
+  cat.x = Math.max(10, Math.min(LEVEL_W-30, cat.x));
+
+  const vyThisFrame = cat.vy;
+  cat.y += cat.vy;
+  cat.onGround = false;
+
+  if(cat.y >= GROUND_Y-20){
+    cat.y = GROUND_Y-20;
+    cat.vy = 0;
+    cat.onGround = true;
+  }
+  platforms.forEach(p=>{
+    if(vyThisFrame >= 0 &&
+       cat.x+cat.w > p.x && cat.x < p.x+p.w &&
+       cat.y+cat.h > p.y && cat.y+cat.h - vyThisFrame <= p.y+2){
+      cat.y = p.y - cat.h;
+      cat.vy = 0;
+      cat.onGround = true;
+    }
+  });
+
+  if(!droneGate.open && rectsOverlap(cat.x,cat.y,cat.w,cat.h,droneGate.x,droneGate.y,droneGate.w,droneGate.h)){
+    if(cat.vx>0) cat.x = droneGate.x-cat.w;
+    else if(cat.vx<0) cat.x = droneGate.x+droneGate.w;
+  }
+
+  if(cat.onGround) cat.safeX = cat.x;
+  cat.tailT += 0.12 + Math.abs(cat.vx)*0.02;
+
+  shards.forEach(s=>{
+    if(!s.got && Math.abs(s.x-(cat.x+cat.w/2)) < 22 && Math.abs(s.y-(cat.y+cat.h/2))<26){
+      collectShard(s);
+    }
+  });
+
+  if(drone.active && !droneGate.open && Math.abs(cat.x-(droneGate.x+droneGate.w/2))<70 && !droneGate.promptShown){
+    droneGate.promptShown = true;
+    toast("A locked relay. The drone might be able to open it. (◉ / E)");
+  }
+
+  if(shardCount>=5 && Math.abs(cat.x-(exitGate.x+exitGate.w/2))<50 && !win){
+    triggerWin();
+  }
+
+  if(meowPulse>0) meowPulse -= 0.05;
+  if(caughtFlash>0) caughtFlash -= 0.04;
+
+  const targetCam = cat.x - VW*0.4;
+  camX += (targetCam-camX)*0.09;
+  camX = Math.max(0, Math.min(LEVEL_W-VW, camX));
+}
+
+function updateDroids(){
+  droids.forEach(d=>{
+    if(d.distract>0){
+      d.distract--;
+      d.alert = Math.max(0, d.alert-0.05);
+      return;
+    }
+    d.x += d.speed*d.dir;
+    if(d.x<d.minX){ d.x=d.minX; d.dir=1; }
+    if(d.x>d.maxX){ d.x=d.maxX; d.dir=-1; }
+
+    const dx = cat.x - d.x;
+    const dist = Math.abs(dx);
+    const facingMatches = (d.dir>0 && dx>0) || (d.dir<0 && dx<0);
+    const inRange = dist < 190 && facingMatches && Math.abs(cat.y-(d.y-10)) < 40;
+    const sneaky = cat.crouch;
+
+    if(inRange && !sneaky){ d.alert = Math.min(1, d.alert + 0.02); }
+    else { d.alert = Math.max(0, d.alert - 0.015); }
+
+    if(d.alert>=1){
+      caughtFlash = 1;
+      toast("Spotted! Back to the last safe spot.", 1800);
+      cat.x = Math.max(10, cat.safeX - 60);
+      cat.vy = 0;
+      droids.forEach(dd=>{dd.alert=0; dd.distract=60;});
+    }
+  });
+}
+
+function updateDrone(){
+  if(!drone.active) return;
+  drone.t += 0.08;
+  const targetX = cat.x - cat.facing*26;
+  const targetY = cat.y - 46 + Math.sin(drone.t*1.6)*6;
+  drone.x += (targetX-drone.x)*0.12;
+  drone.y += (targetY-drone.y)*0.12;
+}
+
+function triggerWin(){
+  win = true;
+  exitGate.open = true;
+  setTimeout(()=>{
+    document.getElementById('winText').textContent =
+      "The gate opens onto a stairwell of pale light. The drone chirps once, "+
+      "circles the cat's head, and rises ahead — leading the way up, out of the buried city, "+
+      "toward wherever the signal has been calling from.";
+    document.getElementById('winScreen').classList.remove('hidden');
+  }, 1300);
+}
+
+function drawBackground(){
+  const g = ctx.createLinearGradient(0,0,0,GROUND_Y);
+  g.addColorStop(0,'#0a0d16');
+  g.addColorStop(1,'#141826');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,VW,VH);
+
+  drawSkyline(0.25, 60, '#161b28', 0);
+  drawSkyline(0.5, 20, '#1c2233', 1);
+
+  ctx.fillStyle = '#0b0e15';
+  ctx.fillRect(0, GROUND_Y, VW, VH-GROUND_Y);
+}
+
+function drawSkyline(parallax, baseH, color, layerIdx){
+  const offset = -camX*parallax;
+  ctx.fillStyle = color;
+  const bw = 90;
+  const count = Math.ceil(VW/bw)+3;
+  const start = Math.floor((-offset)/bw)-1;
+  for(let i=start; i<start+count; i++){
+    const bx = i*bw + offset;
+    const seed = Math.abs(Math.sin(i*12.9898+layerIdx*7.233)*43758.5453)%1;
+    const h = baseH + seed*160;
+    ctx.fillRect(bx, GROUND_Y-h, bw-8, h);
+  }
+  windows.filter(w=>w.layer===layerIdx).forEach(w=>{
+    const wx = w.x + offset;
+    if(wx< -20 || wx>VW+20) return;
+    let lit = w.on;
+    if(w.flicker) lit = Math.random()<0.85;
+    if(!lit) return;
+    ctx.fillStyle = w.hue==='cyan' ? 'rgba(94,245,255,0.55)' : 'rgba(255,63,164,0.45)';
+    ctx.fillRect(wx, w.y, w.w, w.h);
+  });
+}
+
+function drawPlatforms(){
+  platforms.forEach(p=>{
+    const sx = p.x-camX;
+    if(sx>VW+40 || sx<-160) return;
+    ctx.fillStyle = '#20263a';
+    ctx.fillRect(sx, p.y, p.w, p.h);
+    ctx.fillStyle = 'rgba(94,245,255,0.35)';
+    ctx.fillRect(sx, p.y, p.w, 3);
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.strokeRect(sx, p.y, p.w, p.h);
+  });
+}
+
+function drawGate(g, poweredColor){
+  const sx = g.x-camX;
+  if(sx>VW+80 || sx<-80) return;
+  if(g.open){
+    ctx.strokeStyle = 'rgba(94,245,255,0.25)';
+    ctx.strokeRect(sx, g.y, g.w, g.h);
+    return;
+  }
+  ctx.fillStyle = '#171b28';
+  ctx.fillRect(sx, g.y, g.w, g.h);
+  ctx.strokeStyle = poweredColor;
+  ctx.lineWidth=2;
+  ctx.strokeRect(sx, g.y, g.w, g.h);
+  for(let i=0;i<4;i++){
+    ctx.fillStyle = poweredColor;
+    ctx.globalAlpha = 0.5+0.3*Math.sin(Date.now()/300+i);
+    ctx.fillRect(sx+4, g.y+8+i*(g.h-16)/4, g.w-8, 5);
+  }
+  ctx.globalAlpha=1;
+  ctx.lineWidth=1;
+}
+
+function drawShards(){
+  shards.forEach(s=>{
+    if(s.got) return;
+    const sx = s.x-camX;
+    if(sx>VW+30 || sx<-30) return;
+    const bob = Math.sin(Date.now()/260 + s.id)*4;
+    ctx.save();
+    ctx.translate(sx, s.y+bob);
+    ctx.rotate(Date.now()/700 + s.id);
+    ctx.fillStyle = 'rgba(255,63,164,0.9)';
+    ctx.beginPath();
+    for(let i=0;i<4;i++){
+      const a = i*Math.PI/2;
+      ctx.lineTo(Math.cos(a)*8, Math.sin(a)*8);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(sx, s.y+bob, 16, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,63,164,0.12)';
+    ctx.fill();
+  });
+}
+
+function drawDroids(){
+  droids.forEach(d=>{
+    const sx = d.x-camX;
+    if(sx>VW+80 || sx<-80) return;
+    const alertColor = d.alert>0.6 ? '#ff3b3b' : (d.alert>0.15 ? '#ffb020' : '#3fd2ff');
+
+    ctx.save();
+    ctx.globalAlpha = 0.10 + d.alert*0.12;
+    ctx.fillStyle = alertColor;
+    ctx.beginPath();
+    ctx.moveTo(sx, d.y-8);
+    const dir = d.dir;
+    ctx.lineTo(sx+dir*190, d.y-40);
+    ctx.lineTo(sx+dir*190, d.y+24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    const bob = Math.sin(Date.now()/240 + d.x)*2;
+    ctx.fillStyle = '#232a3d';
+    ctx.fillRect(sx-d.w/2, d.y-d.h+bob, d.w, d.h);
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.strokeRect(sx-d.w/2, d.y-d.h+bob, d.w, d.h);
+    ctx.fillStyle = alertColor;
+    ctx.shadowColor = alertColor;
+    ctx.shadowBlur = 8;
+    ctx.fillRect(sx-6, d.y-d.h/2+bob, 12, 5);
+    ctx.shadowBlur = 0;
+
+    if(d.distract>0){
+      ctx.fillStyle='rgba(94,245,255,0.8)';
+      ctx.font='10px monospace';
+      ctx.fillText('?', sx-3, d.y-d.h-6+bob);
+    } else if(d.alert>0.15){
+      ctx.fillStyle='rgba(255,176,32,0.85)';
+      ctx.font='10px monospace';
+      ctx.fillText('!', sx-2, d.y-d.h-6+bob);
+    }
+  });
+}
+
+function drawDrone(){
+  if(!drone.active) return;
+  const sx = drone.x-camX;
+  ctx.save();
+  ctx.translate(sx, drone.y);
+  ctx.fillStyle = 'rgba(94,245,255,0.9)';
+  ctx.shadowColor = '#5ef5ff';
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.ellipse(0,0,9,6,0,0,Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath();
+  const spin = Date.now()/20;
+  ctx.moveTo(-14, -2+Math.sin(spin)*1);
+  ctx.lineTo(14, -2+Math.sin(spin+2)*1);
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(94,245,255,0.05)';
+  ctx.beginPath();
+  ctx.moveTo(-3,4); ctx.lineTo(3,4); ctx.lineTo(16,60); ctx.lineTo(-16,60);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+}
+
+function drawCat(){
+  const sx = cat.x-camX;
+  const h = cat.crouch ? 10 : 16;
+  const y = cat.y + (16-h);
+  ctx.save();
+  ctx.translate(sx+13, y+h/2);
+  ctx.scale(cat.facing, 1);
+
+  ctx.strokeStyle = '#141822';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(-12, 0);
+  const tailWag = Math.sin(cat.tailT)*10;
+  ctx.quadraticCurveTo(-24, -6+tailWag*0.4, -22 - Math.abs(tailWag)*0.3, -14+tailWag);
+  ctx.stroke();
+
+  ctx.fillStyle = '#181c27';
+  ctx.beginPath();
+  ctx.ellipse(0,0, 13, h/2, 0,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(94,245,255,0.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0,0,13,h/2,0, Math.PI*0.9, Math.PI*1.6);
+  ctx.stroke();
+
+  ctx.fillStyle = '#181c27';
+  ctx.beginPath();
+  ctx.arc(12, -h/2+2, 7, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(8,-h/2-3); ctx.lineTo(11,-h/2-9); ctx.lineTo(13,-h/2-2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(14,-h/2-3); ctx.lineTo(18,-h/2-8); ctx.lineTo(17,-h/2-1);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(94,245,255,0.95)';
+  ctx.shadowColor = '#5ef5ff';
+  ctx.shadowBlur = meowPulse>0? 12: 5;
+  ctx.beginPath();
+  ctx.arc(15, -h/2, 1.6, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  ctx.restore();
+
+  if(meowPulse>0){
+    ctx.fillStyle = `rgba(255,63,164,${meowPulse*0.8})`;
+    ctx.font='11px monospace';
+    ctx.fillText('mrow!', sx-4, y-20);
+  }
+}
+
+function drawRain(){
+  ctx.strokeStyle = 'rgba(150,200,230,0.12)';
+  ctx.lineWidth=1;
+  rain.forEach(r=>{
+    ctx.beginPath();
+    ctx.moveTo(r.x, r.y);
+    ctx.lineTo(r.x-2, r.y+r.l);
+    ctx.stroke();
+    r.y += r.s;
+    if(r.y>VH){ r.y=-10; r.x=Math.random()*VW; }
+  });
+}
+
+function draw(){
+  drawBackground();
+  drawPlatforms();
+  drawGate(droneGate, 'rgba(255,176,32,0.8)');
+  drawGate(exitGate, 'rgba(94,245,255,0.9)');
+  drawShards();
+  drawDroids();
+  drawDrone();
+  drawCat();
+  drawRain();
+
+  if(caughtFlash>0){
+    ctx.fillStyle = `rgba(255,59,59,${caughtFlash*0.25})`;
+    ctx.fillRect(0,0,VW,VH);
+  }
+}
+
+function loop(){
+  if(started && !win){
+    updateCat();
+    updateDroids();
+    updateDrone();
+  }
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  document.getElementById('startScreen').classList.add('hidden');
+  started = true;
+  toast("Somewhere above, something still hums. Find it.");
+});
+document.getElementById('againBtn').addEventListener('click', ()=> location.reload());
+
+loop();
+})();
+</script>
+</body>
+</html>
