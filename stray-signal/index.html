@@ -472,10 +472,12 @@ function triggerWin(){
   if(music) music.pause();
 
   setTimeout(()=>{
-    document.getElementById('winText').textContent =
-      "The gate opens onto a stairwell of pale light. The drone chirps once, "+
-      "circles the cat's head, and rises ahead — leading the way up, out of the buried city, "+
-      "toward wherever the signal has been calling from.";
+    document.getElementById('winText').innerHTML =
+  "The gate opens onto a stairwell of pale light. The drone chirps once, "+
+  "circles the cat's head, and rises ahead — leading the way up, out of the buried city, "+
+  "toward wherever the signal has been calling from.<br><br>"+
+  "<strong style='color:#5ef5ff; letter-spacing:2px;'>TRANSMISSION CONTINUES...</strong><br>"+
+  "<span style='color:#9fb4c4;'>MORE LEVELS COMING SOON</span>";
     document.getElementById('winScreen').classList.remove('hidden');
   }, 1300);
 }
