@@ -96,14 +96,6 @@ h2 {
   text-shadow: 0 0 5px #ff00ff;
   margin: 10px 0;
 }
-/* Touch Zone Visual Hints */
-.touch-hint {
-  position: absolute;
-  bottom: 10px;
-  font-size: 11px;
-  color: #555;
-  pointer-events: none;
-}
 </style>
 </head>
 <body>
@@ -167,7 +159,7 @@ function sfxCoin() { playTone(1200, 0.1, 'sine', 0.06, 200); setTimeout(() => pl
 function sfxPowerUp() { playTone(500, 0.2, 'triangle', 0.08, 600); }
 
 // ============ GAME STATE ============
-let state = 'menu'; // menu, playing, dead
+let state = 'menu';
 let score, highScore = 0, speed, baseSpeed, frameCount;
 let player, obstacles, particles, stars, coins, powerups, bgBuildings, groundTiles;
 let screenShake = 0;
@@ -199,7 +191,7 @@ function init() {
   nearMissStreak = 0;
 
   player = {
-    x: 120, y: 0, w: 30, h: 50,
+    x: 120, y: 0, w: 32, h: 54,
     vy: 0, grounded: false, jumps: 0, maxJumps: 2,
     sliding: false, slideTimer: 0,
     trail: [], color: NEON.cyan, alive: true,
@@ -214,7 +206,6 @@ function init() {
   coins = [];
   powerups = [];
 
-  // Stars
   stars = [];
   for (let i = 0; i < 120; i++) {
     stars.push({
@@ -226,7 +217,6 @@ function init() {
     });
   }
 
-  // Background buildings
   bgBuildings = [];
   for (let i = 0; i < 20; i++) {
     bgBuildings.push({
@@ -238,7 +228,6 @@ function init() {
     });
   }
 
-  // Ground tiles
   groundTiles = [];
   for (let i = 0; i < 25; i++) {
     groundTiles.push({ x: i * 40, glow: Math.random() });
@@ -310,7 +299,6 @@ function spawnObstacle() {
     });
   }
 
-  // Coins & Powerups
   if (Math.random() < 0.4) {
     coins.push({
       x: W + 50 + Math.random() * 100,
@@ -319,7 +307,6 @@ function spawnObstacle() {
       color: NEON.yellow, angle: 0
     });
   } else if (Math.random() < 0.1) {
-    // Rare Powerup
     const pType = Math.random() < 0.5 ? 'shield' : 'dash';
     powerups.push({
       x: W + 60, y: groundY - 70 - Math.random() * 50,
@@ -341,7 +328,6 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// Mobile Controls Split Viewport
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const touch = e.touches[0];
@@ -369,7 +355,7 @@ function jump() {
   if (player.sliding) {
     player.sliding = false;
     player.slideTimer = 0;
-    player.h = 50;
+    player.h = 54;
     player.y = player.groundY - player.h;
   }
   if (player.jumps < player.maxJumps) {
@@ -390,7 +376,7 @@ function slide() {
   if (!player.alive || !player.grounded || player.sliding) return;
   player.sliding = true;
   player.slideTimer = 30;
-  player.h = 25;
+  player.h = 26;
   player.y = player.groundY - player.h;
   sfxSlide();
   spawnParticles(player.x + player.w, player.y + player.h, 6, NEON.cyan, 2);
@@ -408,7 +394,6 @@ function startGame() {
 function die() {
   if (!player.alive) return;
 
-  // Handle Shield Protection
   if (player.shield) {
     player.shield = false;
     sfxPowerUp();
@@ -417,7 +402,6 @@ function die() {
     return;
   }
 
-  // Handle Dash Invincibility
   if (player.dashTimer > 0) return;
 
   player.alive = false;
@@ -448,7 +432,6 @@ function update() {
 
   if (screenShake > 0) screenShake *= 0.85;
 
-  // Player physics
   if (player.alive) {
     player.vy += 0.6;
     player.y += player.vy;
@@ -465,7 +448,7 @@ function update() {
       player.slideTimer--;
       if (player.slideTimer <= 0) {
         player.sliding = false;
-        player.h = 50;
+        player.h = 54;
         player.y = player.groundY - player.h;
       }
     }
@@ -483,7 +466,6 @@ function update() {
     if (frameCount % spawnRate === 0) spawnObstacle();
   }
 
-  // Update obstacles
   for (let i = obstacles.length - 1; i >= 0; i--) {
     const o = obstacles[i];
     o.x -= speed;
@@ -507,7 +489,6 @@ function update() {
 
     if (player.alive && rectCollide(player, o)) {
       if (player.dashTimer > 0) {
-        // Destroy obstacle if dashing
         obstacles.splice(i, 1);
         spawnParticles(o.x + o.w/2, o.y + o.h/2, 20, o.color, 5, 20);
         continue;
@@ -519,7 +500,6 @@ function update() {
     if (o.x + o.w < -50) obstacles.splice(i, 1);
   }
 
-  // Coins Update & Dash Magnet Effect
   for (let i = coins.length - 1; i >= 0; i--) {
     const c = coins[i];
     c.x -= speed;
@@ -543,14 +523,13 @@ function update() {
     if (c.x < -50 || c.collected) coins.splice(i, 1);
   }
 
-  // Powerups Update
   for (let i = powerups.length - 1; i >= 0; i--) {
     const p = powerups[i];
     p.x -= speed;
     if (player.alive && Math.abs((player.x + player.w/2) - p.x) < 30 && Math.abs((player.y + player.h/2) - p.y) < 30) {
       sfxPowerUp();
       if (p.type === 'shield') player.shield = true;
-      if (p.type === 'dash') player.dashTimer = 180; // ~3 seconds
+      if (p.type === 'dash') player.dashTimer = 180;
       spawnParticles(p.x, p.y, 20, p.color, 4, 30);
       powerups.splice(i, 1);
       continue;
@@ -558,7 +537,6 @@ function update() {
     if (p.x < -50) powerups.splice(i, 1);
   }
 
-  // Particles & Backgrounds
   for (let i = particles.length - 1; i >= 0; i--) {
     const p = particles[i];
     p.x += p.vx; p.y += p.vy; p.vy += 0.1; p.life--;
@@ -608,7 +586,6 @@ function draw() {
     );
   }
 
-  // Background
   const grad = ctx.createLinearGradient(0, 0, 0, H);
   grad.addColorStop(0, '#050510');
   grad.addColorStop(0.6, '#0a0a20');
@@ -616,7 +593,6 @@ function draw() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, W, H);
 
-  // Stars
   for (const s of stars) {
     ctx.globalAlpha = 0.3 + s.brightness * 0.7;
     ctx.fillStyle = '#ffffff';
@@ -624,7 +600,6 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Parallax Buildings
   for (const b of bgBuildings) {
     ctx.globalAlpha = b.layer === 0 ? 0.12 : 0.2;
     ctx.fillStyle = b.color;
@@ -632,7 +607,6 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Ground Grid
   const groundY = H - 80;
   ctx.strokeStyle = NEON.magenta + '44';
   ctx.beginPath(); ctx.moveTo(0, groundY); ctx.lineTo(W, groundY); ctx.stroke();
@@ -645,17 +619,12 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Ground Line Glow
   drawGlowLine(0, groundY, W, groundY, NEON.cyan, 2, 8);
 
-  // Coins & Powerups
   for (const c of coins) drawCoin(c);
   for (const p of powerups) drawPowerup(p);
-
-  // Obstacles
   for (const o of obstacles) drawObstacle(o);
 
-  // Player Trail
   for (const t of player.trail) {
     ctx.globalAlpha = (t.life / 12) * 0.4;
     ctx.fillStyle = t.color || player.color;
@@ -663,10 +632,8 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Player
   if (player.alive || frameCount % 6 < 3) drawPlayer();
 
-  // Particles
   for (const p of particles) {
     ctx.globalAlpha = p.life / p.maxLife;
     ctx.fillStyle = p.color;
@@ -674,10 +641,8 @@ function draw() {
   }
   ctx.globalAlpha = 1;
 
-  // Overlay HUD
   drawHUD();
 
-  // CRT Scanline Overlay
   ctx.fillStyle = 'rgba(18, 10, 37, 0.04)';
   for (let i = 0; i < H; i += 4) ctx.fillRect(0, i, W, 2);
 
@@ -694,32 +659,139 @@ function drawGlowLine(x1, y1, x2, y2, color, width, glow) {
   ctx.restore();
 }
 
+// ============ NEW CHARACTER RENDERER ============
 function drawPlayer() {
   const px = player.x, py = player.y, pw = player.w, ph = player.h;
   const c = player.dashTimer > 0 ? NEON.magenta : player.color;
 
   ctx.save();
   ctx.shadowColor = c;
-  ctx.shadowBlur = 15;
-  ctx.fillStyle = '#111';
-  ctx.fillRect(px, py, pw, ph);
+  ctx.shadowBlur = 12;
   ctx.strokeStyle = c;
-  ctx.lineWidth = 2;
-  ctx.strokeRect(px, py, pw, ph);
+  ctx.fillStyle = c;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
 
-  // Shield Visual Bubble
+  const runPhase = frameCount * 0.35;
+
+  if (!player.sliding) {
+    // --- Head / Helmet ---
+    const headX = px + pw / 2 + 2;
+    const headY = py + 10;
+    ctx.beginPath();
+    ctx.arc(headX, headY, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Glowing Visor
+    ctx.fillStyle = NEON.yellow;
+    ctx.shadowColor = NEON.yellow;
+    ctx.fillRect(headX + 2, headY - 3, 7, 4);
+
+    // --- Cyber Scarf / Cape ---
+    ctx.strokeStyle = NEON.magenta;
+    ctx.shadowColor = NEON.magenta;
+    ctx.beginPath();
+    ctx.moveTo(headX - 4, headY + 2);
+    const scarfWave = Math.sin(frameCount * 0.4) * 6;
+    ctx.quadraticCurveTo(headX - 16, headY + scarfWave, headX - 26, headY + scarfWave * 1.5);
+    ctx.stroke();
+
+    // --- Torso / Armor ---
+    ctx.strokeStyle = c;
+    ctx.shadowColor = c;
+    const neckY = headY + 8;
+    const hipY = py + ph - 20;
+    const spineX = px + pw / 2;
+
+    ctx.beginPath();
+    ctx.moveTo(neckY < hipY ? spineX : spineX, neckY);
+    ctx.lineTo(spineX - 2, hipY);
+    ctx.stroke();
+
+    // Chest Plate Core
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(spineX - 6, neckY, 12, 12);
+    ctx.strokeRect(spineX - 6, neckY, 12, 12);
+
+    // --- Arms & Running Animation ---
+    const armAngle1 = player.grounded ? Math.sin(runPhase) * 0.8 : -0.5;
+    const armAngle2 = player.grounded ? Math.sin(runPhase + Math.PI) * 0.8 : 0.8;
+
+    // Back Arm
+    ctx.beginPath();
+    ctx.moveTo(spineX, neckY + 2);
+    ctx.lineTo(spineX - 10 * Math.cos(armAngle2), neckY + 10 + 8 * Math.sin(armAngle2));
+    ctx.stroke();
+
+    // Front Arm
+    ctx.beginPath();
+    ctx.moveTo(spineX, neckY + 2);
+    ctx.lineTo(spineX + 10 * Math.cos(armAngle1), neckY + 10 + 8 * Math.sin(armAngle1));
+    ctx.stroke();
+
+    // --- Legs & Running Animation ---
+    const legAngle1 = player.grounded ? Math.sin(runPhase) * 1.0 : -0.8;
+    const legAngle2 = player.grounded ? Math.sin(runPhase + Math.PI) * 1.0 : 0.6;
+
+    // Leg 1
+    ctx.beginPath();
+    ctx.moveTo(spineX - 2, hipY);
+    const knee1X = spineX - 2 + 12 * Math.sin(legAngle1);
+    const knee1Y = hipY + 12 * Math.cos(legAngle1);
+    ctx.lineTo(knee1X, knee1Y);
+    ctx.lineTo(knee1X + 8 * Math.sin(legAngle1 + 0.4), knee1Y + 10);
+    ctx.stroke();
+
+    // Leg 2
+    ctx.beginPath();
+    ctx.moveTo(spineX - 2, hipY);
+    const knee2X = spineX - 2 + 12 * Math.sin(legAngle2);
+    const knee2Y = hipY + 12 * Math.cos(legAngle2);
+    ctx.lineTo(knee2X, knee2Y);
+    ctx.lineTo(knee2X + 8 * Math.sin(legAngle2 + 0.4), knee2Y + 10);
+    ctx.stroke();
+
+  } else {
+    // --- Slide Pose ---
+    const slideHeadX = px + pw - 8;
+    const slideHeadY = py + 10;
+
+    // Head/Visor
+    ctx.beginPath();
+    ctx.arc(slideHeadX, slideHeadY, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = NEON.yellow;
+    ctx.fillRect(slideHeadX, slideHeadY - 2, 6, 3);
+
+    // Torso lying low
+    ctx.strokeStyle = c;
+    ctx.beginPath();
+    ctx.moveTo(slideHeadX - 7, slideHeadY + 2);
+    ctx.lineTo(px + 6, py + ph - 6);
+    ctx.stroke();
+
+    // Scarf trailing horizontal
+    ctx.strokeStyle = NEON.magenta;
+    ctx.beginPath();
+    ctx.moveTo(slideHeadX - 10, slideHeadY - 2);
+    ctx.lineTo(slideHeadX - 30, slideHeadY - 4 + Math.sin(frameCount) * 3);
+    ctx.stroke();
+
+    // Sliding Sparks
+    if (frameCount % 2 === 0) {
+      spawnParticles(px + pw, py + ph, 2, NEON.yellow, 2, 10);
+    }
+  }
+
+  // --- Shield Visual Bubble ---
   if (player.shield) {
     ctx.strokeStyle = NEON.cyan;
     ctx.lineWidth = 2;
     ctx.shadowBlur = 10;
     ctx.beginPath();
-    ctx.arc(px + pw/2, py + ph/2, 35, 0, Math.PI * 2);
+    ctx.arc(px + pw/2, py + ph/2, 36, 0, Math.PI * 2);
     ctx.stroke();
-  }
-
-  if (!player.sliding) {
-    ctx.fillStyle = c;
-    ctx.fillRect(px + 6, py + 8, pw - 10, 8);
   }
 
   ctx.restore();
