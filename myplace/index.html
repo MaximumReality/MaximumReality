@@ -5,13 +5,24 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0713">
 <title>MyPlace | Maximum Reality</title>
+<meta name="description" content="MyPlace: It's your world. Claim it. A Y2K social-network profile from the Maximum Reality universe — cats, cyberpunk, and 1,337,742 misfits online.">
+<meta property="og:title" content="MyPlace | Maximum Reality">
+<meta property="og:description" content="It's your world. Claim it. Step into Lori's MyPlace profile — the retro social hub of the Maximum Reality universe.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://maximumreality.xyz/myplace/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2305030a'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='%23ff3bd4'%3E%E2%98%86%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 <script defer src="script.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"MyPlace | Maximum Reality","url":"https://maximumreality.xyz/myplace/","description":"A Y2K-era social network parody profile from the Maximum Reality creative universe."}
+</script>
 </head>
 <body>
 <div class="shell">
   <div class="windowbar"><span>▣ MyPlace - It's your world. Claim it.</span><span class="window-buttons">□ ◫ ×</span></div>
   <header class="hero">
+    <div class="hero-stars" aria-hidden="true"></div>
     <div class="hero-inner">
       <div>
         <h1 class="logo">MyPlace ☆</h1>
@@ -59,11 +70,15 @@
 
       <article class="panel fake-player">
         <h3>☆ NOW PLAYING ☆</h3>
-        <p style="color:var(--cyan);font-size:1.1rem">Lori Lori<br>“GODMODE in Reverse”</p>
+        <p class="now-playing-track" style="color:var(--cyan);font-size:1.1rem" data-track>Lori Lori<br>"GODMODE in Reverse"</p>
         <div class="eq" aria-hidden="true">
           <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
-        <div class="player-controls">◀ ▶ ◼ ▶▶</div>
+        <div class="player-controls">
+          <button type="button" data-play-prev aria-label="Previous track">◀◀</button>
+          <button type="button" data-play-toggle aria-label="Play/Pause">❚❚</button>
+          <button type="button" data-play-next aria-label="Next track">▶▶</button>
+        </div>
       </article>
 
       <article class="panel" id="top8">
@@ -126,13 +141,18 @@
       </article>
 
       <article class="panel">
-        <h2>Comments: <span style="float:right;font-size:.8rem">(6 of 247)</span></h2>
-        <div class="comments">
+        <h2>Comments: <span id="comment-count" data-count="247" style="float:right;font-size:.8rem">(6 of 247)</span></h2>
+        <form id="comment-form" class="comment-form">
+          <input id="comment-name" type="text" maxlength="24" placeholder="Your name" aria-label="Your name">
+          <textarea id="comment-msg" maxlength="180" placeholder="Leave a comment for Lori..." aria-label="Comment message" rows="2"></textarea>
+          <button type="submit" class="retro-btn">Post Comment</button>
+        </form>
+        <div class="comments" id="comments-list">
           <div class="comment"><div class="mini">🤖</div><div><span class="name">UNIT-7</span> <time>Jul 16 6:42 PM</time><p>SIGNAL LOCKED. THIS PAGE IS LEGENDARY. 💜</p></div></div>
           <div class="comment"><div class="mini">🐈‍⬛</div><div><span class="name">Azul</span> <time>Jul 16 5:28 PM</time><p>More tuna. And world domination. 🐾</p></div></div>
           <div class="comment"><div class="mini">👧</div><div><span class="name">Luna</span> <time>Jul 16 4:03 PM</time><p>princess kitty rules!!! 👑🐱💕</p></div></div>
           <div class="comment"><div class="mini">👶🏽</div><div><span class="name">Stella</span> <time>Jul 16 3:57 PM</time><p>Poo Poo! 🌈✨</p></div></div>
-          <div class="comment"><div class="mini">?</div><div><span class="name">Anonymous</span> <time>Jul 16 2:11 PM</time><p>you’re living the sci-fi i always wanted. keep broadcasting. ☆</p></div></div>
+          <div class="comment"><div class="mini">?</div><div><span class="name">Anonymous</span> <time>Jul 16 2:11 PM</time><p>you're living the sci-fi i always wanted. keep broadcasting. ☆</p></div></div>
         </div>
       </article>
     </section>
