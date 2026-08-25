@@ -164,20 +164,33 @@
   scene.fog = new THREE.FogExp2(0x0a0a1a, 0.028);
   renderer.setClearColor(0x0a0a1a, 1);
 
-  const camera = new THREE.PerspectiveCamera(92, window.innerWidth/window.innerHeight, 0.05, 200);
+  const camera = new THREE.PerspectiveCamera(
+  78,
+  (window.innerWidth / 2) / window.innerHeight,
+  0.05,
+  200
   camera.position.set(0,0,0);
 
   const stereo = new THREE.StereoCamera();
-  // IPD dialed in at 66mm to optimize for wide Pro Max layouts inside budget VR plastic lenses
-  stereo.eyeSep = 0.066;
+
+// Very gentle separation so both eyes fuse easily.
+// 0 = identical images.
+// Start around .018 and adjust upward only if needed.
+stereo.eyeSep = 0.015;
+
+stereo.focus = 8;
+  
 
   function resize(){
-    const w = window.innerWidth, h = window.innerHeight;
-    renderer.setSize(w, h);
-    camera.aspect = (w/2) / h;
-    camera.updateProjectionMatrix();
-    stereo.aspect = 1;
-  }
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+
+  renderer.setSize(w, h);
+
+  // Each eye only receives half of the physical screen.
+  camera.aspect = (w / 2) / h;
+  camera.updateProjectionMatrix();
+}
   window.addEventListener('resize', resize);
   window.addEventListener('orientationchange', () => setTimeout(resize, 200));
   resize();
@@ -347,20 +360,21 @@
 
     const size = new THREE.Vector2();
     renderer.getSize(size);
-    stereo.update(camera);
-
     renderer.setScissorTest(true);
 
-    renderer.setScissor(0, 0, size.x/2, size.y);
-    renderer.setViewport(0, 0, size.x/2, size.y);
-    renderer.render(scene, stereo.cameraL);
+const halfWidth = Math.floor(size.x / 2);
 
-    renderer.setScissor(size.x/2, 0, size.x/2, size.y);
-    renderer.setViewport(size.x/2, 0, size.x/2, size.y);
-    renderer.render(scene, stereo.cameraR);
+// LEFT EYE
+renderer.setScissor(0, 0, halfWidth, size.y);
+renderer.setViewport(0, 0, halfWidth, size.y);
+renderer.render(scene, camera);
 
-    renderer.setScissorTest(false);
-  }
+// RIGHT EYE
+renderer.setScissor(halfWidth, 0, halfWidth, size.y);
+renderer.setViewport(halfWidth, 0, halfWidth, size.y);
+renderer.render(scene, camera);
+
+renderer.setScissorTest(false);
 
   // ---------- Entry flow ----------
   const overlay = document.getElementById('overlay');
