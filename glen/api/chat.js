@@ -50,7 +50,8 @@ module.exports = async function handler(req, res) {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: "openai/gpt-oss-120b",
+
           messages: [{ role: "system", content: SYSTEM_PROMPT }, ...trimmedHistory],
           temperature: 0.9,
           max_tokens: 400,
