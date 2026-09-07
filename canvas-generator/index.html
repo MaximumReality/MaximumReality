@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas Loop Generator — Maximum Reality</title>
+<style>
+  :root{
+    --bg: #0a0c12;
+    --panel: #12151f;
+    --line: #232840;
+    --ink: #d8e2f0;
+    --dim: #6f7891;
+    --acc: #35f0c9;
+    --acc2: #ff3d81;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 16px 60px;
+    min-height:100vh;
+  }
+  h1{
+    font-size:1.15rem;
+    font-weight:600;
+    letter-spacing:0.01em;
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .sub{
+    color:var(--dim);
+    font-size:0.85rem;
+    margin:0 0 28px;
+    text-align:center;
+    max-width:420px;
+  }
+  .stage{
+    display:flex;
+    gap:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+    width:100%;
+    max-width:900px;
+  }
+  .canvas-wrap{
+    position:relative;
+    width:225px;
+    height:400px;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--line);
+    background:#000;
+    flex-shrink:0;
+  }
+  canvas{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 20px;
+    width:320px;
+    flex-shrink:0;
+  }
+  .field{margin-bottom:16px;}
+  label{
+    display:block;
+    font-size:0.75rem;
+    color:var(--dim);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  input[type=file]{
+    width:100%;
+    font-size:0.8rem;
+    color:var(--ink);
+  }
+  select, input[type=range]{
+    width:100%;
+  }
+  select{
+    background:#0d1018;
+    color:var(--ink);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:0.85rem;
+  }
+  .row{display:flex; gap:10px;}
+  .row > div{flex:1;}
+  button{
+    width:100%;
+    padding:11px;
+    border-radius:6px;
+    border:none;
+    font-size:0.85rem;
+    font-weight:600;
+    cursor:pointer;
+    letter-spacing:0.01em;
+    transition:opacity .15s;
+  }
+  button:disabled{opacity:0.35; cursor:not-allowed;}
+  .btn-primary{background:var(--acc); color:#04140f;}
+  .btn-record{background:var(--acc2); color:#1a0210; margin-top:8px;}
+  .btn-record.recording{background:#ff1a1a; animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.6;}}
+  .status{
+    font-size:0.78rem;
+    color:var(--dim);
+    margin-top:10px;
+    min-height:16px;
+  }
+  a.dl{
+    display:block;
+    text-align:center;
+    margin-top:12px;
+    color:var(--acc);
+    font-size:0.82rem;
+    text-decoration:none;
+    border:1px solid var(--acc);
+    border-radius:6px;
+    padding:9px;
+  }
+  .note{
+    font-size:0.72rem;
+    color:var(--dim);
+    margin-top:22px;
+    max-width:420px;
+    line-height:1.5;
+    text-align:center;
+  }
+  .badge{
+    display:inline-block;
+    background:#1a1e2c;
+    border:1px solid var(--line);
+    color:var(--dim);
+    font-size:0.68rem;
+    padding:2px 7px;
+    border-radius:4px;
+    margin-left:6px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Canvas Loop Generator</h1>
+<p class="sub">Audio-reactive visuals for Spotify Canvas, sized 9:16. Load a song, pick a style, hit record.</p>
+
+<div class="stage">
+  <div class="canvas-wrap">
+    <canvas id="viz" width="540" height="960"></canvas>
+  </div>
+
+  <div class="panel">
+    <div class="field">
+      <label>Audio file</label>
+      <input type="file" id="audioFile" accept="audio/*">
+    </div>
+
+    <div class="field">
+      <label>Visual style</label>
+      <select id="style">
+        <option value="bars">Radial bars</option>
+        <option value="particles">Particle field</option>
+        <option value="pulse">Pulse rings</option>
+        <option value="wave">Waveform ribbon</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Accent color</label>
+        <select id="color">
+          <option value="35f0c9">Neon teal</option>
+          <option value="ff3d81">Hot pink</option>
+          <option value="ffb830">Amber</option>
+          <option value="7c5cff">Violet</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Loop length</label>
+        <select id="duration">
+          <option value="4">4 sec</option>
+          <option value="6" selected>6 sec</option>
+          <option value="8">8 sec</option>
+        </select>
+      </div>
+    </div>
+
+    <button id="playBtn" class="btn-primary" disabled>▶ Preview</button>
+    <button id="recordBtn" class="btn-record" disabled>● Record loop</button>
+    <div class="status" id="status">Load an audio file to start.</div>
+    <a id="downloadLink" class="dl" style="display:none;" download="canvas-loop.webm">Download video ↓</a>
+  </div>
+</div>
+
+<p class="note">
+  Recording captures the canvas only (no audio) — Spotify plays Canvas videos muted anyway.
+  For a clean loop, scrub to a section of the song with a steady beat, hit preview to check it,
+  then record. <span class="badge">Chrome / Edge recommended</span> — Safari's canvas recording support is limited.
+</p>
+
+<script>
+const audioFileInput = document.getElementById('audioFile');
+const playBtn = document.getElementById('playBtn');
+const recordBtn = document.getElementById('recordBtn');
+const statusEl = document.getElementById('status');
+const downloadLink = document.getElementById('downloadLink');
+const styleSelect = document.getElementById('style');
+const colorSelect = document.getElementById('color');
+const durationSelect = document.getElementById('duration');
+const canvas = document.getElementById('viz');
+const ctx = canvas.getContext('2d');
+
+let audioCtx, analyser, sourceNode, audioEl, dataArray, bufferLength;
+let rafId = null;
+let recorder = null;
+let recordedChunks = [];
+
+function hexToRgb(hex){
+  const n = parseInt(hex,16);
+  return [(n>>16)&255, (n>>8)&255, n&255];
+}
+
+audioFileInput.addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  if(audioEl){ audioEl.pause(); }
+  audioEl = new Audio(URL.createObjectURL(file));
+  audioEl.crossOrigin = "anonymous";
+  audioEl.loop = true;
+
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  sourceNode = audioCtx.createMediaElementSource(audioEl);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 256;
+  bufferLength = analyser.frequencyBinCount;
+  dataArray = new Uint8Array(bufferLength);
+  sourceNode.connect(analyser);
+  analyser.connect(audioCtx.destination);
+
+  playBtn.disabled = false;
+  recordBtn.disabled = false;
+  statusEl.textContent = 'Loaded: ' + file.name + ' — scrub with preview, then record.';
+});
+
+let isPlaying = false;
+playBtn.addEventListener('click', ()=>{
+  if(!audioEl) return;
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  if(!isPlaying){
+    audioEl.play();
+    isPlaying = true;
+    playBtn.textContent = '⏸ Pause';
+    draw();
+  } else {
+    audioEl.pause();
+    isPlaying = false;
+    playBtn.textContent = '▶ Preview';
+    if(rafId) cancelAnimationFrame(rafId);
+  }
+});
+
+function draw(){
+  rafId = requestAnimationFrame(draw);
+  analyser.getByteFrequencyData(dataArray);
+  renderFrame();
+}
+
+function renderFrame(){
+  const w = canvas.width, h = canvas.height;
+  const cx = w/2, cy = h/2;
+  const [r,g,b] = hexToRgb(colorSelect.value);
+  const style = styleSelect.value;
+
+  ctx.fillStyle = 'rgba(5,6,10,0.28)';
+  ctx.fillRect(0,0,w,h);
+
+  let avg = 0;
+  for(let i=0;i<bufferLength;i++) avg += dataArray[i];
+  avg = avg / bufferLength;
+
+  if(style === 'bars'){
+    const bars = 64;
+    const radius = 110 + avg*0.5;
+    for(let i=0;i<bars;i++){
+      const val = dataArray[Math.floor(i * bufferLength/bars)];
+      const angle = (i/bars) * Math.PI*2;
+      const len = 20 + val*1.6;
+      const x1 = cx + Math.cos(angle)*radius;
+      const y1 = cy + Math.sin(angle)*radius;
+      const x2 = cx + Math.cos(angle)*(radius+len);
+      const y2 = cy + Math.sin(angle)*(radius+len);
+      ctx.strokeStyle = `rgba(${r},${g},${b},${0.4 + val/300})`;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+    }
+  } else if(style === 'particles'){
+    const count = 90;
+    for(let i=0;i<count;i++){
+      const val = dataArray[i % bufferLength];
+      const angle = (i/count) * Math.PI*2 + performance.now()*0.0002;
+      const dist = 60 + val*1.8 + Math.sin(i*13.1)*20;
+      const x = cx + Math.cos(angle)*dist;
+      const y = cy + Math.sin(angle)*dist*1.4;
+      const size = 2 + val/40;
+      ctx.beginPath();
+      ctx.arc(x,y,size,0,Math.PI*2);
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.35 + val/280})`;
+      ctx.fill();
+    }
+  } else if(style === 'pulse'){
+    const rings = 5;
+    for(let i=0;i<rings;i++){
+      const val = dataArray[i*10] || 0;
+      const radius = 40 + i*45 + val*0.6;
+      ctx.beginPath();
+      ctx.arc(cx,cy,radius,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(${r},${g},${b},${0.5 - i*0.08})`;
+      ctx.lineWidth = 3 + val/60;
+      ctx.stroke();
+    }
+  } else if(style === 'wave'){
+    ctx.beginPath();
+    const sliceW = w / bufferLength;
+    let x = 0;
+    for(let i=0;i<bufferLength;i++){
+      const val = dataArray[i]/255;
+      const y = cy + (val-0.5) * h * 0.6;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      x += sliceW;
+    }
+    ctx.strokeStyle = `rgba(${r},${g},${b},0.85)`;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+  }
+
+  // center glow
+  const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,40+avg);
+  grad.addColorStop(0, `rgba(${r},${g},${b},${0.25+avg/400})`);
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx,cy,40+avg,0,Math.PI*2);
+  ctx.fill();
+}
+
+recordBtn.addEventListener('click', async ()=>{
+  if(!audioEl) return;
+  const dur = parseInt(durationSelect.value,10) * 1000;
+
+  if(audioCtx.state === 'suspended') await audioCtx.resume();
+  if(!isPlaying){ audioEl.play(); isPlaying = true; draw(); }
+
+  const stream = canvas.captureStream(30);
+  recordedChunks = [];
+  let mimeType = 'video/webm;codecs=vp9';
+  if(!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+  recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6_000_000 });
+  recorder.ondataavailable = (e)=>{ if(e.data.size>0) recordedChunks.push(e.data); };
+  recorder.onstop = ()=>{
+    const blob = new Blob(recordedChunks, {type:'video/webm'});
+    downloadLink.href = URL.createObjectURL(blob);
+    downloadLink.style.display = 'block';
+    statusEl.textContent = 'Loop recorded — download below, then trim/convert to mp4 if needed.';
+    recordBtn.classList.remove('recording');
+    recordBtn.textContent = '● Record loop';
+    recordBtn.disabled = false;
+  };
+
+  recorder.start();
+  recordBtn.classList.add('recording');
+  recordBtn.textContent = '■ Recording…';
+  recordBtn.disabled = true;
+  statusEl.textContent = `Recording ${dur/1000}s loop…`;
+
+  setTimeout(()=>{ if(recorder && recorder.state === 'recording') recorder.stop(); }, dur);
+});
+</script>
+</body>
+</html>
