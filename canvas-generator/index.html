@@ -207,10 +207,18 @@
 <p class="note">
   Recording captures the canvas only (no audio) — Spotify plays Canvas videos muted anyway.
   For a clean loop, scrub to a section of the song with a steady beat, hit preview to check it,
-  then record. <span class="badge">Chrome / Edge recommended</span> — Safari's canvas recording support is limited.
+  then record. The mp4 conversion happens automatically after recording (first run downloads a small converter, so it takes a bit longer).
+  <span class="badge">Chrome / Edge recommended</span> — Safari's canvas recording support is limited.
 </p>
 
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
 <script>
+const { createFFmpeg, fetchFile } = FFmpeg;
+const ffmpeg = createFFmpeg({
+  log: false,
+  corePath: 'https://unpkg.com/@ffmpeg/core@0.10.0/dist/ffmpeg-core.js'
+});
+
 const audioFileInput = document.getElementById('audioFile');
 const playBtn = document.getElementById('playBtn');
 const recordBtn = document.getElementById('recordBtn');
@@ -372,13 +380,29 @@ recordBtn.addEventListener('click', async ()=>{
 
   recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6_000_000 });
   recorder.ondataavailable = (e)=>{ if(e.data.size>0) recordedChunks.push(e.data); };
-  recorder.onstop = ()=>{
-    const blob = new Blob(recordedChunks, {type:'video/webm'});
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.style.display = 'block';
-    statusEl.textContent = 'Loop recorded — download below, then trim/convert to mp4 if needed.';
+  recorder.onstop = async ()=>{
+    const webmBlob = new Blob(recordedChunks, {type:'video/webm'});
     recordBtn.classList.remove('recording');
     recordBtn.textContent = '● Record loop';
+
+    statusEl.textContent = 'Converting to mp4… (first time may take 15-30s while the converter loads)';
+    try{
+      if(!ffmpeg.isLoaded()) await ffmpeg.load();
+      ffmpeg.FS('writeFile', 'input.webm', await fetchFile(webmBlob));
+      await ffmpeg.run('-i','input.webm','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','output.mp4');
+      const data = ffmpeg.FS('readFile','output.mp4');
+      const mp4Blob = new Blob([data.buffer], {type:'video/mp4'});
+      downloadLink.href = URL.createObjectURL(mp4Blob);
+      downloadLink.download = 'canvas-loop.mp4';
+      downloadLink.style.display = 'block';
+      statusEl.textContent = 'Loop ready as mp4 — download below.';
+    }catch(err){
+      console.error(err);
+      downloadLink.href = URL.createObjectURL(webmBlob);
+      downloadLink.download = 'canvas-loop.webm';
+      downloadLink.style.display = 'block';
+      statusEl.textContent = 'Mp4 conversion failed, here is the webm instead — try converting it with a free online tool.';
+    }
     recordBtn.disabled = false;
   };
 
