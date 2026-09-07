@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CODE IS LIFE — Visualizer</title>
+<style>
+  html,body{margin:0;background:#04060a;overflow:hidden;height:100%}
+  canvas{width:100%;height:100%;display:block}
+  #ui{position:fixed;top:16px;left:16px;z-index:10;color:#6f7891;
+      font-family:system-ui;font-size:12px;background:#0a0c12cc;
+      border:1px solid #232840;border-radius:8px;padding:12px}
+  button{background:#35f0c9;color:#04140f;border:0;padding:8px 14px;
+         border-radius:6px;font-weight:700;cursor:pointer}
+  #title{position:fixed;top:24px;width:100%;text-align:center;
+         color:#fff;font-family:monospace;letter-spacing:0.3em;
+         font-size:22px;text-shadow:0 0 20px #00ffff;pointer-events:none}
+  #lori{position:fixed;bottom:24px;width:100%;text-align:center;
+        color:#ff3d81;font-family:monospace;letter-spacing:0.5em;
+        font-size:14px;text-shadow:0 0 15px #ff3d81;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="title">CODE IS LIFE</div>
+<div id="lori">LORI LORI // MAXIMUM REALITY</div>
+<div id="ui">
+  <input type="file" id="file" accept="audio/*"><br><br>
+  <button id="play">▶ Play</button>
+  <button id="rec">● Record 6s</button>
+  <div id="status" style="margin-top:8px">Load mp3 to start</div>
+</div>
+<canvas id="c"></canvas>
+<script>
+const canvas=document.getElementById('c'), ctx=canvas.getContext('2d');
+const fileInput=document.getElementById('file'), playBtn=document.getElementById('play');
+const recBtn=document.getElementById('rec'), statusEl=document.getElementById('status');
+let audio, audioCtx, analyser, data, raf, isPlaying=false;
+
+function resize(){ canvas.width=540; canvas.height=960; }
+resize();
+
+function hexRgb(h){const n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255]}
+let accent=[53,240,201];
+
+async function setupAudio(url){
+  if(audio){audio.pause()}
+  audio=new Audio(url); audio.crossOrigin="anonymous"; audio.loop=true;
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') await audioCtx.resume();
+  const src=audioCtx.createMediaElementSource(audio);
+  analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
+  data=new Uint8Array(analyser.frequencyBinCount);
+  src.connect(analyser); analyser.connect(audioCtx.destination);
+  statusEl.textContent='Loaded — hit Play';
+}
+
+fileInput.onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  setupAudio(URL.createObjectURL(f));
+}
+
+playBtn.onclick=async()=>{
+  if(!audio)return;
+  if(audioCtx.state==='suspended') await audioCtx.resume();
+  if(!isPlaying){ audio.play(); isPlaying=true; playBtn.textContent='⏸ Pause'; draw(); }
+  else{ audio.pause(); isPlaying=false; playBtn.textContent='▶ Play'; cancelAnimationFrame(raf); }
+}
+
+function draw(){
+  raf=requestAnimationFrame(draw);
+  analyser.getByteFrequencyData(data);
+  const w=canvas.width,h=canvas.height,cx=w/2,cy=h/2;
+  let avg=data.reduce((a,b)=>a+b,0)/data.length;
+
+  // trail
+  ctx.fillStyle='rgba(4,6,10,0.28)'; ctx.fillRect(0,0,w,h);
+
+  // cracked glass lines
+  ctx.strokeStyle=`rgba(${accent[0]},${accent[1]},${accent[2]},0.15)`;
+  ctx.lineWidth=1;
+  for(let i=0;i<6;i++){
+    const ang=(i/6)*Math.PI*2 + avg*0.001;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(ang)* (300+avg), cy+Math.sin(ang)* (400+avg));
+    ctx.stroke();
+  }
+
+  // radial bars — THE CODE IS LIFE look
+  const bars=64, radius=90+avg*0.4;
+  for(let i=0;i<bars;i++){
+    const v=data[Math.floor(i*data.length/bars)];
+    const ang=(i/bars)*Math.PI*2;
+    const len=12+v*1.3;
+    const x1=cx+Math.cos(ang)*radius, y1=cy+Math.sin(ang)*radius;
+    const x2=cx+Math.cos(ang)*(radius+len), y2=cy+Math.sin(ang)*(radius+len);
+    ctx.strokeStyle=`rgba(${accent[0]},${accent[1]},${accent[2]},${0.35+v/300})`;
+    ctx.lineWidth=4; ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  }
+
+  // center white burst — like your album cover
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,35+avg);
+  grad.addColorStop(0,`rgba(255,255,255,${0.6+avg/400})`);
+  grad.addColorStop(0.3,`rgba(${accent[0]},${accent[1]},${accent[2]},${0.4})`);
+  grad.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grad; ctx.beginPath(); ctx.arc(cx,cy,35+avg,0,Math.PI*2); ctx.fill();
+}
+
+// recording — canvas only, no audio (Spotify Canvas muted anyway)
+recBtn.onclick=()=>{
+  const stream=canvas.captureStream(30);
+  let mime='video/webm;codecs=vp9';
+  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});
+  const chunks=[];
+  rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+  rec.onstop=()=>{
+    const blob=new Blob(chunks,{type:'video/webm'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='code-is-life-loop.webm'; a.click();
+    statusEl.textContent='Downloaded.webm — convert: ffmpeg -i input.webm -c:v libx264 output.mp4';
+  };
+  rec.start(); recBtn.textContent='■ Recording 6s...';
+  setTimeout(()=>rec.stop(),6000);
+  setTimeout(()=>recBtn.textContent='● Record 6s',6500);
+}
+</script>
+</body>
+</html>
