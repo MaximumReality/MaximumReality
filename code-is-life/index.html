@@ -12,6 +12,7 @@
       border:1px solid #232840;border-radius:8px;padding:12px}
   button{background:#35f0c9;color:#04140f;border:0;padding:8px 14px;
          border-radius:6px;font-weight:700;cursor:pointer}
+  button:disabled{opacity:0.35;cursor:not-allowed}
   #title{position:fixed;top:24px;width:100%;text-align:center;
          color:#fff;font-family:monospace;letter-spacing:0.3em;
          font-size:22px;text-shadow:0 0 20px #00ffff;pointer-events:none}
@@ -25,8 +26,8 @@
 <div id="lori">LORI LORI // MAXIMUM REALITY</div>
 <div id="ui">
   <input type="file" id="file" accept="audio/*"><br><br>
-  <button id="play">▶ Play</button>
-  <button id="rec">● Record 6s</button>
+  <button id="play" disabled>▶ Play</button>
+  <button id="rec" disabled>● Record 6s</button>
   <div id="status" style="margin-top:8px">Load mp3 to start</div>
 </div>
 <canvas id="c"></canvas>
@@ -39,7 +40,6 @@ let audio, audioCtx, analyser, data, raf, isPlaying=false;
 function resize(){ canvas.width=540; canvas.height=960; }
 resize();
 
-function hexRgb(h){const n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255]}
 let accent=[53,240,201];
 
 async function setupAudio(url){
@@ -51,6 +51,7 @@ async function setupAudio(url){
   analyser=audioCtx.createAnalyser(); analyser.fftSize=256;
   data=new Uint8Array(analyser.frequencyBinCount);
   src.connect(analyser); analyser.connect(audioCtx.destination);
+  playBtn.disabled=false; recBtn.disabled=false;
   statusEl.textContent='Loaded — hit Play';
 }
 
@@ -59,11 +60,25 @@ fileInput.onchange=e=>{
   setupAudio(URL.createObjectURL(f));
 }
 
+async function startPlayback(){
+  if(!audio) return false;
+  if(audioCtx.state==='suspended') await audioCtx.resume();
+  if(!isPlaying){
+    await audio.play();
+    isPlaying=true;
+    playBtn.textContent='⏸ Pause';
+    draw();
+  }
+  return true;
+}
+
 playBtn.onclick=async()=>{
   if(!audio)return;
-  if(audioCtx.state==='suspended') await audioCtx.resume();
-  if(!isPlaying){ audio.play(); isPlaying=true; playBtn.textContent='⏸ Pause'; draw(); }
-  else{ audio.pause(); isPlaying=false; playBtn.textContent='▶ Play'; cancelAnimationFrame(raf); }
+  if(!isPlaying){
+    await startPlayback();
+  } else {
+    audio.pause(); isPlaying=false; playBtn.textContent='▶ Play'; cancelAnimationFrame(raf);
+  }
 }
 
 function draw(){
@@ -106,10 +121,16 @@ function draw(){
 }
 
 // recording — canvas only, no audio (Spotify Canvas muted anyway)
-recBtn.onclick=()=>{
+recBtn.onclick=async()=>{
+  // FIX: force playback + the draw() loop running before we ever start capturing,
+  // otherwise the recorder just grabs a frozen frame for the full 6 seconds.
+  const started = await startPlayback();
+  if(!started){ statusEl.textContent='Load a song first.'; return; }
+
   const stream=canvas.captureStream(30);
-  let mime='video/webm;codecs=vp9';
-  if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
+  const candidates=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'];
+  let mime=candidates.find(t=>MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
   const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
@@ -117,11 +138,11 @@ recBtn.onclick=()=>{
     const blob=new Blob(chunks,{type:'video/webm'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a'); a.href=url; a.download='code-is-life-loop.webm'; a.click();
-    statusEl.textContent='Downloaded.webm — convert: ffmpeg -i input.webm -c:v libx264 output.mp4';
+    statusEl.textContent='Downloaded .webm — convert: ffmpeg -i code-is-life-loop.webm -c:v libx264 -pix_fmt yuv420p output.mp4';
   };
-  rec.start(); recBtn.textContent='■ Recording 6s...';
+  rec.start(); recBtn.textContent='■ Recording 6s...'; recBtn.disabled=true;
   setTimeout(()=>rec.stop(),6000);
-  setTimeout(()=>recBtn.textContent='● Record 6s',6500);
+  setTimeout(()=>{ recBtn.textContent='● Record 6s'; recBtn.disabled=false; },6500);
 }
 </script>
 </body>
