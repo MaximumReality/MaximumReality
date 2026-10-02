@@ -1,0 +1,22 @@
+{
+  "name": "Exit Vectors",
+  "short_name": "Exit Vectors",
+  "description": "Study the arrows. Find the exits. Clear the board without getting blocked.",
+  "start_url": "/exit-vectors/",
+  "display": "standalone",
+  "background_color": "#0c0e19",
+  "theme_color": "#0c0e19",
+  "icons": [
+    {
+      "src": "/exit-vectors/apple-touch-icon.PNG",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/exit-vectors/favicon.PNG",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
