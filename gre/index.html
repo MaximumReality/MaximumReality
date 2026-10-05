@@ -141,6 +141,34 @@ table.fmt td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-s
 .miss .a .y{color:var(--bad)} .miss .a .c{color:var(--good)}
 .miss .e{font-size:.92rem;color:var(--muted);margin-top:6px}
 .note{font-size:.85rem;color:var(--muted);margin-top:14px}
+/* Writing */
+nav.tabs{grid-template-columns:repeat(4,1fr)}
+.w-target{border-left:4px solid var(--mark)}
+.w-claim{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.3;margin:12px 0 8px;text-wrap:pretty}
+.w-task{color:var(--muted);margin:0 0 16px;font-size:.95rem}
+.timer{background:var(--sunk);border-radius:12px;padding:14px}
+.timer .clock{font-family:var(--mono);font-weight:700;font-size:2.6rem;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:10px}
+.timer .bar{background:var(--surface)}
+.timer.warn .clock{color:var(--mark)} .timer.warn .bar i{background:var(--mark)}
+.timer.over .clock{color:var(--bad)} .timer.over .bar i{background:var(--bad)}
+.timer .bar i{background:var(--accent)}
+.w-plan{font-size:.78rem;color:var(--muted)}
+textarea#w-essay{width:100%;min-height:340px;resize:vertical;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;padding:14px;font:inherit;font-size:16px;line-height:1.6}
+textarea#w-essay:focus{outline:none;border-color:var(--accent)}
+.w-stats{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.w-stats .ok{color:var(--good)}
+.chk{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.chk input{width:22px;height:22px;margin:2px 0 0;accent-color:var(--accent)}
+.chk small{display:block;color:var(--muted);font-size:.85rem}
+.chk .auto{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.grp{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 2px}
+.w-est{margin-top:14px;background:var(--sunk);border-radius:12px;padding:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.w-est .big{font-family:var(--display);font-weight:800;font-size:2.2rem;line-height:1}
+.w-est p{margin:0;flex:1;min-width:180px;font-size:.92rem}
+.hist{border-top:1px solid var(--line);padding:10px 0;display:grid;grid-template-columns:1fr auto;gap:4px 12px}
+.hist .h-p{font-weight:700;font-size:.95rem;min-width:0}
+.hist .h-m{font-family:var(--mono);font-size:.78rem;color:var(--muted);grid-column:1}
+.hist .h-s{font-family:var(--mono);font-weight:700;grid-row:1/3;grid-column:2;align-self:center;font-size:1.05rem}
 @media (prefers-reduced-motion: reduce){.card-inner,.bar i,.lesson .chev{transition:none}}
 </style>
 
@@ -151,9 +179,10 @@ table.fmt td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-s
   </header>
 
   <nav class="tabs" role="tablist">
-    <button id="tab-cards" role="tab" aria-selected="true" data-tab="cards">Flashcards</button>
+    <button id="tab-cards" role="tab" aria-selected="true" data-tab="cards">Cards</button>
     <button id="tab-lessons" role="tab" aria-selected="false" data-tab="lessons">Lessons</button>
-    <button id="tab-test" role="tab" aria-selected="false" data-tab="test">Practice Test</button>
+    <button id="tab-test" role="tab" aria-selected="false" data-tab="test">Test</button>
+    <button id="tab-writing" role="tab" aria-selected="false" data-tab="writing">Writing</button>
   </nav>
 
   <section id="cards" role="tabpanel">
@@ -175,6 +204,77 @@ table.fmt td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-s
 
   <section id="test" role="tabpanel" hidden>
     <div id="test-stage"></div>
+  </section>
+
+  <section id="writing" role="tabpanel" hidden>
+    <div class="panel w-target">
+      <p class="eyebrow">Target</p>
+      <p style="margin:4px 0 0">The Army–Baylor anesthesia program counts an Analytical Writing score of <b class="m">4.0+</b> as a plus. Practice under the real 30-minute limit, then score yourself honestly with the checklist.</p>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <div class="row"><span class="eyebrow">Issue prompt</span><span class="spacer"></span><button class="chip" id="w-new">New prompt</button></div>
+      <p class="w-claim" id="w-claim"></p>
+      <p class="w-task" id="w-task"></p>
+
+      <div class="timer" id="w-timerbox">
+        <div class="clock" id="w-clock">30:00</div>
+        <div class="bar"><i id="w-tbar" style="width:100%"></i></div>
+        <div class="row">
+          <button class="btn" id="w-start">Start 30 min</button>
+          <button class="btn ghost" id="w-reset">Reset</button>
+          <span class="spacer"></span>
+          <span class="m w-plan" id="w-phase">Plan 2–3 min · Write 24 · Proofread 3</span>
+        </div>
+      </div>
+
+      <label for="w-essay" class="eyebrow" style="display:block;margin:16px 0 6px">Your essay</label>
+      <textarea id="w-essay" placeholder="Start with your position in one clear sentence. Then give each reason its own paragraph with a specific example."></textarea>
+      <div class="w-stats"><span id="w-words">0 words</span><span id="w-paras">0 paragraphs</span><span id="w-goal">Aim for 400–600 words</span></div>
+    </div>
+
+    <div class="panel" style="margin-top:12px">
+      <p class="eyebrow">Score yourself</p>
+      <h2 style="font-size:1.35rem;margin:4px 0 4px">Checklist</h2>
+      <p class="note" style="margin-top:0">Reread your essay before you check each box. Only check it if a grader would clearly see it.</p>
+      <div id="w-checks"></div>
+      <div class="w-est" id="w-est"></div>
+      <div class="actions"><button class="btn" id="w-save">Save this attempt</button><button class="btn ghost" id="w-clear">Clear essay</button></div>
+      <p class="note" id="w-msg"></p>
+    </div>
+
+    <details class="lesson" style="margin-top:12px">
+      <summary><span class="num">≡</span><span><h3>What each score looks like</h3><span class="sec">Scoring guide, simplified</span></span><span class="chev">›</span></summary>
+      <div class="body">
+        <div class="tbl"><table class="fmt">
+          <tr><th>Score</th><th>What graders see</th></tr>
+          <tr><td class="n">6</td><td>A sharp, insightful position. Compelling, well-chosen examples. Smooth organization. Precise, varied language with almost no errors.</td></tr>
+          <tr><td class="n">5</td><td>A thoughtful position, developed with strong examples. Well organized, clear language, minor errors.</td></tr>
+          <tr><td class="n">4</td><td>A clear position with relevant reasons and examples. Adequately organized. Generally clear writing, some errors that don't block meaning.</td></tr>
+          <tr><td class="n">3</td><td>Some competence, but the position is vague or the support is thin. Weak organization or noticeable errors.</td></tr>
+          <tr><td class="n">2</td><td>Unclear position, little relevant support, or frequent errors that make it hard to follow.</td></tr>
+          <tr><td class="n">1</td><td>Little evidence of the ability to develop an argument. Often very short or off topic.</td></tr>
+        </table></div>
+        <p>The jump from 3 to 4 is mostly about <b>clarity and support</b>: a plain position and real examples that are explained, not just named. That's the most reachable gain.</p>
+      </div>
+    </details>
+
+    <details class="lesson">
+      <summary><span class="num">⌗</span><span><h3>A five-paragraph plan that works</h3><span class="sec">Template</span></span><span class="chev">›</span></summary>
+      <div class="body">
+        <p><b>1. Introduction (3–4 sentences).</b> Restate the issue in your own words. State your position in one sentence. Preview your two or three reasons.</p>
+        <p><b>2. Reason one.</b> Topic sentence with the reason. A specific example from history, science, medicine, business or your own work. Two or three sentences explaining <i>how</i> the example proves the point.</p>
+        <p><b>3. Reason two.</b> Same structure, with a different kind of example.</p>
+        <p><b>4. The other side.</b> State the strongest objection fairly. Then explain why your position still holds, or where the claim is true and where it isn't.</p>
+        <p><b>5. Conclusion (2–3 sentences).</b> Restate your position and why it matters. No new examples.</p>
+        <p>Clinical work is a great source of examples: patient safety, teamwork, protocols versus judgment, technology in care. Graders reward specific, real-feeling examples.</p>
+      </div>
+    </details>
+
+    <div class="panel" style="margin-top:12px">
+      <p class="eyebrow">Your attempts</p>
+      <div id="w-history"></div>
+    </div>
   </section>
 </div>
 
@@ -389,7 +489,7 @@ const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 /* ---------------- TABS ---------------- */
 document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
-  ["cards","lessons","test"].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.tab);
+  ["cards","lessons","test","writing"].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.tab);
   store.set("tab",b.dataset.tab); window.scrollTo({top:0});
 }));
 const savedTab = (location.hash||"").slice(1) || store.get("tab","cards");
@@ -544,6 +644,121 @@ function results(early){
   window.scrollTo({top:0});
 }
 setup();
+
+/* ---------------- WRITING ---------------- */
+const TASKS = {
+ agree:"Write a response in which you discuss the extent to which you agree or disagree with the statement, and explain your reasoning. Consider ways the statement might or might not hold true, and explain how those considerations shape your position.",
+ challenge:"Write a response in which you discuss the extent to which you agree or disagree with the claim. In developing your position, address the most compelling reasons or examples that could be used to challenge it.",
+ recommend:"Write a response in which you discuss your views on the recommendation. Describe specific circumstances in which adopting it would or would not be beneficial, and explain how those examples shape your position.",
+ twoviews:"Write a response in which you discuss which view more closely matches your own and explain your reasoning. In developing your position, address both of the views presented."
+};
+const PROMPTS = [
+ {c:"Experience is a better teacher than formal education.",t:"agree"},
+ {c:"In any profession, following established protocols matters more than individual judgment.",t:"challenge"},
+ {c:"Hospitals should require every new employee, regardless of role, to spend their first week shadowing frontline caregivers.",t:"recommend"},
+ {c:"Some people believe leaders should be chosen for their expertise. Others believe leaders should be chosen for their ability to inspire people.",t:"twoviews"},
+ {c:"The best way to understand a society is to study the way it treats its most vulnerable members.",t:"agree"},
+ {c:"Technology has made people more capable but less patient.",t:"challenge"},
+ {c:"Governments should fund scientific research only when its practical benefits are clear in advance.",t:"recommend"},
+ {c:"Some argue that students learn most when they are allowed to fail. Others argue that students learn most when they are guided carefully to avoid failure.",t:"twoviews"},
+ {c:"A team is only as strong as its least prepared member.",t:"agree"},
+ {c:"People are more likely to change their behavior because of personal stories than because of statistics.",t:"challenge"},
+ {c:"Employers should give workers the option of a four-day work week.",t:"recommend"},
+ {c:"Some say that ambition is the most important trait for success. Others say that persistence matters more than ambition.",t:"twoviews"},
+ {c:"The most important discoveries are often made by people working outside their own field.",t:"agree"},
+ {c:"Rules exist mainly to protect people from their own poor choices.",t:"challenge"},
+ {c:"Universities should require all students to complete community service before graduating.",t:"recommend"},
+ {c:"Some believe that a person's character is formed mostly by family. Others believe it is formed mostly by the challenges the person faces.",t:"twoviews"}
+];
+const CHECKS = [
+ {g:"Position",id:"c-pos",t:"My position is stated clearly in the introduction",h:"A reader can point to the one sentence that says what I think."},
+ {g:"Position",id:"c-task",t:"I followed the specific task instructions",h:"For example: I addressed both views, or the strongest challenge, or specific circumstances."},
+ {g:"Support",id:"c-ex",t:"Each body paragraph has a specific example",h:"A real event, study, workplace situation or person, not a vague \"many people\"."},
+ {g:"Support",id:"c-dev",t:"I explained how each example proves my point",h:"At least two sentences of reasoning after each example."},
+ {g:"Support",id:"c-counter",t:"I addressed the opposing side",h:"Stated the strongest objection fairly and answered it."},
+ {g:"Organization",id:"c-para",t:"One main idea per paragraph, with transitions",h:"Words like however, for example, as a result connect the ideas."},
+ {g:"Organization",id:"c-end",t:"I wrote a real conclusion",h:"It restates the position without adding new examples."},
+ {g:"Language",id:"c-lang",t:"Varied sentences and precise words; few errors",h:"Proofread once. No sentence was hard to follow."},
+ {g:"Length",id:"c-len",auto:"words",t:"At least 350 words",h:"Most 4+ essays are 400–600 words. Counted for you."},
+ {g:"Length",id:"c-paras",auto:"paras",t:"At least 4 paragraphs",h:"Intro, two or more body paragraphs, conclusion. Counted for you."}
+];
+
+const W = {pi:store.get("wPrompt",0), checks:new Set(), end:null, left:1800, tick:null};
+const essayEl=document.getElementById("w-essay");
+try{ essayEl.value = localStorage.getItem("gre_wDraft") || ""; }catch(e){}
+
+function showPrompt(){ const p=PROMPTS[W.pi]; document.getElementById("w-claim").textContent=p.c; document.getElementById("w-task").textContent=TASKS[p.t]; }
+document.getElementById("w-new").onclick=()=>{ let n; do{ n=Math.floor(Math.random()*PROMPTS.length) }while(n===W.pi); W.pi=n; store.set("wPrompt",n); showPrompt(); };
+
+function counts(){ const v=essayEl.value.trim(); return {w: v? v.split(/\s+/).length : 0, p: v? v.split(/\n\s*\n|\n/).filter(s=>s.trim().split(/\s+/).length>=8).length : 0}; }
+function updateStats(){
+  const c=counts();
+  const we=document.getElementById("w-words"); we.textContent=`${c.w} words`; we.className=c.w>=350?"ok":"";
+  const pe=document.getElementById("w-paras"); pe.textContent=`${c.p} paragraph${c.p===1?"":"s"}`; pe.className=c.p>=4?"ok":"";
+  CHECKS.filter(k=>k.auto).forEach(k=>{ const on = k.auto==="words" ? c.w>=350 : c.p>=4; const box=document.getElementById(k.id); if(box) box.checked=on; on?W.checks.add(k.id):W.checks.delete(k.id); });
+  estimate();
+}
+essayEl.addEventListener("input",()=>{ try{localStorage.setItem("gre_wDraft",essayEl.value)}catch(e){} updateStats(); });
+
+let lastG=""; document.getElementById("w-checks").innerHTML = CHECKS.map(k=>{
+  const head = k.g!==lastG ? `<p class="grp">${k.g}</p>` : ""; lastG=k.g;
+  return `${head}<label class="chk" for="${k.id}"><input type="checkbox" id="${k.id}" ${k.auto?"disabled":""}><span>${k.t}${k.auto?' <span class="auto">· auto</span>':""}<small>${k.h}</small></span></label>`;
+}).join("");
+CHECKS.filter(k=>!k.auto).forEach(k=>document.getElementById(k.id).addEventListener("change",e=>{ e.target.checked?W.checks.add(k.id):W.checks.delete(k.id); estimate(); }));
+
+function band(n){
+  if(n>=10) return ["5.0–6.0","Strong across the board. Have someone else read it to confirm the examples are as convincing as they feel."];
+  if(n>=8) return ["4.5–5.0","Above the 4.0 target. Push the examples to be more specific and the reasoning deeper."];
+  if(n>=6) return ["4.0","Right around the target. Look at the unchecked boxes: those are your fastest gains."];
+  if(n>=4) return ["3.0–3.5","Getting there. A clearly stated position and one well-explained example per paragraph will move this up."];
+  return ["2.5 or below","Start with the template below and focus on stating a position and supporting it with two examples."];
+}
+function estimate(){ const n=W.checks.size, [s,msg]=band(n);
+  document.getElementById("w-est").innerHTML=`<span class="big">${s}</span><p><b class="m">${n}/10</b> checked. ${msg}<br><span style="color:var(--muted);font-size:.85rem">A rough self-check, not an official score.</span></p>`; }
+
+function fmt(s){ const a=Math.max(0,s); return `${String(Math.floor(a/60)).padStart(2,"0")}:${String(a%60).padStart(2,"0")}`; }
+function drawTimer(){
+  const box=document.getElementById("w-timerbox");
+  document.getElementById("w-clock").textContent = W.left<=0 ? "Time's up" : fmt(W.left);
+  document.getElementById("w-tbar").style.width = (Math.max(0,W.left)/1800*100)+"%";
+  box.classList.toggle("warn", W.left>0 && W.left<=180); box.classList.toggle("over", W.left<=0);
+  const el=W.left-0, used=1800-W.left;
+  document.getElementById("w-phase").textContent = W.left<=0 ? "Stop writing and score it below"
+    : !W.tick && used===0 ? "Plan 2–3 min · Write 24 · Proofread 3"
+    : used<180 ? "Now: plan your position and reasons" : W.left<=180 ? "Now: proofread" : "Now: write";
+}
+function stopTick(){ clearInterval(W.tick); W.tick=null; }
+document.getElementById("w-start").onclick=e=>{
+  if(W.tick){ stopTick(); W.left=Math.ceil((W.end-Date.now())/1000); e.currentTarget.textContent="Resume"; drawTimer(); return; }
+  if(W.left<=0) return;
+  W.end=Date.now()+W.left*1000; e.currentTarget.textContent="Pause";
+  W.tick=setInterval(()=>{ W.left=Math.ceil((W.end-Date.now())/1000); if(W.left<=0){W.left=0;stopTick();document.getElementById("w-start").textContent="Start 30 min";} drawTimer(); },250);
+  drawTimer(); essayEl.focus();
+};
+document.getElementById("w-reset").onclick=()=>{ stopTick(); W.left=1800; document.getElementById("w-start").textContent="Start 30 min"; drawTimer(); };
+
+function renderHist(){
+  const h=store.get("wHist",[]), el=document.getElementById("w-history");
+  el.innerHTML = h.length ? h.map(a=>`<div class="hist"><span class="h-p">${esc(a.c)}</span><span class="h-m">${a.d} · ${a.w} words · ${a.min} min</span><span class="h-s">${a.s}</span></div>`).join("")
+    : `<p class="note" style="margin-top:6px">No saved attempts yet. Write an essay, check the boxes, then tap "Save this attempt" to track your progress here.</p>`;
+}
+document.getElementById("w-save").onclick=()=>{
+  const c=counts(), msg=document.getElementById("w-msg");
+  if(c.w<30){ msg.textContent="Write at least a few paragraphs before saving an attempt."; return; }
+  const used = W.tick ? Math.round((1800-Math.ceil((W.end-Date.now())/1000))/60) : Math.round((1800-W.left)/60);
+  const h=store.get("wHist",[]);
+  h.unshift({c:PROMPTS[W.pi].c, d:new Date().toLocaleDateString(undefined,{month:"short",day:"numeric"}), w:c.w, min:used, s:band(W.checks.size)[0]});
+  store.set("wHist",h.slice(0,12)); renderHist(); msg.textContent="Saved. Clear the essay and try a new prompt when you're ready.";
+};
+document.getElementById("w-clear").onclick=e=>{
+  const b=e.currentTarget;
+  if(b.dataset.confirm!=="1"){ b.dataset.confirm="1"; b.textContent="Tap again to clear"; setTimeout(()=>{b.dataset.confirm="";b.textContent="Clear essay"},3000); return; }
+  essayEl.value=""; try{localStorage.removeItem("gre_wDraft")}catch(err){}
+  CHECKS.forEach(k=>{document.getElementById(k.id).checked=false}); W.checks.clear();
+  b.dataset.confirm=""; b.textContent="Clear essay"; document.getElementById("w-msg").textContent=""; updateStats();
+};
+
+showPrompt(); drawTimer(); updateStats(); renderHist();
 </script>
 
 </body></html>
