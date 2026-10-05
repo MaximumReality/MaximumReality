@@ -1,0 +1,549 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>GRE Study Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: single study column, sticky tab bar, one focused task per tab (card / lesson list / one question at a time) */
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --sunk:#E2E8E6; --ink:#14211F; --muted:#566965; --line:#CCD6D3;
+  --accent:#0F6E66; --accent-ink:#FFFFFF; --mark:#E59A2F; --mark-soft:#FBEBD2;
+  --good:#2C7A4B; --good-soft:#DDF1E4; --bad:#B23E2B; --bad-soft:#F8E1DC;
+  --display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1514; --surface:#15201E; --sunk:#1C2A27; --ink:#E3ECEA; --muted:#93A6A2; --line:#2A3B38;
+  --accent:#4DBFB2; --accent-ink:#0B1A18; --mark:#F0B65A; --mark-soft:#3A2D16;
+  --good:#5CC48B; --good-soft:#163323; --bad:#F07B66; --bad-soft:#3D1D17; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0D1514; --surface:#15201E; --sunk:#1C2A27; --ink:#E3ECEA; --muted:#93A6A2; --line:#2A3B38;
+  --accent:#4DBFB2; --accent-ink:#0B1A18; --mark:#F0B65A; --mark-soft:#3A2D16;
+  --good:#5CC48B; --good-soft:#163323; --bad:#F07B66; --bad-soft:#3D1D17; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16.5px;line-height:1.55;margin:0;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:720px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,summary:focus-visible,.card:focus-visible{outline:3px solid var(--mark);outline-offset:2px}
+
+header.top{padding-block:22px 6px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header.top h1{font-size:clamp(1.9rem,7vw,2.6rem);font-weight:800;letter-spacing:-.02em}
+header.top h1 span{color:var(--accent)}
+.scale{font-family:var(--mono);font-size:.78rem;color:var(--muted);letter-spacing:.04em;text-align:right}
+.scale b{color:var(--ink)}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding-block:10px;border-bottom:1px solid var(--line);margin-bottom:18px}
+nav.tabs button{background:var(--sunk);border:0;border-radius:10px;padding:11px 6px;font-weight:700;font-size:.95rem}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:6px 13px;font-size:.88rem;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:var(--accent-ink)}
+.btn{border:0;border-radius:10px;padding:12px 18px;font-weight:700;background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:var(--sunk);color:var(--ink)}
+.btn.good{background:var(--good);color:var(--accent-ink)}
+.btn.bad{background:var(--bad);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.spacer{flex:1}
+
+/* Flashcards */
+.fc-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:14px 0 10px;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.bar{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;margin-bottom:14px}
+.bar i{display:block;height:100%;background:var(--mark);transition:width .3s}
+.card{perspective:1200px;min-height:300px;cursor:pointer;display:block;width:100%;background:none;border:0;padding:0;text-align:left}
+.card-inner{position:relative;width:100%;min-height:300px;transition:transform .5s;transform-style:preserve-3d}
+.card.flipped .card-inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:24px 22px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 0 var(--line)}
+.face.back{transform:rotateY(180deg)}
+.face .term{font-family:var(--display);font-weight:800;font-size:clamp(2rem,9vw,2.9rem);letter-spacing:-.02em;margin:auto 0;overflow-wrap:anywhere}
+.face .pos{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.face .hint{font-size:.85rem;color:var(--muted);margin-top:auto}
+.face .def{font-size:1.2rem;font-weight:700}
+.face .ex{color:var(--muted);font-style:italic;border-left:3px solid var(--mark);padding-left:12px}
+.tag{align-self:flex-start;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:var(--mark-soft);color:var(--ink)}
+.known-badge{background:var(--good-soft);color:var(--good)}
+.fc-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.fc-nav{display:flex;gap:8px;margin-top:8px}
+.fc-nav .btn{flex:1}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:16px;padding:28px;text-align:center}
+
+/* Lessons */
+.lesson{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.lesson summary{list-style:none;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;cursor:pointer}
+.lesson summary::-webkit-details-marker{display:none}
+.lesson .num{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:.9rem}
+.lesson h3{font-size:1.12rem}
+.lesson .sec{display:block;font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;font-weight:500}
+.lesson .chev{transition:transform .2s;color:var(--muted)}
+.lesson[open] .chev{transform:rotate(90deg)}
+.lesson .body{padding:0 18px 18px;border-top:1px solid var(--line)}
+.lesson .body p{margin:14px 0 0;max-width:65ch}
+.lesson .body ul{margin:10px 0 0;padding-left:20px}
+.lesson .body li{margin:5px 0}
+.ex-box{margin-top:14px;background:var(--sunk);border-radius:10px;padding:12px 14px;font-size:.95rem}
+.ex-box b{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:4px}
+code,.m{font-family:var(--mono);font-size:.92em}
+table.fmt{border-collapse:collapse;width:100%;margin-top:12px;font-size:.92rem}
+.tbl{overflow-x:auto}
+table.fmt th,table.fmt td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left;vertical-align:top}
+table.fmt th{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+table.fmt td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Test */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
+.setup h2{font-size:1.6rem;margin-bottom:6px}
+.setup p{margin:6px 0 16px;color:var(--muted);max-width:60ch}
+.setup .row+.row{margin-top:12px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-family:var(--mono);font-size:.82rem;color:var(--muted)}
+.qtype{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.passage{background:var(--sunk);border-radius:10px;padding:14px 16px;margin:10px 0 14px;font-size:.98rem}
+.prompt{font-size:1.1rem;margin:8px 0 16px}
+.qc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 16px}
+.qc div{background:var(--sunk);border-radius:10px;padding:12px;text-align:center}
+.qc span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.qc b{font-family:var(--mono);font-size:1.05rem}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;text-align:left;background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:12px 14px}
+.opt .k{font-family:var(--mono);font-weight:700;width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:var(--sunk);font-size:.85rem}
+.opt.multi .k{border-radius:50%}
+.opt.sel{border-color:var(--accent)}
+.opt.sel .k{background:var(--accent);color:var(--accent-ink)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.right .k{background:var(--good);color:var(--accent-ink)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .k{background:var(--bad);color:#fff}
+.opt:disabled{cursor:default}
+.verdict{margin-top:16px;border-radius:12px;padding:14px 16px;font-weight:700;display:flex;align-items:center;gap:10px}
+.verdict.ok{background:var(--good-soft);color:var(--good)}
+.verdict.no{background:var(--bad-soft);color:var(--bad)}
+.verdict .big{font-family:var(--display);font-size:1.4rem}
+.explain{margin-top:10px;border-left:4px solid var(--mark);background:var(--sunk);border-radius:0 10px 10px 0;padding:12px 14px}
+.explain b{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.actions .btn{flex:1;min-width:140px}
+.reveal{background:none;border:0;color:var(--accent);font-weight:700;padding:8px 0;text-decoration:underline}
+.score{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:6px 0 4px}
+.score .big{font-family:var(--display);font-weight:800;font-size:3.4rem;line-height:1;letter-spacing:-.03em}
+.score .of{font-family:var(--mono);color:var(--muted)}
+.breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:14px 0}
+.breakdown div{background:var(--sunk);border-radius:10px;padding:10px 12px}
+.breakdown span{display:block;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.breakdown b{font-family:var(--mono);font-size:1.15rem;font-variant-numeric:tabular-nums}
+.review{margin-top:18px}
+.review h3{font-size:1.15rem;margin-bottom:8px}
+.miss{border-top:1px solid var(--line);padding:12px 0}
+.miss .p{font-weight:700}
+.miss .a{font-size:.92rem;margin-top:4px}
+.miss .a .y{color:var(--bad)} .miss .a .c{color:var(--good)}
+.miss .e{font-size:.92rem;color:var(--muted);margin-top:6px}
+.note{font-size:.85rem;color:var(--muted);margin-top:14px}
+@media (prefers-reduced-motion: reduce){.card-inner,.bar i,.lesson .chev{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>GRE <span>Study Kit</span></h1>
+    <div class="scale">Verbal <b>130–170</b> · Quant <b>130–170</b><br>Writing <b>0–6</b></div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button id="tab-cards" role="tab" aria-selected="true" data-tab="cards">Flashcards</button>
+    <button id="tab-lessons" role="tab" aria-selected="false" data-tab="lessons">Lessons</button>
+    <button id="tab-test" role="tab" aria-selected="false" data-tab="test">Practice Test</button>
+  </nav>
+
+  <section id="cards" role="tabpanel">
+    <div class="row" id="fc-filters"></div>
+    <div class="row" style="margin-top:8px">
+      <button class="chip" id="fc-hide" aria-pressed="false">Hide cards I know</button>
+      <button class="chip" id="fc-shuffle">Shuffle deck</button>
+      <button class="chip" id="fc-reset">Clear known</button>
+    </div>
+    <div class="fc-meta"><span id="fc-pos">1 / 1</span><span id="fc-known">0 known</span></div>
+    <div class="bar"><i id="fc-bar" style="width:0"></i></div>
+    <div id="fc-stage"></div>
+  </section>
+
+  <section id="lessons" role="tabpanel" hidden>
+    <p class="eyebrow" style="margin:0 0 10px">11 lessons · tap to open</p>
+    <div id="lesson-list"></div>
+  </section>
+
+  <section id="test" role="tabpanel" hidden>
+    <div id="test-stage"></div>
+  </section>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const CARDS = [
+ // Verbal vocabulary
+ {c:"Verbal",t:"laconic",p:"adj.",d:"Using very few words.",e:"His laconic reply, \"Fine,\" ended the conversation."},
+ {c:"Verbal",t:"garrulous",p:"adj.",d:"Excessively talkative, especially about trivial things.",e:"The garrulous passenger narrated the whole flight."},
+ {c:"Verbal",t:"loquacious",p:"adj.",d:"Talkative; fond of talking.",e:"Loquacious hosts rarely let a silence settle."},
+ {c:"Verbal",t:"obdurate",p:"adj.",d:"Stubbornly refusing to change one's opinion or course.",e:"The obdurate landlord ignored every complaint."},
+ {c:"Verbal",t:"intransigent",p:"adj.",d:"Unwilling to compromise or change views.",e:"Talks stalled because both sides were intransigent."},
+ {c:"Verbal",t:"recalcitrant",p:"adj.",d:"Stubbornly uncooperative toward authority.",e:"The recalcitrant mule would not cross the bridge."},
+ {c:"Verbal",t:"tractable",p:"adj.",d:"Easily managed, controlled, or persuaded.",e:"A tractable problem can be solved with known tools."},
+ {c:"Verbal",t:"enervate",p:"v.",d:"To weaken; to drain of energy. (Not \"energize.\")",e:"The heat enervated the hikers by noon."},
+ {c:"Verbal",t:"ebullient",p:"adj.",d:"Cheerful and full of energy.",e:"Her ebullient mood lifted the whole room."},
+ {c:"Verbal",t:"equivocate",p:"v.",d:"To use vague language to avoid committing to a position.",e:"Pressed for a yes or no, the official equivocated."},
+ {c:"Verbal",t:"prevaricate",p:"v.",d:"To speak evasively; to stretch the truth.",e:"He prevaricated when asked where the money went."},
+ {c:"Verbal",t:"vacillate",p:"v.",d:"To waver between opinions or choices.",e:"She vacillated between two job offers for weeks."},
+ {c:"Verbal",t:"capricious",p:"adj.",d:"Given to sudden, unpredictable changes of mood or behavior.",e:"Mountain weather is notoriously capricious."},
+ {c:"Verbal",t:"prodigal",p:"adj.",d:"Wastefully extravagant with money or resources.",e:"The prodigal heir spent the fortune in two years."},
+ {c:"Verbal",t:"ameliorate",p:"v.",d:"To make something bad better.",e:"New lighting ameliorated the dim workspace."},
+ {c:"Verbal",t:"mitigate",p:"v.",d:"To make less severe or painful.",e:"Levees mitigate flood damage."},
+ {c:"Verbal",t:"assuage",p:"v.",d:"To ease or relieve (a feeling or need).",e:"A phone call assuaged her worry."},
+ {c:"Verbal",t:"placate",p:"v.",d:"To calm or appease someone who is upset.",e:"Free refunds placated the angry customers."},
+ {c:"Verbal",t:"obsequious",p:"adj.",d:"Excessively eager to please or obey.",e:"The obsequious clerk agreed with every complaint."},
+ {c:"Verbal",t:"lucid",p:"adj.",d:"Clear and easy to understand.",e:"Her lucid explanation made the theorem simple."},
+ {c:"Verbal",t:"pedantic",p:"adj.",d:"Overly concerned with minor details or formal rules.",e:"The pedantic reviewer flagged every comma."},
+ {c:"Verbal",t:"fastidious",p:"adj.",d:"Very attentive to detail and accuracy; hard to please.",e:"A fastidious editor checks every citation."},
+ {c:"Verbal",t:"corroborate",p:"v.",d:"To confirm or support with evidence.",e:"Two witnesses corroborated the driver's account."},
+ {c:"Verbal",t:"disparate",p:"adj.",d:"Fundamentally different; not comparable.",e:"The anthology joins disparate voices."},
+ {c:"Verbal",t:"esoteric",p:"adj.",d:"Understood by only a small, specialized group.",e:"An esoteric debate among medieval scholars."},
+ {c:"Verbal",t:"laud",p:"v.",d:"To praise highly.",e:"Critics lauded the film's cinematography."},
+ {c:"Verbal",t:"censure",p:"v./n.",d:"(To express) formal, strong disapproval.",e:"The board censured the director for the leak."},
+ {c:"Verbal",t:"venerate",p:"v.",d:"To regard with great respect.",e:"The village venerates its founders."},
+ {c:"Verbal",t:"quiescent",p:"adj.",d:"Inactive or dormant, often temporarily.",e:"The volcano has been quiescent for a century."},
+ {c:"Verbal",t:"soporific",p:"adj.",d:"Causing or tending to cause sleep.",e:"The soporific lecture emptied the back rows."},
+ {c:"Verbal",t:"zealot",p:"n.",d:"A person who is fanatical about a cause.",e:"Only a zealot would picket every weekend for a decade."},
+ {c:"Verbal",t:"anomaly",p:"n.",d:"Something that deviates from what is normal or expected.",e:"The warm January was a statistical anomaly."},
+ {c:"Verbal",t:"audacious",p:"adj.",d:"Boldly daring; showing willingness to take risks.",e:"An audacious plan to cross the ice cap alone."},
+ {c:"Verbal",t:"burgeon",p:"v.",d:"To grow or expand rapidly.",e:"Suburbs burgeoned after the highway opened."},
+ {c:"Verbal",t:"dogmatic",p:"adj.",d:"Asserting opinions as undeniably true.",e:"A dogmatic coach who never tried new plays."},
+ {c:"Verbal",t:"ephemeral",p:"adj.",d:"Lasting a very short time.",e:"Fame on social media is often ephemeral."},
+ {c:"Verbal",t:"gregarious",p:"adj.",d:"Sociable; fond of company.",e:"Gregarious by nature, he knew every neighbor."},
+ {c:"Verbal",t:"hackneyed",p:"adj.",d:"Overused and therefore unoriginal.",e:"\"Dark and stormy night\" is a hackneyed opening."},
+ {c:"Verbal",t:"iconoclast",p:"n.",d:"A person who attacks cherished beliefs or institutions.",e:"An iconoclast who mocked the academy's traditions."},
+ {c:"Verbal",t:"pragmatic",p:"adj.",d:"Dealing with things practically rather than theoretically.",e:"A pragmatic fix beats a perfect plan that never ships."},
+ {c:"Verbal",t:"circumspect",p:"adj.",d:"Cautious; unwilling to take risks.",e:"Investors grew circumspect after the crash."},
+ {c:"Verbal",t:"conciliatory",p:"adj.",d:"Intended to calm anger or make peace.",e:"A conciliatory letter ended the feud."},
+ // Quant terms
+ {c:"Quant",t:"integer",p:"term",d:"A whole number: …, −2, −1, 0, 1, 2, … (no fractions or decimals).",e:"0 is an integer, and it is even."},
+ {c:"Quant",t:"prime number",p:"term",d:"An integer greater than 1 whose only positive divisors are 1 and itself.",e:"2 is the only even prime. 1 is not prime."},
+ {c:"Quant",t:"median",p:"term",d:"The middle value of an ordered list; with an even count, the average of the two middle values.",e:"Median of 1, 3, 4, 7 is (3 + 4) ÷ 2 = 3.5."},
+ {c:"Quant",t:"mode",p:"term",d:"The value that appears most often in a data set.",e:"Mode of 2, 5, 5, 9 is 5."},
+ {c:"Quant",t:"range",p:"term",d:"Greatest value minus least value.",e:"Range of 4, 10, 17 is 17 − 4 = 13."},
+ {c:"Quant",t:"standard deviation",p:"term",d:"A measure of how spread out values are from the mean. Same values → SD of 0.",e:"Adding 5 to every value does not change the SD."},
+ {c:"Quant",t:"absolute value",p:"term",d:"Distance from zero on the number line; never negative.",e:"|−7| = 7 and |7| = 7."},
+ {c:"Quant",t:"reciprocal",p:"term",d:"1 divided by the number; a number times its reciprocal equals 1.",e:"The reciprocal of 2/3 is 3/2."},
+ {c:"Quant",t:"factorial (n!)",p:"term",d:"The product of all positive integers from 1 to n. 0! = 1.",e:"5! = 5 × 4 × 3 × 2 × 1 = 120."},
+ {c:"Quant",t:"remainder",p:"term",d:"What is left after dividing as many whole times as possible.",e:"17 ÷ 5 = 3 remainder 2."},
+ {c:"Quant",t:"percent change",p:"term",d:"(New − Old) ÷ Old × 100.",e:"From 40 to 50 is a 25% increase."},
+ {c:"Quant",t:"Pythagorean theorem",p:"term",d:"In a right triangle, a² + b² = c², where c is the hypotenuse.",e:"Common triples: 3-4-5, 5-12-13, 8-15-17."},
+ {c:"Quant",t:"probability",p:"term",d:"Favorable outcomes ÷ total equally likely outcomes; between 0 and 1.",e:"P(heads on a fair coin) = 1/2."},
+ {c:"Quant",t:"consecutive integers",p:"term",d:"Integers that follow one another in order, each 1 apart.",e:"The average of consecutive integers equals the median."},
+ {c:"Quant",t:"slope",p:"term",d:"Rise over run: (y₂ − y₁) ÷ (x₂ − x₁).",e:"Through (0, 1) and (2, 5): slope = 4 ÷ 2 = 2."},
+ // Test format
+ {c:"Format",t:"Text Completion",p:"question type",d:"A passage with 1–3 blanks. Pick one word per blank; no partial credit.",e:"Find clue words and signal words before reading the choices."},
+ {c:"Format",t:"Sentence Equivalence",p:"question type",d:"One blank, six choices. Pick exactly TWO that each give the sentence the same meaning.",e:"Both answers must be right to get credit."},
+ {c:"Format",t:"Quantitative Comparison",p:"question type",d:"Compare Quantity A and B: A greater, B greater, equal, or cannot be determined.",e:"If you can find two cases with different outcomes, the answer is D."},
+ {c:"Format",t:"Numeric Entry",p:"question type",d:"Type your answer into a box; no choices given.",e:"Check the requested units and rounding."},
+ {c:"Format",t:"Section-level adaptive",p:"scoring",d:"How you do on the first Verbal or Quant section sets the difficulty of the second.",e:"Accuracy on the first section matters a lot."},
+ {c:"Format",t:"Analyze an Issue",p:"writing task",d:"The one Analytical Writing task: take a position on a claim and support it. 30 minutes.",e:"Scored 0–6 in half-point steps."}
+];
+
+const LESSONS = [
+ {s:"Overview",t:"The test at a glance",h:`
+  <p>The GRE General Test is about 1 hour 58 minutes. You get three measures, and each Verbal and Quant measure is split into two sections. The second section's difficulty depends on how you did on the first.</p>
+  <div class="tbl"><table class="fmt"><tr><th>Part</th><th>Sections</th><th>Time</th><th>Score</th></tr>
+  <tr><td>Analytical Writing</td><td>1 Issue essay</td><td class="n">30 min</td><td class="n">0–6</td></tr>
+  <tr><td>Verbal Reasoning</td><td>12 + 15 questions</td><td class="n">18 + 23 min</td><td class="n">130–170</td></tr>
+  <tr><td>Quantitative Reasoning</td><td>12 + 15 questions</td><td class="n">21 + 26 min</td><td class="n">130–170</td></tr></table></div>
+  <ul><li>There is no penalty for wrong answers. Never leave a question blank.</li>
+  <li>You can mark questions and return to them within the same section.</li>
+  <li>An on-screen calculator is available in Quant.</li></ul>
+  <p class="note">Confirm current timing on ets.org before test day, since ETS adjusts the format from time to time.</p>`},
+ {s:"Verbal",t:"Text Completion",h:`
+  <p>Text Completion gives you a short passage with one to three blanks. The passage always contains the clue you need. Your job is to find it before you look at the choices.</p>
+  <ul><li><b>Cover the choices.</b> Predict your own word for the blank first.</li>
+  <li><b>Find the clue.</b> Look for a phrase that describes or defines the blank.</li>
+  <li><b>Read the signal words.</b> <i>although, but, despite, yet</i> flip the direction. <i>and, because, so, indeed</i> keep it the same.</li>
+  <li><b>Multi-blank:</b> start with the blank that has the strongest clue, which is often not the first one.</li></ul>
+  <div class="ex-box"><b>Example</b>Although the speech was brief, it was anything but ______; every line was packed with meaning.<br>Predict: "empty." Best match: <i>vacuous</i>.</div>`},
+ {s:"Verbal",t:"Sentence Equivalence",h:`
+  <p>You see one blank and six choices. You must pick two words that each produce a sentence with the same meaning. Both must be right to earn credit.</p>
+  <ul><li>Predict the blank first, then look for <b>two</b> choices that match your prediction.</li>
+  <li>Expect a trap pair: two synonyms that do not fit the sentence. Synonyms alone are not enough.</li>
+  <li>If only one choice fits, reread for the clue. There is always a matching partner.</li></ul>
+  <div class="ex-box"><b>Example</b>The coach remained ______, refusing to celebrate until the season ended.<br>Prediction: "cautious." Pick <i>circumspect</i> and <i>cautious</i>. Ignore <i>ebullient</i> and <i>jubilant</i>, a synonym pair that contradicts the clue.</div>`},
+ {s:"Verbal",t:"Reading Comprehension",h:`
+  <p>Passages range from one paragraph to several. Questions ask about the main idea, specific details, inferences, and the role of a sentence or word.</p>
+  <ul><li>Read for structure: what is the author's main point, and what does each paragraph do?</li>
+  <li>Watch pivot words like <i>however</i> and <i>but</i>. They usually mark the author's real view.</li>
+  <li>An inference on the GRE is something that <b>must</b> be true from the passage, not something that might be true.</li>
+  <li>Eliminate choices that are too extreme ("always," "never") or that go beyond the passage.</li></ul>`},
+ {s:"Quant",t:"Quantitative Comparison",h:`
+  <p>You compare two quantities and choose one of four fixed answers.</p>
+  <ul><li><b>A</b> Quantity A is greater · <b>B</b> Quantity B is greater · <b>C</b> They are equal · <b>D</b> Cannot be determined</li>
+  <li>If both quantities are plain numbers, the answer can never be D.</li>
+  <li>When variables are involved, test several kinds of numbers: positive, negative, zero, fractions between 0 and 1, and large numbers.</li>
+  <li>You may simplify both sides the same way, such as adding, subtracting, or multiplying by a positive number. Never multiply or divide by a value that might be negative.</li></ul>
+  <div class="ex-box"><b>Example</b>A: x² · B: x, with no other information.<br>x = 2 makes A bigger. x = ½ makes B bigger. Two different outcomes, so the answer is D.</div>`},
+ {s:"Quant",t:"Arithmetic & number properties",h:`
+  <ul><li><b>Even/odd:</b> even ± odd = odd; odd × odd = odd; anything × even = even.</li>
+  <li><b>Primes under 50:</b> 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47.</li>
+  <li><b>Divisibility:</b> by 3 if the digit sum divides by 3; by 4 if the last two digits divide by 4; by 9 if the digit sum divides by 9.</li>
+  <li><b>Exponents:</b> xᵃ·xᵇ = xᵃ⁺ᵇ; (xᵃ)ᵇ = xᵃᵇ; x⁰ = 1; x⁻ᵃ = 1/xᵃ.</li>
+  <li><b>Negative bases:</b> (−2)⁴ = 16, but −2⁴ = −16 because the exponent applies before the minus sign.</li>
+  <li><b>Percent change:</b> (new − old) ÷ old. Up 20% then down 20% leaves you at 96%, a net 4% loss.</li></ul>`},
+ {s:"Quant",t:"Algebra essentials",h:`
+  <ul><li><b>Linear equations:</b> do the same operation to both sides until the variable stands alone.</li>
+  <li><b>Inequalities:</b> flip the sign when you multiply or divide by a negative.</li>
+  <li><b>Quadratics:</b> factor x² + bx + c into (x + m)(x + n), where m + n = b and mn = c.</li>
+  <li><b>Special products:</b> (a + b)² = a² + 2ab + b²; a² − b² = (a + b)(a − b).</li>
+  <li><b>Lines:</b> y = mx + b, where m is slope and b is the y-intercept.</li>
+  <li><b>Rates:</b> distance = rate × time. Work: combined rate = sum of individual rates.</li></ul>
+  <div class="ex-box"><b>Example</b>x² − 7x + 12 = 0 → (x − 3)(x − 4) = 0 → x = 3 or 4.</div>`},
+ {s:"Quant",t:"Data analysis & statistics",h:`
+  <ul><li><b>Mean</b> = sum ÷ count. Use <code>sum = mean × count</code> to find missing values.</li>
+  <li><b>Median</b>: sort first, then take the middle.</li>
+  <li><b>Standard deviation</b> measures spread. Adding a constant to every value leaves it unchanged; multiplying every value by k multiplies it by |k|.</li>
+  <li><b>Probability</b>: favorable ÷ total. For independent events, multiply. P(not A) = 1 − P(A).</li>
+  <li><b>Counting</b>: arrangements of n items = n!. Choosing r of n without order = n! ÷ (r!(n − r)!).</li>
+  <li>Read chart titles, units, and scales before computing anything.</li></ul>`},
+ {s:"Quant",t:"Geometry essentials",h:`
+  <ul><li><b>Triangles:</b> angles sum to 180°. Area = ½ × base × height.</li>
+  <li><b>Right triangles:</b> a² + b² = c². Know 3-4-5, 5-12-13, 45-45-90 (1:1:√2), 30-60-90 (1:√3:2).</li>
+  <li><b>Circles:</b> area = πr², circumference = 2πr.</li>
+  <li><b>Polygons:</b> interior angle sum = (n − 2) × 180°.</li>
+  <li><b>Rectangles:</b> area = l × w, perimeter = 2(l + w).</li>
+  <li><b>Boxes and cylinders:</b> V = l × w × h; V = πr²h.</li>
+  <li>Figures are not necessarily drawn to scale. Trust the numbers, not the picture.</li></ul>`},
+ {s:"Writing",t:"The Issue essay",h:`
+  <p>You get 30 minutes to respond to a claim and its specific instructions. Graders look for a clear position, relevant reasons and examples, logical organization, and controlled language.</p>
+  <ul><li><b>2 min:</b> pick a side and two or three strong reasons.</li>
+  <li><b>Introduction:</b> restate the issue and state your position plainly.</li>
+  <li><b>Body:</b> one reason per paragraph, each with a specific example from history, science, business, or experience.</li>
+  <li><b>Counterpoint:</b> acknowledge the strongest opposing view and answer it.</li>
+  <li><b>Conclusion:</b> two or three sentences. Save 2–3 minutes to proofread.</li>
+  <li>Follow the task's exact instructions. Ignoring them lowers the score even if the writing is good.</li></ul>`},
+ {s:"Strategy",t:"Pacing & test day",h:`
+  <ul><li>Budget about 1.5 minutes per Verbal question and 1.75 per Quant question.</li>
+  <li>If a question is taking more than 2–3 minutes, guess, mark it, and move on.</li>
+  <li>Answer every question. Wrong answers cost nothing.</li>
+  <li>Use the calculator for ugly arithmetic, not for things you can estimate faster.</li>
+  <li>Build vocabulary daily in short sessions. Ten minutes of flashcards every day beats an hour once a week.</li>
+  <li>Take full timed practice tests to build stamina, then study every missed question.</li></ul>`}
+];
+
+const QC = ["Quantity A is greater.","Quantity B is greater.","The two quantities are equal.","The relationship cannot be determined from the information given."];
+const PASSAGE1 = "Many early studies of urban heat islands focused on temperature differences at night, when cities release heat stored in pavement and buildings. More recent work, however, shows that daytime differences can be just as significant in cities with little vegetation, because trees and parks cool the air through shade and evaporation. As a result, planners now treat tree cover as a public-health measure rather than a matter of appearance alone.";
+
+const QUESTIONS = [
+ // Quant
+ {id:"q1",s:"Quant",type:"Multiple choice",p:"If 3x − 7 = 11, what is the value of x?",o:["4","5","6","7","8"],a:[2],x:"Add 7 to both sides: 3x = 18. Divide by 3: x = 6."},
+ {id:"q2",s:"Quant",type:"Quantitative comparison",qc:["0.25 × 48","⅓ of 36"],o:QC,a:[2],x:"0.25 × 48 = 12 and 36 ÷ 3 = 12. Both quantities equal 12."},
+ {id:"q3",s:"Quant",type:"Multiple choice",p:"The average of five numbers is 18. Four of them are 12, 15, 20, and 22. What is the fifth number?",o:["18","19","21","23","25"],a:[2],x:"Sum = average × count = 18 × 5 = 90. The four known numbers sum to 69, so the fifth is 90 − 69 = 21."},
+ {id:"q4",s:"Quant",type:"Multiple choice",p:"A jacket's price is increased by 20%, and the new price is then decreased by 20%. What is the net change from the original price?",o:["No change","4% decrease","4% increase","2% decrease","40% decrease"],a:[1],x:"Multiply the multipliers: 1.20 × 0.80 = 0.96. The final price is 96% of the original, a 4% decrease. The two 20% changes don't cancel because the decrease applies to a larger base."},
+ {id:"q5",s:"Quant",type:"Multiple choice",p:"A right triangle has legs of length 6 and 8. What is the length of the hypotenuse?",o:["7","10","12","14","√48"],a:[1],x:"6² + 8² = 36 + 64 = 100, and √100 = 10. This is the 3-4-5 triple doubled."},
+ {id:"q6",s:"Quant",type:"Multiple choice",p:"How many prime numbers are between 20 and 40?",o:["3","4","5","6","7"],a:[1],x:"The primes are 23, 29, 31, and 37. That's 4. (21, 27, 33, 39 divide by 3; 25 and 35 divide by 5.)"},
+ {id:"q7",s:"Quant",type:"Quantitative comparison",given:"x < 0",qc:["x²","x³"],o:QC,a:[0],x:"A negative number squared is positive. A negative number cubed is negative. Any positive beats any negative, so A is always greater."},
+ {id:"q8",s:"Quant",type:"Multiple choice",p:"What is the remainder when 47 is divided by 6?",o:["1","3","5","7","11"],a:[2],x:"6 × 7 = 42, and 47 − 42 = 5. The remainder must be less than the divisor, which rules out 7 and 11."},
+ {id:"q9",s:"Quant",type:"Multiple choice",p:"What is the sum of the solutions of x² − 5x + 6 = 0?",o:["−5","−1","1","5","6"],a:[3],x:"Factor: (x − 2)(x − 3) = 0, so x = 2 or 3. Their sum is 5."},
+ {id:"q10",s:"Quant",type:"Multiple choice",p:"A circle has a radius of 3. What is its area?",o:["3π","6π","9π","12π","36π"],a:[2],x:"Area = πr² = π × 3² = 9π. 6π is the circumference, a common trap."},
+ {id:"q11",s:"Quant",type:"Multiple choice",p:"What is the median of 3, 9, 4, 12, 7, 1?",o:["4","5.5","6","7","8"],a:[1],x:"Sort first: 1, 3, 4, 7, 9, 12. With six values, average the two middle ones: (4 + 7) ÷ 2 = 5.5."},
+ {id:"q12",s:"Quant",type:"Multiple choice",p:"Two fair six-sided dice are rolled. What is the probability that the sum is 7?",o:["1/12","1/9","1/6","7/36","1/3"],a:[2],x:"There are 36 equally likely outcomes. Six give a sum of 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). 6/36 = 1/6."},
+ {id:"q13",s:"Quant",type:"Multiple choice",p:"If 2ˣ = 32, what is x²?",o:["10","16","25","32","64"],a:[2],x:"32 = 2⁵, so x = 5 and x² = 25."},
+ {id:"q14",s:"Quant",type:"Quantitative comparison",qc:["(−2)⁴","−2⁴"],o:QC,a:[0],x:"(−2)⁴ = 16 because the parentheses include the sign. −2⁴ means −(2⁴) = −16. 16 is greater."},
+ {id:"q15",s:"Quant",type:"Multiple choice",p:"A truck travels 150 miles in 2.5 hours at a constant speed. What is its speed in miles per hour?",o:["50","55","60","65","75"],a:[2],x:"Rate = distance ÷ time = 150 ÷ 2.5 = 60 mph."},
+ {id:"q16",s:"Quant",type:"Multiple choice",p:"The ratio of boys to girls in a class of 40 is 3 : 5. How many girls are in the class?",o:["15","20","24","25","30"],a:[3],x:"The ratio has 3 + 5 = 8 parts, so each part is 40 ÷ 8 = 5 students. Girls = 5 × 5 = 25."},
+ {id:"q17",s:"Quant",type:"Quantitative comparison",qc:["Number of distinct prime factors of 60","3"],o:QC,a:[2],x:"60 = 2² × 3 × 5. The distinct primes are 2, 3, and 5, which is 3. The quantities are equal."},
+ {id:"q18",s:"Quant",type:"Multiple choice",p:"What is the slope of the line through (1, 2) and (4, 11)?",o:["1/3","2","3","9","13/5"],a:[2],x:"Slope = (11 − 2) ÷ (4 − 1) = 9 ÷ 3 = 3."},
+ {id:"q19",s:"Quant",type:"Multiple choice",p:"How much simple interest does $2,000 earn at 5% per year for 3 years?",o:["$100","$150","$300","$315.25","$600"],a:[2],x:"Simple interest = principal × rate × time = 2,000 × 0.05 × 3 = $300. $315.25 would be compound interest."},
+ {id:"q20",s:"Quant",type:"Multiple choice",p:"A rectangle has a perimeter of 30 and a length of 9. What is its area?",o:["42","48","54","63","81"],a:[2],x:"Perimeter = 2(l + w), so 30 = 2(9 + w) and w = 6. Area = 9 × 6 = 54."},
+ {id:"q21",s:"Quant",type:"Quantitative comparison",qc:["x","x²"],o:QC,a:[3],x:"Try x = 2: A = 2, B = 4, so B is greater. Try x = ½: A = ½, B = ¼, so A is greater. Different results mean the answer is D."},
+ // Verbal: Text completion
+ {id:"v1",s:"Verbal",type:"Text completion",p:"Though the senator was usually ______, her speech at the rally was so long-winded that several audience members left early.",o:["laconic","verbose","garrulous","eloquent","strident"],a:[0],x:"\"Though\" signals contrast with \"long-winded,\" so the blank means brief or using few words: laconic. Verbose and garrulous mean the opposite."},
+ {id:"v2",s:"Verbal",type:"Text completion",p:"The scientist's findings, initially dismissed as a fluke, were later ______ by multiple independent studies.",o:["refuted","corroborated","obscured","mitigated","censured"],a:[1],x:"\"Initially dismissed … later\" sets up a reversal. Independent studies confirmed the findings: corroborated. Refuted would continue the dismissal instead of reversing it."},
+ {id:"v3",s:"Verbal",type:"Text completion",p:"Critics found the novel's plot ______: every twist was one readers had seen countless times before.",o:["innovative","hackneyed","esoteric","labyrinthine","poignant"],a:[1],x:"The colon introduces an explanation: twists seen countless times before means overused and unoriginal, which is hackneyed."},
+ {id:"v4",s:"Verbal",type:"Text completion",p:"Far from being ______, the committee chair changed her position three times in a single meeting.",o:["capricious","resolute","vacillating","garrulous","obsequious"],a:[1],x:"\"Far from being\" means the opposite is true. She kept changing positions, so she was far from firm: resolute. Capricious and vacillating describe what she actually did, which is the trap."},
+ {id:"v5",s:"Verbal",type:"Text completion",p:"Because the medication was ______, patients were advised not to drive after taking it.",o:["soporific","tractable","ebullient","salubrious","innocuous"],a:[0],x:"\"Because\" means the blank explains the warning. A drug that causes drowsiness is soporific. Innocuous means harmless, which wouldn't justify a warning."},
+ {id:"v6",s:"Verbal",type:"Text completion",p:"The diplomat's response was deliberately ______, allowing both sides to interpret it as support for their position.",o:["unequivocal","equivocal","laconic","strident","candid"],a:[1],x:"If both sides can read it as support, it was ambiguous on purpose: equivocal. Unequivocal means completely clear, the opposite."},
+ {id:"v7",s:"Verbal",type:"Text completion",p:"The new manager was ______ about procedure, insisting that every policy be followed to the letter.",o:["lax","pedantic","cavalier","ambivalent","pragmatic"],a:[1],x:"\"Followed to the letter\" describes excessive concern with rules: pedantic. Lax and cavalier mean careless, the opposite."},
+ // Sentence equivalence
+ {id:"s1",s:"Verbal",type:"Sentence equivalence",multi:true,p:"The professor was known for her ______ lectures; students rarely needed to reread their notes to understand them.",o:["lucid","convoluted","clear","esoteric","tedious","verbose"],a:[0,2],x:"Notes that don't need rereading point to easy-to-follow lectures: lucid and clear. Convoluted and esoteric mean hard to understand."},
+ {id:"s2",s:"Verbal",type:"Sentence equivalence",multi:true,p:"Despite the team's early success, the coach remained ______, refusing to celebrate until the season ended.",o:["circumspect","ebullient","cautious","jubilant","reckless","indifferent"],a:[0,2],x:"Refusing to celebrate early means careful: circumspect and cautious. Ebullient and jubilant are a synonym trap pair that contradicts the clue."},
+ {id:"s3",s:"Verbal",type:"Sentence equivalence",multi:true,p:"The once-tiny startup began to ______ after its app went viral, hiring hundreds of employees in a single year.",o:["burgeon","dwindle","flourish","stagnate","falter","equivocate"],a:[0,2],x:"Hiring hundreds of people means rapid growth: burgeon and flourish. Dwindle, stagnate, and falter all mean shrinking or stalling."},
+ {id:"s4",s:"Verbal",type:"Sentence equivalence",multi:true,p:"Her ______ remarks, intended to calm the angry crowd, worked better than anyone expected.",o:["placatory","inflammatory","conciliatory","ambiguous","caustic","trite"],a:[0,2],x:"Remarks meant to calm people are placatory and conciliatory. Inflammatory and caustic would make the crowd angrier."},
+ // Reading comprehension
+ {id:"r1",s:"Verbal",type:"Reading comprehension",passage:PASSAGE1,p:"According to the passage, planners' view of tree cover changed mainly because",o:["nighttime heat effects were shown to be insignificant","research showed vegetation can substantially lower daytime temperatures","trees were found to store heat in the same way as pavement","residents demanded more attractive public spaces","early studies of heat islands were found to be inaccurate"],a:[1],x:"The passage says newer work found daytime cooling from trees and parks, and \"As a result\" links that finding to the planners' new view. It never says nighttime effects are insignificant or that early studies were wrong."},
+ {id:"r2",s:"Verbal",type:"Reading comprehension",passage:PASSAGE1,p:"In the second sentence, the word \"however\" primarily serves to",o:["reject the conclusions of the earlier studies entirely","introduce a finding that broadens the earlier focus","signal that the author distrusts recent research","shift the topic from cities to rural areas","emphasize that nighttime effects are larger than daytime effects"],a:[1],x:"\"However\" contrasts the earlier focus on nighttime with newer findings about daytime. It adds to the earlier picture rather than rejecting it, so \"broadens\" is right and \"reject … entirely\" is too extreme."},
+ {id:"r3",s:"Verbal",type:"Reading comprehension",passage:PASSAGE1,p:"Which of the following can be inferred from the passage?",o:["Cities with abundant vegetation have no heat island effect.","Trees were once valued by planners mostly for how they looked.","Pavement absorbs no heat during the day.","Public-health officials oppose urban parks.","Daytime temperature differences are always larger than nighttime ones."],a:[1],x:"Planners now treat trees as a health measure \"rather than a matter of appearance alone,\" which implies appearance used to be the main reason. The other choices are extreme or contradicted by the passage."}
+];
+
+/* ---------------- STORAGE ---------------- */
+const store = {
+  get(k,d){try{const v=localStorage.getItem("gre_"+k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem("gre_"+k,JSON.stringify(v))}catch(e){}}
+};
+const shuffle = a => {const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b};
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll("nav.tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav.tabs button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  ["cards","lessons","test"].forEach(id=>document.getElementById(id).hidden = id!==b.dataset.tab);
+  store.set("tab",b.dataset.tab); window.scrollTo({top:0});
+}));
+const savedTab = (location.hash||"").slice(1) || store.get("tab","cards");
+const tb = document.querySelector(`nav.tabs button[data-tab="${savedTab}"]`); if(tb) tb.click();
+
+/* ---------------- FLASHCARDS ---------------- */
+const fc = {cat:"All", hide:false, order:CARDS.map((_,i)=>i), pos:0, flipped:false, known:new Set(store.get("known",[]))};
+const cats = ["All","Verbal","Quant","Format"];
+const catLabel = {All:"All",Verbal:"Vocabulary",Quant:"Math terms",Format:"Test format"};
+const filtersEl = document.getElementById("fc-filters");
+cats.forEach(c=>{const b=document.createElement("button");b.className="chip";b.id="cat-"+c;b.textContent=catLabel[c];b.setAttribute("aria-pressed",c==="All");
+  b.onclick=()=>{fc.cat=c;fc.pos=0;fc.flipped=false;filtersEl.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b));renderFC()};filtersEl.appendChild(b)});
+document.getElementById("fc-hide").onclick=e=>{fc.hide=!fc.hide;e.currentTarget.setAttribute("aria-pressed",fc.hide);fc.pos=0;fc.flipped=false;renderFC()};
+document.getElementById("fc-shuffle").onclick=()=>{fc.order=shuffle(fc.order);fc.pos=0;fc.flipped=false;renderFC()};
+document.getElementById("fc-reset").onclick=()=>{fc.known.clear();store.set("known",[]);renderFC()};
+
+function deck(){return fc.order.filter(i=>(fc.cat==="All"||CARDS[i].c===fc.cat)&&!(fc.hide&&fc.known.has(CARDS[i].t)))}
+function renderFC(){
+  const d=deck(), stage=document.getElementById("fc-stage");
+  const inCat=CARDS.filter(c=>fc.cat==="All"||c.c===fc.cat), knownN=inCat.filter(c=>fc.known.has(c.t)).length;
+  document.getElementById("fc-known").textContent=`${knownN} of ${inCat.length} known`;
+  document.getElementById("fc-bar").style.width=(inCat.length?knownN/inCat.length*100:0)+"%";
+  if(!d.length){document.getElementById("fc-pos").textContent="0 / 0";
+    stage.innerHTML=`<div class="empty"><h2 style="font-size:1.4rem">You know every card here.</h2><p style="color:var(--muted)">Turn off "Hide cards I know" to review them, or pick another set.</p></div>`;return}
+  if(fc.pos>=d.length)fc.pos=0;
+  const c=CARDS[d[fc.pos]], isKnown=fc.known.has(c.t);
+  document.getElementById("fc-pos").textContent=`${fc.pos+1} / ${d.length}`;
+  stage.innerHTML=`
+   <button class="card ${fc.flipped?"flipped":""}" id="fc-card" aria-label="Flashcard: ${esc(c.t)}. Tap to flip.">
+    <div class="card-inner">
+     <div class="face front"><span class="tag ${isKnown?"known-badge":""}">${isKnown?"Known · ":""}${catLabel[c.c]}</span>
+       <div><div class="term">${esc(c.t)}</div><div class="pos">${esc(c.p)}</div></div><div class="hint">Tap to see the definition</div></div>
+     <div class="face back"><span class="tag">${esc(c.t)} · ${esc(c.p)}</span><div class="def">${esc(c.d)}</div><div class="ex">${esc(c.e)}</div><div class="hint">Tap to flip back</div></div>
+    </div></button>
+   <div class="fc-controls"><button class="btn bad" id="fc-again">Study again</button><button class="btn good" id="fc-gotit">I know it</button></div>
+   <div class="fc-nav"><button class="btn ghost" id="fc-prev">← Previous</button><button class="btn ghost" id="fc-next">Next →</button></div>`;
+  document.getElementById("fc-card").onclick=()=>{fc.flipped=!fc.flipped;document.getElementById("fc-card").classList.toggle("flipped",fc.flipped)};
+  const go=n=>{fc.pos=(fc.pos+n+d.length)%d.length;fc.flipped=false;renderFC()};
+  document.getElementById("fc-prev").onclick=()=>go(-1);
+  document.getElementById("fc-next").onclick=()=>go(1);
+  document.getElementById("fc-gotit").onclick=()=>{fc.known.add(c.t);store.set("known",[...fc.known]);fc.flipped=false;if(!fc.hide)fc.pos=(fc.pos+1)%d.length;renderFC()};
+  document.getElementById("fc-again").onclick=()=>{fc.known.delete(c.t);store.set("known",[...fc.known]);go(1)};
+}
+renderFC();
+
+/* ---------------- LESSONS ---------------- */
+document.getElementById("lesson-list").innerHTML = LESSONS.map((l,i)=>`
+ <details class="lesson"><summary><span class="num">${String(i+1).padStart(2,"0")}</span><span><h3>${l.t}</h3><span class="sec">${l.s}</span></span><span class="chev">›</span></summary>
+ <div class="body">${l.h}</div></details>`).join("");
+
+/* ---------------- PRACTICE TEST ---------------- */
+const T = {section:"All", len:15, qs:[], i:0, sel:[], checked:false, results:[], lastSig:store.get("lastSig","")};
+const testEl = document.getElementById("test-stage");
+const letters = "ABCDEF";
+
+function setup(){
+  const best = store.get("best",null);
+  testEl.innerHTML=`<div class="panel setup">
+   <p class="eyebrow">${QUESTIONS.length} questions in the bank</p>
+   <h2>Practice test</h2>
+   <p>Questions and answer choices are reshuffled every time you start, so a retake never repeats the same order. Miss one and you'll see why right away.</p>
+   <p class="eyebrow" style="margin-bottom:6px">Section</p>
+   <div class="row" id="t-sec">${["All","Verbal","Quant"].map(s=>`<button class="chip" id="sec-${s}" data-v="${s}" aria-pressed="${T.section===s}">${s==="All"?"Mixed":s}</button>`).join("")}</div>
+   <p class="eyebrow" style="margin:14px 0 6px">Length</p>
+   <div class="row" id="t-len">${[10,15,0].map(n=>`<button class="chip" id="len-${n}" data-v="${n}" aria-pressed="${T.len===n}">${n?n+" questions":"Every question"}</button>`).join("")}</div>
+   <div class="actions"><button class="btn" id="t-start">Start test</button></div>
+   ${best?`<p class="note">Best score so far: <b class="m">${best.c}/${best.n}</b> (${Math.round(best.c/best.n*100)}%)</p>`:""}
+  </div>`;
+  testEl.querySelectorAll("#t-sec .chip").forEach(b=>b.onclick=()=>{T.section=b.dataset.v;setup()});
+  testEl.querySelectorAll("#t-len .chip").forEach(b=>b.onclick=()=>{T.len=+b.dataset.v;setup()});
+  document.getElementById("t-start").onclick=()=>start();
+}
+
+function start(pool){
+  let src = pool || QUESTIONS.filter(q=>T.section==="All"||q.s===T.section);
+  let picked, sig, tries=0;
+  do{ picked=shuffle(src); if(!pool&&T.len&&T.len<picked.length) picked=picked.slice(0,T.len);
+      sig=picked.map(q=>q.id).join(","); tries++; } while(sig===T.lastSig && src.length>1 && tries<20);
+  T.lastSig=sig; store.set("lastSig",sig);
+  T.qs = picked.map(q=>({...q, opts: q.qc ? q.o.map((t,k)=>({t,ok:q.a.includes(k)})) : shuffle(q.o.map((t,k)=>({t,ok:q.a.includes(k)})))}));
+  T.i=0; T.results=[]; T.sel=[]; T.checked=false; renderQ();
+}
+
+function renderQ(){
+  const q=T.qs[T.i], need=q.multi?2:1;
+  testEl.innerHTML=`<div class="panel">
+   <div class="qhead"><span class="qtype">${q.s} · ${q.type}</span><span>${T.i+1} / ${T.qs.length}</span></div>
+   <div class="bar"><i style="width:${T.i/T.qs.length*100}%"></i></div>
+   ${q.passage?`<div class="passage">${esc(q.passage)}</div>`:""}
+   ${q.qc?`${q.given?`<p class="prompt" style="text-align:center;margin-bottom:8px"><span class="m">${esc(q.given)}</span></p>`:""}<div class="qc"><div><span>Quantity A</span><b>${esc(q.qc[0])}</b></div><div><span>Quantity B</span><b>${esc(q.qc[1])}</b></div></div>`:`<p class="prompt">${esc(q.p)}</p>`}
+   ${q.multi?`<p class="eyebrow" style="margin:-6px 0 10px">Select two answers</p>`:""}
+   <div class="opts">${q.opts.map((o,k)=>{
+      let cls="opt"+(q.multi?" multi":"");
+      if(T.checked){ if(o.ok)cls+=" right"; else if(T.sel.includes(k))cls+=" wrong"; }
+      else if(T.sel.includes(k)) cls+=" sel";
+      return `<button class="${cls}" id="opt-${k}" data-k="${k}" ${T.checked?"disabled":""}><span class="k">${letters[k]}</span><span>${esc(o.t)}</span></button>`}).join("")}</div>
+   <div id="t-feedback"></div>
+   <div class="actions">${T.checked
+     ? `<button class="btn" id="t-next">${T.i+1<T.qs.length?"Next question →":"See results"}</button>`
+     : `<button class="btn" id="t-check" ${T.sel.length===need?"":"disabled"}>Check answer</button>`}
+     <button class="btn ghost" id="t-quit">End test</button></div>
+  </div>`;
+  testEl.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.k;
+    if(q.multi){ if(T.sel.includes(k)) T.sel=T.sel.filter(x=>x!==k); else if(T.sel.length<2) T.sel.push(k); }
+    else T.sel=[k];
+    renderQ();
+  });
+  if(T.checked){ feedback(q); document.getElementById("t-next").onclick=next; }
+  else document.getElementById("t-check").onclick=check;
+  document.getElementById("t-quit").onclick=()=>results(true);
+}
+
+function check(){
+  const q=T.qs[T.i];
+  const correctIdx=q.opts.map((o,k)=>o.ok?k:-1).filter(k=>k>=0);
+  const ok = T.sel.length===correctIdx.length && T.sel.every(k=>q.opts[k].ok);
+  T.results.push({q, ok, chosen:T.sel.map(k=>q.opts[k].t), correct:correctIdx.map(k=>q.opts[k].t)});
+  T.checked=true; renderQ();
+}
+
+function feedback(q){
+  const r=T.results[T.results.length-1], fb=document.getElementById("t-feedback");
+  if(r.ok){
+    fb.innerHTML=`<div class="verdict ok"><span class="big">✓</span> Correct</div><button class="reveal" id="t-why">Show explanation</button><div id="t-exp"></div>`;
+    document.getElementById("t-why").onclick=e=>{e.currentTarget.remove();document.getElementById("t-exp").innerHTML=`<div class="explain"><b>Explanation</b>${esc(q.x)}</div>`};
+  } else {
+    fb.innerHTML=`<div class="verdict no"><span class="big">✗</span> Not quite. Correct answer: ${r.correct.map(esc).join(" and ")}</div>
+      <div class="explain"><b>Why</b>${esc(q.x)}</div>`;
+  }
+}
+
+function next(){ T.i++; T.sel=[]; T.checked=false; if(T.i<T.qs.length) renderQ(); else results(false); }
+
+function results(early){
+  const n=T.results.length, c=T.results.filter(r=>r.ok).length, missed=T.results.filter(r=>!r.ok);
+  if(n){const best=store.get("best",null); if(!best||c/n>best.c/best.n) store.set("best",{c,n});}
+  const by = s=>{const rs=T.results.filter(r=>r.q.s===s);return rs.length?`${rs.filter(r=>r.ok).length}/${rs.length}`:"—"};
+  testEl.innerHTML=`<div class="panel">
+   <p class="eyebrow">${early?"Ended early":"Test complete"}</p>
+   <div class="score"><span class="big">${n?Math.round(c/n*100):0}%</span><span class="of">${c} of ${n} correct</span></div>
+   <div class="breakdown"><div><span>Verbal</span><b>${by("Verbal")}</b></div><div><span>Quant</span><b>${by("Quant")}</b></div><div><span>Missed</span><b>${missed.length}</b></div></div>
+   <div class="actions"><button class="btn" id="t-retake">Retake in new order</button>${missed.length?`<button class="btn ghost" id="t-missed">Retry missed (${missed.length})</button>`:""}<button class="btn ghost" id="t-setup">Change settings</button></div>
+   ${missed.length?`<div class="review"><h3>Review what you missed</h3>${missed.map(r=>`<div class="miss">
+      <div class="p">${esc(r.q.qc?`A: ${r.q.qc[0]}  vs  B: ${r.q.qc[1]}`:r.q.p)}</div>
+      <div class="a">Your answer: <span class="y">${r.chosen.map(esc).join(", ")}</span> · Correct: <span class="c">${r.correct.map(esc).join(", ")}</span></div>
+      <div class="e">${esc(r.q.x)}</div></div>`).join("")}</div>`:(n?`<p class="note">Perfect run. Try "Every question" or switch sections for a tougher set.</p>`:"")}
+  </div>`;
+  document.getElementById("t-retake").onclick=()=>start();
+  if(missed.length) document.getElementById("t-missed").onclick=()=>start(missed.map(r=>QUESTIONS.find(x=>x.id===r.q.id)));
+  document.getElementById("t-setup").onclick=setup;
+  window.scrollTo({top:0});
+}
+setup();
+</script>
+
+</body></html>
