@@ -2,80 +2,59 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>NEON DEFENSE // CIRCUIT BREAKER</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
             background: #000;
             overflow: hidden;
             font-family: 'Orbitron', sans-serif;
             color: #0ff;
+            touch-action: none;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        
+
         #gameContainer {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
+            position: fixed;
+            inset: 0;
             background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
         }
-        
-        #gameCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            image-rendering: pixelated;
-        }
-        
-        /* Circuit Background Pattern */
+
+        #gameCanvas { position: absolute; top: 0; left: 0; }
+
         .circuit-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; inset: 0;
             opacity: 0.15;
-            background-image: 
+            background-image:
                 linear-gradient(90deg, transparent 48%, #0ff 49%, #0ff 51%, transparent 52%),
                 linear-gradient(0deg, transparent 48%, #0ff 49%, #0ff 51%, transparent 52%);
             background-size: 50px 50px;
             animation: circuitPulse 4s ease-in-out infinite;
             pointer-events: none;
         }
-        
-        @keyframes circuitPulse {
-            0%, 100% { opacity: 0.1; }
-            50% { opacity: 0.25; }
-        }
-        
-        /* UI Overlay */
-        #ui {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        
+        @keyframes circuitPulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.25; } }
+
+        #ui { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
+
         .hud-top {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
+            top: max(20px, env(safe-area-inset-top));
+            left: max(20px, env(safe-area-inset-left));
+            right: max(20px, env(safe-area-inset-right));
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
         }
-        
+
         .score-box {
             background: rgba(0, 20, 40, 0.8);
             border: 2px solid #0ff;
@@ -83,22 +62,12 @@
             box-shadow: 0 0 20px #0ff, inset 0 0 20px rgba(0, 255, 255, 0.1);
             clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
         }
-        
-        .score-label {
-            font-size: 12px;
-            color: #0aa;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-        }
-        
+        .score-label { font-size: 12px; color: #0aa; text-transform: uppercase; letter-spacing: 3px; }
         .score-value {
-            font-size: 32px;
-            font-weight: 900;
-            color: #0ff;
+            font-size: 32px; font-weight: 900; color: #0ff;
             text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
             font-family: 'Share Tech Mono', monospace;
         }
-        
         .health-box {
             background: rgba(40, 0, 20, 0.8);
             border: 2px solid #f0f;
@@ -106,251 +75,170 @@
             box-shadow: 0 0 20px #f0f, inset 0 0 20px rgba(255, 0, 255, 0.1);
             clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
         }
-        
-        .health-bar {
-            width: 200px;
-            height: 10px;
-            background: #300;
-            margin-top: 8px;
-            position: relative;
-            overflow: hidden;
-        }
-        
+        .health-bar { width: 200px; height: 10px; background: #300; margin-top: 8px; overflow: hidden; }
         .health-fill {
             height: 100%;
             background: linear-gradient(90deg, #f0f, #f8f);
             box-shadow: 0 0 10px #f0f;
             transition: width 0.3s;
         }
-        
-        .wave-indicator {
+        .wave-indicator { text-align: center; }
+        .wave-text { font-size: 14px; color: #ff0; letter-spacing: 4px; text-shadow: 0 0 10px #ff0; }
+        .wave-number { font-size: 48px; font-weight: 900; color: #ff0; text-shadow: 0 0 20px #ff0, 0 0 40px #ff0; }
+
+        /* Power-up indicators */
+        .powerups {
             position: absolute;
-            top: 20px;
+            bottom: max(20px, env(safe-area-inset-bottom));
             left: 50%;
             transform: translateX(-50%);
-            text-align: center;
+            display: flex;
+            gap: 12px;
         }
-        
-        .wave-text {
-            font-size: 14px;
-            color: #ff0;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px #ff0;
+        .powerup-icon {
+            width: 46px; height: 46px;
+            border: 2px solid #0f0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            opacity: 0.3;
+            transition: opacity 0.3s, box-shadow 0.3s;
         }
-        
-        .wave-number {
-            font-size: 48px;
-            font-weight: 900;
-            color: #ff0;
-            text-shadow: 0 0 20px #ff0, 0 0 40px #ff0;
+        .powerup-icon.active {
+            opacity: 1;
+            box-shadow: 0 0 20px #0f0, inset 0 0 20px rgba(0, 255, 0, 0.3);
+            animation: powerupPulse 0.5s ease-in-out infinite;
         }
-        
+        @keyframes powerupPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* EMP button / charge meter */
+        #empBtn {
+            position: absolute;
+            right: max(24px, env(safe-area-inset-right));
+            bottom: max(24px, env(safe-area-inset-bottom));
+            width: 76px; height: 76px;
+            border-radius: 50%;
+            border: 2px solid #886600;
+            overflow: hidden;
+            pointer-events: auto;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(20, 20, 0, 0.6);
+            cursor: pointer;
+        }
+        #empFill {
+            position: absolute; left: 0; bottom: 0; width: 100%; height: 0%;
+            background: linear-gradient(0deg, rgba(255,255,0,0.55), rgba(255,255,0,0.15));
+        }
+        #empBtn span {
+            position: relative;
+            font-weight: 900; font-size: 16px; letter-spacing: 2px;
+            color: #aa8800;
+        }
+        #empBtn.ready {
+            border-color: #ff0;
+            box-shadow: 0 0 25px #ff0, inset 0 0 15px rgba(255,255,0,0.4);
+            animation: powerupPulse 0.8s ease-in-out infinite;
+        }
+        #empBtn.ready span { color: #fff; text-shadow: 0 0 10px #ff0; }
+
         /* Screens */
         .screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
             background: rgba(0, 0, 0, 0.9);
             pointer-events: all;
             z-index: 100;
+            padding: 20px;
+            text-align: center;
         }
-        
-        .screen.hidden {
-            display: none;
-        }
-        
+        .screen.hidden { display: none; }
+
         .title {
-            font-size: 80px;
+            font-size: clamp(34px, 10vw, 80px);
             font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 10px;
+            letter-spacing: clamp(3px, 1.2vw, 10px);
             background: linear-gradient(180deg, #0ff 0%, #08f 50%, #f0f 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
             animation: titleGlitch 3s infinite;
             margin-bottom: 20px;
         }
-        
         @keyframes titleGlitch {
             0%, 90%, 100% { transform: translate(0); }
             92% { transform: translate(-5px, 2px); }
             94% { transform: translate(5px, -2px); }
             96% { transform: translate(-3px, -1px); }
         }
-        
         .subtitle {
-            font-size: 20px;
+            font-size: clamp(12px, 3.5vw, 20px);
             color: #f0f;
-            letter-spacing: 15px;
-            margin-bottom: 60px;
+            letter-spacing: clamp(4px, 2vw, 15px);
+            margin-bottom: clamp(30px, 6vh, 60px);
             text-shadow: 0 0 20px #f0f;
         }
-        
         .btn {
-            padding: 20px 60px;
-            font-size: 24px;
+            padding: clamp(14px, 3vw, 20px) clamp(36px, 8vw, 60px);
+            font-size: clamp(16px, 4vw, 24px);
             font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            text-transform: uppercase;
             letter-spacing: 5px;
             background: transparent;
             border: 3px solid #0ff;
             color: #0ff;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
             clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            transition: all 0.3s;
         }
-        
-        .btn:hover {
-            background: #0ff;
-            color: #000;
+        .btn:hover, .btn:active {
+            background: #0ff; color: #000;
             box-shadow: 0 0 40px #0ff, 0 0 80px #0ff;
             transform: scale(1.05);
         }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.5s;
-        }
-        
-        .btn:hover::before {
-            left: 100%;
-        }
-        
-        .controls-info {
-            margin-top: 40px;
-            text-align: center;
-            color: #888;
-            font-size: 14px;
-            line-height: 2;
-        }
-        
-        .controls-info span {
-            color: #0ff;
-            text-shadow: 0 0 5px #0ff;
-        }
-        
-        /* Game Over Screen */
+        .controls-info { margin-top: 40px; color: #888; font-size: 14px; line-height: 2; }
+        .controls-info span { color: #0ff; text-shadow: 0 0 5px #0ff; }
+
         .game-over-title {
-            font-size: 60px;
+            font-size: clamp(32px, 9vw, 60px);
             color: #f00;
             text-shadow: 0 0 30px #f00, 0 0 60px #f00;
             animation: gameOverPulse 1s ease-in-out infinite;
         }
-        
-        @keyframes gameOverPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
+        @keyframes gameOverPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
         .final-score {
-            font-size: 36px;
+            font-size: clamp(22px, 6vw, 36px);
             color: #ff0;
             margin: 30px 0;
             font-family: 'Share Tech Mono', monospace;
         }
-        
-        /* Power-up indicators */
-        .powerups {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            display: flex;
-            gap: 15px;
-        }
-        
-        .powerup-icon {
-            width: 50px;
-            height: 50px;
-            border: 2px solid #0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            opacity: 0.3;
-            transition: all 0.3s;
-        }
-        
-        .powerup-icon.active {
-            opacity: 1;
-            box-shadow: 0 0 20px #0f0, inset 0 0 20px rgba(0, 255, 0, 0.3);
-            animation: powerupPulse 0.5s ease-in-out infinite;
-        }
-        
-        @keyframes powerupPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        
-        /* CRT Effect */
+
+        /* CRT */
         .crt {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 50;
-            background: 
+            position: absolute; inset: 0;
+            pointer-events: none; z-index: 50;
+            background:
                 linear-gradient(rgba(0, 255, 255, 0.03) 50%, transparent 50%),
                 linear-gradient(90deg, rgba(255, 0, 255, 0.02) 50%, transparent 50%);
             background-size: 100% 2px, 2px 100%;
-            animation: crtFlicker 0.1s infinite;
         }
-        
-        @keyframes crtFlicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.98; }
-        }
-        
         .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 10px;
+            position: absolute; top: 0; left: 0; width: 100%; height: 10px;
             background: linear-gradient(180deg, transparent, rgba(0, 255, 255, 0.1), transparent);
             animation: scanline 6s linear infinite;
-            pointer-events: none;
-            z-index: 51;
+            pointer-events: none; z-index: 51;
         }
-        
-        @keyframes scanline {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
-        
-        /* Combo text */
-        .combo-text {
-            position: absolute;
-            font-size: 36px;
-            font-weight: 900;
-            color: #ff0;
-            text-shadow: 0 0 20px #ff0;
-            pointer-events: none;
-            animation: comboFloat 1s ease-out forwards;
-        }
-        
-        @keyframes comboFloat {
-            0% { transform: scale(0.5) translateY(0); opacity: 0; }
-            20% { transform: scale(1.5) translateY(-20px); opacity: 1; }
-            100% { transform: scale(1) translateY(-60px); opacity: 0; }
+        @keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
+
+        /* Phone layout */
+        @media (max-width: 700px) {
+            .score-box, .health-box { padding: 8px 14px; }
+            .score-label { font-size: 9px; letter-spacing: 2px; }
+            .score-value { font-size: 20px; }
+            .health-bar { width: 90px; }
+            .wave-text { font-size: 10px; letter-spacing: 2px; }
+            .wave-number { font-size: 28px; }
+            .powerup-icon { width: 38px; height: 38px; font-size: 18px; }
+            .controls-info { font-size: 12px; margin-top: 28px; }
         }
     </style>
 </head>
@@ -360,7 +248,7 @@
         <canvas id="gameCanvas"></canvas>
         <div class="crt"></div>
         <div class="scanline"></div>
-        
+
         <div id="ui">
             <div class="hud-top">
                 <div class="score-box">
@@ -378,27 +266,35 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="powerups">
                 <div class="powerup-icon" id="rapidFire" title="Rapid Fire">⚡</div>
                 <div class="powerup-icon" id="shield" title="Shield">🛡️</div>
                 <div class="powerup-icon" id="multiShot" title="Multi Shot">🔥</div>
             </div>
+
+            <div id="empBtn"><div id="empFill"></div><span>EMP</span></div>
         </div>
-        
+
         <!-- Start Screen -->
         <div id="startScreen" class="screen">
             <h1 class="title">CIRCUIT BREAKER</h1>
             <p class="subtitle">NEON DEFENSE PROTOCOL</p>
             <button class="btn" onclick="game.start()">INITIALIZE</button>
-            <div class="controls-info">
+            <div class="controls-info" id="desktopControls">
                 <p><span>WASD / ARROWS</span> to Move</p>
                 <p><span>MOUSE</span> to Aim</p>
-                <p><span>CLICK</span> to Fire</p>
-                <p><span>SPACE</span> for Special</p>
+                <p><span>CLICK / HOLD</span> to Fire</p>
+                <p><span>SPACE</span> for EMP Burst (when charged)</p>
+            </div>
+            <div class="controls-info" id="touchControls" style="display:none">
+                <p><span>LEFT THUMB</span> drag to Move</p>
+                <p><span>RIGHT THUMB</span> drag to Aim &amp; Fire</p>
+                <p><span>RIGHT TAP &amp; HOLD</span> auto-aims nearest</p>
+                <p><span>EMP BUTTON</span> when charged</p>
             </div>
         </div>
-        
+
         <!-- Game Over Screen -->
         <div id="gameOverScreen" class="screen hidden">
             <h1 class="game-over-title">SYSTEM FAILURE</h1>
@@ -409,103 +305,81 @@
     </div>
 
     <script>
-        // Audio System using Web Audio API
+        const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+        if (IS_TOUCH) {
+            document.getElementById('desktopControls').style.display = 'none';
+            document.getElementById('touchControls').style.display = 'block';
+        }
+
+        // ---------- Audio ----------
         const AudioSys = {
             ctx: null,
             init() {
-                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            },
-            playShoot() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(200, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.1);
-            },
-            playExplosion() {
-                if (!this.ctx) return;
-                const bufferSize = this.ctx.sampleRate * 0.2;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+                // Create once and reuse; browsers cap the number of AudioContexts
+                if (!this.ctx) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (AC) this.ctx = new AC();
                 }
-                const source = this.ctx.createBufferSource();
-                const gain = this.ctx.createGain();
-                source.buffer = buffer;
-                source.connect(gain);
-                gain.connect(this.ctx.destination);
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-                source.start(this.ctx.currentTime);
+                if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
             },
-            playPowerUp() {
+            tone(type, f1, f2, dur, vol, ramp = 'exp') {
                 if (!this.ctx) return;
+                const t = this.ctx.currentTime;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
+                osc.type = type;
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-                osc.frequency.linearRampToValueAtTime(1200, this.ctx.currentTime + 0.3);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.3);
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.3);
+                osc.frequency.setValueAtTime(f1, t);
+                if (ramp === 'exp') osc.frequency.exponentialRampToValueAtTime(f2, t + dur);
+                else osc.frequency.linearRampToValueAtTime(f2, t + dur);
+                gain.gain.setValueAtTime(vol, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+                osc.start(t);
+                osc.stop(t + dur);
             },
-            playHit() {
+            noise(dur, vol) {
                 if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
+                const size = Math.floor(this.ctx.sampleRate * dur);
+                const buffer = this.ctx.createBuffer(1, size, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < size; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / size, 2);
+                const src = this.ctx.createBufferSource();
                 const gain = this.ctx.createGain();
-                osc.connect(gain);
+                src.buffer = buffer;
+                src.connect(gain);
                 gain.connect(this.ctx.destination);
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-                osc.start(this.ctx.currentTime);
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + dur);
+                src.start();
+            },
+            playShoot()     { this.tone('sine', 800, 200, 0.1, 0.15); },
+            playExplosion() { this.noise(0.2, 0.25); },
+            playPowerUp()   { this.tone('sine', 400, 1200, 0.3, 0.2, 'lin'); },
+            playHit()       { this.tone('sawtooth', 150, 50, 0.15, 0.2); },
+            playEMP()       { this.tone('square', 60, 1600, 0.5, 0.25, 'exp'); this.noise(0.6, 0.35); }
         };
 
-        // Particle System
+        // ---------- Particles ----------
         class Particle {
             constructor(x, y, color, speed, size, life) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.angle = Math.random() * Math.PI * 2;
-                this.speed = speed * (0.5 + Math.random());
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-                this.size = size;
-                this.life = life;
-                this.maxLife = life;
+                this.x = x; this.y = y; this.color = color;
+                const a = Math.random() * Math.PI * 2;
+                const s = speed * (0.5 + Math.random());
+                this.vx = Math.cos(a) * s; this.vy = Math.sin(a) * s;
+                this.size = size; this.life = life; this.maxLife = life;
                 this.decay = size / life;
             }
-            
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life--;
-                this.size -= this.decay;
-                this.vx *= 0.98;
-                this.vy *= 0.98;
+                this.x += this.vx; this.y += this.vy;
+                this.life--; this.size -= this.decay;
+                this.vx *= 0.98; this.vy *= 0.98;
             }
-            
             draw(ctx) {
-                const alpha = this.life / this.maxLife;
                 ctx.save();
-                ctx.globalAlpha = alpha;
+                ctx.globalAlpha = this.life / this.maxLife;
                 ctx.fillStyle = this.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 10; ctx.shadowColor = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2);
                 ctx.fill();
@@ -513,170 +387,127 @@
             }
         }
 
-        // Floating Text
         class FloatingText {
-            constructor(x, y, text, color) {
-                this.x = x;
-                this.y = y;
-                this.text = text;
-                this.color = color;
-                this.life = 60;
-                this.vy = -2;
+            constructor(x, y, text, color, size = 20) {
+                this.x = x; this.y = y; this.text = text; this.color = color;
+                this.size = size; this.life = 60; this.vy = -2;
             }
-            
-            update() {
-                this.y += this.vy;
-                this.life--;
-            }
-            
+            update() { this.y += this.vy; this.life--; }
             draw(ctx) {
-                const alpha = this.life / 60;
                 ctx.save();
-                ctx.globalAlpha = alpha;
+                ctx.globalAlpha = this.life / 60;
                 ctx.fillStyle = this.color;
-                ctx.font = 'bold 20px Orbitron';
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = this.color;
+                ctx.font = `bold ${this.size}px Orbitron`;
+                ctx.textAlign = 'center';
+                ctx.shadowBlur = 10; ctx.shadowColor = this.color;
                 ctx.fillText(this.text, this.x, this.y);
                 ctx.restore();
             }
         }
 
-        // Player
+        // Expanding EMP shockwave
+        class EMPRing {
+            constructor(x, y, maxR) { this.x = x; this.y = y; this.r = 10; this.maxR = maxR; this.life = 30; }
+            update() { this.r += (this.maxR - this.r) * 0.2; this.life--; }
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life / 30;
+                ctx.strokeStyle = '#ff0';
+                ctx.lineWidth = 6;
+                ctx.shadowBlur = 30; ctx.shadowColor = '#ff0';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2); ctx.stroke();
+                ctx.lineWidth = 2; ctx.strokeStyle = '#fff';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.r * 0.85, 0, Math.PI * 2); ctx.stroke();
+                ctx.restore();
+            }
+        }
+
+        // ---------- Player ----------
         class Player {
             constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.radius = 20;
-                this.speed = 5;
-                this.health = 100;
-                this.maxHealth = 100;
+                this.x = x; this.y = y;
+                this.radius = 20; this.speed = 5;
+                this.health = 100; this.maxHealth = 100;
                 this.angle = 0;
                 this.shootCooldown = 0;
-                this.powerups = {
-                    rapidFire: 0,
-                    shield: 0,
-                    multiShot: 0
-                };
+                this.powerups = { rapidFire: 0, shield: 0, multiShot: 0 };
                 this.invulnerable = 0;
             }
-            
-            update(keys, mouse) {
-                // Movement
-                if (keys.has('w') || keys.has('arrowup')) this.y -= this.speed;
-                if (keys.has('s') || keys.has('arrowdown')) this.y += this.speed;
-                if (keys.has('a') || keys.has('arrowleft')) this.x -= this.speed;
-                if (keys.has('d') || keys.has('arrowright')) this.x += this.speed;
-                
-                // Boundary check
+
+            update(move, aimAngle) {
+                this.x += move.x * this.speed;
+                this.y += move.y * this.speed;
                 this.x = Math.max(this.radius, Math.min(game.width - this.radius, this.x));
                 this.y = Math.max(this.radius, Math.min(game.height - this.radius, this.y));
-                
-                // Aim
-                this.angle = Math.atan2(mouse.y - this.y, mouse.x - this.x);
-                
-                // Cooldown
+
+                if (aimAngle !== null) this.angle = aimAngle;
+
                 if (this.shootCooldown > 0) this.shootCooldown--;
                 if (this.invulnerable > 0) this.invulnerable--;
-                
-                // Powerup timers
-                for (let p in this.powerups) {
-                    if (this.powerups[p] > 0) this.powerups[p]--;
-                }
-                
-                // Update UI
+                for (let p in this.powerups) if (this.powerups[p] > 0) this.powerups[p]--;
+
                 document.getElementById('rapidFire').classList.toggle('active', this.powerups.rapidFire > 0);
                 document.getElementById('shield').classList.toggle('active', this.powerups.shield > 0);
                 document.getElementById('multiShot').classList.toggle('active', this.powerups.multiShot > 0);
             }
-            
+
             draw(ctx) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
-                
-                // Shield effect
+
                 if (this.powerups.shield > 0 || this.invulnerable > 0) {
                     ctx.beginPath();
                     ctx.arc(0, 0, this.radius + 15, 0, Math.PI * 2);
                     ctx.strokeStyle = `rgba(0, 255, 255, ${0.3 + Math.sin(Date.now() / 100) * 0.2})`;
                     ctx.lineWidth = 3;
-                    ctx.shadowBlur = 20;
-                    ctx.shadowColor = '#0ff';
+                    ctx.shadowBlur = 20; ctx.shadowColor = '#0ff';
                     ctx.stroke();
                 }
-                
-                // Circuit body
+
                 ctx.fillStyle = '#000';
                 ctx.strokeStyle = '#0ff';
                 ctx.lineWidth = 3;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#0ff';
-                
-                // Main body - hexagon
+                ctx.shadowBlur = 20; ctx.shadowColor = '#0ff';
                 ctx.beginPath();
                 for (let i = 0; i < 6; i++) {
-                    const angle = (i / 6) * Math.PI * 2;
-                    const r = this.radius;
-                    ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                    const a = (i / 6) * Math.PI * 2;
+                    ctx.lineTo(Math.cos(a) * this.radius, Math.sin(a) * this.radius);
                 }
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-                
-                // Inner circuits
-                ctx.strokeStyle = '#f0f';
-                ctx.lineWidth = 2;
-                ctx.shadowColor = '#f0f';
+                ctx.closePath(); ctx.fill(); ctx.stroke();
+
+                ctx.strokeStyle = '#f0f'; ctx.lineWidth = 2; ctx.shadowColor = '#f0f';
                 ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.lineTo(this.radius, 0);
-                ctx.moveTo(0, 0);
-                ctx.lineTo(-this.radius * 0.5, this.radius * 0.5);
-                ctx.moveTo(0, 0);
-                ctx.lineTo(-this.radius * 0.5, -this.radius * 0.5);
+                ctx.moveTo(0, 0); ctx.lineTo(this.radius, 0);
+                ctx.moveTo(0, 0); ctx.lineTo(-this.radius * 0.5, this.radius * 0.5);
+                ctx.moveTo(0, 0); ctx.lineTo(-this.radius * 0.5, -this.radius * 0.5);
                 ctx.stroke();
-                
-                // Core
+
                 ctx.fillStyle = '#0ff';
-                ctx.shadowBlur = 30;
-                ctx.shadowColor = '#0ff';
-                ctx.beginPath();
-                ctx.arc(0, 0, 8, 0, Math.PI * 2);
-                ctx.fill();
-                
+                ctx.shadowBlur = 30; ctx.shadowColor = '#0ff';
+                ctx.beginPath(); ctx.arc(0, 0, 8, 0, Math.PI * 2); ctx.fill();
                 ctx.restore();
             }
-            
+
             shoot() {
                 if (this.shootCooldown > 0) return [];
-                
-                const cooldown = this.powerups.rapidFire > 0 ? 5 : 12;
-                this.shootCooldown = cooldown;
-                
+                this.shootCooldown = this.powerups.rapidFire > 0 ? 5 : 12;
                 AudioSys.playShoot();
-                
+
                 const bullets = [];
                 const count = this.powerups.multiShot > 0 ? 3 : 1;
                 const spread = this.powerups.multiShot > 0 ? 0.3 : 0;
-                
                 for (let i = 0; i < count; i++) {
-                    const angle = this.angle + (i - (count - 1) / 2) * spread;
-                    bullets.push(new Bullet(
-                        this.x + Math.cos(angle) * 25,
-                        this.y + Math.sin(angle) * 25,
-                        angle,
-                        12,
-                        '#0ff'
-                    ));
+                    const a = this.angle + (i - (count - 1) / 2) * spread;
+                    bullets.push(new Bullet(this.x + Math.cos(a) * 25, this.y + Math.sin(a) * 25, a, 12, '#0ff'));
                 }
-                
                 return bullets;
             }
-            
+
             takeDamage(damage) {
+                if (!game.running) return;
                 if (this.invulnerable > 0 || this.powerups.shield > 0) return;
-                this.health -= damage;
+                this.health = Math.max(0, this.health - damage);
                 this.invulnerable = 30;
                 AudioSys.playHit();
                 game.shake = 10;
@@ -684,505 +515,500 @@
             }
         }
 
-        // Bullet
         class Bullet {
             constructor(x, y, angle, speed, color) {
-                this.x = x;
-                this.y = y;
-                this.vx = Math.cos(angle) * speed;
-                this.vy = Math.sin(angle) * speed;
-                this.color = color;
-                this.life = 60;
-                this.damage = 25;
+                this.x = x; this.y = y;
+                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
+                this.color = color; this.life = 60; this.damage = 25;
             }
-            
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
-                this.life--;
-                
-                // Trail particles
-                if (Math.random() < 0.5) {
-                    game.particles.push(new Particle(
-                        this.x, this.y, this.color, 2, 3, 10
-                    ));
-                }
+                this.x += this.vx; this.y += this.vy; this.life--;
+                if (Math.random() < 0.5) game.particles.push(new Particle(this.x, this.y, this.color, 2, 3, 10));
             }
-            
             draw(ctx) {
                 ctx.save();
                 ctx.fillStyle = this.color;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = this.color;
-                
-                const angle = Math.atan2(this.vy, this.vx);
+                ctx.shadowBlur = 15; ctx.shadowColor = this.color;
                 ctx.translate(this.x, this.y);
-                ctx.rotate(angle);
-                
+                ctx.rotate(Math.atan2(this.vy, this.vx));
                 ctx.fillRect(-10, -3, 20, 6);
                 ctx.restore();
             }
         }
 
-        // Enemy
+        // ---------- Enemies ----------
+        const ENEMY_STATS = {
+            virus: { health: 50,  speed: 2,   radius: 15, value: 100, color: '#f00' },
+            worm:  { health: 100, speed: 1.5, radius: 20, value: 250, color: '#f80' },
+            tank:  { health: 200, speed: 1,   radius: 30, value: 500, color: '#f0f' }
+        };
+
         class Enemy {
             constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type;
-                this.angle = 0;
-                this.health = type === 'virus' ? 50 : type === 'worm' ? 100 : 200;
-                this.maxHealth = this.health;
-                this.speed = type === 'virus' ? 2 : type === 'worm' ? 1.5 : 1;
-                this.radius = type === 'virus' ? 15 : type === 'worm' ? 20 : 30;
-                this.value = type === 'virus' ? 100 : type === 'worm' ? 250 : 500;
-                this.color = type === 'virus' ? '#f00' : type === 'worm' ? '#f80' : '#f0f';
+                const s = ENEMY_STATS[type];
+                this.x = x; this.y = y; this.type = type; this.angle = 0;
+                this.health = s.health; this.maxHealth = s.health;
+                this.speed = s.speed; this.radius = s.radius;
+                this.value = s.value; this.color = s.color;
                 this.pulse = 0;
             }
-            
             update(player) {
-                // Move toward player
-                const dx = player.x - this.x;
-                const dy = player.y - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
+                const dx = player.x - this.x, dy = player.y - this.y;
+                const dist = Math.hypot(dx, dy);
                 this.angle = Math.atan2(dy, dx);
                 this.x += Math.cos(this.angle) * this.speed;
                 this.y += Math.sin(this.angle) * this.speed;
-                
                 this.pulse += 0.1;
-                
-                // Damage player on contact
                 if (dist < this.radius + player.radius) {
-                    player.takeDamage(10);
-                    this.health = 0; // Self destruct
+                    player.takeDamage(this.type === 'tank' ? 20 : 10);
+                    this.health = 0;
                     game.createExplosion(this.x, this.y, this.color, 20);
                 }
             }
-            
             draw(ctx) {
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
-                
-                const pulseScale = 1 + Math.sin(this.pulse) * 0.1;
-                ctx.scale(pulseScale, pulseScale);
-                
-                ctx.strokeStyle = this.color;
-                ctx.fillStyle = '#000';
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = this.color;
-                
+                const ps = 1 + Math.sin(this.pulse) * 0.1;
+                ctx.scale(ps, ps);
+                ctx.strokeStyle = this.color; ctx.fillStyle = '#000';
+                ctx.lineWidth = 3; ctx.shadowBlur = 20; ctx.shadowColor = this.color;
+
                 if (this.type === 'virus') {
-                    // Spiky virus shape
                     ctx.beginPath();
                     for (let i = 0; i < 8; i++) {
-                        const angle = (i / 8) * Math.PI * 2;
+                        const a = (i / 8) * Math.PI * 2;
                         const r = i % 2 === 0 ? this.radius : this.radius * 0.6;
-                        ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+                        ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
                     }
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    
-                    // Eye
+                    ctx.closePath(); ctx.fill(); ctx.stroke();
                     ctx.fillStyle = this.color;
-                    ctx.beginPath();
-                    ctx.arc(5, 0, 5, 0, Math.PI * 2);
-                    ctx.fill();
-                    
+                    ctx.beginPath(); ctx.arc(5, 0, 5, 0, Math.PI * 2); ctx.fill();
                 } else if (this.type === 'worm') {
-                    // Segmented worm
-                    for (let i = 0; i < 3; i++) {
+                    for (let i = 2; i >= 0; i--) {
                         ctx.beginPath();
                         ctx.arc(-i * 12, 0, this.radius * (1 - i * 0.2), 0, Math.PI * 2);
-                        ctx.fill();
-                        ctx.stroke();
+                        ctx.fill(); ctx.stroke();
                     }
-                    
                 } else {
-                    // Tank - heavy enemy
                     ctx.fillRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
                     ctx.strokeRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
-                    
-                    // Core
                     ctx.fillStyle = this.color;
                     ctx.fillRect(-10, -10, 20, 20);
                 }
-                
-                // Health bar
-                const barWidth = 30;
-                const barHeight = 4;
+                ctx.restore();
+
+                // Health bar drawn unrotated so it stays above the enemy
+                const bw = 30, bh = 4;
+                ctx.save();
                 ctx.fillStyle = '#300';
-                ctx.fillRect(-barWidth/2, -this.radius - 10, barWidth, barHeight);
+                ctx.fillRect(this.x - bw / 2, this.y - this.radius - 12, bw, bh);
                 ctx.fillStyle = this.color;
-                ctx.fillRect(-barWidth/2, -this.radius - 10, barWidth * (this.health / this.maxHealth), barHeight);
-                
+                ctx.fillRect(this.x - bw / 2, this.y - this.radius - 12, bw * Math.max(0, this.health / this.maxHealth), bh);
                 ctx.restore();
             }
         }
 
-        // PowerUp
         class PowerUp {
-            constructor(x, y, type) {
-                this.x = x;
-                this.y = y;
-                this.type = type;
-                this.radius = 15;
-                this.life = 600;
-                this.angle = 0;
-            }
-            
+            constructor(x, y, type) { this.x = x; this.y = y; this.type = type; this.radius = 15; this.life = 600; this.angle = 0; }
             update(player) {
-                this.angle += 0.05;
-                this.life--;
-                
-                const dx = player.x - this.x;
-                const dy = player.y - this.y;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                
-                if (dist < this.radius + player.radius) {
-                    player.powerups[this.type] = 600; // 10 seconds
+                this.angle += 0.05; this.life--;
+                if (Math.hypot(player.x - this.x, player.y - this.y) < this.radius + player.radius) {
+                    player.powerups[this.type] = 600;
                     AudioSys.playPowerUp();
-                    game.floatingTexts.push(new FloatingText(
-                        this.x, this.y, this.type.toUpperCase() + '!', '#0f0'
-                    ));
-                    return true; // Collected
+                    game.floatingTexts.push(new FloatingText(this.x, this.y, this.type.toUpperCase() + '!', '#0f0'));
+                    return true;
                 }
                 return false;
             }
-            
             draw(ctx) {
+                const colors = { rapidFire: '#ff0', shield: '#0ff', multiShot: '#f0f' };
+                const icons = { rapidFire: '⚡', shield: '🛡', multiShot: '🔥' };
                 ctx.save();
                 ctx.translate(this.x, this.y);
+                // Blink during the last 2 seconds
+                if (this.life < 120 && Math.floor(this.life / 8) % 2 === 0) ctx.globalAlpha = 0.3;
                 ctx.rotate(this.angle);
-                
-                const colors = {
-                    rapidFire: '#ff0',
-                    shield: '#0ff',
-                    multiShot: '#f0f'
-                };
-                
                 ctx.strokeStyle = colors[this.type];
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = colors[this.type];
-                
-                // Rotating square
+                ctx.lineWidth = 3; ctx.shadowBlur = 20; ctx.shadowColor = colors[this.type];
                 ctx.strokeRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
-                
-                // Inner icon
                 ctx.fillStyle = colors[this.type];
-                ctx.font = '16px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const icons = { rapidFire: '⚡', shield: '🛡', multiShot: '🔥' };
+                ctx.font = '16px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                 ctx.fillText(icons[this.type], 0, 0);
-                
                 ctx.restore();
             }
         }
 
-        // Main Game
+        // ---------- Game ----------
+        const STEP = 1000 / 60; // fixed 60 Hz simulation so speed is the same on 60/120/144 Hz screens
+        const EMP_RADIUS = 260;
+        const EMP_DAMAGE = 200;
+
         const game = {
             canvas: document.getElementById('gameCanvas'),
             ctx: null,
-            width: 0,
-            height: 0,
-            
+            width: 0, height: 0,
+
             keys: new Set(),
             mouse: { x: 0, y: 0, down: false },
-            
+            joy: { active: false, id: null, ox: 0, oy: 0, x: 0, y: 0 },
+            aim: { active: false, id: null, ox: 0, oy: 0, dragged: false, angle: 0 },
+
             player: null,
-            bullets: [],
-            enemies: [],
-            particles: [],
-            powerups: [],
-            floatingTexts: [],
-            
-            score: 0,
-            wave: 1,
-            waveTimer: 0,
-            enemiesInWave: 0,
-            enemiesSpawned: 0,
-            spawnTimer: 0,
-            
+            bullets: [], enemies: [], particles: [], powerups: [], floatingTexts: [], empRings: [],
+
+            score: 0, wave: 1,
+            enemiesInWave: 0, enemiesSpawned: 0, spawnTimer: 0,
+            empCharge: 0,
+
             shake: 0,
             running: false,
-            
+            lastTime: 0, acc: 0,
+
             init() {
                 this.ctx = this.canvas.getContext('2d');
                 this.resize();
                 window.addEventListener('resize', () => this.resize());
-                
-                // Input
+
+                // Keyboard
                 window.addEventListener('keydown', e => {
-                    this.keys.add(e.key.toLowerCase());
-                    if (e.key === ' ') this.playerShoot();
+                    const k = e.key.toLowerCase();
+                    if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
+                    this.keys.add(k);
+                    if (k === ' ' && !e.repeat) this.triggerEMP();
                 });
                 window.addEventListener('keyup', e => this.keys.delete(e.key.toLowerCase()));
-                window.addEventListener('mousemove', e => {
-                    this.mouse.x = e.clientX;
-                    this.mouse.y = e.clientY;
-                });
-                window.addEventListener('mousedown', () => {
-                    this.mouse.down = true;
-                    this.playerShoot();
-                });
+                window.addEventListener('blur', () => { this.keys.clear(); this.mouse.down = false; });
+
+                // Mouse
+                window.addEventListener('mousemove', e => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; });
+                this.canvas.addEventListener('mousedown', () => { this.mouse.down = true; this.playerShoot(); });
                 window.addEventListener('mouseup', () => this.mouse.down = false);
-                
-                // Start loop
-                this.loop();
+
+                // Touch: left half = joystick, right half = aim + fire
+                const c = document.getElementById('gameContainer');
+                c.addEventListener('touchstart', e => this.onTouchStart(e), { passive: false });
+                c.addEventListener('touchmove', e => this.onTouchMove(e), { passive: false });
+                c.addEventListener('touchend', e => this.onTouchEnd(e), { passive: false });
+                c.addEventListener('touchcancel', e => this.onTouchEnd(e), { passive: false });
+
+                // EMP button
+                const emp = document.getElementById('empBtn');
+                emp.addEventListener('touchstart', e => { e.preventDefault(); e.stopPropagation(); this.triggerEMP(); }, { passive: false });
+                emp.addEventListener('mousedown', e => { e.stopPropagation(); this.triggerEMP(); });
+
+                requestAnimationFrame(t => this.loop(t));
             },
-            
+
             resize() {
                 this.width = window.innerWidth;
                 this.height = window.innerHeight;
                 this.canvas.width = this.width;
                 this.canvas.height = this.height;
             },
-            
+
+            // ----- Touch handling -----
+            onTouchStart(e) {
+                if (!this.running) return; // let menu buttons work normally
+                e.preventDefault();
+                for (const t of e.changedTouches) {
+                    if (t.clientX < this.width / 2 && !this.joy.active) {
+                        Object.assign(this.joy, { active: true, id: t.identifier, ox: t.clientX, oy: t.clientY, x: 0, y: 0 });
+                    } else if (t.clientX >= this.width / 2 && !this.aim.active) {
+                        Object.assign(this.aim, { active: true, id: t.identifier, ox: t.clientX, oy: t.clientY, dragged: false });
+                    }
+                }
+            },
+            onTouchMove(e) {
+                if (!this.running) return;
+                e.preventDefault();
+                for (const t of e.changedTouches) {
+                    if (this.joy.active && t.identifier === this.joy.id) {
+                        let dx = t.clientX - this.joy.ox, dy = t.clientY - this.joy.oy;
+                        const max = 60, len = Math.hypot(dx, dy);
+                        if (len > max) { dx = dx / len * max; dy = dy / len * max; }
+                        this.joy.x = dx / max; this.joy.y = dy / max;
+                    } else if (this.aim.active && t.identifier === this.aim.id) {
+                        const dx = t.clientX - this.aim.ox, dy = t.clientY - this.aim.oy;
+                        if (Math.hypot(dx, dy) > 15) {
+                            this.aim.dragged = true;
+                            this.aim.angle = Math.atan2(dy, dx);
+                        }
+                    }
+                }
+            },
+            onTouchEnd(e) {
+                for (const t of e.changedTouches) {
+                    if (t.identifier === this.joy.id) { this.joy.active = false; this.joy.id = null; this.joy.x = this.joy.y = 0; }
+                    if (t.identifier === this.aim.id) { this.aim.active = false; this.aim.id = null; }
+                }
+                if (this.running) e.preventDefault();
+            },
+            clearInput() {
+                this.keys.clear();
+                this.mouse.down = false;
+                Object.assign(this.joy, { active: false, id: null, x: 0, y: 0 });
+                Object.assign(this.aim, { active: false, id: null, dragged: false });
+            },
+
+            nearestEnemy() {
+                let best = null, bestD = Infinity;
+                for (const e of this.enemies) {
+                    const d = Math.hypot(e.x - this.player.x, e.y - this.player.y);
+                    if (d < bestD) { bestD = d; best = e; }
+                }
+                return best;
+            },
+
+            getMove() {
+                let x = 0, y = 0;
+                const k = this.keys;
+                if (k.has('w') || k.has('arrowup')) y -= 1;
+                if (k.has('s') || k.has('arrowdown')) y += 1;
+                if (k.has('a') || k.has('arrowleft')) x -= 1;
+                if (k.has('d') || k.has('arrowright')) x += 1;
+                if (this.joy.active) { x += this.joy.x; y += this.joy.y; }
+                const len = Math.hypot(x, y);
+                if (len > 1) { x /= len; y /= len; } // no faster diagonals
+                return { x, y };
+            },
+
+            getAim() {
+                if (this.aim.active) {
+                    if (this.aim.dragged) return this.aim.angle;
+                    const t = this.nearestEnemy();
+                    return t ? Math.atan2(t.y - this.player.y, t.x - this.player.x) : null;
+                }
+                if (IS_TOUCH && !this.mouse.down) return null; // keep last aim on touch devices
+                return Math.atan2(this.mouse.y - this.player.y, this.mouse.x - this.player.x);
+            },
+
+            // ----- Flow -----
             start() {
                 AudioSys.init();
                 document.getElementById('startScreen').classList.add('hidden');
                 document.getElementById('gameOverScreen').classList.add('hidden');
-                
+
                 this.player = new Player(this.width / 2, this.height / 2);
-                this.bullets = [];
-                this.enemies = [];
-                this.particles = [];
-                this.powerups = [];
-                this.floatingTexts = [];
-                this.score = 0;
-                this.wave = 1;
-                this.waveTimer = 0;
-                this.enemiesInWave = 5;
-                this.enemiesSpawned = 0;
-                this.spawnTimer = 0;
+                this.bullets = []; this.enemies = []; this.particles = [];
+                this.powerups = []; this.floatingTexts = []; this.empRings = [];
+                this.score = 0; this.wave = 1;
+                this.enemiesInWave = 5; this.enemiesSpawned = 0; this.spawnTimer = 0;
+                this.empCharge = 0;
                 this.shake = 0;
+                this.clearInput();
                 this.running = true;
-                
                 this.updateUI();
             },
-            
-            restart() {
-                this.start();
-            },
-            
+
+            restart() { this.start(); },
+
             gameOver() {
+                if (!this.running) return;
                 this.running = false;
+                this.clearInput();
+                document.getElementById('healthBar').style.width = '0%';
                 document.getElementById('finalScore').textContent = this.score.toString().padStart(6, '0');
                 document.getElementById('finalWave').textContent = this.wave;
                 document.getElementById('gameOverScreen').classList.remove('hidden');
             },
-            
+
             playerShoot() {
                 if (!this.running || !this.player) return;
-                const bullets = this.player.shoot();
-                this.bullets.push(...bullets);
+                this.bullets.push(...this.player.shoot());
             },
-            
-            spawnEnemy() {
-                const edge = Math.floor(Math.random() * 4);
-                let x, y;
-                const margin = 50;
-                
-                switch(edge) {
-                    case 0: x = Math.random() * this.width; y = -margin; break;
-                    case 1: x = this.width + margin; y = Math.random() * this.height; break;
-                    case 2: x = Math.random() * this.width; y = this.height + margin; break;
-                    case 3: x = -margin; y = Math.random() * this.height; break;
-                }
-                
-                const types = ['virus', 'virus', 'worm', 'tank'];
-                const weights = [0.6, 0.6, 0.3, 0.1];
-                let rand = Math.random();
-                let type = 'virus';
-                for (let i = 0; i < types.length; i++) {
-                    rand -= weights[i];
-                    if (rand <= 0) {
-                        type = types[i];
-                        break;
+
+            triggerEMP() {
+                if (!this.running || this.empCharge < 100) return;
+                this.empCharge = 0;
+                const p = this.player;
+                AudioSys.playEMP();
+                this.shake = 20;
+                this.empRings.push(new EMPRing(p.x, p.y, EMP_RADIUS));
+                this.floatingTexts.push(new FloatingText(p.x, p.y - 40, 'EMP BURST', '#ff0', 26));
+                for (const e of this.enemies) {
+                    if (e.health > 0 && Math.hypot(e.x - p.x, e.y - p.y) < EMP_RADIUS + e.radius) {
+                        e.health -= EMP_DAMAGE;
+                        if (e.health <= 0) this.onEnemyKilled(e, false);
                     }
                 }
-                
+                this.updateUI();
+            },
+
+            onEnemyKilled(e, chargeEMP = true) {
+                this.score += e.value;
+                if (chargeEMP) this.empCharge = Math.min(100, this.empCharge + e.value / 12);
+                this.createExplosion(e.x, e.y, e.color, 15);
+                this.spawnPowerUp(e.x, e.y);
+                this.floatingTexts.push(new FloatingText(e.x, e.y, '+' + e.value, '#ff0'));
+                this.updateUI();
+            },
+
+            spawnEnemy() {
+                const edge = Math.floor(Math.random() * 4);
+                const m = 50;
+                let x, y;
+                switch (edge) {
+                    case 0: x = Math.random() * this.width; y = -m; break;
+                    case 1: x = this.width + m; y = Math.random() * this.height; break;
+                    case 2: x = Math.random() * this.width; y = this.height + m; break;
+                    default: x = -m; y = Math.random() * this.height;
+                }
+                // Weights sum to 1; heavier enemies get more common each wave
+                const tankW = Math.min(0.05 + this.wave * 0.01, 0.2);
+                const wormW = Math.min(0.2 + this.wave * 0.02, 0.35);
+                const r = Math.random();
+                const type = r < tankW ? 'tank' : r < tankW + wormW ? 'worm' : 'virus';
                 this.enemies.push(new Enemy(x, y, type));
             },
-            
+
             spawnPowerUp(x, y) {
                 if (Math.random() < 0.1) {
                     const types = ['rapidFire', 'shield', 'multiShot'];
-                    const type = types[Math.floor(Math.random() * types.length)];
-                    this.powerups.push(new PowerUp(x, y, type));
+                    this.powerups.push(new PowerUp(x, y, types[Math.floor(Math.random() * types.length)]));
                 }
             },
-            
+
             createExplosion(x, y, color, count) {
                 AudioSys.playExplosion();
                 for (let i = 0; i < count; i++) {
-                    this.particles.push(new Particle(
-                        x, y, color, 5, 5 + Math.random() * 5, 30 + Math.random() * 20
-                    ));
+                    this.particles.push(new Particle(x, y, color, 5, 5 + Math.random() * 5, 30 + Math.random() * 20));
                 }
             },
-            
+
             update() {
+                // Effects keep animating behind the game-over screen
+                this.particles = this.particles.filter(p => { p.update(); return p.life > 0 && p.size > 0; });
+                this.floatingTexts = this.floatingTexts.filter(t => { t.update(); return t.life > 0; });
+                this.empRings = this.empRings.filter(r => { r.update(); return r.life > 0; });
+                if (this.shake > 0) { this.shake *= 0.9; if (this.shake < 0.5) this.shake = 0; }
+
                 if (!this.running) return;
-                
-                // Screen shake decay
-                if (this.shake > 0) this.shake *= 0.9;
-                if (this.shake < 0.5) this.shake = 0;
-                
-                // Wave management
-                this.waveTimer++;
+
+                // Waves
                 if (this.enemiesSpawned < this.enemiesInWave) {
                     this.spawnTimer++;
-                    const spawnRate = Math.max(30, 120 - this.wave * 5);
-                    if (this.spawnTimer >= spawnRate) {
+                    if (this.spawnTimer >= Math.max(30, 120 - this.wave * 5)) {
                         this.spawnEnemy();
                         this.enemiesSpawned++;
                         this.spawnTimer = 0;
                     }
                 } else if (this.enemies.length === 0) {
-                    // Wave complete
                     this.wave++;
                     this.enemiesInWave = 5 + Math.floor(this.wave * 1.5);
                     this.enemiesSpawned = 0;
-                    this.waveTimer = 0;
-                    this.floatingTexts.push(new FloatingText(
-                        this.width / 2, this.height / 2, 'WAVE ' + this.wave, '#ff0'
-                    ));
+                    this.spawnTimer = 0;
+                    this.floatingTexts.push(new FloatingText(this.width / 2, this.height / 2, 'WAVE ' + this.wave, '#ff0', 36));
+                    this.updateUI();
                 }
-                
-                // Auto fire
-                if (this.mouse.down) {
-                    this.playerShoot();
-                }
-                
-                // Update entities
-                this.player.update(this.keys, this.mouse);
-                
+
+                // Player
+                this.player.update(this.getMove(), this.getAim());
+                if (this.mouse.down || this.aim.active) this.playerShoot();
+
                 this.bullets = this.bullets.filter(b => {
                     b.update();
-                    return b.life > 0 && 
-                           b.x > 0 && b.x < this.width && 
-                           b.y > 0 && b.y < this.height;
+                    return b.life > 0 && b.x > 0 && b.x < this.width && b.y > 0 && b.y < this.height;
                 });
-                
+
                 this.enemies = this.enemies.filter(e => {
                     e.update(this.player);
-                    
-                    // Check bullet collisions
-                    for (let b of this.bullets) {
-                        const dx = e.x - b.x;
-                        const dy = e.y - b.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (dist < e.radius + 5) {
+                    if (e.health <= 0) return false;
+                    for (const b of this.bullets) {
+                        if (b.life <= 0) continue; // a spent bullet can't hit a second enemy
+                        if (Math.hypot(e.x - b.x, e.y - b.y) < e.radius + 5) {
                             e.health -= b.damage;
                             b.life = 0;
-                            
-                            // Hit particles
-                            for (let i = 0; i < 5; i++) {
-                                this.particles.push(new Particle(
-                                    b.x, b.y, b.color, 3, 3, 15
-                                ));
-                            }
-                            
-                            if (e.health <= 0) {
-                                this.score += e.value;
-                                this.createExplosion(e.x, e.y, e.color, 15);
-                                this.spawnPowerUp(e.x, e.y);
-                                this.floatingTexts.push(new FloatingText(
-                                    e.x, e.y, '+' + e.value, '#ff0'
-                                ));
-                                this.updateUI();
-                                return false;
-                            }
+                            for (let i = 0; i < 5; i++) this.particles.push(new Particle(b.x, b.y, b.color, 3, 3, 15));
+                            if (e.health <= 0) { this.onEnemyKilled(e); return false; }
                         }
                     }
-                    
                     return e.health > 0;
                 });
-                
-                this.powerups = this.powerups.filter(p => {
-                    return !p.update(this.player) && p.life > 0;
-                });
-                
-                this.particles = this.particles.filter(p => {
-                    p.update();
-                    return p.life > 0 && p.size > 0;
-                });
-                
-                this.floatingTexts = this.floatingTexts.filter(t => {
-                    t.update();
-                    return t.life > 0;
-                });
-                
-                // Update health bar
-                const healthPercent = Math.max(0, this.player.health);
-                document.getElementById('healthBar').style.width = healthPercent + '%';
+
+                this.powerups = this.powerups.filter(p => !p.update(this.player) && p.life > 0);
+
+                if (this.running) {
+                    document.getElementById('healthBar').style.width = Math.max(0, this.player.health) + '%';
+                }
+                this.updateEMPButton();
             },
-            
+
+            updateEMPButton() {
+                document.getElementById('empFill').style.height = this.empCharge + '%';
+                document.getElementById('empBtn').classList.toggle('ready', this.empCharge >= 100);
+            },
+
             updateUI() {
                 document.getElementById('score').textContent = this.score.toString().padStart(6, '0');
                 document.getElementById('wave').textContent = this.wave.toString().padStart(2, '0');
+                this.updateEMPButton();
             },
-            
+
+            drawTouchControls(ctx) {
+                if (this.joy.active) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(0,255,255,0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.arc(this.joy.ox, this.joy.oy, 60, 0, Math.PI * 2); ctx.stroke();
+                    ctx.fillStyle = 'rgba(0,255,255,0.35)';
+                    ctx.shadowBlur = 15; ctx.shadowColor = '#0ff';
+                    ctx.beginPath(); ctx.arc(this.joy.ox + this.joy.x * 60, this.joy.oy + this.joy.y * 60, 24, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore();
+                }
+                if (this.aim.active) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(255,0,255,0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.arc(this.aim.ox, this.aim.oy, 40, 0, Math.PI * 2); ctx.stroke();
+                    if (this.aim.dragged) {
+                        ctx.beginPath();
+                        ctx.moveTo(this.aim.ox, this.aim.oy);
+                        ctx.lineTo(this.aim.ox + Math.cos(this.aim.angle) * 40, this.aim.oy + Math.sin(this.aim.angle) * 40);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+            },
+
             draw() {
-                // Clear with trail effect
-                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-                this.ctx.fillRect(0, 0, this.width, this.height);
-                
-                // Screen shake
-                this.ctx.save();
-                if (this.shake > 0) {
-                    const dx = (Math.random() - 0.5) * this.shake;
-                    const dy = (Math.random() - 0.5) * this.shake;
-                    this.ctx.translate(dx, dy);
-                }
-                
-                // Draw circuit grid effect
-                this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)';
-                this.ctx.lineWidth = 1;
-                const gridSize = 50;
-                const offset = (Date.now() / 50) % gridSize;
-                
-                for (let x = 0; x < this.width; x += gridSize) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(x, 0);
-                    this.ctx.lineTo(x, this.height);
-                    this.ctx.stroke();
-                }
-                for (let y = offset; y < this.height; y += gridSize) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(0, y);
-                    this.ctx.lineTo(this.width, y);
-                    this.ctx.stroke();
-                }
-                
+                const ctx = this.ctx;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                ctx.fillRect(0, 0, this.width, this.height);
+
+                ctx.save();
+                if (this.shake > 0) ctx.translate((Math.random() - 0.5) * this.shake, (Math.random() - 0.5) * this.shake);
+
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.05)';
+                ctx.lineWidth = 1;
+                const g = 50, off = (Date.now() / 50) % g;
+                for (let x = 0; x < this.width; x += g) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, this.height); ctx.stroke(); }
+                for (let y = off; y < this.height; y += g) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(this.width, y); ctx.stroke(); }
+
                 if (this.running) {
-                    // Draw entities
-                    this.powerups.forEach(p => p.draw(this.ctx));
-                    this.particles.forEach(p => p.draw(this.ctx));
-                    this.bullets.forEach(b => b.draw(this.ctx));
-                    this.enemies.forEach(e => e.draw(this.ctx));
-                    this.player.draw(this.ctx);
-                    this.floatingTexts.forEach(t => t.draw(this.ctx));
+                    this.powerups.forEach(p => p.draw(ctx));
+                    this.bullets.forEach(b => b.draw(ctx));
+                    this.enemies.forEach(e => e.draw(ctx));
+                    this.player.draw(ctx);
                 }
-                
-                this.ctx.restore();
+                this.particles.forEach(p => p.draw(ctx));
+                this.empRings.forEach(r => r.draw(ctx));
+                this.floatingTexts.forEach(t => t.draw(ctx));
+                ctx.restore();
+
+                if (this.running) this.drawTouchControls(ctx);
             },
-            
-            loop() {
-                this.update();
+
+            loop(time) {
+                if (!this.lastTime) this.lastTime = time;
+                this.acc += Math.min(time - this.lastTime, 250); // cap so a background tab doesn't fast-forward
+                this.lastTime = time;
+                while (this.acc >= STEP) { this.update(); this.acc -= STEP; }
                 this.draw();
-                requestAnimationFrame(() => this.loop());
+                requestAnimationFrame(t => this.loop(t));
             }
         };
-        
-        // Initialize
+
         game.init();
     </script>
 </body>
