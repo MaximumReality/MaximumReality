@@ -1,8 +1,16 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Purrgrid</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
 <style>
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Layout: one-column phone-first play screen — header, status strip, square board, tool row */
 :root{
   --bg:#f3eef6; --surface:#fffdfd; --fg:#2b2335; --muted:#6f6680; --line:#2b2335; --accent:#7a4fd6; --danger:#d23d5a; --good:#2e9d6a;
@@ -37,17 +45,17 @@ h1 svg{width:34px;height:34px}
 .meta b{color:var(--fg)}
 .board-wrap{position:relative}
 .board{display:grid;width:100%;aspect-ratio:1;max-width:100%;border:4px solid var(--line);border-radius:10px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--line)}
-.cell{position:relative;border:0;padding:0;margin:0;cursor:pointer;display:grid;place-items:center;border-right:1px solid rgba(0,0,0,.14);border-bottom:1px solid rgba(0,0,0,.14);font:inherit}
+.cell{position:relative;box-sizing:border-box;min-width:0;min-height:0;width:100%;height:100%;overflow:hidden;border:0;padding:0;margin:0;cursor:pointer;display:grid;place-items:center;border-right:1px solid rgba(0,0,0,.14);border-bottom:1px solid rgba(0,0,0,.14);font:inherit}
 .cell.br{border-right:3px solid var(--line)} .cell.bb{border-bottom:3px solid var(--line)}
-.cell .x{width:34%;height:34%;color:var(--mark);opacity:.75}
-.cell .catsvg{width:74%;height:74%;animation:pop .22s ease-out}
+.cell .x,.cell .catsvg{position:absolute;pointer-events:none}
+.cell .x{inset:33%;width:34%;height:34%;color:var(--mark);opacity:.75}
+.cell .catsvg{inset:13%;width:74%;height:74%;animation:pop .22s ease-out}
 .cell.done::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.18);pointer-events:none}
-.cell.bad{animation:shake .35s}
-.cell.bad::before{content:"";position:absolute;inset:0;background:var(--danger);opacity:.55;pointer-events:none}
+.cell.bad::before{content:"";position:absolute;inset:0;background:var(--danger);pointer-events:none;animation:flash .7s ease-out forwards}
 .cell.hint::before{content:"";position:absolute;inset:3px;border:3px dashed var(--fg);border-radius:6px;pointer-events:none}
 @keyframes pop{from{transform:scale(.4)}to{transform:scale(1)}}
-@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-@media (prefers-reduced-motion:reduce){.cell .catsvg,.cell.bad{animation:none}}
+@keyframes flash{0%,40%{opacity:.7}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cell .catsvg{animation:none}}
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mode{font:inherit;font-weight:700;font-size:1rem;padding:12px;border-radius:12px;border:2px solid var(--fg);background:var(--surface);color:var(--fg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .mode svg{width:22px;height:22px}
@@ -70,7 +78,8 @@ h1 svg{width:34px;height:34px}
 .btn.alt{background:transparent;color:var(--fg);border:2px solid var(--fg)}
 .toast{min-height:1.4em;font-size:.95rem;text-align:center;color:var(--muted)}
 </style>
-
+</head>
+<body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="cat" viewBox="0 0 100 100">
@@ -155,8 +164,11 @@ function connected(n,g,reg){let start=null,tot=0;for(let y=0;y<n;y++)for(let x=0
   if(!tot)return false;const seen=new Set([start[0]*n+start[1]]),st=[start];
   while(st.length){const[y,x]=st.pop();for(const[dy,dx]of D4){const yy=y+dy,xx=x+dx;if(yy<0||xx<0||yy>=n||xx>=n||g[yy][xx]!==reg)continue;const k=yy*n+xx;if(!seen.has(k)){seen.add(k);st.push([yy,xx])}}}
   return seen.size===tot}
-function generate(n,seed){const r=mulberry32(seed);
-  for(;;){const sol=makeSol(n,r);const g=grow(n,sol,r);let S=sols(n,g,300);
+function generate(n,seed){let r=mulberry32(seed);
+  for(let attempt=0;;attempt++){
+    // safety valve: if a seed is stubborn, move to a fresh random stream instead of grinding forever
+    if(attempt>0&&attempt%25===0)r=mulberry32((seed^Math.imul(attempt,2654435761))>>>0);
+    if(attempt>200)throw new Error("generator gave up");const sol=makeSol(n,r);const g=grow(n,sol,r);let S=sols(n,g,300);
     for(let it=0;it<400&&S.length>1;it++){
       const alts=S.filter(a=>a.some((v,j)=>v!==sol[j]));const alt=alts[Math.floor(r()*alts.length)];
       const rows=[];for(let i=0;i<n;i++)if(alt[i]!==sol[i])rows.push(i);
@@ -184,10 +196,12 @@ function todaySeed(n){const d=new Date();return (d.getFullYear()*10000+(d.getMon
 function newPuzzle(opts={}){
   const n=prefs.size;
   const seed=prefs.daily?todaySeed(n):(opts.seed??Math.floor(Math.random()*2**31));
-  const {sol,g}=generate(n,seed);
+  let gen;
+  try{gen=generate(n,seed)}catch(e){gen=generate(n,(seed+1)>>>0)}
+  const {sol,g}=gen;
   S={n,sol,g,seed,cells:[...Array(n)].map(()=>new Array(n).fill(0)),hearts:3,hist:[],status:"play",elapsed:0,started:Date.now(),hintCell:null};
   buildBoard();render();startTimer();overlay.hidden=true;
-  say(prefs.daily?"Today's "+n+"×"+n+" daily puzzle. Same board for everyone, all day.":"New "+n+"×"+n+" puzzle. Every one has a single solution.");
+  say(prefs.daily?"Today's "+n+"×"+n+" daily puzzle. A new one arrives at midnight your time.":"New "+n+"×"+n+" puzzle. Every one has a single solution.");
 }
 function restart(){S.cells=S.cells.map(r=>r.map(()=>0));S.hearts=3;S.hist=[];S.status="play";S.elapsed=0;S.started=Date.now();S.hintCell=null;overlay.hidden=true;render();startTimer();say("Board cleared. Hearts restored.")}
 
@@ -199,7 +213,10 @@ function say(t){toast.textContent=t}
 
 // ---------- board ----------
 function buildBoard(){
-  const n=S.n;boardEl.innerHTML="";boardEl.style.gridTemplateColumns=`repeat(${n},1fr)`;cellEls=[];
+  const n=S.n;boardEl.innerHTML="";
+  boardEl.style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;
+  boardEl.style.gridTemplateRows=`repeat(${n},minmax(0,1fr))`;
+  cellEls=[];
   for(let y=0;y<n;y++){const row=[];for(let x=0;x<n;x++){
     const b=document.createElement("button");b.className="cell";b.dataset.y=y;b.dataset.x=x;b.setAttribute("role","gridcell");
     b.style.background=`var(--r${S.g[y][x]})`;
@@ -238,7 +255,7 @@ function placeCat(y,x){
   if(S.cells[y][x]===2)return;
   if(S.sol[y]!==x){
     S.hearts--;snapshot();S.cells[y][x]=1;
-    const el=cellEls[y][x];el.classList.remove("bad");void el.offsetWidth;el.classList.add("bad");setTimeout(()=>el.classList.remove("bad"),700);
+    const el=cellEls[y][x];el.classList.remove("bad");void el.offsetWidth;el.classList.add("bad");setTimeout(()=>el.classList.remove("bad"),750);
     if(S.hearts<=0){lose();return}
     say(`No cat fits there. ${S.hearts} heart${S.hearts===1?"":"s"} left. That square is now marked.`);render();return}
   snapshot();S.cells[y][x]=2;S.hintCell=null;
@@ -288,15 +305,12 @@ $("undo").onclick=()=>{if(!S.hist.length||S.status!=="play")return;S.cells=S.his
 $("restart").onclick=restart;
 $("newBtn").onclick=()=>{if(prefs.daily){prefs.daily=false;$("dailyBox").checked=false;savePrefs()}newPuzzle()};
 $("hint").onclick=()=>{if(S.status!=="play")return;
-  // first look for a forced placement by simple logic; fall back to any missing row
-  const n=S.n;let pick=null;
-  for(let y=0;y<n&&!pick;y++){if(S.cells[y][S.sol[y]]===2)continue;pick=[y,S.sol[y]]}
-  // prefer the region with the fewest open squares
-  let best=null,bestOpen=1e9;
+  // reveal a solution square, choosing the one whose color area has the fewest open squares left
+  const n=S.n;let best=null,bestOpen=1e9;
   for(let y=0;y<n;y++){const x=S.sol[y];if(S.cells[y][x]===2)continue;const reg=S.g[y][x];let open=0;
     for(let yy=0;yy<n;yy++)for(let xx=0;xx<n;xx++)if(S.g[yy][xx]===reg&&S.cells[yy][xx]===0)open++;
     if(open<bestOpen){bestOpen=open;best=[y,x]}}
-  pick=best||pick;if(!pick)return;S.hintCell=pick;render();say(`A cat belongs in the outlined square (row ${pick[0]+1}). Switch to Cat and tap it.`)};
+  const pick=best;if(!pick)return;S.hintCell=pick;render();say(`A cat belongs in the outlined square (row ${pick[0]+1}). Switch to Cat and tap it.`)};
 $("autoX").onchange=e=>{prefs.autoX=e.target.checked;savePrefs()};
 $("dailyBox").onchange=e=>{prefs.daily=e.target.checked;if(prefs.daily)prefs.size=7;savePrefs();newPuzzle()};
 function savePrefs(){store.set("prefs",prefs)}
@@ -308,5 +322,5 @@ if(!store.get("seenRules",false)){$("rules").open=true;store.set("seenRules",tru
 newPuzzle();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
