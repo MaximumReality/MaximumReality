@@ -1,0 +1,442 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Cogs &amp; Pistons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: one narrow column, a drafting-board canvas on top, the question and answer keys below it. Single deliberate dark "blueprint" look. */
+:root{
+  --bg:#0a1622; --board:#0e2133; --panel:#10263a; --rule:#23425e;
+  --grid:rgba(126,180,220,.07); --grid2:rgba(126,180,220,.14);
+  --line:#8fc4e8; --ink:#e7f0f7; --muted:#89a5bd;
+  --drive:#ffb43c; --target:#ff5c93; --ok:#43d38a; --bad:#ff6161;
+  --steel:#1b3a56; --steeldark:#132c44; --belt:#04101b;
+  --display:'Saira Condensed','Arial Narrow',sans-serif;
+  --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:dark;
+}
+[hidden]{display:none!important}
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--sans);font-size:15px;line-height:1.5}
+.app{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:14px 48px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 16px}
+h1{font-family:var(--display);font-weight:800;font-size:2.1rem;line-height:1;letter-spacing:.02em;text-transform:uppercase;margin:0;text-wrap:balance}
+h1 span{color:var(--drive)}
+.sub{font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg button{background:transparent;color:var(--muted);border:0;padding:8px 12px;font:600 .8rem var(--mono);letter-spacing:.04em;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--line);color:var(--bg)}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+.stats .timer b{color:var(--drive)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:999px;padding:5px 11px;font:500 .78rem var(--sans);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--line);color:var(--ink);background:var(--steeldark)}
+.stage{position:relative;border:1px solid var(--rule);border-radius:10px;background:var(--board);overflow:hidden}
+canvas{display:block;width:100%;height:min(62vw,440px);min-height:250px;touch-action:manipulation}
+.tag{position:absolute;left:10px;top:8px;font:600 .68rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.prompt{font-size:1.15rem;font-weight:600;line-height:1.35;margin:0;text-wrap:balance}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.ans{min-height:58px;border:1.5px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:9px;font:600 1rem var(--sans);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 10px;transition:border-color .15s,background .15s}
+.ans .ic{font-size:1.35rem;line-height:1}
+.ans .k{font:500 .7rem var(--mono);color:var(--muted);margin-left:auto}
+.ans:hover:not(:disabled){border-color:var(--line)}
+.ans:disabled{cursor:default}
+.ans.correct{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 18%,var(--panel))}
+.ans.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 18%,var(--panel))}
+.ans.dim{opacity:.45}
+button:focus-visible{outline:2px solid var(--drive);outline-offset:2px}
+.feedback{border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--panel)}
+.verdict{padding:10px 14px;font-family:var(--display);font-weight:800;font-size:1.45rem;letter-spacing:.03em;text-transform:uppercase;color:var(--bg)}
+.verdict.ok{background:var(--ok)}
+.verdict.bad{background:var(--bad)}
+.verdict small{display:block;font-family:var(--sans);font-weight:600;font-size:.9rem;text-transform:none;letter-spacing:0}
+.explain{padding:10px 14px 4px;display:flex;flex-direction:column;gap:4px}
+.explain p{margin:0;max-width:65ch}
+.explain p.rule{color:var(--muted);font-size:.86rem}
+.actions{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px 14px}
+.btn{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;padding:10px 16px;font:600 .9rem var(--sans);cursor:pointer}
+.btn.primary{background:var(--line);color:var(--bg)}
+.results{border:1px solid var(--rule);border-radius:10px;background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:12px}
+.results h2{font-family:var(--display);font-weight:800;font-size:1.8rem;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.qchip{border:1.5px solid var(--rule);background:var(--steeldark);color:var(--ink);border-radius:8px;padding:8px 4px;font:600 .82rem var(--mono);cursor:pointer}
+.qchip.ok{border-color:var(--ok)}
+.qchip.bad{border-color:var(--bad);color:var(--bad)}
+.note{font-size:.82rem;color:var(--muted);margin:0}
+</style>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>Cogs <span>&amp;</span> Pistons</h1>
+      <div class="sub">Mechanical comprehension trainer</div>
+    </div>
+    <div class="seg" role="group" aria-label="Mode">
+      <button id="mPractice" aria-pressed="true">Practice</button>
+      <button id="mExam" aria-pressed="false">Exam · 16 Q</button>
+    </div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+  <div class="chips" id="chips" aria-label="Topics"></div>
+
+  <div class="stage">
+    <canvas id="cv" aria-label="Mechanism diagram"></canvas>
+    <div class="tag" id="tag"></div>
+  </div>
+  <div class="legend"><span><i style="background:var(--drive)"></i>moves first</span><span><i style="background:var(--target)"></i>the part in question</span><span id="hint">Answer to watch it move</span></div>
+
+  <div id="qArea" style="display:flex;flex-direction:column;gap:12px">
+    <p class="prompt" id="prompt"></p>
+    <div class="answers" id="answers"></div>
+  </div>
+
+  <div class="feedback" id="feedback" hidden>
+    <div class="verdict" id="verdict"></div>
+    <div class="explain" id="explain"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <div class="results" id="results" hidden></div>
+  <p class="note">Keyboard: 1–4 to answer, Enter for next. Exam mode hides answers until the end, like the real test.</p>
+</div>
+
+<script>
+(()=>{
+const TAU=Math.PI*2;
+const rand=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rand(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sgn=x=>x>0?1:-1;
+const DW=w=>w>0?'clockwise':'counter-clockwise';
+const LET='ABCDEFGHIJ';
+const MONO="'IBM Plex Mono', ui-monospace, monospace";
+const SANS="'IBM Plex Sans', system-ui, sans-serif";
+
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let DPR=1,CW=0,CH=0,SC=1;
+const C={};
+function readColors(){const s=getComputedStyle(document.documentElement);for(const k of ['bg','board','line','ink','muted','drive','target','ok','bad','steel','steeldark','belt','grid','grid2','rule'])C[k]=s.getPropertyValue('--'+k).trim();}
+function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(window.devicePixelRatio||1,3);CW=r.width;CH=r.height;cv.width=Math.round(CW*DPR);cv.height=Math.round(CH*DPR);}
+const fs=px=>px/SC;
+function text(str,x,y,o={}){ctx.font=`${o.weight||600} ${fs(o.size||13)}px ${o.font||MONO}`;ctx.fillStyle=o.color||C.ink;ctx.textAlign=o.align||'center';ctx.textBaseline=o.base||'middle';ctx.fillText(str,x,y);}
+function arrow(x1,y1,x2,y2,col,w=3){ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=fs(w);ctx.lineCap='round';const a=Math.atan2(y2-y1,x2-x1),h=fs(11);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2-Math.cos(a)*h*.6,y2-Math.sin(a)*h*.6);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-Math.cos(a-.45)*h,y2-Math.sin(a-.45)*h);ctx.lineTo(x2-Math.cos(a+.45)*h,y2-Math.sin(a+.45)*h);ctx.closePath();ctx.fill();}
+function rotArrow(x,y,R,dir,col){const a0=-Math.PI/2-.75*dir,a1=-Math.PI/2+.75*dir;ctx.beginPath();ctx.arc(x,y,R,a0,a1,dir<0);ctx.strokeStyle=col;ctx.lineWidth=fs(3.2);ctx.lineCap='round';ctx.stroke();const hx=x+R*Math.cos(a1),hy=y+R*Math.sin(a1),tx=-Math.sin(a1)*dir,ty=Math.cos(a1)*dir,nx=-ty,ny=tx,s=fs(12);ctx.beginPath();ctx.moveTo(hx+tx*s,hy+ty*s);ctx.lineTo(hx-tx*s*.35+nx*s*.65,hy-ty*s*.35+ny*s*.65);ctx.lineTo(hx-tx*s*.35-nx*s*.65,hy-ty*s*.35-ny*s*.65);ctx.closePath();ctx.fillStyle=col;ctx.fill();}
+
+/* ---------- gears ---------- */
+const K=3.4, TH=K*2.4;
+const TEETH=[10,12,14,16,18,20,24,28];
+function mkGear(x,y,n){return {x,y,n,r:n*K,phi:0,w:0,label:'',role:'',belted:false};}
+function gearPath(r,n){const ro=r+TH*.5,rr=r-TH*.6,st=TAU/n;ctx.beginPath();for(let k=0;k<n;k++){const a=k*st;const p=(rad,ang)=>[rad*Math.cos(ang),rad*Math.sin(ang)];let q=p(rr,a-st*.5);if(k===0)ctx.moveTo(...q);q=p(rr,a-st*.24);ctx.lineTo(...q);q=p(ro,a-st*.12);ctx.lineTo(...q);q=p(ro,a+st*.12);ctx.lineTo(...q);q=p(rr,a+st*.24);ctx.lineTo(...q);ctx.arc(0,0,rr,a+st*.24,a+st*.5);}ctx.closePath();}
+function roleCol(role){return role==='drive'?C.drive:role==='target'?C.target:C.line;}
+function drawGear(g,ang){const col=roleCol(g.role);ctx.save();ctx.translate(g.x,g.y);ctx.rotate(ang);gearPath(g.r,g.n);ctx.fillStyle=C.steel;ctx.fill();ctx.lineJoin='round';ctx.lineWidth=fs(g.role?2.6:1.6);ctx.strokeStyle=col;ctx.stroke();
+  const rim=g.r-TH*1.5;ctx.globalAlpha=.55;ctx.lineWidth=fs(1.1);ctx.beginPath();ctx.arc(0,0,rim,0,TAU);ctx.stroke();
+  const sp=g.r>60?6:g.r>40?5:4;ctx.beginPath();for(let k=0;k<sp;k++){const a=k*TAU/sp;ctx.moveTo(Math.cos(a)*g.r*.22,Math.sin(a)*g.r*.22);ctx.lineTo(Math.cos(a)*rim,Math.sin(a)*rim);}ctx.stroke();ctx.globalAlpha=1;
+  ctx.beginPath();ctx.arc(rim-Math.max(4,g.r*.09),0,Math.max(3,g.r*.07),0,TAU);ctx.fillStyle=col;ctx.fill();ctx.restore();}
+function drawPulley(g,ang){const pr=g.r*.5;ctx.save();ctx.translate(g.x,g.y);ctx.rotate(ang);ctx.beginPath();ctx.arc(0,0,pr,0,TAU);ctx.fillStyle=C.steeldark;ctx.fill();ctx.strokeStyle=roleCol(g.role);ctx.lineWidth=fs(1.4);ctx.stroke();ctx.beginPath();ctx.arc(0,0,pr*.72,0,TAU);ctx.globalAlpha=.5;ctx.stroke();ctx.globalAlpha=1;ctx.beginPath();ctx.moveTo(pr*.75,0);ctx.lineTo(pr*.98,0);ctx.lineWidth=fs(3);ctx.stroke();ctx.restore();}
+function hubLabel(g,extra){const col=roleCol(g.role);ctx.beginPath();ctx.arc(g.x,g.y,fs(12),0,TAU);ctx.fillStyle=C.bg;ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=fs(1.5);ctx.stroke();text(g.label,g.x,g.y+fs(.5),{color:col,size:12,weight:700});if(extra){const w=fs(30),h=fs(16),y=g.y+fs(22);ctx.fillStyle=C.bg;ctx.fillRect(g.x-w/2,y-h/2,w,h);text(extra,g.x,y,{color:C.ink,size:11});}}
+function drawBelt(A,B,type,t){const r1=A.r*.5+2,r2=B.r*.5+2,dx=B.x-A.x,dy=B.y-A.y,d=Math.hypot(dx,dy),al=Math.atan2(dy,dx);ctx.beginPath();if(type==='open'){const be=Math.acos((r1-r2)/d);ctx.arc(A.x,A.y,r1,al+be,al+TAU-be,false);ctx.arc(B.x,B.y,r2,al-be,al+be,false);}else{const be=Math.acos((r1+r2)/d);ctx.arc(A.x,A.y,r1,al+be,al+TAU-be,false);ctx.arc(B.x,B.y,r2,al+Math.PI-be,al+Math.PI+be-TAU,true);}ctx.closePath();ctx.lineJoin='round';ctx.strokeStyle=C.belt;ctx.lineWidth=6;ctx.stroke();ctx.strokeStyle=C.line;ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.lineDashOffset=-A.w*r1*t;ctx.stroke();ctx.setLineDash([]);}
+function segDist(px,py,ax,ay,bx,by){const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy||1;let u=((px-ax)*dx+(py-ay)*dy)/L2;u=Math.max(0,Math.min(1,u));return Math.hypot(px-ax-u*dx,py-ay-u*dy);}
+function genTrain(count,beltP,teethList,spread=1.45){
+  for(let att=0;att<400;att++){
+    const tn=i=>teethList&&teethList[i]!=null?teethList[i]:pick(TEETH);
+    const gears=[mkGear(0,0,tn(0))],links=[];let ok=true;
+    for(let i=1;i<count&&ok;i++){
+      const prev=gears[i-1],n=tn(i),r=n*K;let type='mesh';
+      if(Math.random()<beltP)type=Math.random()<.5?'open':'cross';
+      const dist=type==='mesh'?prev.r+r:prev.r+r+rand(45,95);let placed=false;
+      for(let k=0;k<50&&!placed;k++){
+        const th=rand(-spread,spread),x=prev.x+Math.cos(th)*dist,y=prev.y+Math.sin(th)*dist;let bad=false;
+        for(const g of gears){if(g===prev)continue;if(Math.hypot(g.x-x,g.y-y)<g.r+r+TH*2+8){bad=true;break;}}
+        if(!bad)for(const L of links){if(L.type==='mesh')continue;const A=gears[L.a],B=gears[L.b];if(segDist(x,y,A.x,A.y,B.x,B.y)<r+Math.max(A.r,B.r)*.5+TH+10){bad=true;break;}}
+        if(!bad&&type!=='mesh')for(const g of gears){if(g===prev)continue;if(segDist(g.x,g.y,prev.x,prev.y,x,y)<g.r+Math.max(prev.r,r)*.5+TH+10){bad=true;break;}}
+        if(bad)continue;gears.push(mkGear(x,y,n));links.push({a:i-1,b:i,type});placed=true;
+      }
+      if(!placed)ok=false;
+    }
+    if(ok){for(const L of links)if(L.type!=='mesh'){gears[L.a].belted=gears[L.b].belted=true;}gears.forEach((g,i)=>g.label=LET[i]);return {gears,links};}
+  }
+  return null;
+}
+function meshPhase(A,B){const th=Math.atan2(B.y-A.y,B.x-A.x);const f=(th-A.phi)*A.n/TAU;return th+Math.PI-(.5-f)*TAU/B.n;}
+function solveTrain(sys,w0){const g=sys.gears;g[0].w=w0;g[0].phi=rand(0,TAU);for(const L of sys.links){const A=g[L.a],B=g[L.b],ratio=A.r/B.r;if(L.type==='mesh'){B.w=-A.w*ratio;B.phi=meshPhase(A,B);}else{B.w=(L.type==='open'?1:-1)*A.w*ratio;B.phi=rand(0,TAU);}}}
+function addJam(sys){const g=sys.gears;const cand=shuffle(sys.links.filter(L=>L.type==='mesh'));
+  for(const L of cand){const A=g[L.a],B=g[L.b];for(let tr=0;tr<8;tr++){const n=pick(TEETH),rx=n*K,r1=A.r+rx,r2=B.r+rx,d=Math.hypot(B.x-A.x,B.y-A.y);const a=(r1*r1-r2*r2+d*d)/(2*d),h2=r1*r1-a*a;if(h2<=0)continue;const h=Math.sqrt(h2),ux=(B.x-A.x)/d,uy=(B.y-A.y)/d;
+    for(const s of shuffle([1,-1])){const x=A.x+ux*a-uy*h*s,y=A.y+uy*a+ux*h*s;let bad=false;for(const q of g){if(q===A||q===B)continue;if(Math.hypot(q.x-x,q.y-y)<q.r+rx+TH*2+8){bad=true;break;}}
+      if(!bad)for(const M of sys.links){if(M.type==='mesh')continue;const P=g[M.a],Q=g[M.b];if(segDist(x,y,P.x,P.y,Q.x,Q.y)<rx+Math.max(P.r,Q.r)*.5+TH+10){bad=true;break;}}
+      if(bad)continue;const X=mkGear(x,y,n);X.label=LET[g.length];X.phi=meshPhase(A,X);g.push(X);sys.jamTri=[A.label,B.label,X.label];return true;}}}
+  return false;}
+function trainBounds(gears,extra=20){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const g of gears){const R=g.r+TH+extra;x0=Math.min(x0,g.x-R);y0=Math.min(y0,g.y-R);x1=Math.max(x1,g.x+R);y1=Math.max(y1,g.y+R);}return {x0,y0,x1,y1};}
+function drawTrain(sys,t,run,o={}){
+  const g=sys.gears;const moving=run&&!o.jam;
+  const shake=o.jam&&run?Math.sin(t*48)*.045*Math.pow(.5+.5*Math.sin(t*3.2),3):0;
+  const ang=(q,i)=>q.phi+(moving?q.w*t:0)+shake*(i%2?-1:1);
+  g.forEach((q,i)=>drawGear(q,ang(q,i)));
+  g.forEach((q,i)=>{if(q.belted)drawPulley(q,ang(q,i));});
+  for(const L of sys.links)if(L.type!=='mesh')drawBelt(g[L.a],g[L.b],L.type,moving?t:0);
+  g.forEach(q=>hubLabel(q,o.teeth?q.n+'T':''));
+  const d=g[0];rotArrow(d.x,d.y,d.r+TH+12,sgn(d.w),C.drive);
+  if(run&&!o.jam&&o.showTarget!=null){const q=g[o.showTarget];rotArrow(q.x,q.y,q.r+TH+12,sgn(q.w),C.target);}
+}
+function chainLines(sys,upto){const g=sys.gears;const out=[`${g[0].label} turns ${DW(g[0].w)}.`];for(let i=0;i<upto;i++){const L=sys.links[i],A=g[L.a],B=g[L.b];const how=L.type==='mesh'?`${A.label} meshes with ${B.label}, which flips it`:L.type==='open'?`${A.label} drives ${B.label} with an open belt, which keeps the direction`:`${A.label} drives ${B.label} with a crossed belt, which flips it`;out.push(`${how}: ${B.label} turns ${DW(B.w)}.`);}return out;}
+const GEAR_RULE='Meshed gears always turn opposite ways. An open belt keeps the direction; a crossed (figure-8) belt flips it.';
+
+/* ---------- question builders ---------- */
+const CH_DIR=[{id:'cw',label:'Clockwise',ic:'↻'},{id:'ccw',label:'Counter-clockwise',ic:'↺'}];
+
+function qDir(lvl){
+  const count=Math.min(7,ri(2,3)+Math.floor((lvl-1)*.8));
+  let sys;do{sys=genTrain(count,lvl>=2?.3:0);}while(!sys);
+  solveTrain(sys,pick([1,-1])*1.4);
+  let jam=false;if(lvl>=2&&count>=2&&Math.random()<.2)jam=addJam(sys);
+  const ti=ri(1,count-1);const T=sys.gears[ti];sys.gears[0].role='drive';T.role='target';
+  const choices=[...CH_DIR,{id:'jam',label:'It can’t turn',ic:'⊘'}];
+  const answer=jam?'jam':(T.w>0?'cw':'ccw');
+  const explain=jam?[`Gears ${sys.jamTri.join(', ')} all touch each other in a closed loop of three.`,`Each meshed pair has to turn opposite ways, and three gears can’t all be opposite to each other. The whole train locks up.`]:[...chainLines(sys,ti)];
+  return {type:'dir',prompt:`Gear A turns ${DW(sys.gears[0].w)}. Which way does gear ${T.label} turn?`,choices,answer,explain,rule:GEAR_RULE,
+    bounds:trainBounds(sys.gears),draw:(t,run)=>drawTrain(sys,t,run,{jam,showTarget:ti}),
+    overlay:(t,run)=>{if(jam&&run)banner('LOCKED UP: NOTHING MOVES',C.bad);}};
+}
+function qSpeed(lvl){
+  const count=Math.min(6,ri(3,4)+Math.floor((lvl-1)/2));let sys,slow=Math.random()<.4;
+  for(;;){sys=genTrain(count,lvl>=2?.3:0);if(!sys)continue;const ns=sys.gears.map(g=>g.n);const ext=slow?Math.max(...ns):Math.min(...ns);if(ns.filter(n=>n===ext).length===1)break;}
+  solveTrain(sys,pick([1,-1])*1.2);sys.gears[0].role='drive';
+  const ns=sys.gears.map(g=>g.n);const idx=ns.indexOf(slow?Math.max(...ns):Math.min(...ns));const T=sys.gears[idx];
+  return {type:'speed',prompt:`Gear A drives the train. Which gear turns the ${slow?'slowest':'fastest'}?`,choices:sys.gears.map(g=>({id:g.label,label:'Gear '+g.label})),answer:T.label,
+    explain:[`Every linked gear moves its teeth (or belt) at the same surface speed, so a smaller gear has to spin more times to keep up.`,`${slow?'The biggest':'The smallest'} gear is ${T.label} with ${T.n} teeth, so it turns ${slow?'slowest':'fastest'}. Direction and belts don’t change this.`],
+    rule:'Small gear = fast, big gear = slow. Count teeth or compare sizes.',
+    bounds:trainBounds(sys.gears),draw:(t,run)=>{if(run)T.role=T.role||'target';drawTrain(sys,t,run,{teeth:run});}};
+}
+function fmt(x){x=Math.round(x*100)/100;if(Number.isInteger(x))return String(x);const f=x-Math.floor(x);if(Math.abs(f-.5)<1e-9)return (Math.floor(x)||'')+'½';return String(x);}
+function qRatio(lvl){
+  const RT=[8,10,12,15,16,18,20,24,30,32,36,40];let nA,nT,turns,ans;
+  for(;;){nA=pick(RT);nT=pick(RT);turns=pick([1,2,3,4]);ans=turns*nA/nT;if(nA!==nT&&Number.isInteger(ans*2)&&ans<=12&&ans>=.5)break;}
+  const count=lvl>=3?ri(2,3):2;const list=count===2?[nA,nT]:[nA,pick(TEETH),nT];
+  let sys;do{sys=genTrain(count,0,list);}while(!sys);
+  const dur=4.5;solveTrain(sys,pick([1,-1])*TAU*turns/dur);
+  const A=sys.gears[0],T=sys.gears[count-1];A.role='drive';T.role='target';
+  const cand=[ans,turns*nT/nA,turns,ans*2,ans/2,ans+1,ans+.5].filter(x=>x>0&&Math.abs(x*100-Math.round(x*100))<1e-6);
+  const seen=new Set();const opts=[];for(const c of cand){const k=fmt(c);if(!seen.has(k)){seen.add(k);opts.push(k);}}
+  const ansK=fmt(ans);const others=shuffle(opts.filter(k=>k!==ansK)).slice(0,3);
+  const choices=shuffle([ansK,...others]).map(k=>({id:k,label:k+(k==='1'?' turn':' turns')}));
+  const ex=[`Teeth passed stay equal along the train: ${turns} turn${turns>1?'s':''} × ${nA} teeth = ${turns*nA} teeth.`,`Gear ${T.label} has ${nT} teeth, so it turns ${turns*nA} ÷ ${nT} = ${ansK}.`];
+  if(count===3)ex.push(`Gear B in the middle is an idler. It changes direction but not the ratio.`);
+  return {type:'ratio',prompt:`Gear A (${nA} teeth) makes ${turns} full turn${turns>1?'s':''}. How many turns does gear ${T.label} (${nT} teeth) make?`,choices,answer:ansK,explain:ex,
+    rule:'Turns × teeth is the same for every gear in the train.',tEnd:dur,
+    bounds:trainBounds(sys.gears,24),draw:(t,run)=>drawTrain(sys,t,run,{teeth:true}),
+    overlay:(t,run)=>{if(!run)return;const a=Math.abs(A.w)*t/TAU,b=Math.abs(T.w)*t/TAU;counter([[`A`,a.toFixed(2),C.drive],[T.label,b.toFixed(2),C.target]]);}};
+}
+function qRack(lvl){
+  const m=lvl<=1?1:ri(1,Math.min(3,lvl));let sys,side,yp,L;
+  for(;;){sys=genTrain(m,0,null,1.0);if(!sys)continue;side=pick(['below','above']);L=sys.gears[m-1];yp=side==='below'?L.y+L.r:L.y-L.r;
+    const ok=sys.gears.every(g=>g===L||(side==='below'?g.y+g.r+TH+6<yp-TH-4:g.y-g.r-TH-6>yp+TH+4));if(ok)break;}
+  solveTrain(sys,pick([1,-1])*1.3);sys.gears[0].role='drive';
+  const v=side==='below'?-L.w*L.r:L.w*L.r;const p=TAU*K;
+  const b=trainBounds(sys.gears,20);const xL=b.x0-30,xR=b.x1+30;const dirO=side==='below'?1:-1;
+  const ca=side==='below'?Math.PI/2:-Math.PI/2;const fg=(ca-L.phi)*L.n/TAU;const x0=side==='below'?L.x-p*(.5-fg):L.x-p*(fg-.5);
+  const body=18;const by0=yp+dirO*TH*.6,by1=by0+dirO*body;
+  b.x0=xL-10;b.x1=xR+10;if(side==='below')b.y1=Math.max(b.y1,by1+30);else b.y0=Math.min(b.y0,by1-30);
+  const answer=v<0?'left':'right';
+  const ex=[...chainLines(sys,m-1),`The ${side==='below'?'bottom':'top'} teeth of gear ${L.label} move ${v<0?'left':'right'} when it turns ${DW(L.w)}, and the rack slides along with them.`];
+  return {type:'rack',prompt:`Gear A turns ${DW(sys.gears[0].w)}. Which way does the rack slide?`,choices:[{id:'left',label:'Left',ic:'←'},{id:'right',label:'Right',ic:'→'}],answer,explain:ex,
+    rule:'A gear’s top edge moves the way it spins (clockwise = top goes right); its bottom edge moves the opposite way.',bounds:b,
+    draw:(t,run)=>{const off=run?v*t:0;ctx.save();ctx.beginPath();ctx.rect(xL,Math.min(yp-TH*2,by1)-2,xR-xL,Math.abs(by1-yp)+TH*3+4);ctx.clip();
+      ctx.beginPath();ctx.rect(xL,Math.min(by0,by1),xR-xL,body);ctx.fillStyle=C.steel;ctx.fill();
+      ctx.beginPath();const j0=Math.floor((xL-x0-off)/p)-1,j1=Math.ceil((xR-x0-off)/p)+1;
+      for(let j=j0;j<=j1;j++){const cx=x0+off+j*p;ctx.moveTo(cx-p*.5,by0);ctx.lineTo(cx-p*.24,by0);ctx.lineTo(cx-p*.12,yp-dirO*TH*.5);ctx.lineTo(cx+p*.12,yp-dirO*TH*.5);ctx.lineTo(cx+p*.24,by0);ctx.lineTo(cx+p*.5,by0);}
+      ctx.lineTo(xR+p,by0);ctx.lineTo(xR+p,by1);ctx.lineTo(xL-p,by1);ctx.lineTo(xL-p,by0);ctx.closePath();ctx.fillStyle=C.steel;ctx.fill();ctx.strokeStyle=C.target;ctx.lineWidth=fs(2.2);ctx.stroke();
+      const span=xR-xL;for(let k=0;k<3;k++){let mx=xL+((k*span/3+off)%span+span)%span;ctx.fillStyle=C.target;ctx.globalAlpha=.8;ctx.fillRect(mx-6,Math.min(by0,by1)+5,12,body-10);}ctx.globalAlpha=1;ctx.restore();
+      drawTrain(sys,t,run,{});
+      if(run){const ay=by1+dirO*16,cx=(xL+xR)/2;arrow(cx-sgn(v)*40,ay,cx+sgn(v)*40,ay,C.target,3.5);}
+      text('RACK',xL+6,(by0+by1)/2,{align:'left',size:10,color:C.ink});}};
+}
+function qLever(lvl){
+  const count=Math.min(4,ri(1,1+Math.ceil(lvl/2)));const Lg=170;let rodX=0,y=0;const lev=[];
+  for(let i=0;i<count;i++){const type=pick(['mid','mid','far','near']);let l;
+    if(type==='mid')l={xa:rodX,xb:rodX+Lg,px:rodX+Lg/2,xin:rodX,xout:rodX+Lg};
+    else if(type==='far')l={xa:rodX,xb:rodX+Lg,px:rodX+Lg,xin:rodX,xout:rodX+Lg/2};
+    else l={xa:rodX-Lg/2,xb:rodX+Lg/2,px:rodX-Lg/2,xin:rodX,xout:rodX+Lg/2};
+    l.type=type;l.py=y;l.gain=(l.xout-l.px)/(l.xin-l.px);lev.push(l);rodX=l.xout;y+=88;}
+  const push=pick([1,-1]);let s=push,cum=1,mx=1;for(const l of lev){s*=sgn(l.gain);cum*=Math.abs(l.gain);mx=Math.max(mx,cum);}
+  const D=Math.min(26,44/mx);const answer=s>0?'down':'up';
+  const b={x0:Math.min(...lev.map(l=>l.xa))-40,x1:Math.max(...lev.map(l=>l.xb))+40,y0:-80,y1:lev[count-1].py+70};
+  const pt=(l,a,x)=>[l.px+(x-l.px)*Math.cos(a),l.py+(x-l.px)*Math.sin(a)];
+  const ex=lev.map((l,i)=>l.type==='mid'?`Lever ${i+1} pivots in the middle, so its other end moves the opposite way.`:l.type==='far'?`Lever ${i+1} pivots at the far end, so its middle moves the same way (half as far).`:`Lever ${i+1} pivots at the near end, so its far end moves the same way (twice as far).`);
+  ex.push(`Start ${push>0?'down':'up'} and apply each lever in turn: the weight moves ${answer}.`);
+  return {type:'lever',prompt:`You push the handle ${push>0?'DOWN':'UP'} at the amber arrow. Which way does the weight W move?`,choices:[{id:'up',label:'Up',ic:'↑'},{id:'down',label:'Down',ic:'↓'}],answer,explain:ex,
+    rule:'A pivot between the push and the load reverses the motion. A pivot at the end keeps it.',bounds:b,
+    draw:(t,run)=>{const P=run?push*D*(.5-.5*Math.cos(t*2.4)):0;let d=P;const geo=[];
+      for(const l of lev){const th=d/(l.xin-l.px);const a=Math.atan(th);geo.push(a);d=th*(l.xout-l.px);}
+      for(let i=1;i<count;i++){const A=pt(lev[i-1],geo[i-1],lev[i-1].xout),B=pt(lev[i],geo[i],lev[i].xin);ctx.beginPath();ctx.moveTo(...A);ctx.lineTo(...B);ctx.strokeStyle=C.line;ctx.lineWidth=4;ctx.stroke();}
+      lev.forEach((l,i)=>{ctx.beginPath();ctx.moveTo(l.px,l.py);ctx.lineTo(l.px-15,l.py+30);ctx.lineTo(l.px+15,l.py+30);ctx.closePath();ctx.fillStyle=C.steeldark;ctx.fill();ctx.strokeStyle=C.line;ctx.lineWidth=fs(1.4);ctx.stroke();
+        ctx.beginPath();for(let k=-2;k<=2;k++){ctx.moveTo(l.px+k*8-4,l.py+38);ctx.lineTo(l.px+k*8+4,l.py+31);}ctx.moveTo(l.px-22,l.py+31);ctx.lineTo(l.px+22,l.py+31);ctx.stroke();
+        const A=pt(l,geo[i],l.xa),B=pt(l,geo[i],l.xb);ctx.lineCap='round';ctx.beginPath();ctx.moveTo(...A);ctx.lineTo(...B);ctx.strokeStyle=C.line;ctx.lineWidth=12;ctx.stroke();ctx.strokeStyle=C.steel;ctx.lineWidth=8;ctx.stroke();
+        ctx.beginPath();ctx.arc(l.px,l.py,5,0,TAU);ctx.fillStyle=C.ink;ctx.fill();
+        const J=pt(l,geo[i],l.xin),O=pt(l,geo[i],l.xout);for(const q of [J,O]){ctx.beginPath();ctx.arc(q[0],q[1],3.5,0,TAU);ctx.fillStyle=C.line;ctx.fill();}
+        text(String(i+1),A[0]+(l.xa===l.px?8:0)-14,A[1]-14,{size:11,color:C.muted});});
+      const I=pt(lev[0],geo[0],lev[0].xin);if(push>0)arrow(I[0],I[1]-62,I[0],I[1]-12,C.drive,4);else arrow(I[0],I[1]+62,I[0],I[1]+12,C.drive,4);
+      text('PUSH',I[0]+fs(8),I[1]+(push>0?-50:50),{align:'left',size:11,color:C.drive});
+      const last=lev[count-1],O=pt(last,geo[count-1],last.xout);ctx.fillStyle=C.steeldark;ctx.strokeStyle=C.target;ctx.lineWidth=fs(2.2);ctx.beginPath();ctx.rect(O[0]-18,O[1]-36,36,30);ctx.fill();ctx.stroke();text('W',O[0],O[1]-21,{color:C.target,size:13,weight:700});
+      if(run){const ax=O[0]+34;if(answer==='up')arrow(ax,O[1]-4,ax,O[1]-40,C.target,3.5);else arrow(ax,O[1]-40,ax,O[1]-4,C.target,3.5);}}};
+}
+function qCrank(lvl){
+  const orient=pick(['up','right','left']);const withDrv=lvl>=2&&Math.random()<.55;
+  const B=mkGear(0,0,withDrv?pick([18,20,24]):20);const rc=B.r,R=rc*.55,Lr=rc+TH+R+30,PH=34,PW=40;
+  const u=orient==='up'?[0,-1]:orient==='right'?[1,0]:[-1,0],pp=[-u[1],u[0]];
+  const along=th=>{const px=R*Math.cos(th),py=R*Math.sin(th);const a=px*u[0]+py*u[1],b2=px*pp[0]+py*pp[1];return a+Math.sqrt(Lr*Lr-b2*b2);};
+  const dirIn=pick([1,-1]);let sys=null,wB,A=null;
+  if(withDrv){A=mkGear(0,0,pick([10,12,14,16]));const angs=orient==='up'?[0,Math.PI,Math.PI/2,Math.PI*.3,Math.PI*.7]:orient==='right'?[Math.PI,Math.PI/2,-Math.PI/2,Math.PI*.75,-Math.PI*.75]:[0,Math.PI/2,-Math.PI/2,Math.PI*.25,-Math.PI*.25];const an=pick(angs);A.x=Math.cos(an)*(A.r+B.r);A.y=Math.sin(an)*(A.r+B.r);
+    sys={gears:[A,B],links:[{a:0,b:1,type:'mesh'}]};solveTrain(sys,dirIn*1.3);A.label='A';B.label='B';A.role='drive';wB=B.w;}
+  else{wB=dirIn*1.3;B.phi=rand(0,TAU);}
+  let th0;for(;;){th0=rand(0,TAU);if(orient==='up'?Math.abs(Math.cos(th0))>.45:Math.abs(Math.sin(th0))>.45)break;}
+  const away=along(th0+sgn(wB)*.01)>along(th0);
+  const answer=orient==='up'?(away?'up':'down'):orient==='right'?(away?'right':'left'):(away?'left':'right');
+  const choices=orient==='up'?[{id:'up',label:'Up',ic:'↑'},{id:'down',label:'Down',ic:'↓'}]:[{id:'left',label:'Left',ic:'←'},{id:'right',label:'Right',ic:'→'}];
+  const vx=-Math.sin(th0)*sgn(wB),vy=Math.cos(th0)*sgn(wB);const hd=[];if(Math.abs(vy)>.38)hd.push(vy>0?'down':'up');if(Math.abs(vx)>.38)hd.push(vx>0?'right':'left');
+  const ex=[];if(withDrv)ex.push(`Gear A turns ${DW(A.w)}, so the crank wheel B it meshes with turns ${DW(wB)}.`);
+  ex.push(`Follow the crank pin (the white dot). Turning ${DW(wB)} from where it sits, it’s heading ${hd.join(' and ')}.`);
+  ex.push(`The rod drags the piston ${away?'away from':'toward'} the wheel, so the piston moves ${answer}.`);
+  const b=withDrv?trainBounds(sys.gears,20):{x0:-rc-34,y0:-rc-34,x1:rc+34,y1:rc+34};
+  const far=Lr+R+PH+14;const ends=[[u[0]*far+pp[0]*(PW/2+30),u[1]*far+pp[1]*(PW/2+30)],[u[0]*far-pp[0]*(PW/2+30),u[1]*far-pp[1]*(PW/2+30)]];for(const [x,y] of ends){b.x0=Math.min(b.x0,x);b.x1=Math.max(b.x1,x);b.y0=Math.min(b.y0,y);b.y1=Math.max(b.y1,y);}
+  const W=(s,q)=>[u[0]*s+pp[0]*q,u[1]*s+pp[1]*q];
+  return {type:'crank',prompt:withDrv?`Gear A turns ${DW(A.w)}. Right now, which way is the piston moving?`:`The wheel turns ${DW(wB)}. Right now, which way is the piston moving?`,choices,answer,explain:ex,
+    rule:'Track the crank pin: the piston follows the pin’s motion along the cylinder.',bounds:b,
+    draw:(t,run)=>{const th=th0+(run?wB*t:0);const s0=Lr-R-14,s1=Lr+R+PH+8;
+      ctx.lineCap='butt';ctx.strokeStyle=C.line;ctx.lineWidth=fs(2);ctx.beginPath();for(const q of [-PW/2-4,PW/2+4]){ctx.moveTo(...W(s0,q));ctx.lineTo(...W(s1,q));}ctx.moveTo(...W(s1,-PW/2-4));ctx.lineTo(...W(s1,PW/2+4));ctx.stroke();
+      ctx.globalAlpha=.25;ctx.beginPath();ctx.moveTo(...W(s0,-PW/2-4));ctx.lineTo(...W(s1,-PW/2-4));ctx.lineTo(...W(s1,PW/2+4));ctx.lineTo(...W(s0,PW/2+4));ctx.closePath();ctx.fillStyle=C.steel;ctx.fill();ctx.globalAlpha=1;
+      if(withDrv)drawTrain(sys,t,run,{});else{ctx.save();ctx.translate(0,0);ctx.rotate(B.phi+(run?wB*t:0));ctx.beginPath();ctx.arc(0,0,rc,0,TAU);ctx.fillStyle=C.steel;ctx.fill();ctx.strokeStyle=C.drive;ctx.lineWidth=fs(2.6);ctx.stroke();ctx.beginPath();ctx.arc(0,0,rc-10,0,TAU);ctx.lineWidth=fs(1);ctx.globalAlpha=.6;ctx.stroke();for(let k=0;k<4;k++){const a=k*TAU/4+.4;ctx.moveTo(Math.cos(a)*12,Math.sin(a)*12);ctx.lineTo(Math.cos(a)*(rc-10),Math.sin(a)*(rc-10));}ctx.stroke();ctx.globalAlpha=1;ctx.restore();rotArrow(0,0,rc+16,sgn(wB),C.drive);}
+      const pin=[R*Math.cos(th),R*Math.sin(th)];const sa=along(th);const wp=W(sa,0);
+      ctx.beginPath();ctx.moveTo(...pin);ctx.lineTo(...wp);ctx.strokeStyle=C.line;ctx.lineWidth=9;ctx.lineCap='round';ctx.stroke();ctx.strokeStyle=C.steeldark;ctx.lineWidth=5;ctx.stroke();
+      const pc=[W(sa-8,-PW/2),W(sa-8,PW/2),W(sa+PH,PW/2),W(sa+PH,-PW/2)];ctx.beginPath();ctx.moveTo(...pc[0]);pc.slice(1).forEach(q=>ctx.lineTo(...q));ctx.closePath();ctx.fillStyle=C.steel;ctx.fill();ctx.strokeStyle=C.target;ctx.lineWidth=fs(2.4);ctx.stroke();
+      ctx.beginPath();for(const s of [sa+PH-8,sa+PH-14]){ctx.moveTo(...W(s,-PW/2));ctx.lineTo(...W(s,PW/2));}ctx.lineWidth=fs(1);ctx.stroke();
+      const lc=W(sa+PH/2+2,0);text('P',lc[0],lc[1],{color:C.target,size:12,weight:700});
+      ctx.beginPath();ctx.arc(...pin,6,0,TAU);ctx.fillStyle=C.ink;ctx.fill();ctx.beginPath();ctx.arc(...wp,3.5,0,TAU);ctx.fill();ctx.beginPath();ctx.arc(0,0,5,0,TAU);ctx.fillStyle=C.bg;ctx.fill();
+      if(run){const dv=along(th+sgn(wB)*.01)-sa;const m=(s0+s1)/2,q=PW/2+22;const a1=W(m-26*sgn(dv),q),a2=W(m+26*sgn(dv),q);arrow(...a1,...a2,C.target,3.5);}}};
+}
+function qPulley(lvl){
+  const N=ri(1,Math.min(6,2+lvl));const Wt=pick([60,120,180,240,300,360]);const s=38,D=56,yb0=200;
+  const xs=[...Array(N+1)].map((_,k)=>k*s);const arcs=[];for(let m=N;m>=1;m--)arcs.push({top:(N-m)%2===0,cx:(xs[m-1]+xs[m])/2});
+  const anchorTop=!arcs[arcs.length-1].top;const topA=arcs.filter(a=>a.top),botA=arcs.filter(a=>!a.top);
+  let tx0=Math.min(...topA.map(a=>a.cx-s/2)),tx1=Math.max(...topA.map(a=>a.cx+s/2));if(anchorTop)tx0=Math.min(tx0,xs[0]-6);
+  const ans=Wt/N;const opts=shuffle([1,2,3,4,5,6].filter(k=>k!==N)).slice(0,3).map(k=>Wt/k);
+  const choices=shuffle([ans,...opts]).map(v=>({id:String(v),label:v+' lb'}));
+  const ex=N===1?[`Only one strand holds up the weight, so it carries the full ${Wt} lb.`,'A single fixed pulley only changes the direction of the pull. It gives no advantage.']:[`Count the rope strands holding up the lower block and weight: there are ${N}.`,`They share the ${Wt} lb load equally, so each carries ${Wt} ÷ ${N} = ${ans} lb. That’s your pull.`,`The trade-off: you pull ${N} feet of rope for every foot the weight rises.`];
+  const wW=Math.max(64,N*s),wx=(xs[0]+xs[N-1])/2;
+  return {type:'pulley',prompt:`Ignoring friction and pulley weight, how much force does it take to lift the ${Wt} lb weight?`,choices,answer:String(ans),explain:ex,
+    rule:'Force needed = load ÷ number of strands supporting the moving block.',bounds:{x0:-60,x1:N*s+60,y0:-80,y1:yb0+40+D+44},
+    draw:(t,run)=>{const P=run?D*(.5-.5*Math.cos(t*1.8)):0,yb=yb0-P/N,hy=yb0+40+P;
+      ctx.strokeStyle=C.line;ctx.lineWidth=fs(2);ctx.beginPath();ctx.moveTo(-50,-62);ctx.lineTo(N*s+50,-62);ctx.stroke();ctx.lineWidth=fs(1);ctx.beginPath();for(let x=-48;x<N*s+50;x+=10){ctx.moveTo(x,-62);ctx.lineTo(x+8,-72);}ctx.stroke();
+      ctx.fillStyle=C.steeldark;ctx.strokeStyle=C.line;ctx.lineWidth=fs(1.4);const mid=(tx0+tx1)/2;ctx.beginPath();ctx.moveTo(mid,-62);ctx.lineTo(mid,-s/2-8);ctx.stroke();ctx.beginPath();ctx.rect(tx0-8,-s/2-8,tx1-tx0+16,s/2+14);ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.rect(xs[0]-12,yb-6,xs[N-1]-xs[0]+24,s/2+14);ctx.fill();ctx.stroke();
+      const wt=yb+s/2+26;ctx.beginPath();ctx.moveTo(wx,yb+s/2+8);ctx.lineTo(wx,wt);ctx.stroke();ctx.beginPath();ctx.rect(wx-wW/2,wt,wW,46);ctx.fill();ctx.strokeStyle=C.target;ctx.lineWidth=fs(2.2);ctx.stroke();text(Wt+' lb',wx,wt+23,{color:C.target,size:Math.min(12,wW*SC/4.2),weight:700});
+      for(const a of arcs){const cy=a.top?0:yb;ctx.beginPath();ctx.arc(a.cx,cy,s/2-3,0,TAU);ctx.fillStyle=C.steel;ctx.fill();ctx.strokeStyle=C.line;ctx.lineWidth=fs(1.4);ctx.stroke();ctx.beginPath();ctx.arc(a.cx,cy,3,0,TAU);ctx.fillStyle=C.line;ctx.fill();}
+      ctx.lineCap='round';ctx.lineWidth=3;for(let k=0;k<N;k++){ctx.strokeStyle=run?C.target:C.ink;ctx.beginPath();ctx.moveTo(xs[k],0);ctx.lineTo(xs[k],yb);ctx.stroke();}
+      ctx.strokeStyle=C.ink;for(const a of arcs){ctx.beginPath();if(a.top)ctx.arc(a.cx,0,s/2,Math.PI,TAU);else ctx.arc(a.cx,yb,s/2,0,Math.PI);ctx.stroke();}
+      ctx.beginPath();ctx.moveTo(xs[N],0);ctx.lineTo(xs[N],hy);ctx.strokeStyle=C.drive;ctx.stroke();
+      ctx.beginPath();ctx.arc(xs[0],anchorTop?0:yb,5,0,TAU);ctx.fillStyle=C.ink;ctx.fill();
+      ctx.fillStyle=C.drive;ctx.fillRect(xs[N]-14,hy,28,9);arrow(xs[N],hy+16,xs[N],hy+40,C.drive,3.5);text('PULL',xs[N]+16,hy+28,{align:'left',color:C.drive,size:11});
+      if(run)for(let k=0;k<N;k++){const y=yb*.55;ctx.beginPath();ctx.arc(xs[k],y,fs(9),0,TAU);ctx.fillStyle=C.bg;ctx.fill();text(String(k+1),xs[k],y,{color:C.target,size:11,weight:700});}}};
+}
+
+const TYPES=[
+  {id:'dir',name:'Gear direction',fn:qDir},
+  {id:'speed',name:'Gear speed',fn:qSpeed},
+  {id:'ratio',name:'Gear ratios',fn:qRatio},
+  {id:'rack',name:'Rack & pinion',fn:qRack},
+  {id:'crank',name:'Cranks & pistons',fn:qCrank},
+  {id:'lever',name:'Levers',fn:qLever},
+  {id:'pulley',name:'Pulleys',fn:qPulley},
+];
+
+/* ---------- overlays ---------- */
+function banner(msg,col){ctx.font=`700 13px ${MONO}`;const w=ctx.measureText(msg).width+24;const x=(CW-w)/2,y=CH-40;ctx.fillStyle=col;ctx.fillRect(x,y,w,28);ctx.fillStyle=C.bg;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(msg,CW/2,y+14.5);}
+function counter(rows){ctx.font=`600 13px ${MONO}`;let y=CH-14-rows.length*22;for(const [l,v,col] of rows){const s=`${l}  ${v} turns`;const w=ctx.measureText(s).width+20;ctx.fillStyle=C.bg;ctx.globalAlpha=.85;ctx.fillRect(10,y,w,20);ctx.globalAlpha=1;ctx.fillStyle=col;ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(s,20,y+10.5);y+=22;}}
+
+/* ---------- state ---------- */
+const store={get(k,d){try{const v=localStorage.getItem('cogs:'+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem('cogs:'+k,JSON.stringify(v));}catch(e){}}};
+const S={mode:'practice',enabled:new Set(store.get('topics',TYPES.map(t=>t.id))),q:null,revealed:false,picked:null,T:0,
+  correct:0,total:0,streak:0,best:store.get('best',0),lastType:null,exam:null,examBest:store.get('examBest',null)};
+if(!S.enabled.size)TYPES.forEach(t=>S.enabled.add(t.id));
+const $=id=>document.getElementById(id);
+const lvl=()=>Math.min(5,1+Math.floor(S.correct/4));
+
+function nextType(){const ids=TYPES.filter(t=>S.enabled.has(t.id)).map(t=>t.id);let id=pick(ids);if(ids.length>1)while(id===S.lastType)id=pick(ids);S.lastType=id;return TYPES.find(t=>t.id===id);}
+function makeQ(level){return nextType().fn(level);}
+
+function renderChips(){const el=$('chips');el.innerHTML='';for(const t of TYPES){const b=document.createElement('button');b.className='chip';b.textContent=t.name;b.setAttribute('aria-pressed',S.enabled.has(t.id));b.onclick=()=>{if(S.enabled.has(t.id)){if(S.enabled.size>1)S.enabled.delete(t.id);}else S.enabled.add(t.id);store.set('topics',[...S.enabled]);renderChips();};el.appendChild(b);}}
+function renderStats(){const el=$('stats');if(S.mode==='practice'){el.innerHTML=`<span>Score <b>${S.correct}/${S.total}</b></span><span>Streak <b>${S.streak}</b></span><span>Best <b>${S.best}</b></span><span>Level <b>${lvl()}</b>/5</span>`;}
+  else if(S.exam){const left=Math.max(0,S.exam.limit-(Date.now()-S.exam.start)/1000);const m=Math.floor(left/60),s=Math.floor(left%60);el.innerHTML=`<span>Question <b>${Math.min(S.exam.i+1,16)}/16</b></span><span class="timer">Time <b>${m}:${String(s).padStart(2,'0')}</b></span>${S.examBest!=null?`<span>Best exam <b>${S.examBest}/16</b></span>`:''}`;}}
+
+function showQ(q,opts={}){
+  S.q=q;S.revealed=!!opts.revealed;S.picked=opts.picked??null;S.T=0;
+  $('tag').textContent=TYPES.find(t=>t.id===q.type).name+(S.mode==='exam'&&S.exam?` · Q${S.exam.i+1}`:'');
+  $('prompt').textContent=q.prompt;
+  const box=$('answers');box.innerHTML='';
+  q.choices.forEach((c,i)=>{const b=document.createElement('button');b.className='ans';b.dataset.id=c.id;b.innerHTML=(c.ic?`<span class="ic" aria-hidden="true">${c.ic}</span>`:'')+`<span>${c.label}</span><span class="k">${i+1}</span>`;b.onclick=()=>answer(c.id);box.appendChild(b);});
+  $('qArea').hidden=false;$('results').hidden=true;$('feedback').hidden=true;$('hint').hidden=S.revealed;
+  if(S.revealed)paintAnswers();
+  if(opts.review)showFeedback(true);
+  renderStats();
+}
+function paintAnswers(){for(const b of $('answers').children){b.disabled=true;const id=b.dataset.id;if(id===S.q.answer)b.classList.add('correct');else if(id===S.picked)b.classList.add('wrong');else b.classList.add('dim');}}
+function answer(id){
+  if(S.revealed||!S.q)return;
+  if(S.mode==='exam'&&S.exam){S.exam.log.push({q:S.q,picked:id});for(const b of $('answers').children){b.disabled=true;if(b.dataset.id===id)b.style.borderColor='var(--line)';}setTimeout(()=>{S.exam.i++;if(S.exam.i>=16)return finishExam();showQ(makeQ(Math.min(5,2+Math.floor(S.exam.i/4))));},220);return;}
+  S.picked=id;S.revealed=true;S.T=0;S.total++;const ok=id===S.q.answer;
+  if(ok){S.correct++;S.streak++;if(S.streak>S.best){S.best=S.streak;store.set('best',S.best);}}else S.streak=0;
+  paintAnswers();$('hint').hidden=true;showFeedback(false);renderStats();
+}
+function showFeedback(review){
+  const q=S.q,ok=S.picked===q.answer;const v=$('verdict');const lab=q.choices.find(c=>c.id===q.answer).label;
+  v.className='verdict '+(ok?'ok':'bad');v.innerHTML=ok?'Correct<small>Watch it move above.</small>':`Not quite<small>The answer is ${lab}. Watch it move above.</small>`;
+  if(S.picked==null){v.className='verdict bad';v.innerHTML=`Unanswered<small>The answer is ${lab}.</small>`;}
+  const ex=$('explain');ex.innerHTML='';for(const line of q.explain){const p=document.createElement('p');p.textContent=line;ex.appendChild(p);}const r=document.createElement('p');r.className='rule';r.textContent='Rule of thumb: '+q.rule;ex.appendChild(r);
+  const ac=$('actions');ac.innerHTML='';
+  const replay=document.createElement('button');replay.className='btn';replay.textContent='Replay motion';replay.onclick=()=>{S.T=0;};
+  const nx=document.createElement('button');nx.className='btn primary';
+  if(review){nx.textContent='Back to results';nx.onclick=showResults;}else{nx.textContent='Next question';nx.onclick=()=>showQ(makeQ(lvl()));}
+  nx.id='nextBtn';ac.append(nx,replay);$('feedback').hidden=false;
+}
+function startExam(){S.mode='exam';S.exam={i:0,start:Date.now(),limit:20*60,log:[]};setMode();showQ(makeQ(2));}
+function finishExam(){const ex=S.exam;ex.done=true;const score=ex.log.filter(l=>l.picked===l.q.answer).length;ex.score=score;if(S.examBest==null||score>S.examBest){S.examBest=score;store.set('examBest',score);}showResults();}
+function showResults(){
+  const ex=S.exam;S.q=null;$('qArea').hidden=true;$('feedback').hidden=true;$('tag').textContent='Exam results';const el=$('results');el.hidden=false;
+  const secs=Math.round(Math.min(ex.limit,(ex.end||(ex.end=Date.now()))-ex.start)/1000||0);
+  const all=[...ex.log];while(all.length<16)all.push(null);
+  el.innerHTML=`<h2>${ex.score} / 16 correct</h2><p class="note">Time used ${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')} of 20:00. Tap any question to see the answer and watch it move.</p><div class="qgrid" id="qgrid"></div><div style="display:flex;flex-wrap:wrap;gap:8px"><button class="btn primary" id="again">Take another exam</button><button class="btn" id="toPractice">Back to practice</button></div>`;
+  const g=$('qgrid');all.forEach((l,i)=>{const b=document.createElement('button');b.className='qchip '+(l&&l.picked===l.q.answer?'ok':'bad');b.textContent=`Q${i+1} ${l?(l.picked===l.q.answer?'✓':'✗'):'–'}`;if(l)b.onclick=()=>{S.mode='review';showQ(l.q,{revealed:true,picked:l.picked,review:true});S.mode='exam';};else b.disabled=true;g.appendChild(b);});
+  $('again').onclick=startExam;$('toPractice').onclick=()=>{S.mode='practice';S.exam=null;setMode();showQ(makeQ(lvl()));};
+  renderStats();
+}
+function setMode(){$('mPractice').setAttribute('aria-pressed',S.mode==='practice');$('mExam').setAttribute('aria-pressed',S.mode!=='practice');renderStats();}
+$('mPractice').onclick=()=>{if(S.mode==='practice')return;S.mode='practice';S.exam=null;setMode();showQ(makeQ(lvl()));};
+$('mExam').onclick=()=>{if(S.mode==='exam'&&S.exam&&!S.exam.done)return;startExam();};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;const n=parseInt(e.key,10);if(n>=1&&S.q&&!S.revealed){const c=S.q.choices[n-1];if(c)answer(c.id);}if(e.key==='Enter'){const b=$('nextBtn');if(b&&!$('feedback').hidden){e.preventDefault();b.click();}}});
+
+/* ---------- render loop ---------- */
+function drawBoard(){ctx.setTransform(DPR,0,0,DPR,0,0);ctx.fillStyle=C.board;ctx.fillRect(0,0,CW,CH);ctx.lineWidth=1;for(let x=0;x<CW;x+=20){ctx.strokeStyle=x%100===0?C.grid2:C.grid;ctx.beginPath();ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,CH);ctx.stroke();}for(let y=0;y<CH;y+=20){ctx.strokeStyle=y%100===0?C.grid2:C.grid;ctx.beginPath();ctx.moveTo(0,y+.5);ctx.lineTo(CW,y+.5);ctx.stroke();}}
+function draw(){
+  if(Math.abs(cv.getBoundingClientRect().width-CW)>.5||Math.abs(cv.getBoundingClientRect().height-CH)>.5)resize();
+  drawBoard();const q=S.q;
+  if(!q){ctx.font=`600 14px ${MONO}`;ctx.fillStyle=C.muted;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(S.exam&&S.exam.done?`EXAM COMPLETE · ${S.exam.score}/16`:'',CW/2,CH/2);return;}
+  const b=q.bounds,bw=b.x1-b.x0,bh=b.y1-b.y0,pad=16;SC=Math.min((CW-2*pad)/bw,(CH-2*pad-8)/bh,2);
+  ctx.translate(CW/2,CH/2+4);ctx.scale(SC,SC);ctx.translate(-(b.x0+bw/2),-(b.y0+bh/2));
+  ctx.lineCap='butt';ctx.setLineDash([]);q.draw(S.T,S.revealed);
+  ctx.setTransform(DPR,0,0,DPR,0,0);if(q.overlay)q.overlay(S.T,S.revealed);
+}
+let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(S.revealed&&S.q){S.T+=dt;if(S.q.tEnd&&S.T>S.q.tEnd+1.2)S.T=S.q.tEnd+1.2;}
+  if(S.q&&S.q.tEnd&&S.revealed&&S.T>S.q.tEnd){const keep=S.T;S.T=S.q.tEnd;try{draw();}finally{S.T=keep;}}else draw();
+  if(S.mode==='exam'&&S.exam&&!S.exam.done){const sec=Math.floor((Date.now()-S.exam.start)/1000);if(sec!==S.lastSec){S.lastSec=sec;renderStats();}if((Date.now()-S.exam.start)/1000>=S.exam.limit)finishExam();}
+  requestAnimationFrame(frame);}
+readColors();resize();renderChips();setMode();showQ(makeQ(1));requestAnimationFrame(frame);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{});
+})();
+</script>
+
+</body></html>
