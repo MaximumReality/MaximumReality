@@ -1,0 +1,443 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Elina's ICU Pocket Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky section rail over a single column of formula cards; each card = formula, live calculator, normal range */
+:root{
+  --bg:#F3F6F6; --surface:#FFFFFF; --ink:#13201F; --muted:#566866; --line:#D3DDDB;
+  --accent:#0A6782; --accent-soft:#E1EFF3;
+  --ok:#1E7A4C; --ok-soft:#E2F2E8; --warn:#9A5B12; --warn-soft:#F7ECDD; --crit:#A3302A; --crit-soft:#F7E2E0;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1515; --surface:#162020; --ink:#E2ECEA; --muted:#93A6A3; --line:#2A3837;
+  --accent:#62C3DA; --accent-soft:#16323A;
+  --ok:#6CCB94; --ok-soft:#173326; --warn:#E3A55A; --warn-soft:#3A2A15; --crit:#F08A80; --crit-soft:#3D1D1A;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1515; --surface:#162020; --ink:#E2ECEA; --muted:#93A6A3; --line:#2A3837;
+  --accent:#62C3DA; --accent-soft:#16323A;
+  --ok:#6CCB94; --ok-soft:#173326; --warn:#E3A55A; --warn-soft:#3A2A15; --crit:#F08A80; --crit-soft:#3D1D1A;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+header.top{display:grid;gap:6px;padding-block:8px 14px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--f-display);font-stretch:80%;font-weight:800;font-size:clamp(30px,7vw,46px);line-height:1.02;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--warn);padding:6px 10px;background:var(--warn-soft);border-radius:0 6px 6px 0;margin:0;max-width:70ch}
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.search{width:100%;font:inherit;font-size:16px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.search:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font-family:var(--f-display);font-stretch:85%;font-weight:600;font-size:14px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+section.sec{padding-top:28px;display:grid;gap:14px;scroll-margin-top:120px}
+section.sec>h2{font-family:var(--f-display);font-stretch:78%;font-weight:800;font-size:26px;margin:0;display:flex;align-items:baseline;gap:10px;text-wrap:balance}
+section.sec>h2 .code{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
+.card h3{font-family:var(--f-display);font-stretch:88%;font-weight:700;font-size:19px;margin:0}
+.formula{font-family:var(--f-mono);font-size:14px;background:var(--accent-soft);color:var(--ink);padding:8px 10px;border-radius:6px;overflow-x:auto;white-space:pre;line-height:1.6}
+.inputs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.inputs label{display:grid;gap:3px;font-size:13px;color:var(--muted);font-weight:600}
+.inputs label span.u{font-weight:400}
+.inputs input,.inputs select{font-family:var(--f-mono);font-size:16px;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%;min-width:0}
+.result{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;border-top:1px dashed var(--line);padding-top:10px}
+.rv{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:22px;font-weight:600}
+.rv small{font-size:13px;color:var(--muted);font-weight:400;margin-left:3px}
+.rl{font-size:13px;color:var(--muted)}
+.flag{font-size:13px;font-weight:700;padding:2px 9px;border-radius:999px}
+.flag.ok{background:var(--ok-soft);color:var(--ok)}
+.flag.warn{background:var(--warn-soft);color:var(--warn)}
+.flag.crit{background:var(--crit-soft);color:var(--crit)}
+.rnote{flex-basis:100%;font-size:14px;color:var(--muted)}
+.card p,.card ul,.card ol{margin:0;max-width:70ch}
+.card ul,.card ol{padding-left:20px;display:grid;gap:4px}
+.tip{font-size:14px;color:var(--muted)}
+.tip b{color:var(--ink)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-display);font-stretch:88%;font-weight:700;color:var(--muted);font-size:13px;letter-spacing:.02em}
+td.n{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.empty{color:var(--muted);padding:24px 0}
+footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;max-width:70ch}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Critical care study reference · US units</div>
+    <h1>Elina's ICU Pocket Guide</h1>
+    <p class="lede">Core critical care formulas, normal values, and interpretation rules, each with a live calculator. Change any number to see the result update.</p>
+    <p class="note">A study aid built from widely taught physiology. Normal ranges vary by lab and textbook, so always follow your program's references and your facility's protocols at the bedside.</p>
+  </header>
+
+  <nav class="rail" aria-label="Sections">
+    <input class="search" id="q" type="search" placeholder="Search formulas (e.g. anion gap, SVR, compliance)" autocomplete="off">
+    <div class="chips" id="chips"></div>
+  </nav>
+
+  <main id="main"></main>
+
+  <footer>Formulas use mg/dL for chemistry, mmHg for pressures, and assume sea-level barometric pressure (760 mmHg) unless you change it. Values shown on first load are example numbers, not patient data.</footer>
+</div>
+
+<script>
+const S=[
+ {id:"oxy",name:"Oxygenation",code:"O₂"},
+ {id:"hemo",name:"Hemodynamics",code:"CV"},
+ {id:"ab",name:"Acid–Base",code:"pH"},
+ {id:"lytes",name:"Electrolytes",code:"Na⁺"},
+ {id:"renal",name:"Renal",code:"GFR"},
+ {id:"vent",name:"Ventilator",code:"VENT"},
+ {id:"drips",name:"Infusions",code:"mL/h"},
+ {id:"neuro",name:"Neuro",code:"CNS"},
+ {id:"labs",name:"Normal Values",code:"REF"}
+];
+const r=(x,d=1)=>Number.isFinite(x)?(Math.round(x*10**d)/10**d).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d}):"—";
+const R=(v,u,d)=>({v:r(v,d),u});
+const sel=(k,label,opts,v)=>({k,label,type:"select",opts,v});
+
+const C=[
+/* ---------- OXYGENATION ---------- */
+{s:"oxy",t:"Alveolar O₂ (PAO₂) — alveolar gas equation",
+ f:"PAO₂ = FiO₂ × (Patm − 47) − PaCO₂ / 0.8",
+ i:[["fio2","FiO₂","%",21],["paco2","PaCO₂","mmHg",40],["patm","Patm","mmHg",760]],
+ c:v=>{const p=(v.fio2/100)*(v.patm-47)-v.paco2/0.8;return{out:[R(p,"mmHg",0)],lab:"PAO₂"}},
+ n:"47 mmHg is water vapor pressure at body temperature. 0.8 is the usual respiratory quotient. At room air and normal PaCO₂, PAO₂ is about 100."},
+{s:"oxy",t:"A–a gradient",
+ f:"A–a = PAO₂ − PaO₂\nExpected (room air) ≈ age / 4 + 4",
+ i:[["fio2","FiO₂","%",21],["pao2","PaO₂","mmHg",88],["paco2","PaCO₂","mmHg",40],["age","Age","yr",45]],
+ c:v=>{const PA=(v.fio2/100)*713-v.paco2/0.8,g=PA-v.pao2,e=v.age/4+4;
+  return{out:[R(g,"mmHg",0)],lab:`expected ≤ ${r(e,0)} on room air`,
+  flag:v.fio2>21?["warn","On supplemental O₂: gradient widens normally"]:g>e?["crit","Elevated"]:["ok","Normal for age"],
+  note:"Normal gradient with hypoxemia points to hypoventilation or low inspired O₂. Elevated gradient points to V/Q mismatch, shunt, or diffusion problems."}}},
+{s:"oxy",t:"P/F ratio",
+ f:"P/F = PaO₂ / FiO₂ (as a decimal)",
+ i:[["pao2","PaO₂","mmHg",90],["fio2","FiO₂","%",50]],
+ c:v=>{const p=v.pao2/(v.fio2/100);let fl=p>300?["ok","Normal range (> 300)"]:p>200?["warn","Mild (200–300)"]:p>100?["crit","Moderate (100–200)"]:["crit","Severe (≤ 100)"];
+  return{out:[R(p,"",0)],lab:"ratio",flag:fl,note:"Berlin ARDS severity bands apply with PEEP ≥ 5 cmH₂O, onset within 1 week, bilateral opacities, and no full cardiac explanation."}}},
+{s:"oxy",t:"Arterial O₂ content (CaO₂)",
+ f:"CaO₂ = (1.34 × Hb × SaO₂) + (0.003 × PaO₂)",
+ i:[["hb","Hemoglobin","g/dL",14],["sao2","SaO₂","%",98],["pao2","PaO₂","mmHg",95]],
+ c:v=>{const bound=1.34*v.hb*v.sao2/100,dis=0.003*v.pao2;return{out:[R(bound+dis,"mL O₂/dL",1)],lab:"normal ≈ 16–22",
+  note:`Hemoglobin-bound: ${r(bound,1)} · dissolved: ${r(dis,2)}. Almost all O₂ rides on hemoglobin, so anemia drops content far more than a low PaO₂ does.`}}},
+{s:"oxy",t:"O₂ delivery (DO₂)",
+ f:"DO₂ = CO × CaO₂ × 10",
+ i:[["co","Cardiac output","L/min",5],["hb","Hemoglobin","g/dL",14],["sao2","SaO₂","%",98],["pao2","PaO₂","mmHg",95]],
+ c:v=>{const ca=1.34*v.hb*v.sao2/100+0.003*v.pao2,d=v.co*ca*10;return{out:[R(d,"mL O₂/min",0)],lab:"normal ≈ 900–1100",
+  flag:d<700?["crit","Low delivery"]:["ok","Adequate range"],note:"× 10 converts dL to L. Delivery rises with cardiac output, hemoglobin, and saturation."}}},
+{s:"oxy",t:"O₂ extraction ratio",
+ f:"O₂ER = (SaO₂ − SvO₂) / SaO₂",
+ i:[["sao2","SaO₂","%",98],["svo2","SvO₂","%",70]],
+ c:v=>{const e=(v.sao2-v.svo2)/v.sao2*100;return{out:[R(e,"%",0)],lab:"normal ≈ 20–30%",
+  flag:e>30?["warn","High extraction: delivery may not meet demand"]:["ok","Normal"],note:"Normal SvO₂ is about 65–75% (ScvO₂ ≈ 70%). Rising extraction means tissues are pulling harder to make up for low delivery."}}},
+
+/* ---------- HEMODYNAMICS ---------- */
+{s:"hemo",t:"Mean arterial pressure (MAP)",
+ f:"MAP = (SBP + 2 × DBP) / 3",
+ i:[["sbp","SBP","mmHg",118],["dbp","DBP","mmHg",72]],
+ c:v=>{const m=(v.sbp+2*v.dbp)/3;return{out:[R(m,"mmHg",0)],lab:"normal 70–100",
+  flag:m<65?["crit","Below 65: common septic shock target"]:["ok","≥ 65"],note:"Diastole counts twice because the heart spends about two-thirds of each beat in diastole at normal rates."}}},
+{s:"hemo",t:"Body surface area (Mosteller)",
+ f:"BSA = √( height cm × weight kg / 3600 )",
+ i:[["ht","Height","cm",170],["wt","Weight","kg",75]],
+ c:v=>({out:[R(Math.sqrt(v.ht*v.wt/3600),"m²",2)],lab:"average adult ≈ 1.7–1.9"})},
+{s:"hemo",t:"Cardiac output and cardiac index",
+ f:"CO = HR × SV / 1000\nCI = CO / BSA",
+ i:[["hr","Heart rate","bpm",80],["sv","Stroke volume","mL",70],["ht","Height","cm",170],["wt","Weight","kg",75]],
+ c:v=>{const co=v.hr*v.sv/1000,bsa=Math.sqrt(v.ht*v.wt/3600),ci=co/bsa;
+  return{out:[R(co,"L/min CO",1),R(ci,"L/min/m² CI",1)],lab:"CO 4–8 · CI 2.5–4.0",
+  flag:ci<2.2?["crit","Low CI"]:ci>4.2?["warn","High CI"]:["ok","Normal CI"],note:"Index adjusts output for body size, so a small and a large patient can be compared on the same scale."}}},
+{s:"hemo",t:"Systemic vascular resistance (SVR)",
+ f:"SVR = 80 × (MAP − CVP) / CO",
+ i:[["map","MAP","mmHg",85],["cvp","CVP","mmHg",6],["co","CO","L/min",5]],
+ c:v=>{const s=80*(v.map-v.cvp)/v.co;return{out:[R(s,"dyn·s/cm⁵",0)],lab:"normal 800–1200",
+  flag:s<800?["warn","Low: vasodilated (sepsis, anaphylaxis, neurogenic)"]:s>1200?["warn","High: vasoconstricted (cardiogenic, hypovolemic)"]:["ok","Normal"],note:"80 converts Wood units (mmHg·min/L) into dyn·s/cm⁵."}}},
+{s:"hemo",t:"Pulmonary vascular resistance (PVR)",
+ f:"PVR = 80 × (mPAP − PAWP) / CO",
+ i:[["mpap","Mean PA pressure","mmHg",16],["pawp","PAWP (wedge)","mmHg",9],["co","CO","L/min",5]],
+ c:v=>{const p=80*(v.mpap-v.pawp)/v.co,w=(v.mpap-v.pawp)/v.co;return{out:[R(p,"dyn·s/cm⁵",0),R(w,"Wood units",1)],lab:"normal < 250 dyn (< 3 WU)",
+  flag:w>2?["warn","Elevated by current pulmonary hypertension criteria (> 2 WU)"]:["ok","Normal"]}}},
+{s:"hemo",t:"Shock patterns",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Type</th><th>CO / CI</th><th>SVR</th><th>CVP / PAWP</th><th>Example causes</th></tr>
+ <tr><td>Hypovolemic</td><td>↓</td><td>↑</td><td>↓</td><td>Hemorrhage, GI losses, burns</td></tr>
+ <tr><td>Cardiogenic</td><td>↓</td><td>↑</td><td>↑</td><td>MI, heart failure, arrhythmia</td></tr>
+ <tr><td>Distributive</td><td>↑ or normal</td><td>↓</td><td>↓ or normal</td><td>Sepsis, anaphylaxis, neurogenic</td></tr>
+ <tr><td>Obstructive</td><td>↓</td><td>↑</td><td>↑ (CVP)</td><td>Tamponade, tension pneumo, massive PE</td></tr>
+ </table></div>
+ <p class="tip"><b>Study tip:</b> start with the SVR. Low SVR means the vessels are the problem. High SVR means the body is clamping down to protect pressure, so look at filling pressures to tell an empty tank from a failing pump.</p>`},
+
+/* ---------- ACID-BASE ---------- */
+{s:"ab",t:"Step-by-step ABG reading",static:`
+ <ol>
+ <li><b>pH:</b> below 7.35 is acidemia, above 7.45 is alkalemia.</li>
+ <li><b>Primary process:</b> does PaCO₂ or HCO₃⁻ explain the pH direction? PaCO₂ is respiratory, HCO₃⁻ is metabolic.</li>
+ <li><b>Compensation:</b> use the expected-value formulas below. A measured value outside the expected range means a second disorder.</li>
+ <li><b>Anion gap:</b> calculate it for every metabolic acidosis, corrected for albumin.</li>
+ <li><b>Delta ratio:</b> if the gap is high, check for a hidden second metabolic process.</li>
+ <li><b>Oxygenation:</b> PaO₂ and the A–a gradient.</li>
+ </ol>`},
+{s:"ab",t:"Anion gap (albumin-corrected)",
+ f:"AG = Na − (Cl + HCO₃)\nCorrected AG = AG + 2.5 × (4.0 − albumin)",
+ i:[["na","Na","mEq/L",140],["cl","Cl","mEq/L",100],["hco3","HCO₃","mEq/L",16],["alb","Albumin","g/dL",3.0]],
+ c:v=>{const ag=v.na-(v.cl+v.hco3),c=ag+2.5*(4-v.alb);return{out:[R(ag,"AG",0),R(c,"corrected",1)],lab:"normal ≈ 8–12",
+  flag:c>12?["crit","High anion gap"]:["ok","Normal gap"],note:"High-gap causes to know: ketoacidosis, lactic acidosis, renal failure, and toxic ingestions (methanol, ethylene glycol, salicylates). Low albumin hides a gap, so always correct it."}}},
+{s:"ab",t:"Delta ratio",
+ f:"Δ ratio = (AG − 12) / (24 − HCO₃)",
+ i:[["na","Na","mEq/L",140],["cl","Cl","mEq/L",100],["hco3","HCO₃","mEq/L",16]],
+ c:v=>{const ag=v.na-(v.cl+v.hco3),d=(ag-12)/(24-v.hco3);let fl;
+  if(!Number.isFinite(d)||24-v.hco3<=0)fl=["warn","HCO₃ not low: ratio not meaningful"];
+  else if(d<0.4)fl=["warn","< 0.4: non-gap (hyperchloremic) acidosis"];
+  else if(d<1)fl=["warn","0.4–1: mixed gap + non-gap acidosis"];
+  else if(d<=2)fl=["ok","1–2: pure high-gap acidosis"];
+  else fl=["warn","> 2: gap acidosis + metabolic alkalosis"];
+  return{out:[R(d,"",2)],lab:"ratio",flag:fl}}},
+{s:"ab",t:"Metabolic acidosis: Winter's formula",
+ f:"Expected PaCO₂ = 1.5 × HCO₃ + 8  (± 2)",
+ i:[["hco3","HCO₃","mEq/L",14],["paco2","Measured PaCO₂","mmHg",29]],
+ c:v=>{const e=1.5*v.hco3+8;let fl=v.paco2>e+2?["crit","Higher than expected: added respiratory acidosis"]:v.paco2<e-2?["warn","Lower than expected: added respiratory alkalosis"]:["ok","Appropriate compensation"];
+  return{out:[R(e,"mmHg",0)],lab:`expected range ${r(e-2,0)}–${r(e+2,0)}`,flag:fl}}},
+{s:"ab",t:"Metabolic alkalosis compensation",
+ f:"Expected PaCO₂ = 0.7 × HCO₃ + 21  (± 2)",
+ i:[["hco3","HCO₃","mEq/L",34],["paco2","Measured PaCO₂","mmHg",45]],
+ c:v=>{const e=0.7*v.hco3+21;let fl=v.paco2>e+2?["warn","Higher than expected: added respiratory acidosis"]:v.paco2<e-2?["warn","Lower than expected: added respiratory alkalosis"]:["ok","Appropriate compensation"];
+  return{out:[R(e,"mmHg",0)],lab:`expected range ${r(e-2,0)}–${r(e+2,0)}`,flag:fl}}},
+{s:"ab",t:"Respiratory disorders: expected HCO₃",
+ f:"For every 10 mmHg change in PaCO₂ from 40:\nAcidosis   acute +1   chronic +3.5\nAlkalosis  acute −2   chronic −4",
+ i:[["paco2","PaCO₂","mmHg",60],["hco3","Measured HCO₃","mEq/L",31]],
+ c:v=>{const d=(v.paco2-40)/10;let a,ch;if(d>=0){a=24+d;ch=24+3.5*d}else{a=24+2*d;ch=24+4*d}
+  return{out:[R(a,"acute",1),R(ch,"chronic",1)],lab:"expected HCO₃",note:`Measured ${r(v.hco3,0)}: closest to the ${Math.abs(v.hco3-a)<Math.abs(v.hco3-ch)?"acute":"chronic"} pattern. A value outside both suggests a separate metabolic process.`}}},
+{s:"ab",t:"Osmolal gap",
+ f:"Calc osm = 2 × Na + glucose / 18 + BUN / 2.8\nGap = measured − calculated",
+ i:[["na","Na","mEq/L",140],["glu","Glucose","mg/dL",100],["bun","BUN","mg/dL",14],["mosm","Measured osm","mOsm/kg",300]],
+ c:v=>{const c=2*v.na+v.glu/18+v.bun/2.8,g=v.mosm-c;return{out:[R(c,"calc mOsm",0),R(g,"gap",0)],lab:"normal gap < 10",
+  flag:g>10?["crit","Elevated: think toxic alcohols"]:["ok","Normal"],note:"A high anion gap plus a high osmolal gap is the classic pattern for methanol or ethylene glycol."}}},
+
+/* ---------- ELECTROLYTES ---------- */
+{s:"lytes",t:"Sodium corrected for glucose",
+ f:"Corrected Na = Na + 1.6 × (glucose − 100) / 100",
+ i:[["na","Measured Na","mEq/L",130],["glu","Glucose","mg/dL",600]],
+ c:v=>({out:[R(v.na+1.6*(v.glu-100)/100,"mEq/L",0)],lab:"factor 1.6 (some sources use 2.4)",note:"High glucose pulls water into the blood and dilutes sodium. Correcting shows the true sodium status, which matters in DKA and HHS."})},
+{s:"lytes",t:"Free water deficit",
+ f:"TBW = weight × factor\nDeficit = TBW × (Na / 140 − 1)",
+ i:[["na","Na","mEq/L",156],["wt","Weight","kg",70],sel("tbw","Patient group",[["0.6","Adult male (0.6)"],["0.5","Adult female (0.5)"],["0.5","Older male (0.5)"],["0.45","Older female (0.45)"]],"0.6")],
+ c:v=>{const tbw=v.wt*parseFloat(v.tbw),d=tbw*(v.na/140-1);return{out:[R(d,"L",1)],lab:`TBW ${r(tbw,0)} L`,
+  note:"Correct slowly. A common teaching limit is no more than about 10–12 mEq/L drop in 24 hours for chronic hypernatremia, to avoid cerebral edema."}}},
+{s:"lytes",t:"Calcium corrected for albumin",
+ f:"Corrected Ca = Ca + 0.8 × (4.0 − albumin)",
+ i:[["ca","Total Ca","mg/dL",7.8],["alb","Albumin","g/dL",2.5]],
+ c:v=>{const c=v.ca+0.8*(4-v.alb);return{out:[R(c,"mg/dL",1)],lab:"normal 8.5–10.5",
+  flag:c<8.5?["warn","Low"]:c>10.5?["warn","High"]:["ok","Normal"],note:"In the ICU, ionized calcium (normal ≈ 4.5–5.3 mg/dL or 1.12–1.32 mmol/L) is more reliable than any correction formula."}}},
+{s:"lytes",t:"Sodium safety rules",static:`
+ <ul>
+ <li><b>Chronic hyponatremia:</b> raise Na no more than about 8–10 mEq/L in 24 hours. Faster correction risks osmotic demyelination syndrome.</li>
+ <li><b>Severe symptoms</b> (seizures, coma): small hypertonic saline boluses to raise Na a few mEq/L quickly, then slow down.</li>
+ <li><b>Potassium and magnesium:</b> low Mg makes low K hard to correct. Replace both.</li>
+ <li><b>Hyperkalemia ECG progression:</b> peaked T waves → PR prolongation and P-wave flattening → wide QRS → sine wave.</li>
+ </ul>`},
+
+/* ---------- RENAL ---------- */
+{s:"renal",t:"Creatinine clearance (Cockcroft–Gault)",
+ f:"CrCl = (140 − age) × weight / (72 × Cr)\n× 0.85 if female",
+ i:[["age","Age","yr",60],["wt","Weight","kg",70],["cr","Creatinine","mg/dL",1.2],sel("sex","Sex",[["m","Male"],["f","Female"]],"m")],
+ c:v=>{let c=(140-v.age)*v.wt/(72*v.cr);if(v.sex==="f")c*=0.85;return{out:[R(c,"mL/min",0)],lab:"normal ≈ 90–125",
+  flag:c<30?["crit","Severely reduced"]:c<60?["warn","Moderately reduced"]:["ok","≥ 60"],note:"Still widely used for drug-dosing tables. Unreliable when creatinine is changing quickly, as in acute kidney injury."}}},
+{s:"renal",t:"Fractional excretion of sodium (FENa)",
+ f:"FENa = (UNa × PCr) / (PNa × UCr) × 100",
+ i:[["una","Urine Na","mEq/L",15],["pna","Plasma Na","mEq/L",140],["ucr","Urine Cr","mg/dL",100],["pcr","Plasma Cr","mg/dL",2]],
+ c:v=>{const f=(v.una*v.pcr)/(v.pna*v.ucr)*100;return{out:[R(f,"%",2)],lab:"",
+  flag:f<1?["ok","< 1%: prerenal pattern"]:f>2?["crit","> 2%: intrinsic renal (e.g. ATN)"]:["warn","1–2%: indeterminate"],note:"Diuretics raise FENa and make it misleading. Use FEUrea in that case."}}},
+{s:"renal",t:"Fractional excretion of urea (FEUrea)",
+ f:"FEUrea = (U urea × PCr) / (P urea × UCr) × 100",
+ i:[["uu","Urine urea N","mg/dL",300],["pu","BUN","mg/dL",40],["ucr","Urine Cr","mg/dL",100],["pcr","Plasma Cr","mg/dL",2]],
+ c:v=>{const f=(v.uu*v.pcr)/(v.pu*v.ucr)*100;return{out:[R(f,"%",0)],lab:"",
+  flag:f<35?["ok","< 35%: prerenal pattern"]:f>50?["crit","> 50%: intrinsic renal"]:["warn","35–50%: indeterminate"]}}},
+{s:"renal",t:"Urine output by weight",
+ f:"UOP = volume / hours / weight",
+ i:[["vol","Urine volume","mL",180],["hrs","Over","hours",6],["wt","Weight","kg",80]],
+ c:v=>{const u=v.vol/v.hrs/v.wt;return{out:[R(u,"mL/kg/h",2)],lab:"target ≥ 0.5",
+  flag:u<0.5?["crit","Below 0.5: oliguria"]:["ok","Adequate"],note:"Less than 0.5 mL/kg/h for 6 hours or more meets the urine-output criterion for acute kidney injury."}}},
+
+/* ---------- VENTILATOR ---------- */
+{s:"vent",t:"Predicted body weight and tidal volume",
+ f:"PBW male   = 50 + 2.3 × (height in − 60)\nPBW female = 45.5 + 2.3 × (height in − 60)\nTarget Vt  = 6 mL/kg PBW (range 4–8)",
+ i:[["ht","Height","cm",165],sel("sex","Sex",[["f","Female"],["m","Male"]],"f")],
+ c:v=>{const inch=v.ht/2.54,p=(v.sex==="m"?50:45.5)+2.3*(inch-60);return{out:[R(p,"kg PBW",1),R(6*p,"mL at 6",0),R(8*p,"mL at 8",0)],lab:"",
+  note:"Base tidal volume on height, never actual weight. Lungs don't grow with body weight."}}},
+{s:"vent",t:"Lung mechanics: compliance and driving pressure",
+ f:"Driving pressure = Pplat − PEEP\nStatic compliance = Vt / (Pplat − PEEP)\nDynamic compliance = Vt / (PIP − PEEP)",
+ i:[["vt","Vt","mL",420],["pip","Peak (PIP)","cmH₂O",28],["pplat","Plateau","cmH₂O",24],["peep","PEEP","cmH₂O",10]],
+ c:v=>{const dp=v.pplat-v.peep,cs=v.vt/dp,cd=v.vt/(v.pip-v.peep);
+  return{out:[R(dp,"ΔP",0),R(cs,"Cstat mL/cmH₂O",0),R(cd,"Cdyn",0)],lab:"",
+  flag:v.pplat>30?["crit","Plateau > 30"]:dp>15?["warn","Driving pressure > 15"]:["ok","Pplat ≤ 30, ΔP ≤ 15"],
+  note:"Big gap between PIP and plateau = airway resistance (bronchospasm, secretions, kinked tube). Both rising together = stiff lungs or chest (ARDS, pneumothorax, abdominal pressure)."}}},
+{s:"vent",t:"Adjusting rate for a target PaCO₂",
+ f:"New RR = current RR × current PaCO₂ / desired PaCO₂",
+ i:[["rr","Current RR","/min",14],["now","Current PaCO₂","mmHg",55],["want","Desired PaCO₂","mmHg",40]],
+ c:v=>({out:[R(v.rr*v.now/v.want,"breaths/min",0)],lab:"",note:"Assumes tidal volume and dead space stay the same. PaCO₂ falls in proportion to alveolar ventilation."})},
+{s:"vent",t:"Rapid shallow breathing index (RSBI)",
+ f:"RSBI = RR / Vt (in liters)",
+ i:[["rr","RR","/min",24],["vt","Vt","mL",350]],
+ c:v=>{const x=v.rr/(v.vt/1000);return{out:[R(x,"",0)],lab:"during a spontaneous breathing trial",
+  flag:x<105?["ok","< 105: favors extubation"]:["crit","≥ 105: likely to fail"]}}},
+{s:"vent",t:"Dead space fraction (Vd/Vt)",
+ f:"Vd/Vt = (PaCO₂ − PECO₂) / PaCO₂",
+ i:[["pa","PaCO₂","mmHg",45],["pe","Mixed expired CO₂","mmHg",28]],
+ c:v=>{const d=(v.pa-v.pe)/v.pa;return{out:[R(d,"",2)],lab:"normal ≈ 0.2–0.35",
+  flag:d>0.6?["crit","High: think PE, low output, overdistension"]:d>0.35?["warn","Elevated"]:["ok","Normal"]}}},
+
+/* ---------- INFUSIONS ---------- */
+{s:"drips",t:"Weight-based infusion: dose to rate",
+ f:"Concentration (mcg/mL) = drug mg × 1000 / bag mL\nRate (mL/h) = dose × weight × 60 / concentration",
+ i:[["dose","Ordered dose","mcg/kg/min",5],["wt","Weight","kg",80],["mg","Drug in bag","mg",400],["ml","Bag volume","mL",250]],
+ c:v=>{const conc=v.mg*1000/v.ml,rate=v.dose*v.wt*60/conc;return{out:[R(rate,"mL/h",1)],lab:`concentration ${r(conc,0)} mcg/mL`,
+  note:"Practice only. Bag concentrations differ by facility, and pumps with drug libraries are the standard of care."}}},
+{s:"drips",t:"Weight-based infusion: rate to dose",
+ f:"Dose (mcg/kg/min) = rate × concentration / (weight × 60)",
+ i:[["rate","Pump rate","mL/h",15],["wt","Weight","kg",80],["mg","Drug in bag","mg",400],["ml","Bag volume","mL",250]],
+ c:v=>{const conc=v.mg*1000/v.ml;return{out:[R(v.rate*conc/(v.wt*60),"mcg/kg/min",2)],lab:`concentration ${r(conc,0)} mcg/mL`}}},
+{s:"drips",t:"Non-weight-based infusion",
+ f:"Rate (mL/h) = dose (mg/h) / concentration (mg/mL)",
+ i:[["dose","Ordered dose","mg/h",2],["mg","Drug in bag","mg",100],["ml","Bag volume","mL",100]],
+ c:v=>{const conc=v.mg/v.ml;return{out:[R(v.dose/conc,"mL/h",1)],lab:`concentration ${r(conc,2)} mg/mL`}}},
+
+/* ---------- NEURO ---------- */
+{s:"neuro",t:"Cerebral perfusion pressure (CPP)",
+ f:"CPP = MAP − ICP",
+ i:[["map","MAP","mmHg",85],["icp","ICP","mmHg",18]],
+ c:v=>{const c=v.map-v.icp;return{out:[R(c,"mmHg",0)],lab:"common target 60–70",
+  flag:c<60?["crit","Below 60"]:["ok","≥ 60"],note:`Normal ICP is about 5–15 mmHg. ${v.icp>22?"ICP above 22 is a common treatment threshold.":""}`}}},
+{s:"neuro",t:"Glasgow Coma Scale",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Points</th><th>Eye opening</th><th>Verbal</th><th>Motor</th></tr>
+ <tr><td class="n">6</td><td></td><td></td><td>Obeys commands</td></tr>
+ <tr><td class="n">5</td><td></td><td>Oriented</td><td>Localizes pain</td></tr>
+ <tr><td class="n">4</td><td>Spontaneous</td><td>Confused</td><td>Withdraws from pain</td></tr>
+ <tr><td class="n">3</td><td>To voice</td><td>Inappropriate words</td><td>Abnormal flexion (decorticate)</td></tr>
+ <tr><td class="n">2</td><td>To pain</td><td>Incomprehensible sounds</td><td>Extension (decerebrate)</td></tr>
+ <tr><td class="n">1</td><td>None</td><td>None</td><td>None</td></tr>
+ </table></div>
+ <p class="tip"><b>Range 3–15.</b> 13–15 mild, 9–12 moderate, 8 or less severe. "Eight, intubate" is the classic memory hook for airway protection. Intubated patients get a "T" for verbal (e.g. 10T).</p>`},
+
+/* ---------- NORMAL VALUES ---------- */
+{s:"labs",t:"Arterial blood gas",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Value</th><th>Normal</th></tr>
+ <tr><td>pH</td><td class="n">7.35–7.45</td></tr>
+ <tr><td>PaCO₂</td><td class="n">35–45 mmHg</td></tr>
+ <tr><td>PaO₂ (room air)</td><td class="n">80–100 mmHg</td></tr>
+ <tr><td>HCO₃⁻</td><td class="n">22–26 mEq/L</td></tr>
+ <tr><td>Base excess</td><td class="n">−2 to +2</td></tr>
+ <tr><td>SaO₂</td><td class="n">95–100%</td></tr>
+ <tr><td>Lactate</td><td class="n">< 2 mmol/L</td></tr>
+ </table></div>`},
+{s:"labs",t:"Chemistry",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Value</th><th>Normal</th></tr>
+ <tr><td>Sodium</td><td class="n">135–145 mEq/L</td></tr>
+ <tr><td>Potassium</td><td class="n">3.5–5.0 mEq/L</td></tr>
+ <tr><td>Chloride</td><td class="n">98–106 mEq/L</td></tr>
+ <tr><td>Bicarbonate (CO₂)</td><td class="n">22–29 mEq/L</td></tr>
+ <tr><td>BUN</td><td class="n">7–20 mg/dL</td></tr>
+ <tr><td>Creatinine</td><td class="n">0.6–1.2 mg/dL</td></tr>
+ <tr><td>Glucose (fasting)</td><td class="n">70–100 mg/dL</td></tr>
+ <tr><td>Calcium, total</td><td class="n">8.5–10.5 mg/dL</td></tr>
+ <tr><td>Calcium, ionized</td><td class="n">4.5–5.3 mg/dL</td></tr>
+ <tr><td>Magnesium</td><td class="n">1.7–2.2 mg/dL</td></tr>
+ <tr><td>Phosphorus</td><td class="n">2.5–4.5 mg/dL</td></tr>
+ <tr><td>Albumin</td><td class="n">3.5–5.0 g/dL</td></tr>
+ <tr><td>Serum osmolality</td><td class="n">275–295 mOsm/kg</td></tr>
+ </table></div>`},
+{s:"labs",t:"Hematology and coagulation",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Value</th><th>Normal</th></tr>
+ <tr><td>Hemoglobin</td><td class="n">F 12–16 · M 14–18 g/dL</td></tr>
+ <tr><td>Hematocrit</td><td class="n">F 36–46 · M 41–53%</td></tr>
+ <tr><td>WBC</td><td class="n">4.5–11 × 10³/µL</td></tr>
+ <tr><td>Platelets</td><td class="n">150–400 × 10³/µL</td></tr>
+ <tr><td>PT</td><td class="n">11–13.5 s</td></tr>
+ <tr><td>INR</td><td class="n">0.8–1.1</td></tr>
+ <tr><td>aPTT</td><td class="n">25–35 s</td></tr>
+ <tr><td>Fibrinogen</td><td class="n">200–400 mg/dL</td></tr>
+ </table></div>`},
+{s:"labs",t:"Hemodynamic monitoring",static:`
+ <div class="tablewrap"><table>
+ <tr><th>Value</th><th>Normal</th></tr>
+ <tr><td>CVP / right atrial</td><td class="n">2–8 mmHg</td></tr>
+ <tr><td>RV pressure</td><td class="n">15–30 / 0–8 mmHg</td></tr>
+ <tr><td>PA pressure</td><td class="n">15–30 / 8–15 mmHg</td></tr>
+ <tr><td>Mean PA pressure</td><td class="n">10–20 mmHg</td></tr>
+ <tr><td>PAWP (wedge)</td><td class="n">6–12 mmHg</td></tr>
+ <tr><td>Cardiac output</td><td class="n">4–8 L/min</td></tr>
+ <tr><td>Cardiac index</td><td class="n">2.5–4.0 L/min/m²</td></tr>
+ <tr><td>Stroke volume</td><td class="n">60–100 mL</td></tr>
+ <tr><td>SVR</td><td class="n">800–1200 dyn·s/cm⁵</td></tr>
+ <tr><td>PVR</td><td class="n">< 250 dyn·s/cm⁵</td></tr>
+ <tr><td>SvO₂ / ScvO₂</td><td class="n">65–75% / ≈ 70%</td></tr>
+ </table></div>`}
+];
+
+const main=document.getElementById("main"),chips=document.getElementById("chips");
+S.forEach(s=>{
+  const a=document.createElement("a");a.className="chip";a.href="#"+s.id;a.textContent=s.name;a.dataset.s=s.id;chips.appendChild(a);
+  const sec=document.createElement("section");sec.className="sec";sec.id=s.id;
+  sec.innerHTML=`<h2>${s.name} <span class="code">${s.code}</span></h2>`;main.appendChild(sec);
+});
+C.forEach((c,ci)=>{
+  const card=document.createElement("article");card.className="card";
+  let h=`<h3>${c.t}</h3>`;
+  if(c.static){h+=c.static}
+  else{
+    h+=`<div class="formula">${c.f}</div><div class="inputs">`;
+    c.i.forEach(x=>{
+      const id=`c${ci}_${x.k||x[0]}`;
+      if(x.type==="select"){h+=`<label for="${id}">${x.label}<select id="${id}" data-k="${x.k}">${x.opts.map(o=>`<option value="${o[0]}"${o[0]===x.v?" selected":""}>${o[1]}</option>`).join("")}</select></label>`}
+      else h+=`<label for="${id}">${x[1]} <span class="u">${x[2]}</span><input id="${id}" data-k="${x[0]}" type="number" inputmode="decimal" step="any" value="${x[3]}"></label>`;
+    });
+    h+=`</div><div class="result" aria-live="polite"></div>`;
+    if(c.n)h+=`<p class="tip">${c.n}</p>`;
+  }
+  card.innerHTML=h;
+  card.dataset.text=(c.t+" "+(c.f||"")+" "+(c.n||"")+" "+(c.static||"")).replace(/<[^>]+>/g," ").toLowerCase();
+  document.getElementById(c.s).appendChild(card);
+  if(!c.static){
+    const run=()=>{
+      const v={};card.querySelectorAll("[data-k]").forEach(el=>{v[el.dataset.k]=el.tagName==="SELECT"?el.value:parseFloat(el.value)});
+      const res=card.querySelector(".result");let o;
+      try{o=c.c(v)}catch(e){o={out:[{v:"—",u:""}]}}
+      res.innerHTML=o.out.map(x=>`<span class="rv">${x.v}<small>${x.u}</small></span>`).join("")+
+        (o.lab?`<span class="rl">${o.lab}</span>`:"")+
+        (o.flag?`<span class="flag ${o.flag[0]}">${o.flag[1]}</span>`:"")+
+        (o.note?`<span class="rnote">${o.note}</span>`:"");
+    };
+    card.addEventListener("input",run);card.addEventListener("change",run);run();
+  }
+});
+
+/* search */
+const q=document.getElementById("q");
+q.addEventListener("input",()=>{
+  const t=q.value.trim().toLowerCase();
+  document.querySelectorAll("section.sec").forEach(sec=>{
+    let any=false;sec.querySelectorAll(".card").forEach(cd=>{const m=!t||cd.dataset.text.includes(t)||sec.querySelector("h2").textContent.toLowerCase().includes(t);cd.hidden=!m;if(m)any=true});
+    sec.hidden=!any;
+  });
+});
+
+/* active chip on scroll */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){chips.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c.dataset.s===e.target.id))}})},{rootMargin:"-30% 0px -65% 0px"});
+document.querySelectorAll("section.sec").forEach(s=>io.observe(s));
+chips.querySelector(".chip").classList.add("on");
+</script>
+
+</body></html>
