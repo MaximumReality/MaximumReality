@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maximum Reality | LED Studio</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#291644,#090915 58%);color:#eee9ff;font:15px system-ui,sans-serif}main{max-width:900px;margin:auto;padding:16px 12px 70px}h1{font-size:clamp(24px,5vw,35px);margin:7px 0;text-shadow:2px 2px #b81d9d}h2{font-size:17px;color:#54eaff;margin:0 0 12px}.eyebrow{color:#4eeaff;letter-spacing:.2em;font-size:12px}.card{border:1px solid #4c3c67;background:#181628;border-radius:14px;padding:15px;margin:14px 0}.small{color:#bbb5d2;font-size:13px;line-height:1.5}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}button,.file{font:inherit;color:#fff;background:#302742;border:1px solid #6f5685;padding:9px 12px;min-height:42px;border-radius:9px;cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid cyan}.primary{background:linear-gradient(120deg,#ba248e,#383dab)}.active{border-color:#34ecfb!important;box-shadow:0 0 0 1px #34ecfb}canvas{image-rendering:pixelated;display:block;width:100%;aspect-ratio:36/5;background:black;touch-action:none}.screen{background:#05040c;padding:10px;border-radius:10px;border:1px solid #55436e}.swatch{width:35px;height:35px;min-height:35px;padding:0}.frames{display:flex;gap:8px;overflow-x:auto;padding:8px 0}.frame{flex:0 0 128px;text-align:left;padding:7px}.frame canvas{margin-bottom:6px}.frame span{font-size:12px}input[type=range]{accent-color:#ed46cb}input[type=color]{width:44px;height:40px;background:transparent;border:0}input[type=file]{display:none}select{font:inherit;background:#302742;color:#fff;padding:9px;border-radius:8px}.file{display:inline-flex;align-items:center}.notice{border-left:3px solid #37f0ff;padding:9px;background:#112c36;line-height:1.5}.status{color:#b9ffae;min-height:20px;font-size:13px}.download{display:flex;gap:8px;flex-wrap:wrap}.download button{flex:1 1 180px}footer{text-align:center;color:#ab98c0;font-size:12px}
+</style></head><body><main>
+<div class="eyebrow">MAXIMUM REALITY // PIXEL LAB</div><h1>LED Animation Studio <span style="color:#43efff">36 × 5</span></h1>
+<p class="small">180 pixels. Draw on your phone, animate frame by frame, export real 36 × 5 PNG images for your hat.</p>
+<section class="card"><h2>DRAW // frame <span id="index">1</span></h2><div class="screen"><canvas id="editor" width="720" height="100" aria-label="Editable 36 by 5 LED pixel grid"></canvas></div>
+<p class="small">Finger-friendly drawing: tap or drag across the grid. One square = one LED.</p><div id="palette" class="row"></div>
+<div class="row"><label>Custom color <input type="color" id="color" value="#ff32cb"></label><button id="eraser">Eraser</button><button id="clear">Clear frame</button></div></section>
+<section class="card"><h2>FRAMES // timeline</h2><div id="frames" class="frames"></div>
+<div class="row"><button class="primary" id="add">+ Blank frame</button><button id="copy">Duplicate frame</button><button id="remove">Delete frame</button><button id="prev">◀</button><button id="next">▶</button></div>
+<p class="small">Duplicate a frame, then modify the pixels that move. Tap a thumbnail to switch frames.</p></section>
+<section class="card"><h2>ANIMATION // preview</h2><div class="screen"><canvas id="preview" width="720" height="100"></canvas></div>
+<div class="row"><button class="primary" id="play">▶ Play</button><label>Speed <input id="speed" type="range" min="1" max="20" value="5"></label><span id="speedLabel">5 FPS</span><label><input id="loop" type="checkbox" checked> Loop</label></div></section>
+<section class="card"><h2>PIXEL TOOLS</h2><div class="row"><button id="left">← Shift</button><button id="right">Shift →</button><button id="mirror">Mirror</button><button id="cat">Tiny cat</button><button id="rainbow">Rainbow test</button></div>
+<div class="row"><label for="importImage" class="file">Import a picture</label><input type="file" accept="image/png,image/jpeg,image/webp" id="importImage"><label>Fit <select id="fit"><option value="contain">Contain</option><option value="stretch">Stretch</option><option value="crop">Crop</option></select></label></div><p class="small">Imported pictures are converted to 36 × 5. Simple pixel designs work best.</p></section>
+<section class="card"><h2>EXPORT // ORIGINAL SIZE</h2><p class="notice">Every individual PNG is <strong>exactly 36 pixels wide and 5 pixels tall</strong>. Do not screenshot or upscale the image for your hat.</p>
+<div class="download"><button class="primary" id="export">Download frame PNG</button><button id="exportAll">Download all frame PNGs</button><button id="strip">Download strip PNG</button><button id="save">Save editable project</button></div>
+<div class="row"><label class="file" for="load">Open saved project</label><input type="file" accept=".json,application/json" id="load"><button id="new">New project</button></div>
+<p class="small">Individual PNGs are for the LED hat app. The strip combines frames vertically for reference, but isn't intended for direct upload. Safari may request permission for multiple downloads.</p>
+<p class="status" id="status" role="status"></p></section>
+<p class="small">Quick start: Tap <b>Tiny cat</b> → <b>Duplicate frame</b> → change the paws or tail → duplicate again → <b>Play</b> → export the individual PNGs. Your drawings remain on your device.</p>
+<footer>MAXIMUM REALITY // TINY PIXELS, BIG PERSONALITY</footer>
+</main><script>
+(()=>{'use strict';
+const W=36,H=5,N=W*H,$=id=>document.getElementById(id);
+let frames=[Array(N).fill(null)],index=0,color='#ff32cb',eraser=false,down=false,playing=false,timer=null,step=0;
+const editor=$('editor'),preview=$('preview'),ec=editor.getContext('2d'),pc=preview.getContext('2d');
+function draw(ctx,pixels,grid=false){const cw=ctx.canvas.width/W,ch=ctx.canvas.height/H;ctx.fillStyle='#000';ctx.fillRect(0,0,ctx.canvas.width,ctx.canvas.height);
+pixels.forEach((v,i)=>{const x=i%W,y=Math.floor(i/W);ctx.fillStyle=v||'#090a14';ctx.fillRect(x*cw,y*ch,cw,ch);if(grid){ctx.strokeStyle='#343449';ctx.lineWidth=1;ctx.strokeRect(x*cw+.5,y*ch+.5,cw-1,ch-1)}})}
+function timeline(){const box=$('frames');box.replaceChildren();frames.forEach((f,i)=>{let b=document.createElement('button');b.className='frame'+(i===index?' active':'');const c=document.createElement('canvas');c.width=360;c.height=50;draw(c.getContext('2d'),f);const t=document.createElement('span');t.textContent='Frame '+String(i+1).padStart(2,'0');b.append(c,t);b.onclick=()=>{index=i;render()};box.append(b)})}
+function render(){draw(ec,frames[index],true);if(!playing)draw(pc,frames[index]);$('index').textContent=index+1;timeline()}
+function update(){document.querySelectorAll('.swatch').forEach(b=>b.classList.toggle('active',b.title===color&&!eraser));$('eraser').classList.toggle('active',eraser)}
+const colors=['#ff32cb','#33eaff','#8050ff','#ffffff','#ffe84e','#3dff8b','#ff5555','#2459ff','#000000'];
+colors.forEach(c=>{let b=document.createElement('button');b.className='swatch';b.title=c;b.setAttribute('aria-label','Select '+c);b.style.background=c;b.onclick=()=>{color=c;eraser=false;update()};$('palette').append(b)});update();
+function paint(e){const r=editor.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*W),y=Math.floor((e.clientY-r.top)/r.height*H);if(x<0||x>=W||y<0||y>=H)return;frames[index][y*W+x]=eraser?null:color;draw(ec,frames[index],true);if(!playing)draw(pc,frames[index]);timeline()}
+editor.onpointerdown=e=>{e.preventDefault();down=true;editor.setPointerCapture(e.pointerId);paint(e)};editor.onpointermove=e=>{if(down)paint(e)};editor.onpointerup=editor.onpointercancel=()=>down=false;
+$('color').oninput=e=>{color=e.target.value;eraser=false;update()};$('eraser').onclick=()=>{eraser=!eraser;update()};
+$('clear').onclick=()=>{if(confirm('Clear this frame?')){frames[index]=Array(N).fill(null);render()}};
+function stop(){playing=false;clearInterval(timer);$('play').textContent='▶ Play';draw(pc,frames[index])}
+$('add').onclick=()=>{stop();frames.splice(index+1,0,Array(N).fill(null));index++;render()};
+$('copy').onclick=()=>{stop();frames.splice(index+1,0,frames[index].slice());index++;render()};
+$('remove').onclick=()=>{stop();if(frames.length===1)frames[0]=Array(N).fill(null);else frames.splice(index,1);index=Math.min(index,frames.length-1);render()};
+$('prev').onclick=()=>{index=(index+frames.length-1)%frames.length;render()};
+$('next').onclick=()=>{index=(index+1)%frames.length;render()};
+function play(){if(playing){stop();return}if(frames.length<2){msg('Create two or more frames to animate.');return}playing=true;step=0;draw(pc,frames[0]);$('play').textContent='■ Stop';timer=setInterval(()=>{step++;if(step>=frames.length){if(!$('loop').checked){stop();return}step=0}draw(pc,frames[step])},1000/Number($('speed').value))}
+$('play').onclick=play;$('speed').oninput=()=>{$('speedLabel').textContent=$('speed').value+' FPS';if(playing){stop();play()}};
+function replace(a){frames[index]=a;render()}
+function shift(dir){const a=Array(N).fill(null);for(let y=0;y<H;y++)for(let x=0;x<W;x++){let nx=x+dir;if(nx>=0&&nx<W)a[y*W+nx]=frames[index][y*W+x]}replace(a)}
+$('left').onclick=()=>shift(-1);$('right').onclick=()=>shift(1);
+$('mirror').onclick=()=>{const a=Array(N).fill(null);for(let y=0;y<H;y++)for(let x=0;x<W;x++)a[y*W+x]=frames[index][y*W+W-1-x];replace(a)};
+$('cat').onclick=()=>{const a=Array(N).fill(null),lines=['100010000','110110000','111110000','101010000','011101000'];lines.forEach((line,y)=>[...line].forEach((c,x)=>{if(c==='1')a[y*W+14+x]='#33eaff'}));replace(a);msg('Tiny cat loaded. Duplicate and animate!')};
+$('rainbow').onclick=()=>{const a=Array(N).fill(null),cs=['#ff5555','#ffee55','#42ff87','#33eaff','#8255ff','#ff32cb'];for(let x=0;x<W;x++)for(let y=0;y<H;y++)if((x+y)%4!==0)a[y*W+x]=cs[Math.floor(x/6)];replace(a)};
+$('importImage').onchange=e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file),img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d',{willReadFrequently:true}),fit=$('fit').value;if(fit==='stretch')ctx.drawImage(img,0,0,W,H);else{const s=fit==='crop'?Math.max(W/img.width,H/img.height):Math.min(W/img.width,H/img.height),w=img.width*s,h=img.height*s;ctx.drawImage(img,(W-w)/2,(H-h)/2,w,h)}const d=ctx.getImageData(0,0,W,H).data,a=[];for(let i=0;i<N;i++){let j=i*4;a.push(d[j+3]<80?null:'#'+[d[j],d[j+1],d[j+2]].map(v=>v.toString(16).padStart(2,'0')).join(''))}replace(a);msg('Image converted to 36 × 5.');URL.revokeObjectURL(url)};img.onerror=()=>msg('Unable to load image.');img.src=url;e.target.value=''};
+function frameCanvas(f){const c=document.createElement('canvas');c.width=W;c.height=H;const ctx=c.getContext('2d');f.forEach((v,i)=>{if(v){ctx.fillStyle=v;ctx.fillRect(i%W,Math.floor(i/W),1,1)}});return c}
+function downloadBlob(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+function png(canvas,name){canvas.toBlob(b=>{if(b)downloadBlob(b,name);else msg('PNG export failed.')},'image/png')}
+function filename(i){return 'mr-led-frame-'+String(i+1).padStart(3,'0')+'-36x5.png'}
+function msg(s){$('status').textContent=s}
+$('export').onclick=()=>{png(frameCanvas(frames[index]),filename(index));msg('Exported a real 36 × 5 PNG.')};
+$('exportAll').onclick=()=>{frames.forEach((f,i)=>setTimeout(()=>png(frameCanvas(f),filename(i)),i*600));msg('Downloading '+frames.length+' individual PNGs. Check Safari download permission.')};
+$('strip').onclick=()=>{const c=document.createElement('canvas');c.width=W;c.height=H*frames.length;const ctx=c.getContext('2d');frames.forEach((f,i)=>ctx.drawImage(frameCanvas(f),0,i*H));png(c,'mr-led-strip-36x'+c.height+'.png');msg('Exported sprite strip for reference.')};
+$('save').onclick=()=>{const data={format:'MaximumRealityLED36x5',version:1,width:W,height:H,fps:Number($('speed').value),frames};downloadBlob(new Blob([JSON.stringify(data)],{type:'application/json'}),'mr-led-project.json');msg('Saved editable project.')};
+$('load').onchange=async e=>{try{const data=JSON.parse(await e.target.files[0].text());if(data.format!=='MaximumRealityLED36x5'||!Array.isArray(data.frames)||!data.frames.length||data.frames.length>500||!data.frames.every(f=>Array.isArray(f)&&f.length===N&&f.every(p=>p===null||(typeof p==='string'&&/^#[0-9a-f]{6}$/i.test(p)))))throw Error('Not a valid studio project');stop();frames=data.frames;index=0;$('speed').value=Math.max(1,Math.min(20,data.fps||5));$('speedLabel').textContent=$('speed').value+' FPS';render();msg('Project restored!')}catch(err){msg('Could not open project: '+err.message)}e.target.value=''};
+$('new').onclick=()=>{if(confirm('Start over? Save your existing project first.')){stop();frames=[Array(N).fill(null)];index=0;render();msg('New project ready.')}};
+render();
+})();
+</script></body></html>
