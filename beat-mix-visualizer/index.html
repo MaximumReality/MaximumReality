@@ -187,11 +187,85 @@ header{padding:12px 14px 8px;border-bottom:1px solid var(--border);display:flex;
 .haptic{position:fixed;bottom:82px;right:12px;width:48px;height:48px;border-radius:50%;background:var(--panel);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;z-index:200;transition:all .08s;box-shadow:0 4px 16px #00000080;}
 .haptic.beat{transform:scale(1.35);border-color:var(--a1);box-shadow:0 0 24px var(--a1);}
 
+/* ── DJ TAB ──────────────────────────────────────────── */
+.dj-wrap{padding:10px 12px 12px;}
+.dj-decks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.dj-deck{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px;position:relative;}
+.dj-deck-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.dj-id{font-family:'Bebas Neue';font-size:22px;letter-spacing:3px;}
+.dj-id.A{color:var(--a1);text-shadow:0 0 12px var(--a1);}
+.dj-id.B{color:var(--a2);text-shadow:0 0 12px var(--a2);}
+.dj-bpm{font-family:'Share Tech Mono';font-size:11px;color:var(--a3);}
+.dj-track{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dj-wave-wrap{background:#0a0a12;border-radius:4px;margin-bottom:6px;overflow:hidden;position:relative;height:60px;}
+.dj-wave-wrap canvas{display:block;width:100%;height:60px;}
+.dj-pos-row{display:flex;justify-content:space-between;font-family:'Share Tech Mono';font-size:9px;color:var(--dim);margin-bottom:6px;}
+.dj-vu-wrap{height:5px;background:#080c14;border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.dj-vu{height:100%;width:0%;border-radius:3px;background:var(--a1);transition:width .05s;}
+/* transport */
+.dj-trans{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;}
+.dj-btn{padding:5px 3px;border:1px solid var(--border);border-radius:5px;background:var(--p2);color:var(--text);font-family:'Share Tech Mono';font-size:9px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;}
+.dj-btn:hover{border-color:var(--a1);color:var(--a1);}
+.dj-btn.active,.dj-btn.on{background:var(--a1);color:#000;border-color:var(--a1);}
+.dj-btn.B-btn:hover,.dj-btn.B-btn.active{border-color:var(--a2);color:var(--a2);}
+.dj-btn.B-btn.on{background:var(--a2);color:#000;border-color:var(--a2);}
+/* hot cues */
+.dj-cues{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:6px;}
+.dj-cue-btn{padding:5px 2px;border:1px solid var(--border);border-radius:4px;background:var(--p2);color:var(--dim);font-family:'Share Tech Mono';font-size:8px;cursor:pointer;text-align:center;transition:all .15s;}
+.dj-cue-btn.set{border-color:var(--a3);color:var(--a3);background:#f7c59f12;}
+.dj-cue-btn:hover{border-color:var(--a1);}
+/* loop */
+.dj-loop-row{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:5px;}
+.dj-loop-disp{font-family:'Share Tech Mono';font-size:7px;color:var(--dim);background:#080c14;border-radius:3px;padding:3px 5px;margin-bottom:5px;min-height:16px;}
+.dj-loop-disp.active{color:var(--a1);}
+/* EQ */
+.dj-eq{margin-bottom:6px;}
+.dj-eq-row{display:grid;grid-template-columns:30px 1fr 30px;gap:3px;align-items:center;margin-bottom:4px;}
+.dj-eq-lbl{font-family:'Share Tech Mono';font-size:7px;color:var(--dim);text-align:right;}
+.dj-eq-kill{padding:3px 2px;border:1px solid var(--border);border-radius:3px;background:var(--p2);color:var(--dim);font-family:'Share Tech Mono';font-size:7px;cursor:pointer;text-align:center;transition:all .15s;}
+.dj-eq-kill.killed{border-color:var(--a2);color:var(--a2);background:#ff3cac18;}
+/* FX */
+.dj-fx{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;}
+.dj-fx-wrap{text-align:center;}
+.dj-fx-lbl{font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:3px;}
+/* pitch fader */
+.dj-pitch-wrap{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.dj-pitch-lbl{font-family:'Share Tech Mono';font-size:7px;color:var(--dim);width:32px;}
+/* load btn */
+.dj-load-btn{width:100%;padding:6px;border:1px dashed var(--border);border-radius:5px;background:transparent;color:var(--dim);font-family:'Share Tech Mono';font-size:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.dj-load-btn:hover{border-color:var(--a1);color:var(--a1);}
+.dj-load-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+/* crossfader area */
+.dj-xfader-area{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.dj-xfader-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.dj-xfader-lbl{font-family:'Bebas Neue';font-size:12px;letter-spacing:2px;color:var(--dim);}
+.xfader-labels{display:flex;justify-content:space-between;font-family:'Share Tech Mono';font-size:8px;margin-top:4px;}
+.xfader-A{color:var(--a1);}
+.xfader-B{color:var(--a2);}
+/* master vol */
+.dj-master-vol{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+/* midi / rec row */
+.dj-footer{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.dj-midi{font-family:'Share Tech Mono';font-size:8px;color:var(--dim);flex:1;}
+.dj-rec-btn{padding:6px 10px;border:1px solid var(--a2);border-radius:5px;background:transparent;color:var(--a2);font-family:'Share Tech Mono';font-size:9px;cursor:pointer;transition:all .2s;}
+.dj-rec-btn:hover,.dj-rec-btn.recording{background:var(--a2);color:#000;}
+.dj-rec-btn.recording{animation:recBlink 1s infinite;}
+@keyframes recBlink{0%,100%{opacity:1}50%{opacity:.6}}
+/* BV link notice */
+.dj-bv-notice{font-family:'Share Tech Mono';font-size:8px;color:var(--a4);background:#7b5ea712;border:1px solid var(--a4);border-radius:5px;padding:6px 8px;margin-bottom:8px;text-align:center;}
+/* nudge + sync */
+.dj-nudge-sync{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:5px;}
+/* quick loops */
+.dj-qloops{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:5px;}
+/* range slider thin */
+input[type=range].dj-range{-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--border);outline:none;width:100%;}
+input[type=range].dj-range::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--a1);cursor:pointer;}
+input[type=range].dj-xfader-r{-webkit-appearance:none;appearance:none;height:8px;border-radius:4px;background:linear-gradient(90deg,var(--a1),var(--border),var(--a2));outline:none;width:100%;cursor:pointer;}
+input[type=range].dj-xfader-r::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 0 8px #ffffff80;border:2px solid var(--border);}
+
 ::-webkit-scrollbar{width:2px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .spacer{height:12px;}
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
-
 </head>
 <body>
 
@@ -206,6 +280,7 @@ header{padding:12px 14px 8px;border-bottom:1px solid var(--border);display:flex;
   <div class="tab" onclick="BV_UI.showTab('spatial')">9D SPATIAL</div>
   <div class="tab" onclick="BV_UI.showTab('export')">EXPORT</div>
   <div class="tab" onclick="BV_UI.showTab('report')">REPORT</div>
+  <div class="tab" onclick="showDJTab()">🎛 DJ</div>
 </div>
 
 <!-- ═══════════════ ANALYZE ═══════════════ -->
@@ -332,9 +407,6 @@ header{padding:12px 14px 8px;border-bottom:1px solid var(--border);display:flex;
   <div class="pre-btn" onclick="applyPreset('punchy',this)">PUNCHY</div>
   <div class="pre-btn" onclick="applyPreset('cinematic',this)">CINEMATIC</div>
   <div class="pre-btn" onclick="applyPreset('streaming',this)">STREAMING</div>
-  
-  <div class="pre-btn" onclick="applyPreset('sunoRepair_v14',this)">SUNO REPAIR</div>
-
   <div class="pre-btn" onclick="applyPreset('hifi',this)">HI-FI</div>
   <div class="pre-btn hearing" onclick="applyPreset('hearing',this)">♿ HEARING AID</div>
 </div>
@@ -672,6 +744,368 @@ window.addEventListener('resize', ()=>{
 
 // Init spatial preview
 BV_UI.updateSpatialPreview(0, 0);
+</script>
+
+<!-- ═══════════════ DJ ═══════════════ -->
+<div class="pane" id="pane-dj">
+<div class="dj-wrap">
+
+  <div class="dj-bv-notice">🎛 DJ mix feeds live into BeatVision meters — switch to ANALYZE tab to monitor your mix in real time</div>
+
+  <!-- ── DECKS ─────────────────────────────────────── -->
+  <div class="dj-decks">
+
+    <!-- DECK A -->
+    <div class="dj-deck">
+      <div class="dj-deck-hdr">
+        <div class="dj-id A">A</div>
+        <div class="dj-bpm" id="dj-bpm-A">-- BPM</div>
+      </div>
+      <div class="dj-track" id="dj-track-A">No track loaded</div>
+      <div class="dj-wave-wrap">
+        <canvas id="dj-wave-A" width="400" height="60"></canvas>
+      </div>
+      <div class="dj-pos-row">
+        <span id="dj-pos-A">0:00</span>
+        <span id="dj-dur-A">0:00</span>
+      </div>
+      <div class="dj-vu-wrap"><div class="dj-vu" id="dj-vu-A"></div></div>
+
+      <!-- Transport -->
+      <div class="dj-trans">
+        <button class="dj-btn" onclick="BVDJ.cue('A')">⏮ CUE</button>
+        <button class="dj-btn" id="dj-play-A" onclick="BVDJ.togglePlay('A')">▶</button>
+        <button class="dj-btn" onclick="BVDJ.sync('A')">⇌ SYNC</button>
+      </div>
+
+      <!-- Nudge -->
+      <div class="dj-nudge-sync">
+        <button class="dj-btn" onclick="BVDJ.nudge('A',-1)">◀ NUDGE</button>
+        <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);text-align:center;align-self:center;">PITCH BEND</div>
+        <button class="dj-btn" onclick="BVDJ.nudge('A',1)">NUDGE ▶</button>
+      </div>
+
+      <!-- Pitch fader -->
+      <div class="dj-pitch-wrap">
+        <div class="dj-pitch-lbl">PITCH</div>
+        <input type="range" class="dj-range" min="75" max="125" value="100" step="0.5"
+          oninput="BVDJ.setPitch('A', this.value/100); document.getElementById('dj-pitch-val-A').textContent=(this.value>100?'+':'')+(this.value-100).toFixed(1)+'%'">
+        <span id="dj-pitch-val-A" style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);width:36px;text-align:right;">0.0%</span>
+      </div>
+
+      <!-- Hot Cues -->
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:3px;">HOT CUES (hold shift = set)</div>
+      <div class="dj-cues">
+        <button class="dj-cue-btn" id="dj-cue-A-0" onclick="djCuePress('A',0)">C1</button>
+        <button class="dj-cue-btn" id="dj-cue-A-1" onclick="djCuePress('A',1)">C2</button>
+        <button class="dj-cue-btn" id="dj-cue-A-2" onclick="djCuePress('A',2)">C3</button>
+        <button class="dj-cue-btn" id="dj-cue-A-3" onclick="djCuePress('A',3)">C4</button>
+      </div>
+
+      <!-- Loop -->
+      <div class="dj-loop-row">
+        <button class="dj-btn" onclick="BVDJ.setLoopIn('A')">↦ IN</button>
+        <button class="dj-btn" onclick="BVDJ.setLoopOut('A')">OUT ↤</button>
+      </div>
+      <div class="dj-loop-disp" id="dj-loop-A">–</div>
+      <div class="dj-qloops">
+        <button class="dj-btn" onclick="BVDJ.setQuickLoop('A',0.5)">½ bar</button>
+        <button class="dj-btn" onclick="BVDJ.setQuickLoop('A',1)">1 bar</button>
+        <button class="dj-btn" onclick="BVDJ.setQuickLoop('A',2)">2 bar</button>
+        <button class="dj-btn" onclick="BVDJ.toggleLoop('A')">🔁 LOOP</button>
+      </div>
+
+      <!-- EQ -->
+      <div class="dj-eq">
+        <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">EQ  (click label = kill)</div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">HI</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('A','high',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-A-high" onclick="BVDJ.killEQ('A','high')">✕</button>
+        </div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">MID</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('A','mid',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-A-mid" onclick="BVDJ.killEQ('A','mid')">✕</button>
+        </div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">LO</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('A','low',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-A-low" onclick="BVDJ.killEQ('A','low')">✕</button>
+        </div>
+      </div>
+
+      <!-- FX -->
+      <div class="dj-fx">
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">REVERB</div>
+          <input type="range" class="dj-range" min="0" max="100" value="0"
+            oninput="BVDJ.setReverb('A',this.value/100)">
+        </div>
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">DELAY</div>
+          <input type="range" class="dj-range" min="0" max="100" value="0"
+            oninput="BVDJ.setDelay('A',this.value/100)">
+        </div>
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">FILTER</div>
+          <input type="range" class="dj-range" min="80" max="22050" value="22050"
+            oninput="BVDJ.setFilter('A',parseFloat(this.value), this.value<1000?'highpass':'lowpass')">
+        </div>
+      </div>
+
+      <!-- Gain -->
+      <div class="dj-pitch-wrap">
+        <div class="dj-pitch-lbl">GAIN</div>
+        <input type="range" class="dj-range" min="0" max="150" value="100" step="1"
+          oninput="BVDJ.setGain('A',this.value/100)">
+        <span style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);width:28px;text-align:right;" id="dj-gain-A-v">1.0×</span>
+      </div>
+
+      <!-- Load -->
+      <div class="dj-load-btn">⬆ LOAD TRACK A
+        <input type="file" onchange="if(this.files[0])BVDJ.loadTrack('A',this.files[0])">
+      </div>
+    </div><!-- /deck A -->
+
+    <!-- DECK B -->
+    <div class="dj-deck">
+      <div class="dj-deck-hdr">
+        <div class="dj-id B">B</div>
+        <div class="dj-bpm" id="dj-bpm-B" style="color:var(--a2);">-- BPM</div>
+      </div>
+      <div class="dj-track" id="dj-track-B">No track loaded</div>
+      <div class="dj-wave-wrap">
+        <canvas id="dj-wave-B" width="400" height="60"></canvas>
+      </div>
+      <div class="dj-pos-row">
+        <span id="dj-pos-B">0:00</span>
+        <span id="dj-dur-B">0:00</span>
+      </div>
+      <div class="dj-vu-wrap"><div class="dj-vu" id="dj-vu-B" style="background:var(--a2);"></div></div>
+
+      <!-- Transport -->
+      <div class="dj-trans">
+        <button class="dj-btn B-btn" onclick="BVDJ.cue('B')">⏮ CUE</button>
+        <button class="dj-btn B-btn" id="dj-play-B" onclick="BVDJ.togglePlay('B')">▶</button>
+        <button class="dj-btn B-btn" onclick="BVDJ.sync('B')">⇌ SYNC</button>
+      </div>
+
+      <!-- Nudge -->
+      <div class="dj-nudge-sync">
+        <button class="dj-btn B-btn" onclick="BVDJ.nudge('B',-1)">◀ NUDGE</button>
+        <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);text-align:center;align-self:center;">PITCH BEND</div>
+        <button class="dj-btn B-btn" onclick="BVDJ.nudge('B',1)">NUDGE ▶</button>
+      </div>
+
+      <!-- Pitch fader -->
+      <div class="dj-pitch-wrap">
+        <div class="dj-pitch-lbl">PITCH</div>
+        <input type="range" class="dj-range" style="--thumb:var(--a2)" min="75" max="125" value="100" step="0.5"
+          oninput="BVDJ.setPitch('B', this.value/100); document.getElementById('dj-pitch-val-B').textContent=(this.value>100?'+':'')+(this.value-100).toFixed(1)+'%'">
+        <span id="dj-pitch-val-B" style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);width:36px;text-align:right;">0.0%</span>
+      </div>
+
+      <!-- Hot Cues -->
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:3px;">HOT CUES (hold shift = set)</div>
+      <div class="dj-cues">
+        <button class="dj-cue-btn" id="dj-cue-B-0" onclick="djCuePress('B',0)">C1</button>
+        <button class="dj-cue-btn" id="dj-cue-B-1" onclick="djCuePress('B',1)">C2</button>
+        <button class="dj-cue-btn" id="dj-cue-B-2" onclick="djCuePress('B',2)">C3</button>
+        <button class="dj-cue-btn" id="dj-cue-B-3" onclick="djCuePress('B',3)">C4</button>
+      </div>
+
+      <!-- Loop -->
+      <div class="dj-loop-row">
+        <button class="dj-btn B-btn" onclick="BVDJ.setLoopIn('B')">↦ IN</button>
+        <button class="dj-btn B-btn" onclick="BVDJ.setLoopOut('B')">OUT ↤</button>
+      </div>
+      <div class="dj-loop-disp" id="dj-loop-B">–</div>
+      <div class="dj-qloops">
+        <button class="dj-btn B-btn" onclick="BVDJ.setQuickLoop('B',0.5)">½ bar</button>
+        <button class="dj-btn B-btn" onclick="BVDJ.setQuickLoop('B',1)">1 bar</button>
+        <button class="dj-btn B-btn" onclick="BVDJ.setQuickLoop('B',2)">2 bar</button>
+        <button class="dj-btn B-btn" onclick="BVDJ.toggleLoop('B')">🔁 LOOP</button>
+      </div>
+
+      <!-- EQ -->
+      <div class="dj-eq">
+        <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">EQ  (click label = kill)</div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">HI</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('B','high',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-B-high" onclick="BVDJ.killEQ('B','high')">✕</button>
+        </div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">MID</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('B','mid',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-B-mid" onclick="BVDJ.killEQ('B','mid')">✕</button>
+        </div>
+        <div class="dj-eq-row">
+          <div class="dj-eq-lbl">LO</div>
+          <input type="range" class="dj-range" min="-12" max="12" value="0" step="0.5"
+            oninput="BVDJ.setEQ('B','low',parseFloat(this.value))">
+          <button class="dj-eq-kill" id="dj-kill-B-low" onclick="BVDJ.killEQ('B','low')">✕</button>
+        </div>
+      </div>
+
+      <!-- FX -->
+      <div class="dj-fx">
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">REVERB</div>
+          <input type="range" class="dj-range" min="0" max="100" value="0"
+            oninput="BVDJ.setReverb('B',this.value/100)">
+        </div>
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">DELAY</div>
+          <input type="range" class="dj-range" min="0" max="100" value="0"
+            oninput="BVDJ.setDelay('B',this.value/100)">
+        </div>
+        <div class="dj-fx-wrap">
+          <div class="dj-fx-lbl">FILTER</div>
+          <input type="range" class="dj-range" min="80" max="22050" value="22050"
+            oninput="BVDJ.setFilter('B',parseFloat(this.value), this.value<1000?'highpass':'lowpass')">
+        </div>
+      </div>
+
+      <!-- Gain -->
+      <div class="dj-pitch-wrap">
+        <div class="dj-pitch-lbl">GAIN</div>
+        <input type="range" class="dj-range" min="0" max="150" value="100" step="1"
+          oninput="BVDJ.setGain('B',this.value/100)">
+        <span style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);width:28px;text-align:right;" id="dj-gain-B-v">1.0×</span>
+      </div>
+
+      <!-- Load -->
+      <div class="dj-load-btn">⬆ LOAD TRACK B
+        <input type="file" onchange="if(this.files[0])BVDJ.loadTrack('B',this.files[0])">
+      </div>
+    </div><!-- /deck B -->
+  </div><!-- /dj-decks -->
+
+  <!-- ── CROSSFADER ─────────────────────────────────── -->
+  <div class="dj-xfader-area">
+    <div class="dj-xfader-hdr">
+      <div class="dj-xfader-lbl xfader-A">◀ DECK A</div>
+      <div style="font-family:'Bebas Neue';font-size:13px;letter-spacing:3px;color:var(--dim);">CROSSFADER</div>
+      <div class="dj-xfader-lbl xfader-B">DECK B ▶</div>
+    </div>
+    <input type="range" class="dj-xfader-r" id="dj-xfader" min="0" max="200" value="100"
+      oninput="BVDJ.setCrossfader(this.value/200)">
+    <div class="xfader-labels">
+      <span class="xfader-A">100%</span>
+      <span style="color:var(--dim);">CENTER</span>
+      <span class="xfader-B">100%</span>
+    </div>
+
+    <!-- Master volume -->
+    <div class="dj-master-vol" style="margin-top:10px;">
+      <div style="font-family:'Share Tech Mono';font-size:8px;color:var(--dim);width:70px;">MASTER VOL</div>
+      <input type="range" class="dj-range" style="flex:1;" min="0" max="100" value="90"
+        oninput="if(BVDJ.decks){BVDJ.ctx&&(window._djMasterGain?window._djMasterGain.gain.value=this.value/100:null)}">
+    </div>
+  </div>
+
+  <!-- ── FOOTER: REC + MIDI ────────────────────────── -->
+  <div class="dj-footer">
+    <button class="dj-rec-btn" id="dj-rec-btn" onclick="djToggleRec()">⏺ Record Mix</button>
+    <div class="dj-midi" id="dj-midi-status">MIDI: –</div>
+  </div>
+  <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-top:6px;">
+    Recording saves as .webm (Opus) — open in Audacity or convert with FFmpeg to WAV/MP3.
+    MIDI: connect a DJ controller before loading the page for auto-mapping.
+  </div>
+
+</div><!-- /dj-wrap -->
+</div><!-- /pane-dj -->
+
+<script src="bv-dj.js"></script>
+<script>
+// ── DJ tab init & helpers ────────────────────────────────
+let _djInited = false;
+
+function showDJTab() {
+  // Deactivate all BV tabs and panes
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('active'); });
+  // Activate DJ tab + pane
+  document.querySelectorAll('.tab').forEach(function(t){
+    if(t.textContent.trim().includes('DJ')) t.classList.add('active');
+  });
+  document.getElementById('pane-dj').classList.add('active');
+
+  // Init DJ engine once
+  if(!_djInited){
+    _djInited = true;
+    try { BVDJ.init(); } catch(e){ console.error('DJ init error', e); }
+  }
+}
+
+// Hot cue: shift = set, no shift = jump
+function djCuePress(deckId, slot) {
+  if(window.djShiftHeld){
+    BVDJ.setCue(deckId, slot);
+  } else {
+    BVDJ.jumpCue(deckId, slot);
+  }
+}
+
+// Track shift key for hot cue set mode
+window.djShiftHeld = false;
+document.addEventListener('keydown', function(e){ if(e.key==='Shift') window.djShiftHeld=true; });
+document.addEventListener('keyup',   function(e){ if(e.key==='Shift') window.djShiftHeld=false; });
+
+// Keyboard shortcuts when DJ tab active
+document.addEventListener('keydown', function(e){
+  if(!document.getElementById('pane-dj').classList.contains('active')) return;
+  // Ignore if typing in an input
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  switch(e.code){
+    case 'KeyQ': BVDJ.togglePlay('A'); break;
+    case 'KeyW': BVDJ.cue('A');        break;
+    case 'KeyE': BVDJ.sync('A');       break;
+    case 'KeyU': BVDJ.togglePlay('B'); break;
+    case 'KeyI': BVDJ.cue('B');        break;
+    case 'KeyO': BVDJ.sync('B');       break;
+    case 'KeyA': BVDJ.setLoopIn('A');  break;
+    case 'KeyS': BVDJ.setLoopOut('A'); break;
+    case 'KeyD': BVDJ.toggleLoop('A'); break;
+    case 'KeyJ': BVDJ.setLoopIn('B');  break;
+    case 'KeyK': BVDJ.setLoopOut('B'); break;
+    case 'KeyL': BVDJ.toggleLoop('B'); break;
+    case 'ArrowLeft':  BVDJ.nudge('A',-1); break;
+    case 'ArrowRight': BVDJ.nudge('A', 1); break;
+    case 'ArrowUp':    BVDJ.nudge('B', 1); break;
+    case 'ArrowDown':  BVDJ.nudge('B',-1); break;
+  }
+});
+
+// Record toggle
+let _djRecording = false;
+function djToggleRec(){
+  if(_djRecording){
+    BVDJ.stopRecording();
+    _djRecording = false;
+  } else {
+    BVDJ.startRecording();
+    _djRecording = true;
+  }
+}
+
+// Waveform seek on click
+document.addEventListener('click', function(e){
+  const canvas = e.target.closest('canvas[id^="dj-wave-"]');
+  if(!canvas) return;
+  const id = canvas.id.slice(-1); // 'A' or 'B'
+  const rect = canvas.getBoundingClientRect();
+  const frac = (e.clientX - rect.left) / rect.width;
+  BVDJ.seek(id, Math.max(0, Math.min(1, frac)));
+});
 </script>
 </body>
 </html>
