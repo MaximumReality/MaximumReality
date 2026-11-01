@@ -280,6 +280,7 @@ input[type=range].dj-xfader-r::-webkit-slider-thumb{-webkit-appearance:none;widt
   <div class="tab" onclick="BV_UI.showTab('spatial')">9D SPATIAL</div>
   <div class="tab" onclick="BV_UI.showTab('export')">EXPORT</div>
   <div class="tab" onclick="BV_UI.showTab('report')">REPORT</div>
+  <div class="tab" onclick="showVocoderTab()">🎤 VOCODER</div>
   <div class="tab" onclick="showDJTab()">🎛 DJ</div>
 </div>
 
@@ -628,6 +629,119 @@ input[type=range].dj-xfader-r::-webkit-slider-thumb{-webkit-appearance:none;widt
 </div>
 </div><!-- /report -->
 
+<!-- ═══════════════ VOCODER ═══════════════ -->
+<div class="pane" id="pane-vocoder">
+<div style="height:12px;"></div>
+<div class="sect-title">// VOCODER — VOICE × SYNTH</div>
+
+<div class="panel" style="margin:0 12px 10px;">
+  <div style="font-family:'Share Tech Mono';font-size:8px;color:var(--dim);line-height:1.9;margin-bottom:10px;">
+    Load a MODULATOR (voice/audio) → choose a CARRIER (synth shape) → hit START.<br>
+    The synth's spectrum is shaped by your voice's bands in real time.
+  </div>
+
+  <!-- Modulator load -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <label class="btn" style="cursor:pointer;flex:1;text-align:center;font-size:9px;padding:7px 0;">
+      ⬆ LOAD MODULATOR (VOICE / AUDIO)
+      <input type="file" id="vc-mod-input" accept="audio/*" style="display:none"
+             onchange="BVVocoder.loadModulator(this.files[0])">
+    </label>
+  </div>
+  <div id="vc-status" style="font-family:'Share Tech Mono';font-size:8px;color:var(--dim);min-height:16px;margin-bottom:10px;">
+    No modulator loaded.
+  </div>
+
+  <!-- Controls grid -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+
+    <!-- Carrier type -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">CARRIER TYPE</div>
+      <select id="vc-carrier-type" class="btn"
+              style="width:100%;background:var(--bg2);color:var(--fg);border:1px solid var(--bdr);font-family:'Share Tech Mono';font-size:8px;padding:5px;cursor:pointer;"
+              onchange="BVVocoder.setParam('carrierType', this.value)">
+        <option value="sawtooth" selected>SAWTOOTH  (classic buzz)</option>
+        <option value="square">SQUARE  (hollow / thin)</option>
+        <option value="pulse">PULSE  (detuned width)</option>
+        <option value="harmonic">HARMONIC  (full stack)</option>
+        <option value="noise">NOISE  (whispered effect)</option>
+      </select>
+    </div>
+
+    <!-- Carrier frequency -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">
+        CARRIER PITCH: <span id="vc-freq-lbl">150 Hz</span>
+      </div>
+      <input type="range" min="50" max="500" step="1" value="150" style="width:100%"
+             oninput="document.getElementById('vc-freq-lbl').textContent=this.value+' Hz';
+                      BVVocoder.setParam('carrierFreq', +this.value)">
+    </div>
+
+    <!-- Band count -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">
+        BANDS: <span id="vc-bands-lbl">16</span>
+      </div>
+      <input type="range" min="8" max="32" step="8" value="16" style="width:100%"
+             oninput="document.getElementById('vc-bands-lbl').textContent=this.value;
+                      BVVocoder.setParam('nBands', +this.value)">
+    </div>
+
+    <!-- Envelope speed -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">
+        ENV SPEED: <span id="vc-env-lbl">12 Hz</span>
+      </div>
+      <input type="range" min="2" max="60" step="1" value="12" style="width:100%"
+             oninput="document.getElementById('vc-env-lbl').textContent=this.value+' Hz';
+                      BVVocoder.setParam('envSpeed', +this.value)">
+    </div>
+
+    <!-- Wet mix -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">
+        WET: <span id="vc-wet-lbl">90%</span>
+      </div>
+      <input type="range" min="0" max="100" step="1" value="90" style="width:100%"
+             oninput="document.getElementById('vc-wet-lbl').textContent=this.value+'%';
+                      BVVocoder.setParam('wetMix', this.value/100)">
+    </div>
+
+    <!-- Dry mix -->
+    <div>
+      <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);margin-bottom:4px;">
+        DRY (original voice): <span id="vc-dry-lbl">0%</span>
+      </div>
+      <input type="range" min="0" max="100" step="1" value="0" style="width:100%"
+             oninput="document.getElementById('vc-dry-lbl').textContent=this.value+'%';
+                      BVVocoder.setParam('dryMix', this.value/100)">
+    </div>
+
+  </div><!-- /grid -->
+
+  <!-- Transport buttons -->
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <button class="btn red" id="vc-play-btn" style="flex:2;font-size:10px;" disabled
+            onclick="BVVocoder.isPlaying ? BVVocoder.stop() : BVVocoder.start()">
+      ▶ START
+    </button>
+    <button class="btn" id="vc-export-btn" style="flex:1;font-size:9px;" disabled
+            onclick="BVVocoder.exportVocoded()">
+      ⬇ EXPORT WAV
+    </button>
+  </div>
+
+  <!-- Hint -->
+  <div style="font-family:'Share Tech Mono';font-size:7px;color:var(--dim);line-height:1.7;">
+    EXPORT renders the full file offline and downloads a 44.1kHz 16-bit WAV.<br>
+    ENV SPEED: lower = smoother/legato · higher = punchy/staccato.<br>
+    BANDS: 8 = lo-fi telephone · 16 = natural · 32 = crisp &amp; detailed.
+  </div>
+</div><!-- /panel -->
+</div><!-- /vocoder -->
+
 <div class="haptic" id="hapRing">🫀</div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
@@ -752,6 +866,21 @@ window.addEventListener('resize', ()=>{
 
 // Init spatial preview
 BV_UI.updateSpatialPreview(0, 0);
+</script>
+
+<!-- ═══════════════ VOCODER SCRIPT ═══════════════ -->
+<script src="bv-vocoder.js"></script>
+<script>
+function showVocoderTab() {
+  // Deactivate all BV tabs and panes (same pattern as showDJTab)
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('.pane').forEach(function(p){ p.classList.remove('active'); });
+  // Activate VOCODER tab + pane
+  document.querySelectorAll('.tab').forEach(function(t){
+    if(t.textContent.trim().includes('VOCODER')) t.classList.add('active');
+  });
+  document.getElementById('pane-vocoder').classList.add('active');
+}
 </script>
 
 <!-- ═══════════════ DJ ═══════════════ -->
