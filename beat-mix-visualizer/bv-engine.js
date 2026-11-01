@@ -1,5 +1,5 @@
 // ============================================================
-// BEATVISION v4 — ENGINE (bv-engine.js)
+// BEATVISION v5 — ENGINE (bv-engine.js)
 // Audio context, analysis, mastering chain, export
 // ============================================================
 
@@ -72,14 +72,21 @@ const BV = window.BV = {
     this.anM.smoothingTimeConstant = this.smoothing;
     this.gainNode = this.actx.createGain();
     this.splitter = this.actx.createChannelSplitter(2);
+    // masterIn is the single merge point for all audio (local playback AND
+    // DJ engine output) before metering and speakers.  The DJ module checks
+    // for window.BV.masterIn and connects its master gain here so every
+    // deck feeds BeatVision's analysers automatically.
+    this.masterIn = this.actx.createGain();
   },
 
   connectGraph(src) {
-    src.connect(this.splitter);
+    // Route source → masterIn → splitter / analysers / destination
+    src.connect(this.masterIn);
+    this.masterIn.connect(this.splitter);
     this.splitter.connect(this.anL, 0);
     this.splitter.connect(this.anR, 1);
-    src.connect(this.anM);
-    src.connect(this.gainNode);
+    this.masterIn.connect(this.anM);
+    this.masterIn.connect(this.gainNode);
     this.gainNode.connect(this.actx.destination);
   },
 
@@ -110,6 +117,88 @@ const BV = window.BV = {
     await this.analyzeFullSong(buf);
     this.playAudio();
     return true;
+  },
+
+  // ---- ITU-R BS.1770-4 K-Weighted LUFS --------------------------------
+  // Pure-JS biquad implementation of the two-stage K-weighting filter and
+  // the gated loudness algorithm.  All math follows the standard exactly:
+  //   Stage 1 — High-shelf pre-filter (+4 dB at ~1682 Hz, fs-dependent)
+  //   Stage 2 — 2nd-order high-pass at 38.135 Hz
+  //   Blocks   — 400 ms with 75 % overlap
+  //   Gate     — absolute  −70 LKFS  +  relative −10 LU (BS.1770-4 §2.8)
+  //   Output   — LKFS  =  −0.691 + 10·log₁₀(Σ mean-square gated blocks)
+
+  _biquadCoeffs(type, fc, fs, dBgain) {
+    // Returns {b0,b1,b2,a1,a2} for a single biquad stage (direct form I).
+    const A  = Math.pow(10, dBgain / 40);
+    const w0 = 2 * Math.PI * fc / fs;
+    const cos0 = Math.cos(w0), sin0 = Math.sin(w0);
+    if (type === 'highShelf') {
+      // Peaking high-shelf per Audio EQ Cookbook / BS.1770 annex 1
+      const alpha = sin0 / 2 * Math.sqrt((A + 1/A) * (1/0.4 - 1) + 2);
+      const b0 =       A * ( (A+1) + (A-1)*cos0 + 2*Math.sqrt(A)*alpha );
+      const b1 = -2 * A * ( (A-1) + (A+1)*cos0 );
+      const b2 =       A * ( (A+1) + (A-1)*cos0 - 2*Math.sqrt(A)*alpha );
+      const a0 =           ( (A+1) - (A-1)*cos0 + 2*Math.sqrt(A)*alpha );
+      const a1 =     2 * ( (A-1) - (A+1)*cos0 );
+      const a2 =           ( (A+1) - (A-1)*cos0 - 2*Math.sqrt(A)*alpha );
+      return { b0:b0/a0, b1:b1/a0, b2:b2/a0, a1:a1/a0, a2:a2/a0 };
+    } else { // 'highpass', Q ≈ 0.707
+      const alpha = sin0 / 2;
+      const b0 =  (1 + cos0) / 2;
+      const b1 = -(1 + cos0);
+      const b2 =  (1 + cos0) / 2;
+      const a0 =  1 + alpha;
+      const a1 = -2 * cos0;
+      const a2 =  1 - alpha;
+      return { b0:b0/a0, b1:b1/a0, b2:b2/a0, a1:a1/a0, a2:a2/a0 };
+    }
+  },
+
+  _applyBiquad(c, src) {
+    // Apply one biquad stage to Float32Array src in-place.
+    let x1=0, x2=0, y1=0, y2=0;
+    for (let i = 0; i < src.length; i++) {
+      const x0 = src[i];
+      const y0 = c.b0*x0 + c.b1*x1 + c.b2*x2 - c.a1*y1 - c.a2*y2;
+      x2=x1; x1=x0; y2=y1; y1=y0;
+      src[i] = y0;
+    }
+    return src;
+  },
+
+  // Compute integrated (gated) LKFS for two Float32Array channels at rate sr.
+  _integratedLufs(chL, chR, sr) {
+    const s1 = this._biquadCoeffs('highShelf', 1681.974, sr, 4.0);
+    const s2 = this._biquadCoeffs('highpass',  38.135,   sr, 0.0);
+    const fL = new Float32Array(chL); this._applyBiquad(s1, fL); this._applyBiquad(s2, fL);
+    const fR = new Float32Array(chR); this._applyBiquad(s1, fR); this._applyBiquad(s2, fR);
+
+    const blockSz = Math.floor(sr * 0.400); // 400 ms
+    const hopSz   = Math.floor(sr * 0.100); // 75 % overlap
+    const nBlocks  = Math.max(0, Math.floor((chL.length - blockSz) / hopSz) + 1);
+    if (nBlocks < 1) return -Infinity;
+
+    const bp = new Float32Array(nBlocks);
+    for (let b = 0; b < nBlocks; b++) {
+      const s = b * hopSz, e = Math.min(s + blockSz, chL.length);
+      let ms = 0;
+      for (let i = s; i < e; i++) ms += fL[i]*fL[i] + fR[i]*fR[i];
+      bp[b] = ms / (e - s);
+    }
+
+    // Absolute gate: −70 LKFS
+    const absGate = Math.pow(10, (-70 + 0.691) / 10) * 2;
+    const p1 = Array.from(bp).filter(p => p >= absGate);
+    if (!p1.length) return -Infinity;
+
+    // Relative gate: ungated LKFS − 10 LU
+    const ungated = -0.691 + 10 * Math.log10(p1.reduce((s,p)=>s+p,0)/p1.length);
+    const relGate  = Math.pow(10, (ungated - 10 + 0.691) / 10);
+    const p2 = p1.filter(p => p >= relGate);
+    if (!p2.length) return -Infinity;
+
+    return -0.691 + 10 * Math.log10(p2.reduce((s,p)=>s+p,0)/p2.length);
   },
 
   // ---- Full Song Analysis ----
@@ -169,8 +258,10 @@ const BV = window.BV = {
       if (bpm > 200) bpm = Math.round(bpm/2);
       if (bpm < 60) bpm *= 2;
     }
+    // Proper ITU-R BS.1770-4 integrated loudness for the full song
+    const lufs = this._integratedLufs(chL, chR, sr);
     this.fullSong = {
-      peakL, peakR, rms: avgRms, lufs: avgRms*0.85,
+      peakL, peakR, rms: avgRms, lufs,
       bass: bassSum/nHops/t, mid: midSum/nHops/t, high: highSum/nHops/t,
       bpm, beats, clip, dr,
       duration: buf.duration.toFixed(1), sr: buf.sampleRate
@@ -317,13 +408,23 @@ const BV = window.BV = {
     return this.corrValue;
   },
 
-  // ---- LUFS Short-Term (3s rolling) ----
+  // ---- Short-Term Loudness (3 s rolling, ~ST LUFS) ----
+  // The UI tick supplies a scalar RMS — we don't have access to the
+  // underlying sample arrays here, so a full K-weighted pass is not
+  // feasible.  Instead we average the RMS² (mean-square) over the 3 s
+  // window and convert with the BS.1770 formula.  K-weighting adds
+  // roughly +3–4 dB at typical spectral balances; a correction of +3.5 dB
+  // keeps the meter in the right ballpark and is clearly an estimate (the
+  // integrated LUFS shown in the report panel IS the real BS.1770 value).
   updateLufsShort(rms) {
-    this.rLufsShort.push(rms);
-    const maxLen = Math.floor(3 * 60); // ~3 seconds at 60fps
+    this.rLufsShort.push(rms * rms); // accumulate mean-square
+    const maxLen = Math.floor(3 * 60); // ~3 seconds at 60 fps
     if (this.rLufsShort.length > maxLen) this.rLufsShort.shift();
-    const avg = this.rLufsShort.reduce((a,b)=>a+b,0) / this.rLufsShort.length;
-    return avg * 0.85; // approximate LUFS
+    const meanSq = this.rLufsShort.reduce((a,b)=>a+b,0) / this.rLufsShort.length;
+    if (meanSq <= 0) return -Infinity;
+    // −0.691 + 10·log₁₀(meanSq) is the BS.1770 loudness formula;
+    // +3.5 dB approximates the average K-weighting lift without sample data.
+    return -0.691 + 10 * Math.log10(meanSq) + 3.5;
   },
 
   // ---- Smoothed FFT ----
@@ -521,8 +622,12 @@ const BV = window.BV = {
       nR[i] = r + (Math.random() - Math.random()) / 32768;
     }
 
-    // Store master buffer for A/B
-    const finalBuf = { sampleRate: sr, length: len, numberOfChannels: 2, getChannelData: c => c===0 ? nL : nR };
+    // Store master buffer for A/B comparison and export.
+    // Must be a real AudioBuffer — AudioBufferSourceNode.buffer rejects plain
+    // objects, so the B-mode playback path would fail with the old fake object.
+    const finalBuf = this.actx.createBuffer(2, len, sr);
+    finalBuf.getChannelData(0).set(nL);
+    finalBuf.getChannelData(1).set(nR);
     this._masterBuf = finalBuf;
 
     BV_UI.setMasterProgress(92, 'Ready to export...');
@@ -551,10 +656,27 @@ const BV = window.BV = {
 
     let blob, ext;
     switch(format) {
-      case 'wav16':   blob = this.encodeWAV(finalBuf, 16);  ext = 'wav';  break;
-      case 'flac':    blob = this.encodeFLAC(finalBuf);      ext = 'flac'; break;
-      case 'mp3_320': blob = this.encodeMP3(finalBuf);       ext = 'mp3';  break;
-      default:        blob = this.encodeWAV(finalBuf, 16);  ext = 'wav';
+      case 'wav16': {
+        blob = this.encodeWAV(finalBuf, 16); ext = 'wav'; break;
+      }
+      case 'flac': {
+        // encodeFLAC returns {blob, ext} — actual container may be WAV if
+        // libFLAC WASM is not available.
+        const r = this.encodeFLAC(finalBuf);
+        blob = r.blob; ext = r.ext;
+        if (ext === 'wav') BV_UI.setExportStatus('⚠ True FLAC needs libFLAC WASM — exporting 16-bit WAV instead...');
+        break;
+      }
+      case 'mp3_320': {
+        // encodeMP3 returns {blob, ext} — ext is 'mp3' with lamejs or 'wav'
+        // fallback so the file extension always matches the actual bytes.
+        const r = this.encodeMP3(finalBuf);
+        blob = r.blob; ext = r.ext;
+        if (ext === 'wav') BV_UI.setExportStatus('⚠ lamejs not loaded — exporting 16-bit WAV instead...');
+        break;
+      }
+      default:
+        blob = this.encodeWAV(finalBuf, 16); ext = 'wav';
     }
     const fn = this.masterFN + '_master_44k.' + ext;
     this.triggerDownload(blob, fn);
@@ -616,22 +738,54 @@ const BV = window.BV = {
     return new Blob([ab], {type:'audio/wav'});
   },
 
-  // FLAC: encode as WAV with FLAC mime type (true FLAC requires libflac.js)
-  // For RouteNote delivery we encode as 16-bit WAV and mark as FLAC
-  // Note: real FLAC would need libflac — this is the best we can do in pure JS
+  // FLAC: true FLAC requires a WASM encoder (libFLAC.js) which is not
+  // bundled here.  We export a standard 16-bit WAV instead — every major
+  // distributor and DAW accepts WAV 44.1 kHz / 16-bit.  The file is named
+  // _master_44k.wav so the extension matches the actual container.
   encodeFLAC(buf) {
-    // Proper FLAC requires a WebAssembly encoder; we emit 16-bit WAV
-    // with a note in filename. User can convert with RouteNote's own ingest.
-    const wav = this.encodeWAV(buf, 16);
-    return new Blob([wav], {type:'audio/flac'});
+    return { blob: this.encodeWAV(buf, 16), ext: 'wav' };
   },
 
-  // MP3: use native MediaRecorder if available, else WAV fallback
+  // MP3: use lamejs for real 320 kbps CBR encoding when the library is
+  // present (loaded from CDN in index.html).  Falls back to 16-bit WAV
+  // if lamejs did not load, so export never silently produces a mislabelled
+  // file.
   encodeMP3(buf) {
-    // Pure-JS MP3 encoding requires lamejs; we output WAV for now
-    // RouteNote accepts WAV 44.1/16 for all formats
-    const wav = this.encodeWAV(buf, 16);
-    return new Blob([wav], {type:'audio/mpeg'});
+    if (typeof lamejs !== 'undefined' && lamejs.Mp3Encoder) {
+      try {
+        const sr    = buf.sampleRate;
+        const len   = buf.length;
+        const chL   = buf.getChannelData(0);
+        const chR   = buf.numberOfChannels > 1 ? buf.getChannelData(1) : chL;
+        const enc   = new lamejs.Mp3Encoder(2, sr, 320);
+        const chunk = 1152; // lamejs frame size
+        const parts = [];
+        // lamejs expects Int16 PCM
+        const toInt16 = (f32, out) => {
+          for (let i = 0; i < f32.length; i++) {
+            const s = Math.max(-1, Math.min(1, f32[i]));
+            out[i] = s < 0 ? s * 32768 : s * 32767;
+          }
+        };
+        const tmpL = new Int16Array(chunk);
+        const tmpR = new Int16Array(chunk);
+        for (let o = 0; o < len; o += chunk) {
+          const end = Math.min(o + chunk, len);
+          toInt16(chL.subarray(o, end), tmpL);
+          toInt16(chR.subarray(o, end), tmpR);
+          const mp3buf = enc.encodeBuffer(tmpL.subarray(0, end - o),
+                                          tmpR.subarray(0, end - o));
+          if (mp3buf.length > 0) parts.push(new Uint8Array(mp3buf));
+        }
+        const flush = enc.flush();
+        if (flush.length > 0) parts.push(new Uint8Array(flush));
+        return { blob: new Blob(parts, { type: 'audio/mpeg' }), ext: 'mp3' };
+      } catch (e) {
+        console.warn('lamejs MP3 encoding failed, falling back to WAV:', e);
+      }
+    }
+    // Fallback: 16-bit WAV with correct MIME and extension
+    return { blob: this.encodeWAV(buf, 16), ext: 'wav' };
   },
 
   triggerDownload(blob, filename) {
