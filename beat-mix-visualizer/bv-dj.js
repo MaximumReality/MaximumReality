@@ -339,7 +339,7 @@ window.BVDJ = (function () {
     };
 
     deck.source = src;
-    deck.startTime = ctx.currentTime - offset;
+    deck.startTime = ctx.currentTime; // elapsed wall-time from zero; _position() adds pauseOffset
     deck.playing = true;
     BVDJ_UI.setPlayState(deckId, true);
   }
@@ -347,8 +347,10 @@ window.BVDJ = (function () {
   function pause(deckId) {
     const deck = decks[deckId];
     if (!deck.playing) return;
-    deck.pauseOffset = ctx.currentTime - deck.startTime;
-    deck.pauseOffset = Math.max(0, Math.min(deck.pauseOffset, deck.duration));
+    // Scale by playback rate so the stored offset is in track-seconds, not
+    // wall-clock seconds.  Matches _position() arithmetic exactly.
+    const elapsed = (ctx.currentTime - deck.startTime) * (deck.pitch || 1);
+    deck.pauseOffset = Math.max(0, Math.min(deck.pauseOffset + elapsed, deck.duration));
     try { deck.source.stop(); } catch (_) {}
     deck.source = null;
     deck.playing = false;
@@ -379,11 +381,16 @@ window.BVDJ = (function () {
   }
 
   /* ── current position helper ─────────────────────────────── */
+  // AudioBufferSourceNode advances through its buffer at playbackRate × real
+  // time, so wall-clock elapsed time must be scaled by deck.pitch to get the
+  // correct track position.  Without this, a deck playing at 125% speed for
+  // 40 s reports 40 s elapsed instead of 50 s — cue points, loops, and the
+  // waveform scrubber all drift accordingly.
   function _position(deck) {
     if (!deck.buffer) return 0;
     if (!deck.playing) return deck.pauseOffset;
-    const pos = ctx.currentTime - deck.startTime;
-    return Math.min(pos, deck.duration);
+    const elapsed = (ctx.currentTime - deck.startTime) * (deck.pitch || 1);
+    return Math.min(deck.pauseOffset + elapsed, deck.duration);
   }
 
   /* ── hot cues ────────────────────────────────────────────── */
@@ -562,12 +569,41 @@ window.BVDJ = (function () {
   }
 
   /* ── recording ───────────────────────────────────────────── */
+  // Pick the best MIME type the current browser supports.
+  // Priority: WebM/Opus (Chrome/Firefox) → WebM (Chrome fallback)
+  //           → MP4/AAC (Safari 14.5+) → Ogg/Opus (Firefox)
+  //           → empty string (let browser choose).
+  // Safari before 14.5 has no MediaRecorder at all; that case is caught
+  // by the try/catch in startRecording.
+  function _bestMime() {
+    const candidates = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4;codecs=mp4a.40.2', // AAC-LC in MP4 — Safari ≥14.5
+      'audio/mp4',
+      'audio/ogg;codecs=opus',
+      '',
+    ];
+    for (const m of candidates) {
+      if (!m || MediaRecorder.isTypeSupported(m)) return m;
+    }
+    return '';
+  }
+
+  let _recMime = '';
+
   function startRecording() {
     if (mediaRecorder && mediaRecorder.state === 'recording') return;
     recChunks = [];
-    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-      ? 'audio/webm;codecs=opus' : 'audio/webm';
-    mediaRecorder = new MediaRecorder(recorderDest.stream, { mimeType });
+    try {
+      _recMime = _bestMime();
+      const opts = _recMime ? { mimeType: _recMime } : {};
+      mediaRecorder = new MediaRecorder(recorderDest.stream, opts);
+    } catch (e) {
+      console.warn('MediaRecorder unavailable:', e);
+      BVDJ_UI.setRecordState(false);
+      return;
+    }
     mediaRecorder.ondataavailable = function (e) {
       if (e.data.size > 0) recChunks.push(e.data);
     };
@@ -583,12 +619,18 @@ window.BVDJ = (function () {
   }
 
   function _saveRecording() {
-    const blob = new Blob(recChunks, { type: 'audio/webm' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    // Use the MIME type that was actually recorded so the file extension
+    // matches the container.  MP4 on Safari, WebM everywhere else.
+    const mime = _recMime || 'audio/webm';
+    const ext  = mime.startsWith('audio/mp4') ? 'mp4'
+               : mime.startsWith('audio/ogg') ? 'ogg'
+               : 'webm';
+    const blob = new Blob(recChunks, { type: mime });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
     a.href = url;
     const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    a.download = 'BeatVision-Mix-' + ts + '.webm';
+    a.download = 'BeatVision-Mix-' + ts + '.' + ext;
     a.click();
     setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
   }
@@ -704,6 +746,12 @@ window.BVDJ = (function () {
     }, 50);
   }
 
+  /* ── master volume (called by HTML slider) ───────────────── */
+  function setMasterVolume(v) {
+    // v is 0–1 (slider divides by 100 before calling here)
+    if (masterGain) masterGain.gain.value = Math.max(0, Math.min(1, v));
+  }
+
   /* ── public API ─────────────────────────────────────────── */
   return {
     init,
@@ -715,6 +763,7 @@ window.BVDJ = (function () {
     setEQ, killEQ,
     setReverb, setDelay, setDelayTime, setFilter, setGain,
     setCrossfader: _setCrossfader,
+    setMasterVolume,
     startRecording, stopRecording,
     get xfaderPos() { return xfaderPos; },
     get decks() { return decks; },
