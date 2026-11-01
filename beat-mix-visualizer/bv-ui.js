@@ -1,5 +1,5 @@
 // ============================================================
-// BEATVISION v4 — UI (bv-ui.js)
+// BEATVISION v5 — UI (bv-ui.js)
 // Canvas rendering, DOM updates, meters, spatial preview
 // ============================================================
 
