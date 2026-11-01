@@ -121,6 +121,7 @@ window.BVDJ = (function () {
       bpm: 0,
       bpmManual: null,
       pitch: 1.0,        // playback rate
+      beatAnchor: 0,     // track position (seconds) of first detected beat — used for phase sync
       // loop
       loopIn: null,
       loopOut: null,
@@ -301,8 +302,12 @@ window.BVDJ = (function () {
         while (bpm < 60) bpm *= 2;
         while (bpm > 180) bpm /= 2;
         deck.bpm = Math.round(bpm * 10) / 10;
+        // Beat anchor: position (seconds) of the first detected beat.
+        // Used by _beatPhase() to keep SYNC phase-aligned, not just tempo-matched.
+        deck.beatAnchor = spikes[0] * 0.05; // hop = 50ms
       } else {
         deck.bpm = 120;
+        deck.beatAnchor = 0;
       }
 
       resolve();
