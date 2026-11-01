@@ -61,33 +61,39 @@ const BV = window.BV = {
   },
 
   async initCtx() {
-    if (!this.actx) this.actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!this.actx) {
+      this.actx = new (window.AudioContext || window.webkitAudioContext)();
+      // masterIn is created ONCE here and lives for the session.  It is the
+      // single merge point for all audio sources — local playback AND the DJ
+      // engine.  Creating it once means the DJ can connect at any time (even
+      // before the first file is loaded) and stay connected across play/stop
+      // cycles without being orphaned when makeAnalysers() re-creates nodes.
+      this.masterIn = this.actx.createGain();
+    }
     if (this.actx.state === 'suspended') await this.actx.resume();
   },
 
   makeAnalysers() {
+    // Analysers and the splitter are re-created per play session so they are
+    // always fresh.  masterIn is NOT touched here — it persists from initCtx.
     this.anL = this.actx.createAnalyser(); this.anL.fftSize = this.FFT;
     this.anR = this.actx.createAnalyser(); this.anR.fftSize = this.FFT;
     this.anM = this.actx.createAnalyser(); this.anM.fftSize = this.FFT;
     this.anM.smoothingTimeConstant = this.smoothing;
     this.gainNode = this.actx.createGain();
     this.splitter = this.actx.createChannelSplitter(2);
-    // masterIn is the single merge point for all audio (local playback AND
-    // DJ engine output) before metering and speakers.  The DJ module checks
-    // for window.BV.masterIn and connects its master gain here so every
-    // deck feeds BeatVision's analysers automatically.
-    this.masterIn = this.actx.createGain();
-  },
-
-  connectGraph(src) {
-    // Route source → masterIn → splitter / analysers / destination
-    src.connect(this.masterIn);
+    // Wire masterIn → downstream metering + speakers every time we rebuild.
     this.masterIn.connect(this.splitter);
     this.splitter.connect(this.anL, 0);
     this.splitter.connect(this.anR, 1);
     this.masterIn.connect(this.anM);
     this.masterIn.connect(this.gainNode);
     this.gainNode.connect(this.actx.destination);
+  },
+
+  connectGraph(src) {
+    // Individual source nodes feed into the shared masterIn.
+    src.connect(this.masterIn);
   },
 
   // ---- File Load ----
@@ -319,8 +325,8 @@ const BV = window.BV = {
       this.micStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
       this.makeAnalysers();
       const ms = this.actx.createMediaStreamSource(this.micStream);
-      ms.connect(this.anM); ms.connect(this.splitter);
-      this.splitter.connect(this.anL, 0); this.splitter.connect(this.anR, 1);
+      // Route mic through masterIn so metering is consistent with playback.
+      ms.connect(this.masterIn);
       this.isMic = true;
       BV_UI.setMicState(true); BV_UI.hideIdle(); BV_UI.startViz();
     } catch(e) { alert('Mic access denied.'); }
