@@ -705,7 +705,10 @@ function setLufsTarget(lufs) {
   // Estimate required output trim based on current full song LUFS
   const d = BV.fullSong;
   if (!d) { alert('Run full song scan first (load a file).'); return; }
-  const currentLufs = d.lufs > 0 ? 20*Math.log10(d.lufs) : -20;
+  // d.lufs is now a real LKFS value (negative dBFS) from the BS.1770 engine.
+  // The old `d.lufs > 0 ? 20*Math.log10(d.lufs) : -20` worked with the
+  // amplitude estimate but puts every real LKFS value into the -20 fallback.
+  const currentLufs = Number.isFinite(d.lufs) ? d.lufs : -20;
   const needed = lufs - currentLufs;
   const trimEl = document.getElementById('outputTrim');
   const clamped = Math.max(-6, Math.min(6, needed));
@@ -1012,7 +1015,7 @@ BV_UI.updateSpatialPreview(0, 0);
     <div class="dj-master-vol" style="margin-top:10px;">
       <div style="font-family:'Share Tech Mono';font-size:8px;color:var(--dim);width:70px;">MASTER VOL</div>
       <input type="range" class="dj-range" style="flex:1;" min="0" max="100" value="90"
-        oninput="if(BVDJ.decks){BVDJ.ctx&&(window._djMasterGain?window._djMasterGain.gain.value=this.value/100:null)}">
+        oninput="if(window.BVDJ && BVDJ.setMasterVolume) BVDJ.setMasterVolume(this.value / 100)">
     </div>
   </div>
 
