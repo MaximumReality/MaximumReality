@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>BEATVISION v4 // MR Audio Lab</title>
+<title>BEATVISION v5 // MR Audio Lab</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
 :root{--bg:#060810;--panel:#0c1018;--p2:#0f1520;--border:#1a2535;--a1:#00f5c4;--a2:#ff3cac;--a3:#f7c59f;--a4:#7b5ea7;--bass:#ff4d6d;--mid:#00f5c4;--high:#ffe066;--kick:#ff6b35;--snare:#c77dff;--text:#c8d6e5;--dim:#4a5568;}
@@ -270,7 +270,7 @@ input[type=range].dj-xfader-r::-webkit-slider-thumb{-webkit-appearance:none;widt
 <body>
 
 <header>
-  <div class="logo">BEAT<span>VISION</span> <sub>v4</sub></div>
+  <div class="logo">BEAT<span>VISION</span> <sub>v5</sub></div>
   <div class="hdr-r"><div class="dot" id="dot"></div><span id="stxt">OFFLINE</span><span id="scanStatus" style="color:var(--a4);margin-left:6px;"></span></div>
 </header>
 
@@ -631,6 +631,11 @@ input[type=range].dj-xfader-r::-webkit-slider-thumb{-webkit-appearance:none;widt
 <div class="haptic" id="hapRing">🫀</div>
 
 <!-- ═══════════════ SCRIPTS ═══════════════ -->
+<!-- lamejs: pure-JS MP3 encoder for real 320kbps export (Bug 2 fix).
+     Loaded async so a CDN hiccup never blocks the rest of the app.
+     bv-engine.encodeMP3() checks for lamejs at encode-time and falls
+     back to 16-bit WAV with the correct extension if not available. -->
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js"></script>
 <script src="bv-engine.js"></script>
 <script src="bv-ui.js"></script>
 <script>
