@@ -159,9 +159,10 @@ window.BVDJ = (function () {
 
   /* ── public init ────────────────────────────────────────── */
   function init() {
-    // Reuse BV's AudioContext if available
-    if (window.BV && BV.ctx) {
-      ctx = BV.ctx;
+    // Reuse BV's AudioContext if available.
+    // BV exposes its AudioContext as BV.actx (not BV.ctx).
+    if (window.BV && BV.actx) {
+      ctx = BV.actx;
     } else {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
