@@ -28,8 +28,10 @@ window.BVVocoder = (function () {
   let wetGain   = null;
   let dryGain   = null;
   let masterOut = null;
-  let isPlaying       = false;
-  let _restartPending = false; // guard against overlapping async restarts
+  let isPlaying        = false;
+  let _restartPending  = false; // coarse guard: prevents stacking new restarts while one is in flight
+  let _startGeneration = 0;     // incremented on every start(); each async start checks its own
+                                 // snapshot and aborts if a newer generation has already launched
 
   // ── default params ───────────────────────────────────────
   const params = {
@@ -77,7 +79,8 @@ window.BVVocoder = (function () {
     const nodes = { gainNode: gain };
 
     if (type === 'noise') {
-      // White noise via ScriptProcessor (small buffer, simple)
+      // White noise: pre-fill a 2-second AudioBuffer with random samples and loop it.
+      // This avoids the deprecated ScriptProcessor approach entirely.
       const bufLen = ctx.sampleRate * 2;
       const noiseBuf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
       const data = noiseBuf.getChannelData(0);
@@ -163,6 +166,7 @@ window.BVVocoder = (function () {
     });
     bands = [];
     if (merger)    { try { merger.disconnect();    } catch (_) {} merger    = null; }
+    if (limiter)   { try { limiter.disconnect();   } catch (_) {} limiter   = null; }
     if (wetGain)   { try { wetGain.disconnect();   } catch (_) {} wetGain   = null; }
     if (dryGain)   { try { dryGain.disconnect();   } catch (_) {} dryGain   = null; }
     if (masterOut) { try { masterOut.disconnect();  } catch (_) {} masterOut = null; }
@@ -217,7 +221,7 @@ window.BVVocoder = (function () {
       modBP.frequency.value = fc;
       modBP.Q.value         = Q;
 
-      // Half-wave rectifier (acts as envelope detector input)
+      // Full-wave rectifier (acts as envelope detector input)
       const rect = _makeRectifier(ctx);
 
       // Low-pass envelope follower
@@ -280,7 +284,16 @@ window.BVVocoder = (function () {
   async function start() {
     if (isPlaying) stop();
     if (!modBuf)   { BVVC_UI.setStatus('⚠ Load a modulator file first'); return; }
+
+    // Capture this start's generation number before the first await.
+    // If stop()+start() fires again while we're suspended in _initCtx(),
+    // _startGeneration will have been incremented and we bail out rather
+    // than layering a second graph on top of the one the newer start() built.
+    const myGen = ++_startGeneration;
+
     await _initCtx();
+    if (myGen !== _startGeneration) return; // superseded — a newer start() won
+
     _buildGraph();
 
     // Modulator source
@@ -464,6 +477,28 @@ window.BVVocoder = (function () {
     try {
       const rendered = await renderOffline();
       if (!rendered) { BVVC_UI.setStatus('⚠ Render failed'); return; }
+
+      // Peak-normalise before encoding.
+      // The offline limiter catches most excess, but wet+dry summing can still push
+      // peaks above 0 dBFS. Scale the whole buffer down if any sample exceeds 0.98
+      // so the WAV encoder never has to clamp a sample (clamping = distortion).
+      // This isn't true-peak limiting, but it's transparent for typical vocal levels.
+      let peak = 0;
+      for (let c = 0; c < rendered.numberOfChannels; c++) {
+        const data = rendered.getChannelData(c);
+        for (let i = 0; i < data.length; i++) {
+          const abs = Math.abs(data[i]);
+          if (abs > peak) peak = abs;
+        }
+      }
+      if (peak > 0.98) {
+        const scale = 0.98 / peak;
+        for (let c = 0; c < rendered.numberOfChannels; c++) {
+          const data = rendered.getChannelData(c);
+          for (let i = 0; i < data.length; i++) data[i] *= scale;
+        }
+      }
+
       // Encode to WAV
       const wav = _encodeWAV(rendered);
       const blob = new Blob([wav], { type: 'audio/wav' });
