@@ -5,12 +5,12 @@
    Signal flow
    ───────────
    Modulator (uploaded audio)
-     └→ [N band-pass filters] → rectifier (WaveShaper) → [LP envelope follower]
-                                                              ↓ gain.gain
+     └→ [N band-pass filters] → full-wave rectifier (WaveShaper) → [LP envelope follower]
+                                                                         ↓ gain.gain
    Carrier (oscillator / noise)
      └→ [N band-pass filters] → GainNode (driven by envelope) ─┐
                                                                  ↓
-                                                           summing merge → wet/dry mix → destination
+                                               summing merge → limiter → wet/dry mix → destination
 
    ============================================================ */
 
@@ -24,10 +24,12 @@ window.BVVocoder = (function () {
   let carrier   = null;   // { osc, osc2, noise, gainNode } — active carrier nodes
   let bands     = [];     // array of { modBP, carBP, rect, envLP, envGain } per band
   let merger    = null;
+  let limiter   = null;   // DynamicsCompressorNode — prevents summed-band clipping
   let wetGain   = null;
   let dryGain   = null;
   let masterOut = null;
-  let isPlaying = false;
+  let isPlaying       = false;
+  let _restartPending = false; // guard against overlapping async restarts
 
   // ── default params ───────────────────────────────────────
   const params = {
@@ -50,14 +52,18 @@ window.BVVocoder = (function () {
     return freqs;
   }
 
-  // Half-wave rectifier curve stored in a WaveShaperNode.
+  // Full-wave rectifier curve stored in a WaveShaperNode.
+  // |x| produces a steadier envelope than half-wave rectification because
+  // both the positive and negative half-cycles of each band contribute energy,
+  // reducing ripple at the envelope follower input — especially useful for
+  // voiced consonants and complex vocal signals.
   function _makeRectifier(audioCtx) {
     const ws = audioCtx.createWaveShaper();
     const n = 4096;
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 2 - 1; // -1 → 1
-      curve[i] = Math.max(0, x);        // full-wave → half-wave rectify
+      curve[i] = Math.abs(x);           // full-wave rectify: |x|
     }
     ws.curve = curve;
     ws.oversample = 'none';
@@ -169,14 +175,30 @@ window.BVVocoder = (function () {
     const dest  = ctx.destination;
 
     merger    = ctx.createGain(); // summing bus
+    limiter   = ctx.createDynamicsCompressor();
     wetGain   = ctx.createGain();
     dryGain   = ctx.createGain();
     masterOut = ctx.createGain();
 
+    // Scale the summing bus down proportionally to band count.
+    // N equal-amplitude band-pass signals sum to roughly sqrt(N) times the
+    // amplitude of one band, so dividing by sqrt(N) keeps the limiter input
+    // near 0 dBFS before it does any work.
+    merger.gain.value = 1 / Math.sqrt(params.nBands);
+
+    // Gentle brickwall limiter: fast attack, slow release, high ratio.
+    // This catches any residual peaks without audible pumping on normal signals.
+    limiter.threshold.value = -3;   // dBFS — start limiting 3 dB below full scale
+    limiter.knee.value      =  3;   // soft knee width in dB
+    limiter.ratio.value     = 20;   // hard-limit above threshold
+    limiter.attack.value    = 0.003; // 3 ms — catches transients
+    limiter.release.value   = 0.25;  // 250 ms — inaudible on normal vocals
+
     wetGain.gain.value = params.wetMix;
     dryGain.gain.value = params.dryMix;
 
-    merger.connect(wetGain);
+    merger.connect(limiter);
+    limiter.connect(wetGain);
     wetGain.connect(masterOut);
     dryGain.connect(masterOut);
     masterOut.connect(dest);
@@ -270,8 +292,9 @@ window.BVVocoder = (function () {
     // Connect modulator to all modBP inputs
     bands.forEach(function (b) { modSrc.connect(b.modBP); });
 
-    // Optional dry path (unprocessed modulator through dryGain)
-    if (params.dryMix > 0) modSrc.connect(dryGain);
+    // Always connect dry path — dryGain.gain.value = 0 keeps it silent by default.
+    // This lets the dry knob take effect during playback without requiring a restart.
+    modSrc.connect(dryGain);
 
     modSrc.start(0);
     isPlaying = true;
@@ -319,8 +342,14 @@ window.BVVocoder = (function () {
         break;
       case 'carrierType':
       case 'nBands':
-        // These require a full graph rebuild — restart if playing
-        if (isPlaying) { stop(); start(); }
+        // These require a full graph rebuild — restart if playing.
+        // Guard with _restartPending so rapid parameter changes don't stack up
+        // overlapping async start() calls (start() awaits audio context init).
+        if (isPlaying && !_restartPending) {
+          _restartPending = true;
+          stop();
+          start().finally(function () { _restartPending = false; });
+        }
         break;
     }
   }
@@ -363,10 +392,15 @@ window.BVVocoder = (function () {
     })();
 
     const merger2  = oCtx.createGain();
+    const limiter2 = oCtx.createDynamicsCompressor();
+    limiter2.threshold.value = -3; limiter2.knee.value = 3;
+    limiter2.ratio.value = 20; limiter2.attack.value = 0.003; limiter2.release.value = 0.25;
+    merger2.gain.value = 1 / Math.sqrt(params.nBands);
     const wetG     = oCtx.createGain(); wetG.gain.value = params.wetMix;
     const dryG     = oCtx.createGain(); dryG.gain.value = params.dryMix;
-    merger2.connect(wetG); wetG.connect(oCtx.destination);
-    if (params.dryMix > 0) { modNode.connect(dryG); dryG.connect(oCtx.destination); }
+    merger2.connect(limiter2); limiter2.connect(wetG); wetG.connect(oCtx.destination);
+    // Always connect dry path — dryG.gain.value = 0 makes it silent when not wanted
+    modNode.connect(dryG); dryG.connect(oCtx.destination);
 
     for (let i = 0; i < n; i++) {
       const fc = freqs[i];
@@ -418,7 +452,7 @@ window.BVVocoder = (function () {
   function _makeOfflineRectifier(oCtx) {
     const ws = oCtx.createWaveShaper();
     const n = 4096; const curve = new Float32Array(n);
-    for (let i = 0; i < n; i++) { const x = (i/(n-1))*2-1; curve[i] = Math.max(0, x); }
+    for (let i = 0; i < n; i++) { const x = (i/(n-1))*2-1; curve[i] = Math.abs(x); } // full-wave
     ws.curve = curve; ws.oversample = 'none';
     return ws;
   }
