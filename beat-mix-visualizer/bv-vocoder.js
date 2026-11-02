@@ -61,7 +61,7 @@ window.BVVocoder = (function () {
   // voiced consonants and complex vocal signals.
   function _makeRectifier(audioCtx) {
     const ws = audioCtx.createWaveShaper();
-    const n = 4096;
+    const n = 4097; // odd → exact zero at midpoint, no DC offset
     const curve = new Float32Array(n);
     for (let i = 0; i < n; i++) {
       const x = (i / (n - 1)) * 2 - 1; // -1 → 1
@@ -317,6 +317,7 @@ window.BVVocoder = (function () {
 
   // ── public: stop ─────────────────────────────────────────
   function stop() {
+    ++_startGeneration; // invalidate any async start() still suspended in _initCtx()
     _teardownGraph();
     isPlaying = false;
     BVVC_UI.setPlayState(false);
@@ -464,7 +465,7 @@ window.BVVocoder = (function () {
 
   function _makeOfflineRectifier(oCtx) {
     const ws = oCtx.createWaveShaper();
-    const n = 4096; const curve = new Float32Array(n);
+    const n = 4097; const curve = new Float32Array(n); // odd → exact zero midpoint
     for (let i = 0; i < n; i++) { const x = (i/(n-1))*2-1; curve[i] = Math.abs(x); } // full-wave
     ws.curve = curve; ws.oversample = 'none';
     return ws;
