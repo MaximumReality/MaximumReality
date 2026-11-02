@@ -429,7 +429,10 @@ window.BVVocoder = (function () {
   function _buildOfflineCarrier(oCtx, type, freq) {
     const gain = oCtx.createGain(); gain.gain.value = 1.0;
     if (type === 'noise') {
-      const bufLen = oCtx.sampleRate * Math.ceil(modBuf.duration + 1);
+      // Use a fixed 2-second looping buffer, same as the live carrier.
+      // Generating a buffer as long as the whole recording (e.g. 13 MB for a 5-min
+      // track) wastes memory — looped noise is perceptually identical.
+      const bufLen = oCtx.sampleRate * 2;
       const nb = oCtx.createBuffer(1, bufLen, oCtx.sampleRate);
       const d = nb.getChannelData(0);
       for (let i = 0; i < bufLen; i++) d[i] = Math.random() * 2 - 1;
