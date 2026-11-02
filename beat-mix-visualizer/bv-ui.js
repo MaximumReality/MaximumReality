@@ -399,7 +399,7 @@ const BV_UI = window.BV_UI = {
 
     const report =
 `╔══════════════════════════════════════════╗
-║  BEATVISION v4 // ANALYSIS REPORT        ║
+║  BEATVISION v5 // ANALYSIS REPORT        ║
 ║  ${now.padEnd(41)}║
 ║  SOURCE: ${src.padEnd(33)}║
 ╚══════════════════════════════════════════╝
@@ -431,7 +431,7 @@ const BV_UI = window.BV_UI = {
 ${diag.map(x=>'  '+x).join('\n')}
 
 ── PROMPT FOR AI ────────────────────────────
-  Based on this BeatVision v4 analysis,
+  Based on this BeatVision v5 analysis,
   what mixing/mastering adjustments should I make?
   Genre: [GENRE]. Tool used: Suno AI.
   Hearing impaired producer — visual/data feedback preferred.
