@@ -300,7 +300,13 @@ window.BVVocoder = (function () {
     modSrc = ctx.createBufferSource();
     modSrc.buffer = modBuf;
     modSrc.loop   = false;
-    modSrc.onended = function () { if (isPlaying) stop(); };
+    // Capture this source so the callback can't shut down a newer session.
+    // If stop()+start() fires before this source's onended fires, modSrc will
+    // point to the new source and the stale callback will no-op.
+    const thisSource = modSrc;
+    modSrc.onended = function () {
+      if (modSrc === thisSource && isPlaying) stop();
+    };
 
     // Connect modulator to all modBP inputs
     bands.forEach(function (b) { modSrc.connect(b.modBP); });
@@ -379,29 +385,15 @@ window.BVVocoder = (function () {
     const freqs = _bandFreqs(n, 80, 16000);
     const Q     = 3.5;
 
-    // Resample modBuf to 44.1k if needed
-    let srcBuf = modBuf;
-    if (modBuf.sampleRate !== sr) {
-      const tmpCtx = new OfflineAudioContext(2, len, sr);
-      const tmpSrc = tmpCtx.createBufferSource();
-      tmpSrc.buffer = modBuf.numberOfChannels > 1 ? modBuf : (() => {
-        const b = tmpCtx.createBuffer(2, modBuf.length, modBuf.sampleRate);
-        b.getChannelData(0).set(modBuf.getChannelData(0));
-        b.getChannelData(1).set(modBuf.getChannelData(0));
-        return b;
-      })();
-      tmpSrc.connect(tmpCtx.destination);
-      tmpSrc.start(0);
-      srcBuf = await tmpCtx.startRendering();
-    }
-
-    // Carrier
+    // AudioBufferSourceNode resamples automatically when the buffer's sampleRate
+    // differs from the context's sampleRate, so no separate resampling pass is needed.
+    // For mono sources, duplicate to stereo so the offline context renders 2 channels.
     const offCarrier = _buildOfflineCarrier(oCtx, params.carrierType, params.carrierFreq);
     const modNode    = oCtx.createBufferSource();
-    modNode.buffer   = srcBuf.numberOfChannels > 1 ? srcBuf : (() => {
-      const b = oCtx.createBuffer(2, srcBuf.length, sr);
-      b.getChannelData(0).set(srcBuf.getChannelData(0));
-      b.getChannelData(1).set(srcBuf.getChannelData(0));
+    modNode.buffer   = modBuf.numberOfChannels > 1 ? modBuf : (() => {
+      const b = oCtx.createBuffer(2, modBuf.length, modBuf.sampleRate);
+      b.getChannelData(0).set(modBuf.getChannelData(0));
+      b.getChannelData(1).set(modBuf.getChannelData(0));
       return b;
     })();
 
@@ -527,13 +519,14 @@ window.BVVocoder = (function () {
     v.setUint16(22,nCh,true); v.setUint32(24,sr,true); v.setUint32(28,byRate,true);
     v.setUint16(32,blk,true); v.setUint16(34,16,true);
     ws(36,'data'); v.setUint32(40,dataSz,true);
+    // Hoist getChannelData() outside the loop — it returns the same Float32Array
+    // every call, so fetching it inside the sample loop is pure overhead.
+    const left  = buf.getChannelData(0);
+    const right = buf.numberOfChannels > 1 ? buf.getChannelData(1) : left;
     let off = 44;
     for (let i = 0; i < len; i++) {
-      for (let c = 0; c < nCh; c++) {
-        const ch = c < buf.numberOfChannels ? buf.getChannelData(c) : buf.getChannelData(0);
-        const s  = Math.max(-1, Math.min(1, ch[i]));
-        v.setInt16(off, Math.round(s * 32767), true); off += 2;
-      }
+      v.setInt16(off, Math.round(Math.max(-1, Math.min(1, left[i]))  * 32767), true); off += 2;
+      v.setInt16(off, Math.round(Math.max(-1, Math.min(1, right[i])) * 32767), true); off += 2;
     }
     return ab;
   }
