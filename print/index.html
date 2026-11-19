@@ -6,11 +6,26 @@
 :root{--bg:#0d1018;--panel:#151b27;--panel2:#1b2332;--line:#2b3546;--text:#f4f5fa;--muted:#a5afc0;--cyan:#55e5df;--pink:#ff6eae;--gold:#f7ca71;--green:#9ce5a3;--shadow:0 14px 34px #0004}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 83% -10%,#222448 0,transparent 34rem),var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:var(--cyan)}.shell{max-width:1180px;margin:auto;padding:18px 18px 80px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:4px 0 22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),#7b73ff 70%,var(--pink));color:#0c111a;display:grid;place-items:center;font-size:22px;font-weight:900}.brand strong{display:block;letter-spacing:.05em}.brand small{color:var(--muted)}.actions{display:flex;gap:8px}.btn{border:1px solid var(--line);border-radius:12px;background:var(--panel2);color:var(--text);padding:10px 13px}.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#071319;font-weight:750}.btn.quiet{background:transparent}.btn.small{padding:7px 10px;font-size:13px}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-bottom:18px}.hero-copy,.week-card,.panel,.project{background:linear-gradient(145deg,#192130,#121722);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}.hero-copy{padding:24px 26px;position:relative;overflow:hidden}.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--cyan);text-transform:uppercase;font-weight:800}.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.04;margin:9px 0 10px;max-width:700px}.hero p{color:var(--muted);max-width:690px;margin:0}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:17px}.chip{font-size:12px;color:#d7deea;background:#242d3d;border:1px solid #344155;border-radius:99px;padding:5px 10px}.week-card{padding:20px;background:linear-gradient(145deg,#163136,#171a2a 76%);border-color:#315052}.week-top{display:flex;justify-content:space-between;align-items:center}.week-card h2{font-size:22px;margin:9px 0 2px}.week-card p{color:#c2d5d8;margin:5px 0 14px}.week-type{font-size:12px;color:#071319;background:var(--cyan);border-radius:99px;padding:5px 9px;font-weight:800}.week-footer{display:flex;gap:8px;flex-wrap:wrap}.layout{display:grid;grid-template-columns:1fr 2.05fr;gap:18px;align-items:start}.panel{padding:17px}.panel h2,.panel h3{margin:0}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:13px}.progress{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:15px 0}.progress div{height:6px;background:#283245;border-radius:9px}.progress div.on{background:linear-gradient(90deg,var(--cyan),#8289ff)}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:#1e2736;padding:10px;border-radius:12px}.stat b{font-size:20px;display:block}.stat small{color:var(--muted)}.stages{display:grid;gap:8px;margin:13px 0}.stage-row{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}.stage-row b{color:var(--text)}.filterbar{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin:4px 0 13px}.filter{white-space:nowrap}.filter.active{border-color:var(--cyan);color:var(--cyan)}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.project{padding:15px;box-shadow:none;background:var(--panel)}.project h3{margin:5px 0 3px;font-size:18px}.project p{margin:5px 0;color:var(--muted);font-size:13px}.project-meta{display:flex;justify-content:space-between;align-items:center;gap:8px}.tag{border-radius:99px;background:#252e40;color:#cbd5e4;padding:4px 9px;font-size:11px}.status{color:#09151b;background:var(--gold);font-weight:800}.status[data-stage="Printed"]{background:#a4b7ff}.status[data-stage="Decorated"]{background:#f8a8cf}.status[data-stage="Completed"]{background:var(--green)}.card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}.empty{border:1px dashed #3a475c;border-radius:16px;padding:24px;color:var(--muted);text-align:center;grid-column:1/-1}.section-title{display:flex;align-items:center;gap:8px}.section-title span{color:var(--muted);font-size:13px}.recent-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.recent-pill{border:1px solid #394457;border-radius:10px;padding:6px 9px;color:#c4ccd9;font-size:12px;background:#1b2330}.subtle{color:var(--muted);font-size:12px}.tip{background:#1c2532;border-left:3px solid var(--pink);border-radius:10px;padding:10px 12px;color:#d2d9e5;font-size:13px;margin-top:12px}.toolbar{display:flex;gap:7px;align-items:center}.search{min-width:0;width:180px;background:#101620;border:1px solid var(--line);border-radius:11px;padding:9px 11px;color:var(--text)}dialog{border:1px solid #46546b;background:#151c29;color:var(--text);border-radius:18px;width:min(760px,calc(100% - 22px));max-height:90vh;padding:0;box-shadow:0 25px 80px #000b}dialog::backdrop{background:#070a10c9;backdrop-filter:blur(4px)}.modal-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#151c29;z-index:1}.modal-body{padding:17px 20px 5px;overflow:auto}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label{color:#c9d2e0;font-size:12px;font-weight:700}.field input,.field select,.field textarea{background:#0f141e;border:1px solid #374257;border-radius:10px;color:var(--text);padding:10px 11px;min-width:0}.field textarea{min-height:70px;resize:vertical}.checklist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:5px}.checkline{border:1px solid #303c50;background:#111824;border-radius:9px;padding:8px;font-size:12px;color:#d3dbe7}.modal-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:#151c29}.btnrow{display:flex;gap:7px}.detail-list{display:grid;grid-template-columns:140px 1fr;gap:9px 14px}.detail-list dt{color:var(--muted);font-size:12px}.detail-list dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.fileline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,120px);background:#e9ffff;color:#071316;border-radius:12px;padding:11px 16px;font-weight:700;box-shadow:var(--shadow);transition:.25s;z-index:9}.toast.show{transform:translate(-50%,0)}.mobile-nav{display:none}.week-date{color:var(--muted);font-size:12px}
 @media(max-width:780px){.shell{padding:12px 12px 40px}.topbar{margin-bottom:14px}.hero{grid-template-columns:1fr}.hero-copy{padding:20px}.layout{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:12px}.sidebar .panel{height:100%}.cards{grid-template-columns:1fr 1fr}.toolbar{width:100%}.search{flex:1}.toolbar .btn{white-space:nowrap}}
 @media(max-width:520px){.brand small{display:none}.logo{width:39px;height:39px}.topbar{align-items:flex-start}.actions .btn{padding:9px;font-size:12px}.hero h1{font-size:32px}.hero-copy{padding:17px}.week-card{padding:16px}.sidebar{grid-template-columns:1fr}.panel{padding:14px}.cards{grid-template-columns:1fr}.panel-head{align-items:flex-start;flex-wrap:wrap}.toolbar{order:2}.stats{grid-template-columns:repeat(3,1fr)}.stat{padding:8px}.stat b{font-size:18px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.checklist{grid-template-columns:1fr 1fr}.modal-head,.modal-foot{padding-left:14px;padding-right:14px}.modal-body{padding:14px}.detail-list{grid-template-columns:105px 1fr}.desktop-only{display:none}}
+#reliefLaunch { margin-top: 14px; }
+.relief-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.relief-fields { display: grid; gap: 10px; min-width: 0; }
+.relief-fields .checkline { align-self: start; }
+.relief-fields input[type=file] { width: 100%; }
+.relief-preview { display: grid; gap: 8px; justify-items: center; text-align: center; }
+#reliefCanvas { display: block; width: min(100%, 280px); height: auto; background: #0d1018; border: 1px solid var(--line); border-radius: 12px; }
+#reliefCanvas[hidden] { display: none; }
+#reliefStatus { margin: 0; min-height: 1.5em; }
+#reliefDialog button:disabled { cursor: default; opacity: .55; }
+@media(max-width: 520px) {
+  .relief-layout { grid-template-columns: 1fr; }
+  #reliefCanvas { width: min(100%, 210px); }
+  #reliefDialog .modal-foot { flex-wrap: wrap; }
+}
 </style>
 </head>
 <body><main class="shell">
 <header class="topbar"><div class="brand"><div class="logo">MR</div><div><strong>MAXIMUM REALITY</strong><small>ENTINA PRINT STUDIO · TINA2S V12</small></div></div><div class="actions"><button class="btn quiet" id="exportBtn" title="Download a backup">Backup</button><button class="btn quiet" id="importBtn">Restore</button><input id="importFile" type="file" accept="application/json" hidden><button class="btn primary" id="newBtn">＋ New project</button></div></header>
-<section class="hero"><div class="hero-copy"><div class="eyebrow">Small prints · big character</div><h1>Your pocket-size print studio.</h1><p>Choose a manageable idea, get the STL ready, print it on your Tina2S V12, then capture the little wins and lessons for next time.</p><div class="chips"><span class="chip">No sanding or epoxy</span><span class="chip">Marker-friendly details</span><span class="chip">Made for phone updates</span></div></div><article class="week-card"><div class="week-top"><span class="eyebrow">This week’s pick</span><span class="week-type" id="weekType">Miniature</span></div><h2 id="weekName">Loading idea…</h2><p id="weekDesc"></p><div class="week-footer"><button class="btn primary small" id="addWeek">Add to project board</button><button class="btn small" id="nextIdea">Next idea ↻</button><span class="week-date" id="weekDate"></span></div></article></section>
+<section class="hero"><div class="hero-copy"><div class="eyebrow">Small prints · big character</div><h1>Your pocket-size print studio.</h1><p>Choose a manageable idea, get the STL ready, print it on your Tina2S V12, then capture the little wins and lessons for next time.</p><div class="chips"><span class="chip">No sanding or epoxy</span><span class="chip">Marker-friendly details</span><span class="chip">Made for phone updates</span></div><button class="btn primary" id="reliefLaunch" type="button">Image → STL</button></div><article class="week-card"><div class="week-top"><span class="eyebrow">This week’s pick</span><span class="week-type" id="weekType">Miniature</span></div><h2 id="weekName">Loading idea…</h2><p id="weekDesc"></p><div class="week-footer"><button class="btn primary small" id="addWeek">Add to project board</button><button class="btn small" id="nextIdea">Next idea ↻</button><span class="week-date" id="weekDate"></span></div></article></section>
 <section class="layout"><aside class="sidebar"><article class="panel"><div class="panel-head"><div><div class="eyebrow">Your print queue</div><h2>Progress tracker</h2></div></div><div class="progress" id="progressBars"></div><div class="stats"><div class="stat"><b id="totalCount">0</b><small>projects</small></div><div class="stat"><b id="doneCount">0</b><small>completed</small></div><div class="stat"><b id="filesCount">0</b><small>STLs saved</small></div></div><div class="stages" id="stageCounts"></div><div class="tip">Quick Tina2S start: check the model fits the bed, confirm it sits flat, and run the first layer where you can watch it.</div></article><article class="panel"><div class="panel-head"><div><div class="eyebrow">Keep ideas fresh</div><h2>Recently tried</h2></div><span class="subtle">no repeats</span></div><p class="subtle">Saved ideas stay here so the weekly picker can move on to a different project.</p><div class="recent-list" id="recentList"></div><div class="tip">The weekly card rotates through miniatures, charms, and useful accessories. Tap “Next idea” to skip ahead.</div></article><article class="panel"><div class="eyebrow">Your STL shelf</div><h2>Ready for transfer</h2><p class="subtle">Attach an STL file to a project or save its link and transfer note. Download attachments to your phone’s Files app when you’re ready to move them to the printer.</p><div id="stlQuickList" class="recent-list"></div></article></aside>
 <section class="panel"><div class="panel-head"><div><div class="eyebrow">Project board</div><h2>Prints in motion</h2></div><div class="toolbar"><input class="search" id="search" placeholder="Find a project…" aria-label="Search projects"><button class="btn small" id="weekFilter">This week</button></div></div><nav class="filterbar" id="filters" aria-label="Filter projects"></nav><div class="cards" id="cards"></div></section></section>
 <footer style="margin-top:18px;text-align:center" class="subtle">Project details and STL attachments are saved in this browser on this device. Use Backup / Restore to move your studio to another device.</footer>
@@ -26,6 +41,52 @@
 <div class="field full"><label for="decoration">Acrylic-marker decoration ideas</label><textarea id="decoration" placeholder="Big simple color blocks, face details, metallic accents…"></textarea></div>
 <div class="field"><label for="results">Results</label><textarea id="results" placeholder="How did it turn out? Photos can be noted here."></textarea></div><div class="field"><label for="mistakes">Mistakes / things to adjust</label><textarea id="mistakes" placeholder="First-layer issue, size, supports, orientation…"></textarea></div><div class="field full"><label for="nextSteps">Next steps</label><textarea id="nextSteps" placeholder="Reprint, paint, gift, refine, or try another model…"></textarea></div></div></div><div class="modal-foot"><button type="button" class="btn quiet" id="deleteBtn" hidden>Delete</button><div class="btnrow"><button type="button" class="btn" id="cancelBtn">Cancel</button><button class="btn primary" type="submit">Save project</button></div></div></form></dialog>
 <dialog id="detailDialog"><div class="modal-head"><div><div class="eyebrow">Project notes</div><strong id="detailTitle"></strong></div><button class="btn small" id="detailClose">✕</button></div><div class="modal-body"><dl class="detail-list" id="detailList"></dl></div><div class="modal-foot"><span class="subtle">Edit any field as you learn.</span><div class="btnrow"><button class="btn" id="detailEdit">Edit</button><button class="btn primary" id="detailAdvance">Move forward →</button></div></div></dialog>
+<dialog id="reliefDialog" aria-labelledby="reliefTitle">
+  <div class="modal-head">
+    <h2 id="reliefTitle">Image → STL</h2>
+    <button class="btn small" id="reliefClose" type="button" aria-label="Close Image to STL">✕</button>
+  </div>
+  <div class="modal-body">
+    <p>Turn a drawing or logo into a flat-backed pin. Dark areas rise by default. Bold artwork with a white or transparent background works best.</p>
+    <div class="relief-layout">
+      <div class="relief-fields">
+        <div class="field">
+          <label for="reliefImage">Choose an image</label>
+          <input type="file" id="reliefImage" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/heic,image/heif">
+        </div>
+        <div class="field">
+          <label for="reliefShape">Pin shape</label>
+          <select id="reliefShape"><option value="circle">Round pin</option><option value="square">Square pin</option></select>
+        </div>
+        <div class="field">
+          <label for="reliefWidth">Pin width (mm)</label>
+          <input id="reliefWidth" type="number" inputmode="decimal" min="20" max="70" step="0.1" value="38" required>
+        </div>
+        <div class="field">
+          <label for="reliefBase">Flat base thickness (mm)</label>
+          <input id="reliefBase" type="number" inputmode="decimal" min="1.2" max="5" step="0.1" value="2.4" required>
+        </div>
+        <div class="field">
+          <label for="reliefHeight">Maximum raised detail (mm)</label>
+          <input id="reliefHeight" type="number" inputmode="decimal" min="0.2" max="3" step="0.1" value="0.8" required>
+        </div>
+        <label class="checkline"><input type="checkbox" id="reliefInvert"> Raise light areas instead</label>
+      </div>
+      <div class="relief-preview">
+        <canvas id="reliefCanvas" width="240" height="240" role="img" aria-label="Top view of the pin. Brighter cyan areas indicate higher relief." hidden></canvas>
+        <p id="reliefStatus" class="subtle" role="status">Choose an image to preview your pin.</p>
+        <p class="subtle">Print with the flat back on the bed. Attach your pin back after printing.</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <span class="subtle">Your image stays in this browser.</span>
+    <div class="btnrow">
+      <button class="btn" id="reliefProject" type="button" disabled>Add to new project</button>
+      <button class="btn primary" id="reliefDownload" type="button" disabled>Download STL</button>
+    </div>
+  </div>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 (()=>{'use strict';const STORE='mr-print-studio-v1',DBNAME='mr-print-studio-files',STAGES=['Idea','Ready to print','Printed','Decorated','Completed'],TYPES=['Miniature character','Charm','Useful accessory'];
@@ -50,14 +111,223 @@ async function renderStl(){const ps=data.projects.filter(p=>p.fileId||p.stlLink)
 function renderProgress(){const counts=STAGES.map(s=>data.projects.filter(p=>p.stage===s).length),total=data.projects.length;$('#totalCount').textContent=total;$('#doneCount').textContent=counts[4];$('#filesCount').textContent=data.projects.filter(p=>p.fileId).length;$('#progressBars').innerHTML=counts.map((n,i)=>`<div class="${n?'on':''}" title="${STAGES[i]}: ${n}"></div>`).join('');$('#stageCounts').innerHTML=STAGES.map((s,i)=>`<div class="stage-row"><span>${s}</span><b>${counts[i]}</b></div>`).join('')}
 function render(){renderWeek();renderFilters();renderCards();renderRecent();renderProgress();renderStl()}
 function addRecent(project){if(!project.ideaKey)return;const idea=ideas.find(x=>x.name===project.ideaKey)||{name:project.name,type:project.type};data.recent=data.recent.filter(x=>x.name!==idea.name);data.recent.push({name:idea.name,type:idea.type,at:Date.now()})}
-function newProject(prefill){$('#projectForm').reset();$('#projectId').value='';$('#formEyebrow').textContent='Project card';$('#formTitle').textContent='New project';$('#deleteBtn').hidden=true;$('#checklist').innerHTML=checklistHTML();$('#attachedNote').textContent='Files stay in this browser and can be downloaded from the STL shelf.';if(prefill){$('#name').value=prefill.name;$('#type').value=prefill.type;$('#character').value=prefill.character;$('#approach').value=prefill.approach;$('#settings').value=prefill.settings;$('#filament').value=prefill.filament;$('#size').value=prefill.size;$('#decoration').value=prefill.decoration;$('#nextSteps').value='Pick an STL, attach it here, then move to Ready to print.';window.pendingIdeaKey=prefill.name} else window.pendingIdeaKey='';$('#projectDialog').showModal()}
-function editProject(id){const p=data.projects.find(x=>x.id===id);if(!p)return;$('#projectForm').reset();$('#projectId').value=p.id;$('#formEyebrow').textContent='Update project card';$('#formTitle').textContent=p.name;$('#deleteBtn').hidden=false;for(const k of ['name','type','character','stage','approach','stlLink','settings','filament','size','date','decoration','results','mistakes','nextSteps'])$('#'+k).value=p[k]||'';$('#checklist').innerHTML=checklistHTML(p.checklist||[]);$('#attachedNote').textContent=p.fileName?`Attached: ${p.fileName}. Choose a new file to replace it.`:'Files stay in this browser and can be downloaded from the STL shelf.';window.pendingIdeaKey=p.ideaKey||'';$('#projectDialog').showModal()}
+function newProject(prefill){pendingReliefFile=null;$('#projectForm').reset();$('#projectId').value='';$('#formEyebrow').textContent='Project card';$('#formTitle').textContent='New project';$('#deleteBtn').hidden=true;$('#checklist').innerHTML=checklistHTML();$('#attachedNote').textContent='Files stay in this browser and can be downloaded from the STL shelf.';if(prefill){$('#name').value=prefill.name;$('#type').value=prefill.type;$('#character').value=prefill.character;$('#approach').value=prefill.approach;$('#settings').value=prefill.settings;$('#filament').value=prefill.filament;$('#size').value=prefill.size;$('#decoration').value=prefill.decoration;$('#nextSteps').value='Pick an STL, attach it here, then move to Ready to print.';window.pendingIdeaKey=prefill.name} else window.pendingIdeaKey='';$('#projectDialog').showModal()}
+function editProject(id){pendingReliefFile=null;const p=data.projects.find(x=>x.id===id);if(!p)return;$('#projectForm').reset();$('#projectId').value=p.id;$('#formEyebrow').textContent='Update project card';$('#formTitle').textContent=p.name;$('#deleteBtn').hidden=false;for(const k of ['name','type','character','stage','approach','stlLink','settings','filament','size','date','decoration','results','mistakes','nextSteps'])$('#'+k).value=p[k]||'';$('#checklist').innerHTML=checklistHTML(p.checklist||[]);$('#attachedNote').textContent=p.fileName?`Attached: ${p.fileName}. Choose a new file to replace it.`:'Files stay in this browser and can be downloaded from the STL shelf.';window.pendingIdeaKey=p.ideaKey||'';$('#projectDialog').showModal()}
 function detail(id){const p=data.projects.find(x=>x.id===id);if(!p)return;detailProject=p;$('#detailTitle').textContent=p.name;const fields=[['Stage',p.stage],['Type / theme',`${p.type} · ${p.character||'Original'}`],['Model-selection approach',p.approach],['STL link or file',p.fileName||p.stlLink||'Not saved yet'],['Print settings',p.settings],['Filament',p.filament],['Estimated size',p.size],['Checklist',(p.checklist||[]).map(i=>'✓ '+checklistItems[i]).join('\n')||'Not checked yet'],['Marker decoration',p.decoration],['Results',p.results],['Mistakes',p.mistakes],['Next steps',p.nextSteps]];$('#detailList').innerHTML=fields.map(([k,v])=>`<dt>${safe(k)}</dt><dd>${v&&/^https?:\/\//.test(v)?`<a href="${safe(v)}" target="_blank" rel="noopener">${safe(v)}</a>`:safe(v||'—')}</dd>`).join('');$('#detailAdvance').textContent=p.stage==='Completed'?'Completed ✓':'Move to '+STAGES[Math.min(STAGES.indexOf(p.stage)+1,4)]+' →';$('#detailDialog').showModal()}
 function advance(id){const p=data.projects.find(x=>x.id===id);if(!p)return;const i=STAGES.indexOf(p.stage);if(i<STAGES.length-1){p.stage=STAGES[i+1];if(i===0)addRecent(p);persist();toast(`${p.name} moved to ${p.stage}.`)}}
 async function downloadAttachment(p){const rec=await getFile(p.fileId);if(!rec){toast('That attachment is no longer in this browser.');return}const url=URL.createObjectURL(rec.blob),a=document.createElement('a');a.href=url;a.download=rec.name||p.fileName||'model.stl';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400)}
+let pendingReliefFile = null;
+const reliefDialog = $('#reliefDialog');
+const reliefCanvas = $('#reliefCanvas');
+const reliefImageInput = $('#reliefImage');
+const reliefStatus = $('#reliefStatus');
+const reliefDownload = $('#reliefDownload');
+const reliefProject = $('#reliefProject');
+const reliefSizeInputs = ['reliefWidth', 'reliefBase', 'reliefHeight'].map(id => $('#' + id));
+const reliefArtCanvas = document.createElement('canvas');
+const reliefArtSize = 192;
+reliefArtCanvas.width = reliefArtCanvas.height = reliefArtSize;
+const reliefArtContext = reliefArtCanvas.getContext('2d', {willReadFrequently: true});
+let reliefArt = null;
+let reliefName = '';
+let reliefSelection = 0;
+let reliefSettings = null;
+
+function showReliefStatus(message, ready = false) {
+  reliefStatus.textContent = message;
+  reliefCanvas.hidden = !ready;
+  reliefDownload.disabled = !ready;
+  reliefProject.disabled = !ready;
+}
+
+function reliefSampler(image, round, invert) {
+  // Keep the entire image inside the pin, with a clear border for the edge.
+  const available = reliefArtSize * (round ? 0.69 : 0.88);
+  const fit = available / Math.max(image.naturalWidth, image.naturalHeight);
+  const width = image.naturalWidth * fit;
+  const height = image.naturalHeight * fit;
+  const left = (reliefArtSize - width) / 2;
+  const top = (reliefArtSize - height) / 2;
+  reliefArtContext.clearRect(0, 0, reliefArtSize, reliefArtSize);
+  reliefArtContext.drawImage(image, left, top, width, height);
+  const pixels = reliefArtContext.getImageData(0, 0, reliefArtSize, reliefArtSize).data;
+
+  function darkness(column, row) {
+    const index = (row * reliefArtSize + column) * 4;
+    const luminance = (0.2126 * pixels[index] + 0.7152 * pixels[index + 1] +
+      0.0722 * pixels[index + 2]) / 255;
+    return (invert ? luminance : 1 - luminance) * pixels[index + 3] / 255;
+  }
+
+  return (x, y) => {
+    const px = Math.max(0, Math.min(reliefArtSize - 1, (x + 1) * reliefArtSize / 2 - 0.5));
+    const py = Math.max(0, Math.min(reliefArtSize - 1, (1 - y) * reliefArtSize / 2 - 0.5));
+    const i = Math.floor(px);
+    const j = Math.floor(py);
+    const right = Math.min(i + 1, reliefArtSize - 1);
+    const below = Math.min(j + 1, reliefArtSize - 1);
+    const u = px - i;
+    const v = py - j;
+    const upper = darkness(i, j) * (1 - u) + darkness(right, j) * u;
+    const lower = darkness(i, below) * (1 - u) + darkness(right, below) * u;
+    return upper * (1 - v) + lower * v;
+  };
+}
+
+function updateRelief() {
+  reliefSettings = null;
+  if (!reliefArt) return;
+  if (reliefSizeInputs.some(input => !input.validity.valid)) {
+    showReliefStatus('Enter a width of 20–70 mm, base of 1.2–5 mm, and relief of 0.2–3 mm. Use increments of 0.1 mm.');
+    return;
+  }
+  const [width, base, height] = reliefSizeInputs.map(input => input.valueAsNumber);
+  const round = $('#reliefShape').value === 'circle';
+  const sample = reliefSampler(reliefArt, round, $('#reliefInvert').checked);
+  reliefSettings = {width, base, height, round, sample};
+
+  const context = reliefCanvas.getContext('2d');
+  const side = reliefCanvas.width;
+  const preview = context.createImageData(side, side);
+  for (let row = 0; row < side; row++) {
+    for (let column = 0; column < side; column++) {
+      const x = (column + 0.5 - side / 2) / (side * 0.455);
+      const y = (side / 2 - row - 0.5) / (side * 0.455);
+      if (round ? Math.hypot(x, y) > 1 : Math.max(Math.abs(x), Math.abs(y)) > 1) continue;
+      const value = sample(x, y);
+      const index = (row * side + column) * 4;
+      preview.data.set([40 + 131 * value, 78 + 166 * value, 91 + 150 * value, 255], index);
+    }
+  }
+  context.putImageData(preview, 0, 0);
+  showReliefStatus(`${width} mm wide · ${base} mm base · up to ${height} mm of relief`, true);
+}
+
+function createReliefSTL({width, base, height, round, sample}) {
+  const segments = 256;
+  const rings = 100;
+  const triangles = 2 * segments + 2 * segments * (rings - 1) + 2 * segments;
+  const buffer = new ArrayBuffer(84 + triangles * 50);
+  const view = new DataView(buffer);
+  view.setUint32(80, triangles, true);
+  let offset = 84;
+
+  function triangle(a, b, c) {
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+    const vx = c[0] - a[0], vy = c[1] - a[1], vz = c[2] - a[2];
+    const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+    const length = Math.hypot(nx, ny, nz);
+    const values = [nx / length, ny / length, nz / length, ...a, ...b, ...c];
+    values.forEach((value, index) => view.setFloat32(offset + index * 4, value, true));
+    offset += 50;
+  }
+
+  const radius = width / 2;
+  const topCenter = [radius, radius, base + height * sample(0, 0)];
+  const bottomCenter = [radius, radius, 0];
+  let previous;
+  for (let ring = 1; ring <= rings; ring++) {
+    const edge = [];
+    for (let segment = 0; segment < segments; segment++) {
+      const angle = segment * 2 * Math.PI / segments;
+      const dx = Math.cos(angle), dy = Math.sin(angle);
+      const boundary = round ? 1 : Math.max(Math.abs(dx), Math.abs(dy));
+      const x = (ring / rings) * dx / boundary;
+      const y = (ring / rings) * dy / boundary;
+      edge.push([radius * (1 + x), radius * (1 + y), base + height * sample(x, y)]);
+    }
+    for (let i = 0; i < segments; i++) {
+      const j = (i + 1) % segments;
+      if (previous) {
+        triangle(previous[i], edge[i], edge[j]);
+        triangle(previous[i], edge[j], previous[j]);
+      } else {
+        triangle(topCenter, edge[i], edge[j]);
+      }
+      if (ring === rings) {
+        const a = [edge[i][0], edge[i][1], 0];
+        const b = [edge[j][0], edge[j][1], 0];
+        triangle(bottomCenter, b, a);
+        triangle(a, b, edge[j]);
+        triangle(a, edge[j], edge[i]);
+      }
+    }
+    previous = edge;
+  }
+  return buffer;
+}
+
+function reliefFile() {
+  const basename = reliefName.trim().replace(/[^a-z0-9_-]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  const name = (basename || 'maximum-reality') + '-pin.stl';
+  return new File([createReliefSTL(reliefSettings)], name, {type: 'model/stl'});
+}
+
+$('#reliefLaunch').onclick = () => reliefDialog.showModal();
+$('#reliefClose').onclick = () => reliefDialog.close();
+reliefImageInput.onchange = async () => {
+  const file = reliefImageInput.files[0];
+  const selection = ++reliefSelection;
+  reliefArt = null;
+  reliefSettings = null;
+  if (!file) {
+    showReliefStatus('Choose an image to preview your pin.');
+    return;
+  }
+
+  showReliefStatus('Loading your image…');
+  const image = new Image();
+  const url = URL.createObjectURL(file);
+  try {
+    image.src = url;
+    await image.decode();
+    if (selection !== reliefSelection) return;
+    reliefArt = image;
+    reliefName = file.name.replace(/\.[^.]+$/, '');
+    updateRelief();
+  } catch {
+    if (selection !== reliefSelection) return;
+    reliefArt = null;
+    reliefSettings = null;
+    reliefImageInput.value = '';
+    showReliefStatus('This image could not be opened. Try a PNG or JPEG.');
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+};
+for (const input of [...reliefSizeInputs, $('#reliefShape'), $('#reliefInvert')]) {
+  input.addEventListener('input', updateRelief);
+}
+
+reliefDownload.onclick = () => {
+  if (!reliefSettings) return;
+  const file = reliefFile();
+  const url = URL.createObjectURL(file);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = file.name;
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+};
+
+reliefProject.onclick = () => {
+  if (!reliefSettings) return;
+  const file = reliefFile();
+  const {width, base, height} = reliefSettings;
+  reliefDialog.close();
+  newProject();
+  pendingReliefFile = file;
+  $('#name').value = (reliefName || 'Maximum Reality') + ' pin';
+  $('#type').value = TYPES[1];
+  $('#approach').value = 'Raised design made from an image using Image → STL.';
+  $('#size').value = `${width} × ${width} mm · up to ${(base + height).toFixed(1)} mm thick`;
+  $('#settings').value = 'Lay the flat back on the build plate. Check raised details in the slicer preview.';
+  $('#nextSteps').value = 'Slice the STL, print the pin, then attach the pin back.';
+  $('#attachedNote').textContent = file.name + ' will be attached when you save this project.';
+};
 $('#newBtn').onclick=()=>newProject();$('#closeDialog').onclick=$('#cancelBtn').onclick=()=>$('#projectDialog').close();$('#nextIdea').onclick=rotateIdea;$('#addWeek').onclick=()=>{const idea=currentIdea();const p=data.projects.find(x=>x.ideaKey===idea.name);if(p){toast('This week’s pick is already on your board.');editProject(p.id);return}newProject(idea)};$('#search').oninput=e=>{searchText=e.target.value;renderCards()};$('#weekFilter').onclick=()=>{onlyWeek=!onlyWeek;$('#weekFilter').classList.toggle('primary',onlyWeek);renderCards()};$('#filters').onclick=e=>{const b=e.target.closest('[data-filter]');if(b){currentFilter=b.dataset.filter;renderFilters();renderCards()}};
 $('#cards').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.edit)editProject(b.dataset.edit);if(b.dataset.detail)detail(b.dataset.detail);if(b.dataset.advance)advance(b.dataset.advance)};$('#detailClose').onclick=()=>$('#detailDialog').close();$('#detailEdit').onclick=()=>{const id=detailProject?.id;$('#detailDialog').close();if(id)editProject(id)};$('#detailAdvance').onclick=()=>{if(detailProject){advance(detailProject.id);$('#detailDialog').close()}};
-$('#projectForm').onsubmit=async e=>{e.preventDefault();const id=$('#projectId').value||('p-'+crypto.randomUUID());const old=data.projects.find(p=>p.id===id);const file=$('#stlFile').files[0];let fileId=old?.fileId||null,fileName=old?.fileName||'';if(file){fileId='f-'+crypto.randomUUID();fileName=file.name;await saveFile(fileId,file);if(old?.fileId)await removeFile(old.fileId)}const p={id,name:$('#name').value.trim(),type:$('#type').value,character:$('#character').value,stage:$('#stage').value,approach:$('#approach').value.trim(),stlLink:$('#stlLink').value.trim(),settings:$('#settings').value.trim(),filament:$('#filament').value.trim(),size:$('#size').value.trim(),date:$('#date').value,checklist:[...document.querySelectorAll('[data-check]:checked')].map(x=>Number(x.dataset.check)),decoration:$('#decoration').value.trim(),results:$('#results').value.trim(),mistakes:$('#mistakes').value.trim(),nextSteps:$('#nextSteps').value.trim(),fileId,fileName,ideaKey:window.pendingIdeaKey||old?.ideaKey||'',createdAt:old?.createdAt||Date.now()};if(!old||p.stage!=='Idea')addRecent(p);if(old)data.projects=data.projects.map(x=>x.id===id?p:x);else data.projects.unshift(p);localStorage.setItem(STORE,JSON.stringify(data));$('#projectDialog').close();render();toast('Project saved.')};
+$('#projectForm').onsubmit=async e=>{e.preventDefault();const id=$('#projectId').value||('p-'+crypto.randomUUID());const old=data.projects.find(p=>p.id===id);const file=$('#stlFile').files[0]||pendingReliefFile;let fileId=old?.fileId||null,fileName=old?.fileName||'';if(file){fileId='f-'+crypto.randomUUID();fileName=file.name;try{await saveFile(fileId,file)}catch{$('#attachedNote').textContent='Could not save the STL. You can still download it from Image → STL.';return}if(old?.fileId)await removeFile(old.fileId)}const p={id,name:$('#name').value.trim(),type:$('#type').value,character:$('#character').value,stage:$('#stage').value,approach:$('#approach').value.trim(),stlLink:$('#stlLink').value.trim(),settings:$('#settings').value.trim(),filament:$('#filament').value.trim(),size:$('#size').value.trim(),date:$('#date').value,checklist:[...document.querySelectorAll('[data-check]:checked')].map(x=>Number(x.dataset.check)),decoration:$('#decoration').value.trim(),results:$('#results').value.trim(),mistakes:$('#mistakes').value.trim(),nextSteps:$('#nextSteps').value.trim(),fileId,fileName,ideaKey:window.pendingIdeaKey||old?.ideaKey||'',createdAt:old?.createdAt||Date.now()};if(!old||p.stage!=='Idea')addRecent(p);if(old)data.projects=data.projects.map(x=>x.id===id?p:x);else data.projects.unshift(p);localStorage.setItem(STORE,JSON.stringify(data));$('#projectDialog').close();render();toast('Project saved.')};
 $('#deleteBtn').onclick=async()=>{const id=$('#projectId').value,p=data.projects.find(x=>x.id===id);if(!p)return;if(p.fileId)await removeFile(p.fileId);data.projects=data.projects.filter(x=>x.id!==id);persist();$('#projectDialog').close();toast('Project removed.')};
 $('#exportBtn').onclick=async()=>{const out=structuredClone(data);out.attachments=[];for(const p of data.projects){if(!p.fileId)continue;const rec=await getFile(p.fileId);if(rec){const b64=await new Promise(resolve=>{const r=new FileReader();r.onload=()=>resolve(String(r.result).split(',')[1]);r.readAsDataURL(rec.blob)});out.attachments.push({id:p.fileId,name:rec.name,type:rec.type,data:b64})}}const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='maximum-reality-print-studio-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);toast('Backup downloaded.')};$('#importBtn').onclick=()=>$('#importFile').click();$('#importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!Array.isArray(d.projects))throw 0;for(const a of d.attachments||[]){const bin=atob(a.data),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);await saveFile(a.id,new File([arr],a.name,{type:a.type||'model/stl'}))}data={projects:d.projects,recent:d.recent||[],weekIndex:d.weekIndex||0,weekStamp:d.weekStamp||''};persist();toast('Backup restored.')}catch{toast('Could not read that backup file.')}e.target.value=''};
 const filterUnused=()=>{};render();
